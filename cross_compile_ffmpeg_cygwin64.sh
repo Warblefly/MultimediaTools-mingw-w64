@@ -2122,8 +2122,6 @@ build_libMXF() {
     echo "patch for MXFDump.exe already applied"
   fi
   cd ../..
-  rm already_ran* # if it's a new patch, reset everything too, in case it's really really really new
-
   if [[ ! -f ./configure ]]; then
     ./autogen.sh
   fi

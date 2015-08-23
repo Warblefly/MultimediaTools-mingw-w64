@@ -35,6 +35,13 @@ By these scripts, you can compile static versions, ready to run on 64-bit Window
 
 and many others and their associated libraries. The compiled programs are native Windows 64-bit binaries.
 
+BINARY DISTRIBUTION
+===================
+
+I keep a binary tarball on my website. The script in this project automatically creates and copies it.
+http://gallery.johnwarburton.net/mingw-multimedia-executables.tar.xz
+
+
 BACKGROUND
 ==========
 
