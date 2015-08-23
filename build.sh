@@ -39,7 +39,8 @@ echo "Archive will be dumped to ${dump_file}"
 if  [[ "$dump_archive" = [Yy] ]]; then
   echo "Archive dump selected."
   cd sandbox/mingw-w64-x86_64/x86_64-w64-mingw32
-  tar acvvf ${dump_file} ./bin/*exe ./bin/*config ./lib/frei0r-1/* || exit 1
+  # Symbolic links are de-referenced because Windows doesn't understand these.
+  tar hacvvf ${dump_file} ./bin/*exe ./bin/*config ./lib/frei0r-1/* || exit 1
   echo "Archive made and stored in ${dump_file}"
 fi
 
