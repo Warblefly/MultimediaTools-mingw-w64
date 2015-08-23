@@ -1,0 +1,14 @@
+--- src/filter/lightgraffiti/lightgraffiti-p.cpp        2015-02-27 18:37:15.324034100 +0000
++++ src/filter/lightgraffiti/lightgraffiti.cpp  2015-02-27 18:37:47.702894900 +0000
+@@ -71,6 +71,10 @@
+ #include <climits>
+ #include <algorithm>
+
++#ifndef M_PI
++#define M_PI 3.14159265358979323846
++#endif
++
+ #define LG_ADV
+ //#define LG_NO_OVERLAY // Not really working yet
+ //#define LG_DEBUG
+

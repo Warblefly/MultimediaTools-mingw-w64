@@ -1,0 +1,17 @@
+--- src/core/videosource.cpp.orig	2015-04-17 11:19:56.258875400 +0100
++++ src/core/videosource.cpp	2015-04-17 11:20:40.926439700 +0100
+@@ -145,10 +145,10 @@
+ 	InputFormat = PIX_FMT_NONE;
+ 	InputColorSpace = AVCOL_SPC_UNSPECIFIED;
+ 	InputColorRange = AVCOL_RANGE_UNSPECIFIED;
+-	if (Threads < 1)
+-		// libav current has issues with greater than 16 threads
+-		DecodingThreads = (std::min)(std::thread::hardware_concurrency(), 16u);
+-	else
++//	if (Threads < 1)
++//		// libav current has issues with greater than 16 threads
++//		DecodingThreads = (std::min)(std::thread::hardware_concurrency(), 16u);
++//	else
+ 		DecodingThreads = Threads;
+ 	DecodeFrame = av_frame_alloc();
+ 	LastDecodedFrame = av_frame_alloc();

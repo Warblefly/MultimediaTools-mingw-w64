@@ -1,0 +1,14 @@
+--- src/generator/partik0l/partik0l-a.cpp       2015-02-28 21:25:08.700114500 +0000
++++ src/generator/partik0l/partik0l.cpp 2015-02-28 21:25:54.129762600 +0000
+@@ -40,6 +40,11 @@
+ #include <inttypes.h>
+ #include <limits.h>
+
++#ifndef M_PI
++#define M_PI 3.14159265358979323846
++#endif
++
++
+ /* defines for blob size and roundness */
+ #define LIM 8 // 25
+ #define NB_BLOB 16 // 25

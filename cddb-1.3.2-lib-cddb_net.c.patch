@@ -1,0 +1,21 @@
+--- cddb_net.c  2009-03-01 03:28:07.000000000 +0000
++++ cddb_net-p.c        2015-03-05 20:22:04.320506700 +0000
+@@ -228,7 +228,7 @@
+
+ /* Time-out enabled work-alikes */
+
+-#ifdef HAVE_ALARM
++#if 0
+ /* time-out jump buffer */
+ static jmp_buf timeout_expired;
+
+@@ -241,7 +241,7 @@
+
+ struct hostent *timeout_gethostbyname(const char *hostname, int timeout)
+ {
+-#ifdef HAVE_ALARM
++#if 0
+     struct hostent *he = NULL;
+     struct sigaction action;
+     struct sigaction old;
+

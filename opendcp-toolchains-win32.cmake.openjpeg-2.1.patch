@@ -1,0 +1,10 @@
+--- toolchains/win32.cmake.orig	2015-03-12 22:32:19.888553300 +0000
++++ toolchains/win32.cmake	2015-03-12 22:33:11.455506600 +0000
+@@ -34,6 +34,7 @@
+ 
+ SET(COMPILE_OPENJPEG 0)
+ SET(LIBS ${LIBS} ${LIB_DIR_SYS}/libopenjp2.a)
++INCLUDE_DIRECTORIES(${SYSROOT_PATH}/include/openjpeg-2.1)
+ 
+ SET(LIBS ${LIBS} ${LIB_DIR_SYS}/libtiff.a ${LIB_DIR_SYS}/libjpeg.a)
+ SET(LIBS ${LIBS} -L${LIB_DIR_SYS} -lcrypto -lssl)

@@ -1,0 +1,12 @@
+--- Makefile.in 2011-10-27 11:43:58.792670981 -0400
++++ Makefile.in 2011-10-27 11:44:16.760355846 -0400
+@@ -354,7 +354,7 @@
+ top_srcdir = @top_srcdir@
+ NULL =
+ SAFE_VERSION = @XMLSEC_VERSION_SAFE@
+-SUBDIRS = include src apps man docs
++SUBDIRS = include src
+ TEST_APP = apps/xmlsec1$(EXEEXT)
+ DEFAULT_CRYPTO = @XMLSEC_CRYPTO@
+ bin_SCRIPTS = xmlsec1-config
+

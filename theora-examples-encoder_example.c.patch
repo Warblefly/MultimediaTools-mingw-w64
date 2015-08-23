@@ -1,0 +1,18 @@
+--- examples/encoder_example.c.orig	2015-03-15 12:55:40.789188300 +0000
++++ examples/encoder_example.c	2015-03-15 12:58:18.888809900 +0000
+@@ -53,6 +53,7 @@
+ #include <fcntl.h>
+ #include <io.h>
+ 
++#if 0
+ static double rint(double x)
+ {
+   if (x < 0.0)
+@@ -61,6 +62,7 @@
+     return (double)(int)(x + 0.5);
+ }
+ #endif
++#endif
+ 
+ #if defined(OC_COLLECT_METRICS)
+ # define TH_ENCCTL_SET_METRICS_FILE (0x8000)

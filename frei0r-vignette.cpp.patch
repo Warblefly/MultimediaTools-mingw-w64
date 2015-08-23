@@ -1,0 +1,12 @@
+--- src/filter/vignette/vignette.cpp    2015-02-28 15:09:06.334276200 +0000
++++ src/filter/vignette/vignette-p.cpp  2015-02-28 15:14:14.402952100 +0000
+@@ -21,6 +21,9 @@
+ #include "frei0r.hpp"
+ #include "frei0r_math.h"
+
++#ifndef M_PI_2
++#define M_PI_2 1.57079632679489661923
++#endif
+
+ /**
+   Lens vignetting effect.
