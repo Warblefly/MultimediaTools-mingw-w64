@@ -1304,7 +1304,7 @@ build_iconv() {
   download_and_unpack_file http://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.14.tar.gz libiconv-1.14
   cd libiconv-1.14
     # Apply patch to fix non-exported inline function in gcc-5.2.0
-    # apply_patch file://./libiconv-1.14-iconv-fix-inline.patch
+    apply_patch file://${top_dir}/libiconv-1.14-iconv-fix-inline.patch
     # We also need an empty langinfo.h to compile this
 #    touch $cur_dir/include/langinfo.h
     generic_configure_make_install

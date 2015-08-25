@@ -1,0 +1,12 @@
+--- lib/iconv.c.orig	2015-08-01 20:34:47.018022800 +0100
++++ lib/iconv.c	2015-08-01 20:35:06.783246600 +0100
+@@ -176,9 +176,6 @@
+ #include "aliases2.h"
+ #undef S
+ };
+-#ifdef __GNUC__
+-__inline
+-#endif
+ const struct alias *
+ aliases2_lookup (register const char *str)
+ {
