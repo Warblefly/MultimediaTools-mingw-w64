@@ -756,6 +756,8 @@ build_libpng() {
     # DBL_EPSILON 21 Feb 2015 starts to come back "undefined". I have NO IDEA why.
     grep -lr DBL_EPSILON contrib | xargs sed -i "s| DBL_EPSILON| 2.2204460492503131E-16|g"
     generic_configure_make_install
+    sed -i.bak 's/-lpng16.*$/-lpng16 -lz/' "$PKG_CONFIG_PATH/libpng.pc"
+    sed -i.bak 's/-lpng16.*$/-lpng16 -lz/' "$PKG_CONFIG_PATH/libpng16.pc"
   cd ..
 }  
 
@@ -874,7 +876,7 @@ build_libgsm() {
 build_libopus() {
   download_and_unpack_file http://downloads.xiph.org/releases/opus/opus-1.1.1-beta.tar.gz opus-1.1.1-beta
   cd opus-1.1.1-beta
-    # apply_patch opus11.patch # allow it to work with shared builds
+    apply_patch file://${top_dir}/opus11.patch # allow it to work with shared builds
     generic_configure_make_install "--enable-custom-modes --enable-asm" 
   cd ..
 }
@@ -1048,7 +1050,7 @@ build_libfribidi() {
 build_libass() {
   generic_download_and_install https://github.com/libass/libass/releases/download/0.12.1/libass-0.12.1.tar.gz libass-0.12.1
   # fribidi, fontconfig, freetype throw them all in there for good measure, trying to help mplayer once though it didn't help [FFmpeg needed a change for fribidi here though I believe]
-  sed -i.bak 's/-lass -lm/-lass -lfribidi -lfontconfig -lfreetype -lexpat -lm/' "$PKG_CONFIG_PATH/libass.pc"
+  sed -i.bak 's/-lass -lm/-lass -lfribidi -lfontconfig -lfreetype -lexpat -lpng -lm/' "$PKG_CONFIG_PATH/libass.pc"
 }
 
 build_gmp() {
@@ -1070,7 +1072,8 @@ build_orc() {
 build_libxml2() {
   do_git_checkout git://git.gnome.org/libxml2 libxml2
   cd libxml2
-    generic_configure_make_install "--without-python"
+    generic_configure_make_install "LIBS=-lws2_32 --without-python"
+    sed -i.bak 's/-lxml2.*$/-lxml2 -lws2_32/' "$PKG_CONFIG_PATH/libxml-2.0.pc" # Shared applications need Winsock
   cd ..
 #  generic_download_and_install ftp://xmlsoft.org/libxml2/libxml2-2.9.2.tar.gz libxml2-2.9.2 "--without-python"
 }
@@ -1105,7 +1108,7 @@ build_libbluray() {
   cd libbluray
     generic_configure_make_install "--disable-bdjava"
   cd ..
-#  sed -i.bak 's/-lbluray.*$/-lbluray -lxml2 -lws2_32/' # This is for mpv not linking against the right libraries
+  sed -i.bak 's/-lbluray.*$/-lbluray -lxml2 -lws2_32/' "$PKG_CONFIG_PATH/libbluray.pc" # This is for mpv not linking against the right libraries
 #  sed -i.bak 's/-lbluray.*$/-lbluray -lfreetype -lexpat -lz -lbz2/' "$PKG_CONFIG_PATH/libbluray.pc" # not sure...is this a blu-ray bug, or VLC's problem in not pulling freetype's .pc file? or our problem with not using pkg-config --static ...
 }
 
@@ -1191,7 +1194,7 @@ build_fontconfig() {
     generic_configure "--disable-docs"
     do_make_install
   cd .. 
-  sed -i.bak 's/-L${libdir} -lfontconfig[^l]*$/-L${libdir} -lfontconfig -lfreetype -lexpat/' "$PKG_CONFIG_PATH/fontconfig.pc"
+  sed -i.bak 's/-L${libdir} -lfontconfig[^l]*$/-L${libdir} -lfontconfig -lfreetype -lexpat -lz/' "$PKG_CONFIG_PATH/fontconfig.pc"
 }
 
 build_libaacplus() {
@@ -1296,7 +1299,7 @@ build_librubberband() {
      # The shared libraries must vanish
      rm -fv ${mingw_w64_x86_64_prefix}/lib/librubberband*.so*
      # Need to force static linkers to link other libraries that rubberband depends on
-     sed -i.bak 's/-lrubberband/-lrubberband -lsamplerate -lfftw3/' "$PKG_CONFIG_PATH/rubberband.pc"
+     sed -i.bak 's/-lrubberband/-lrubberband -lsamplerate -lfftw3 -lstdc++/' "$PKG_CONFIG_PATH/rubberband.pc"
      export cpu_count=$original_cpu_count
   cd ..
 }
@@ -1341,7 +1344,7 @@ build_freetype() {
 #  export cpu_count=$original_cpu_count
   cd ..
   #generic_download_and_install http://download.savannah.gnu.org/releases/freetype/freetype-2.5.3.tar.gz freetype-2.5.3 "--with-png=no"
-  sed -i.bak 's/Libs: -L${libdir} -lfreetype.*/Libs: -L${libdir} -lfreetype -lexpat -lz -lbz2/' "$PKG_CONFIG_PATH/freetype2.pc" # this should not need expat, but...I think maybe people use fontconfig's wrong and that needs expat? huh wuh? or dependencies are setup wrong in some .pc file?
+  sed -i.bak 's/Libs: -L${libdir} -lfreetype.*/Libs: -L${libdir} -lfreetype -lexpat -lpng -lz -lbz2/' "$PKG_CONFIG_PATH/freetype2.pc" # this should not need expat, but...I think maybe people use fontconfig's wrong and that needs expat? huh wuh? or dependencies are setup wrong in some .pc file?
   # possibly don't need the bz2 in there [bluray adds its own]...
 #  export CFLAGS=${original_cflags}
 }
@@ -1381,6 +1384,7 @@ build_sdl() {
   local bin_dir=$(dirname $cross_prefix)
   sed -i.bak "s/-mwindows//" "$mingw_w64_x86_64_prefix/bin/sdl-config" # update this one too for good measure, ffmpeg can use either, not sure which one it defaults to...
   sed -i.bak "s/-mwindows//" "$PKG_CONFIG_PATH/sdl.pc" # allow ffmpeg to output anything to console: :|
+  sed -i.bak "s/-lSDL *$/-lSDL  -lwinmm -lgdi32 -ldxguid/" "$PKG_CONFIG_PATH/sdl.pc" # mpv shared needs this linkage
   cp "$mingw_w64_x86_64_prefix/bin/sdl-config" "$bin_dir/${prefix}sdl-config" # this is the only mingw dir in the PATH so use it for now
   cd ..
   rmdir temp
@@ -1470,9 +1474,9 @@ build_mpv() {
     ./bootstrap.py
     export DEST_OS=win32
     export TARGET=x86_64-w64-mingw32
-    do_configure "configure --prefix=${mingw_w64_x86_64_prefix} --enable-win32-internal-pthreads --disable-x11 --disable-lcms2 --enable-static-build --enable-sdl1 --disable-sdl2 --disable-debug-build --disable-ladspa" "./waf"
-    ./waf build
-    ./waf install
+    do_configure "configure -pp --prefix=${mingw_w64_x86_64_prefix} --enable-win32-internal-pthreads --disable-x11 --disable-lcms2 --enable-sdl1 --disable-sdl2 --disable-debug-build --disable-ladspa" "./waf"
+    ./waf build || exit 1
+    ./waf install || exit 1
     unset DEST_OS
     unset TARGET
   cd ..
@@ -1493,7 +1497,7 @@ build_libbs2b() {
 build_libgame-music-emu() {
   download_and_unpack_file  https://bitbucket.org/mpyne/game-music-emu/downloads/game-music-emu-0.6.0.tar.bz2 game-music-emu-0.6.0
   cd game-music-emu-0.6.0
-    sed -i.bak "s|SHARED|STATIC|" gme/CMakeLists.txt
+    # sed -i.bak "s|SHARED|STATIC|" gme/CMakeLists.txt
     do_cmake_and_install
   cd ..
 }
@@ -1651,16 +1655,16 @@ build_libmodplug() {
 build_libcaca() {
   local cur_dir2=$(pwd)/libcaca
   do_git_checkout git://github.com/cacalabs/libcaca libcaca
-#  download_and_unpack_file http://ftp.netbsd.org/pub/pkgsrc/distfiles/libcaca-0.99.beta18.tar.gz libcaca-0.99.beta18
-  cd libcaca
+  download_and_unpack_file http://ftp.netbsd.org/pub/pkgsrc/distfiles/libcaca-0.99.beta18.tar.gz libcaca-0.99.beta18
+  cd libcaca-0.99.beta18
   # vsnprintf is defined both in libcaca and by mingw-w64-4.0.1 so we'll keep the system definition
-  apply_patch_p1 file://${top_dir}/libcaca-vsnprintf.patch
-  apply_patch_p1 file://${top_dir}/libcaca-signals.patch
+  #apply_patch_p1 file://${top_dir}/libcaca-vsnprintf.patch
+  #apply_patch_p1 file://${top_dir}/libcaca-signals.patch
   cd caca
     sed -i.bak "s/__declspec(dllexport)//g" *.h # get rid of the declspec lines otherwise the build will fail for undefined symbols
     sed -i.bak "s/__declspec(dllimport)//g" *.h 
   cd ..
-  generic_configure_make_install "--libdir=$mingw_w64_x86_64_prefix/lib --disable-cxx --disable-csharp --disable-java --disable-python --disable-ruby --disable-imlib2 --disable-doc --disable-gl"
+  generic_configure_make_install "--libdir=$mingw_w64_x86_64_prefix/lib --disable-cxx --disable-csharp --disable-java --disable-python --disable-ruby --disable-imlib2 --disable-doc --disable-gl --disable-ncurses"
   cd ..
 }
 
@@ -1926,7 +1930,7 @@ build_ffms2() {
       autoreconf -fiv
     fi
     apply_patch file://${top_dir}/ffms2.videosource.cpp.patch
-    generic_configure_make_install
+    generic_configure_make_install "--disable-static --enable-shared"
   cd ..
 }
 
@@ -2152,32 +2156,33 @@ build_imagemagick()
 }
 
 build_graphicsmagick() {
-  local old_hg_version
-  if [[ -d GM ]]; then
-    cd GM
-      echo "doing hg pull -u GM"
-      old_hg_version=`hg --debug id -i`
-      hg pull -u || exit 1
-      hg update || exit 1 # guess you need this too if no new changes are brought down [what the...]
-  else
-    hg clone http://hg.code.sf.net/p/graphicsmagick/code GM || exit 1
-    cd SDL
-      old_hg_version=none-yet
-  fi
-  mkdir build
-
-  local new_hg_version=`hg --debug id -i`
-  if [[ "$old_hg_version" != "$new_hg_version" ]]; then
-    echo "got upstream hg changes, forcing rebuild...GraphicsMagick"
-    cd build
-      rm already*
-      do_configure "--host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --disable-shared --enable-static --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix}/include CPPFLAGS=-I${mingw_w64_x86_64_prefix}" "../configure"
-      do_make_install
-    cd ..
-  else
-    echo "still at hg $new_hg_version GraphicsMagick"
-  fi
-  cd ..
+#  local old_hg_version
+#  if [[ -d GM ]]; then
+#    cd GM
+#      echo "doing hg pull -u GM"
+#      old_hg_version=`hg --debug id -i`
+#      hg pull -u || exit 1
+#     hg update || exit 1 # guess you need this too if no new changes are brought down [what the...]
+#  else
+#    hg clone http://hg.code.sf.net/p/graphicsmagick/code GM || exit 1
+#    cd SDL
+#      old_hg_version=none-yet
+#  fi
+#  mkdir build
+#
+#  local new_hg_version=`hg --debug id -i`
+#  if [[ "$old_hg_version" != "$new_hg_version" ]]; then
+#    echo "got upstream hg changes, forcing rebuild...GraphicsMagick"
+#    cd build
+#      rm already*
+      generic_download_and_install ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020150822.tar.xz GraphicsMagick-1.4.020150822 "--host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-magick-compat --disable-shared --enable-static --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix}/include CPPFLAGS=-I${mingw_w64_x86_64_prefix}" 
+#      do_configure "--host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-magick-compat --disable-shared --enable-static --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix}/include CPPFLAGS=-I${mingw_w64_x86_64_prefix}" "../configure"
+#      do_make_install || exit 1
+#    cd ..
+#  else
+#    echo "still at hg $new_hg_version GraphicsMagick"
+#  fi
+#  cd ..
 }
 
 build_libdecklink() {
@@ -2197,7 +2202,7 @@ build_ffmpeg() {
 
   # FFmpeg + libav compatible options
   # add libpsapi to enable libdlfcn for Windows to work, thereby enabling frei0r plugins
-  local extra_configure_opts="--enable-libsoxr --enable-fontconfig --enable-libass --enable-libutvideo --enable-libbluray --enable-iconv --enable-libtwolame --extra-cflags=-DLIBTWOLAME_STATIC --enable-libzvbi --enable-libcaca --enable-libmodplug --extra-libs=-lstdc++ --extra-libs=-lpsapi --enable-opengl --extra-libs=-lpng --enable-libvidstab --enable-libx265 --enable-decklink --extra-libs=-loleaut32 --enable-libcdio --enable-libbluray "
+  local extra_configure_opts="--enable-libsoxr --enable-fontconfig --enable-libass --enable-libutvideo --enable-libbluray --enable-iconv --enable-libtwolame --extra-cflags=-DLIBTWOLAME_STATIC --enable-libzvbi --enable-libcaca --enable-libmodplug --extra-libs=-lstdc++ --extra-libs=-lpsapi --enable-opengl --extra-libs=-lz --extra-libs=-lpng --enable-libvidstab --enable-libx265 --enable-decklink --extra-libs=-loleaut32 --enable-libcdio --enable-libbluray "
 
   if [[ $type = "libav" ]]; then
     # libav [ffmpeg fork]  has a few missing options?
@@ -2219,7 +2224,7 @@ build_ffmpeg() {
     extra_configure_opts="$extra_configure_opts --prefix=$final_install_dir"
   else
     do_git_checkout $git_url $output_dir
-    extra_configure_opts="--enable-static --disable-shared --disable-debug --pkg-config-flags=--static $extra_configure_opts"
+    extra_configure_opts="--enable-shared --disable-static --disable-debug $extra_configure_opts" # --pkg-config-flags=--static
   fi
   cd $output_dir
   
@@ -2246,15 +2251,15 @@ build_ffmpeg() {
     config_options="$config_options --enable-runtime-cpudetect"
   fi
   # sed -i 's/openjpeg-1.5/openjpeg-2.1/' configure # change library path for updated libopenjpeg
-  export PKG_CONFIG="pkg-config --static"
-  export LDFLAGS="-static"
+  export PKG_CONFIG="pkg-config" # --static
+  export LDFLAGS="" # "-static" 
   do_configure "$config_options"
   unset PKG_CONFIG
   unset LDFLAGS
   rm -f */*.a */*.dll *.exe # just in case some dependency library has changed, force it to re-link even if the ffmpeg source hasn't changed...
   rm already_ran_make*
   echo "doing ffmpeg make $(pwd)"
-  do_make 
+  do_make "V=1"
   do_make_install "V=1" # install ffmpeg to get libavcodec libraries to be used as dependencies for other things, like vlc [XXX make this a parameter?] or install shared to a local dir
 
   # build ismindex.exe, too, just for fun 
@@ -2560,6 +2565,8 @@ fi
 
 echo "Stripping all binaries..."
 ${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/bin/*.exe
+${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/bin/*.dll
+${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/lib/frei0r-1/*.dll
 echo "Binaries are stripped. Debugging versions of FFmpeg programs ending _g"
 echo "are in build directory."
 #echo "searching for some local exes..."
