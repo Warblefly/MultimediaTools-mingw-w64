@@ -1,8 +1,8 @@
 # MultimediaTools-mingw-w64
-Scripts and patches to compile many multimedia utilities, including FFmpeg, with mingw-w64 for 64-bit Windows
+Scripts and patches to cross-compile, for Windows 64-bit, many multimedia utilities, including FFmpeg, OpenDCP and all the BBC Avid-compatible MXF utilities.
 
 # Tools Included
-By these scripts, you can compile static versions, ready to run on 64-bit Windows, of:
+By these scripts, you can compile binaries, ready to run on 64-bit Windows, of up-to-date:
 
 * FFmpeg including the kitchen sink (libfdk_aac, frei0r plugins and others not normally included)
 * sox
@@ -14,8 +14,8 @@ By these scripts, you can compile static versions, ready to run on 64-bit Window
 * exiv2
 * flac and libflac
 * fdk_aac advanced CLI
-* x264 cli and library
-* x265 cli and library
+* x264 H.264 cli and library
+* x265 HEVC (H.265) cli and library
 * opencv libraries and examples
 * libqt version 4
 * opendcp (including GUI)
@@ -39,7 +39,9 @@ BINARY DISTRIBUTION
 ===================
 
 I keep a binary tarball on my website. The script in this project automatically creates and copies it.
-http://gallery.johnwarburton.net/mingw-multimedia-executables.tar.xz
+<a href="http://gallery.johnwarburton.net/mingw-multimedia-executables-shared.tar.xz">http://gallery.johnwarburton.net/mingw-multimedia-executables-shared.tar.xz</a>
+
+Some of the binaries use shared libraries, ending in .dll. Like the executable programs, they're in the /bin/ directory of the distribution. Please keep them together with the .exe programs.
 
 
 BACKGROUND
@@ -47,7 +49,7 @@ BACKGROUND
 
 Supporting the cross-compilation of the very versatile FFmpeg utilities under mingw-w64, Zeranoe and others publish a set of patches and a build script to, first, compile a working mingw-w64 environment on a POSIX system, then compile a very full FFmpeg and associated libraries and utilities within mingw-w64 ready for installation on a Windows 64-bit system.
 
-With grateful thanks to Zeranoe and other developers, I have extended this build system for my own purposes. At first, this was developed using the Cygwin compatibility suite for Windows, but now it is developed on GNU/Linux.
+With grateful thanks to the Zeranoe and other developers especially Roger Pack, I have extended this build system for my own purposes. At first, this was developed using the Cygwin compatibility suite for Windows, but now it is developed on GNU/Linux.
 
 
 HOW TO
@@ -55,19 +57,21 @@ HOW TO
 
 1. Install your favourite GNU/Linux distribution. Ensure you have development tools.
 2. Use git to checkout the project.
-3. Edit ./build.sh to select where you want your binaries to be dumped.
-4. Run ./build.sh. This launches the other script in a controlled manner that I have tested.
-5. Wait quite a long time.
-6. Enjoy and share. The resultant archive file, at the time of writing, is 122MB in size.
+3. Edit ./build_shared.sh to select where you want your binaries to be dumped.
+4. Make sure you've lots of swap space, and around 10GB disc space.
+5. Run ./build_shared.sh. This launches the other script in a controlled manner that I have tested.
+6. Wait quite a long time, maybe 12 hours, maybe a day.
+7. Enjoy and share. The resultant archive file, at the time of writing, is 80MB in size.
 
-Run the command again to incorporate updates. Only the parts that need rebuilding will be built.
+Run the command again to incorporate updates. Note that FFmpeg won't be rebuilt merely because updated libraries have been built: FFmpeg itself requires a code change before it is freshly built.
 
-I have tested neither other command lines nor other builds.
+These binaries for Windows 64-bit are tested on Windows 10, and are built both on a Fedora 22 box, and a Debian "testing" Apple G4 computer.
 
 THANKS
 ======
 
 * Zeranoe and associated developers. http://zeranoe.com/
+* Roger D Pack, https://github.com/rdp/ffmpeg-windows-build-helpers
 * The FFmpeg developers. http://ffmpeg.org
 * The whole GNU project, creators of the Gnu Compiler Collection and other utilities
 * The BBC developers behind Ingest and libMXF
