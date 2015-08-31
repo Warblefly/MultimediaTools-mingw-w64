@@ -1,0 +1,10 @@
+--- source/x265.h.orig	2015-08-31 14:39:07.197126527 +0000
++++ source/x265.h	2015-08-31 14:39:26.953126527 +0000
+@@ -25,6 +25,7 @@
+ #define X265_H
+ 
+ #include <stdint.h>
++#include <stdbool.h>
+ #include "x265_config.h"
+ 
+ #ifdef __cplusplus
