@@ -607,7 +607,8 @@ build_libx265() {
       rm already_ran_cmake_* #Last build was high bitdepth. Forcing rebuild.
     fi
   fi
-  apply_patch_p1 file://${top_dir}/x265-missing-bool.patch  
+  # apply_patch_p1 file://${top_dir}/x265-missing-bool.patch  
+  # Fixed by x265 developers now
   do_cmake "$cmake_params" 
   do_make_install
   cd ../..
@@ -1474,7 +1475,7 @@ build_mpv() {
     ./bootstrap.py
     export DEST_OS=win32
     export TARGET=x86_64-w64-mingw32
-    do_configure "configure -pp --prefix=${mingw_w64_x86_64_prefix} --enable-win32-internal-pthreads --disable-x11 --disable-lcms2 --enable-sdl1 --disable-sdl2 --disable-debug-build --disable-ladspa" "./waf"
+    do_configure "configure -pp --prefix=${mingw_w64_x86_64_prefix} --enable-win32-internal-pthreads --disable-x11 --disable-lcms2 --enable-sdl1 --disable-sdl2 --disable-debug-build" "./waf"
     ./waf build || exit 1
     ./waf install || exit 1
     unset DEST_OS
@@ -1719,7 +1720,11 @@ build_mkvtoolnix() {
     # Two libraries needed for mkvtoolnix
     git submodule init
     git submodule update
-    generic_configure_rake_install "--with-boost=${mingw_w64_x86_64_prefix} --with-boost-system=boost_system-mt --with-boost-filesystem=boost_filesystem-mt --with-boost-date-time=boost_date_time-mt --with-boost-regex=boost_regex-mt --without-curl --disable-qt --enable-optimization"
+    orig_ldflags=${LDFLAGS}
+    # GNU ld uses a huge amount of memory here.
+    export LDFLAGS="-Wl,--hash-size=31"
+    generic_configure_rake_install "--with-boost=${mingw_w64_x86_64_prefix} --with-boost-system=boost_system-mt --with-boost-filesystem=boost_filesystem-mt --with-boost-date-time=boost_date_time-mt --with-boost-regex=boost_regex-mt --without-curl --disable-qt --enable-optimization=-O1"
+    export LDFLAGS=${orig_ldflags}
   cd ..
 }
 
@@ -1946,6 +1951,14 @@ build_flac() {
   cd ..
 }
 
+build_youtube-dl() {
+  do_git_checkout https://github.com/rg3/youtube-dl youtube-dl
+  cd youtube-dl
+    do_make youtube-dl
+    cp youtube-dl "${mingw_w64_x86_64_prefix}/bin/youtube-dl.py"
+  cd ..
+}
+
 # build_cdrecord() {
 #  download_and_unpack_bz2file http://downloads.sourceforge.net/project/cdrtools/alpha/cdrtools-3.01a27.tar.bz2 cdrtools-3.01
 #  cd cdrtools-3.01
@@ -2163,7 +2176,7 @@ build_graphicsmagick() {
 #    cd GM
 #      echo "doing hg pull -u GM"
 #      old_hg_version=`hg --debug id -i`
-#      hg pull -u || exit 1
+#     hg pull -u || exit 1
 #     hg update || exit 1 # guess you need this too if no new changes are brought down [what the...]
 #  else
 #    hg clone http://hg.code.sf.net/p/graphicsmagick/code GM || exit 1
@@ -2420,6 +2433,7 @@ build_apps() {
   build_lsdvd
   build_fdkaac-commandline
   build_qt
+  build_youtube-dl
 # build_qt5
   build_mkvtoolnix
   build_opendcp
