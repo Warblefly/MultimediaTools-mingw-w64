@@ -67,6 +67,18 @@ Run the command again to incorporate updates. Note that FFmpeg won't be rebuilt 
 
 These binaries for Windows 64-bit are tested on Windows 10, and are built both on a Fedora 22 box, and a Debian "testing" Apple G4 computer.
 
+OTHER FILES
+===========
+
+The very useful Python script youtube-dl, an open-source project, allows video and audio files to be extracted and played (by mpv)
+or downloaded from a large number of streaming video and audio sites. Although the script's name suggests it is for YouTube alone,
+it works with many others. 
+
+I have not yet written the installation script necessary to incorporate youtube-dl in my binary distribution. However, the project's
+homepage, from which you can get your own copy, is: 
+
+https://rg3.github.io/youtube-dl/
+
 THANKS
 ======
 
