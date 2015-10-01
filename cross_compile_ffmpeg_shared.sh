@@ -1403,34 +1403,39 @@ build_sdl() {
 
 
 build_sdl2() {
-  local old_hg_version
-  if [[ -d SDL ]]; then
-    cd SDL
-      echo "doing hg pull -u SDL"
-      old_hg_version=`hg --debug id -i`
-      hg pull -u || exit 1
-      hg update || exit 1 # guess you need this too if no new changes are brought down [what the...]
-  else
-    hg clone http://hg.libsdl.org/SDL || exit 1
-    cd SDL
-      old_hg_version=none-yet
-  fi
-  mkdir build
+#  local old_hg_version
+#  if [[ -d SDL ]]; then
+#    cd SDL
+#      echo "doing hg pull -u SDL"
+#      old_hg_version=`hg --debug id -i`
+#      hg pull -u || exit 1
+#      hg update || exit 1 # guess you need this too if no new changes are brought down [what the...]
+#  else
+#    hg clone http://hg.libsdl.org/SDL || exit 1
+#    cd SDL
+#      old_hg_version=none-yet
+#  fi
+#  mkdir build
+#
+#  local new_hg_version=`hg --debug id -i`
+#  if [[ "$old_hg_version" != "$new_hg_version" ]]; then
+#    echo "got upstream hg changes, forcing rebuild...SDL2"
+#    apply_patch file://${top_dir}/SDL2-prevent-duplicate-d3d11-declarations.patch
+#    cd build
+#      rm already*
+#      do_configure "--host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --disable-shared --enable-static --disable-render-d3d" "../configure" #3d3 disabled with --disable-render-d3d due to mingw-w64-4.0.0 and SDL disagreements
+#      do_make_install  
+#    cd ..
+#  else
+#    echo "still at hg $new_hg_version SDL2"
+#  fi
+#  cd ..  
 
-  local new_hg_version=`hg --debug id -i`
-  if [[ "$old_hg_version" != "$new_hg_version" ]]; then
-    echo "got upstream hg changes, forcing rebuild...SDL2"
-    apply_patch file://${top_dir}/SDL2-prevent-duplicate-d3d11-declarations.patch
-    cd build
-      rm already*
-      do_configure "--host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --disable-shared --enable-static --disable-render-d3d" "../configure" #3d3 disabled with --disable-render-d3d due to mingw-w64-4.0.0 and SDL disagreements
-      do_make_install  
-    cd ..
-  else
-    echo "still at hg $new_hg_version SDL2"
-  fi
-  cd ..  
+  generic_download_and_install "https://www.libsdl.org/tmp/SDL-2.0.4-9799.tar.gz" "SDL-2.0.4-9799" "--disable-render-d3d"
+
 }
+
+
 
 build_vim() {
   local old_hg_version
@@ -1720,11 +1725,11 @@ build_mkvtoolnix() {
     # Two libraries needed for mkvtoolnix
     git submodule init
     git submodule update
-    orig_ldflags=${LDFLAGS}
+#    orig_ldflags=${LDFLAGS}
     # GNU ld uses a huge amount of memory here.
-    export LDFLAGS="-Wl,--hash-size=31"
-    generic_configure_rake_install "--with-boost=${mingw_w64_x86_64_prefix} --with-boost-system=boost_system-mt --with-boost-filesystem=boost_filesystem-mt --with-boost-date-time=boost_date_time-mt --with-boost-regex=boost_regex-mt --without-curl --disable-qt --enable-optimization=-O1"
-    export LDFLAGS=${orig_ldflags}
+#    export LDFLAGS="-Wl,--hash-size=31"
+    generic_configure_rake_install "--with-boost=${mingw_w64_x86_64_prefix} --with-boost-system=boost_system-mt --with-boost-filesystem=boost_filesystem-mt --with-boost-date-time=boost_date_time-mt --with-boost-regex=boost_regex-mt --without-curl --disable-qt"
+#    export LDFLAGS=${orig_ldflags}
   cd ..
 }
 
