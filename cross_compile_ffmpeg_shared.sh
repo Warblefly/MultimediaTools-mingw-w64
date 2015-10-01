@@ -444,7 +444,7 @@ download_and_unpack_file() {
       rm "$output_name" || exit 1
     fi
 #    echo "About to call curl ${url} and output_name is ${output_name} and output_dir is ${output_dir}"
-    curl -O -L "${url}" || exit 1
+    curl -k -O -L "${url}" || exit 1
     tar -xvf "$output_name" || unzip "$output_name" || exit 1
     touch "$output_dir/unpacked.successfully" || exit 1
     rm "$output_name" || exit 1
