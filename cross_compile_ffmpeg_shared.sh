@@ -1811,7 +1811,7 @@ build_pkg-config() {
 }
 
 build_opustools() {
-  do_git_checkout git://git.xiph.org/opus-tools.git opus-tools
+  do_git_checkout https://git.xiph.org/opus-tools.git opus-tools
   cd opus-tools
   if [[ ! -f "configure" ]]; then
     ./autogen.sh
