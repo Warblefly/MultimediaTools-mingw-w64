@@ -797,7 +797,7 @@ build_libvpx() {
   if [[ "$bits_target" = "32" ]]; then
     do_configure "--extra-cflags=-DPTW32_STATIC_LIB --target=x86-win32-gcc --prefix=$mingw_w64_x86_64_prefix --enable-static --disable-shared"
   else
-    do_configure "--extra-cflags=-DPTW32_STATIC_LIB --target=x86_64-win64-gcc --prefix=$mingw_w64_x86_64_prefix --enable-static --disable-shared --disable-unit-tests --disable-encode-perf-tests --disable-decode-perf-tests --enable-vp10 --enable-vp10-encoder --enable-vp10-decoder"
+    do_configure "--extra-cflags=-DPTW32_STATIC_LIB --target=x86_64-win64-gcc --prefix=$mingw_w64_x86_64_prefix --enable-static --disable-shared --disable-unit-tests --disable-encode-perf-tests --disable-decode-perf-tests --enable-vp10 --enable-vp10-encoder --enable-vp10-decoder --enable-vp9-highbitdepth --enable-vp9-temporal-denoising --enable-postproc --enable-vp9-postproc"
   fi
   do_make_install
   unset CROSS
@@ -990,14 +990,15 @@ build_libdlfcn() {
 build_libjpeg_turbo() {
   do_git_checkout https://github.com/libjpeg-turbo/libjpeg-turbo libjpeg-turbo
   cd libjpeg-turbo
-#    download_config_files
-    if [[ ! -f "configure" ]]; then
-      autoreconf -fiv || exit 1
-    fi
-    sed -i.bak 's/nasm nasmw yasm/yasm nasm nasmw/' configure # tell it to prefer yasm, since nasm on OS X is old and broken for 64 bit builds
-    generic_configure_make_install
-#    do_cmake
-#    do_make_install
+    do_cmake "-DENABLE_STATIC=TRUE -DENABLE_SHARED=FALSE"
+    do_make_install
+  # Change to CMAKE
+#    if [[ ! -f "configure" ]]; then
+#      autoreconf -fiv || exit 1
+#    fi
+#    sed -i.bak 's/nasm nasmw yasm/yasm nasm nasmw/' configure # tell it to prefer yasm, since nasm on OS X is old and broken for 64 bit builds
+#    generic_configure_make_install
+  
   cd ..
 }
 
@@ -1425,8 +1426,8 @@ build_sdl2() {
 #      rm already*
 #      do_configure "--host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --disable-shared --enable-static --disable-render-d3d" "../configure" #3d3 disabled with --disable-render-d3d due to mingw-w64-4.0.0 and SDL disagreements
 #      do_make_install  
-#    cd ..
-#  else
+#   cd ..
+# else
 #    echo "still at hg $new_hg_version SDL2"
 #  fi
 #  cd ..  
@@ -1623,11 +1624,14 @@ build_bmx() {
 build_liburiparser() {
   do_git_checkout git://git.code.sf.net/p/uriparser/git uriparser-git
   cd uriparser-git
+  # This requires sys/socket.h, which mingw-w64 (Windows) doesn't have
   sed -i.bak 's/bin_PROGRAMS = uriparse/bin_PROGRAMS =/' Makefile.am
   if [[ ! -f ./configure ]]; then
     ./autogen.sh
   fi
   generic_configure_make_install "--disable-test --disable-doc"
+  # Put back the change to allow git to update correctly
+  sed -i.bak 's/bin_PROGRAMS =/bin_PROGRAMS = uriparse/' Makefile.am
   cd ..
 }
 
@@ -1758,6 +1762,19 @@ build_fdkaac-commandline() {
   cd ..
 }
 
+build_SWFTools() {
+  do_git_checkout git://github.com/matthiaskramm/swftools swftools
+  cd swftools
+    rm configure # Force regeneration of configure script to alleviate mingw-w64 conflicts
+    aclocal -I m4
+    autoconf
+    sed -i.bak 's/$(INSTALL_MAN1);//' src/Makefile.in
+    sed -i.bak 's/cd swfs;$(MAKE) $@//' Makefile.in
+    generic_configure
+    sed -i.bak 's/#define boolean int/typedef unsigned char boolean;/' config.h
+    do_make_and_make_install
+  cd ..
+}
 
 #build_cygwin() {
 # Need code to automatically discover most recent snapshot
@@ -2015,38 +2032,25 @@ build_makemkv() { # THIS IS NOT WORKING - MAKEMKV NEEDS MORE THAN MINGW OFFERS
 }
 
 build_vlc() {
-  build_qt # needs libjpeg [?]
-  build_libdvdread
-  build_libdvdnav
-  cpu_count=1 # not wig out on .rc.lo files etc.
-  #do_git_checkout https://github.com/videolan/vlc.git vlc_git # vlc git master seems to be unstable and break the build and not test for windows often, so specify a known working revision...
-  #cd vlc_git
-
-  do_git_checkout https://github.com/rdp/vlc.git vlc_rdp # till this thing stabilizes...
-  cd vlc_rdp
-  
-  if [[ "$non_free" = "y" ]]; then
-  apply_patch priorize_avcodec.patch
-  fi
-
-  if [[ ! -f "configure" ]]; then
-    ./bootstrap
-  fi 
-  do_configure "--disable-x265 --disable-libgcrypt --disable-a52 --host=$host_target --disable-lua --disable-mad --enable-qt --disable-sdl --disable-mod" # don't have lua mingw yet, etc. [vlc has --disable-sdl [?]] x265 disabled until we care enough... Looks like the bluray problem was related to the BLURAY_LIBS definition. [not sure what's wrong with libmod]
-  for file in `find . -name *.exe`; do
-    rm $file # try to force a rebuild...though there are tons of .a files we aren't rebuilding :|
-  done
-  rm already_ran_make* # try to force re-link just in case...
-  do_make
+  do_git_checkout https://github.com/videolan/vlc.git vlc_git
+  cd vlc_git
+    if [[ ! -f "configure" ]]; then
+      ./bootstrap
+    fi 
+    export DVDREAD_LIBS='-ldvdread -ldvdcss -lpsapi'
+    do_configure "--disable-libgcrypt --disable-a52 --host=$host_target --disable-lua --disable-mad --enable-qt --disable-sdl --disable-mod --disable-static --enable-shared" # don't have lua mingw yet, etc. [vlc has --disable-sdl [?]] x265 disabled until we care enough... Looks like the bluray problem was related to the BLURAY_LIBS definition. [not sure what's wrong with libmod]
+    rm -f `find . -name *.exe` # try to force a rebuild...though there are tons of .a files we aren't rebuilding as well FWIW...:|
+    rm -f already_ran_make* # try to force re-link just in case...
+    do_make
   # do some gymnastics to avoid building the mozilla plugin for now [couldn't quite get it to work]
   #sed -i.bak 's_git://git.videolan.org/npapi-vlc.git_https://github.com/rdp/npapi-vlc.git_' Makefile # this wasn't enough...
-  sed -i.bak "s/package-win-common: package-win-install build-npapi/package-win-common: package-win-install/" Makefile
-  sed -i.bak "s/.*cp .*builddir.*npapi-vlc.*//g" Makefile
-  make package-win-common # not do_make, fails still at end, plus this way we get new vlc.exe's
-  echo "
+    sed -i.bak "s/package-win-common: package-win-install build-npapi/package-win-common: package-win-install/" Makefile
+    sed -i.bak "s/.*cp .*builddir.*npapi-vlc.*//g" Makefile
+    make package-win-common # not do_make, fails still at end, plus this way we get new vlc.exe's
+    echo "
      created a file like ${PWD}/vlc-2.2.0-git/vlc.exe
 "
-  cpu_count=$original_cpu_count
+
   cd ..
 }
 
@@ -2176,33 +2180,33 @@ build_imagemagick()
 }
 
 build_graphicsmagick() {
-#  local old_hg_version
-#  if [[ -d GM ]]; then
-#    cd GM
-#      echo "doing hg pull -u GM"
-#      old_hg_version=`hg --debug id -i`
-#     hg pull -u || exit 1
-#     hg update || exit 1 # guess you need this too if no new changes are brought down [what the...]
-#  else
-#    hg clone http://hg.code.sf.net/p/graphicsmagick/code GM || exit 1
-#    cd SDL
-#      old_hg_version=none-yet
-#  fi
-#  mkdir build
-#
-#  local new_hg_version=`hg --debug id -i`
-#  if [[ "$old_hg_version" != "$new_hg_version" ]]; then
-#    echo "got upstream hg changes, forcing rebuild...GraphicsMagick"
-#    cd build
-#      rm already*
-      generic_download_and_install ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020150919.tar.xz GraphicsMagick-1.4.020150919 "--host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-magick-compat --disable-shared --enable-static --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix}/include CPPFLAGS=-I${mingw_w64_x86_64_prefix}" 
-#      do_configure "--host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-magick-compat --disable-shared --enable-static --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix}/include CPPFLAGS=-I${mingw_w64_x86_64_prefix}" "../configure"
-#      do_make_install || exit 1
-#    cd ..
-#  else
-#    echo "still at hg $new_hg_version GraphicsMagick"
-#  fi
-#  cd ..
+  local old_hg_version
+  if [[ -d GM ]]; then
+    cd GM
+      echo "doing hg pull -u GM"
+      old_hg_version=`hg --debug id -i`
+     hg pull -u || exit 1
+     hg update || exit 1 # guess you need this too if no new changes are brought down [what the...]
+  else
+    hg clone http://hg.code.sf.net/p/graphicsmagick/code GM || exit 1
+    cd GM
+      old_hg_version=none-yet
+  fi
+  mkdir build
+
+  local new_hg_version=`hg --debug id -i`
+  if [[ "$old_hg_version" != "$new_hg_version" ]]; then
+    echo "got upstream hg changes, forcing rebuild...GraphicsMagick"
+    cd build
+      rm already*
+#      generic_download_and_install ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020150919.tar.xz GraphicsMagick-1.4.020150919 "--host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-magick-compat --disable-shared --enable-static --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix}/include CPPFLAGS=-I${mingw_w64_x86_64_prefix}" 
+      do_configure "--host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-magick-compat --disable-shared --enable-static --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix}/include CPPFLAGS=-I${mingw_w64_x86_64_prefix}" "../configure"
+      do_make_install || exit 1
+    cd ..
+  else
+    echo "still at hg $new_hg_version GraphicsMagick"
+  fi
+  cd ..
 }
 
 build_libdecklink() {
@@ -2401,6 +2405,7 @@ build_dependencies() {
 #  build_libopenjpeg
 #  build_libopenjpeg2
   build_libwebp
+  build_SWFTools
   build_opencv
   build_frei0r
   if [[ "$non_free" = "y" ]]; then
@@ -2460,6 +2465,7 @@ build_apps() {
     build_vlc # NB requires ffmpeg static as well, at least once...so put this last :)
   fi
   build_graphicsmagick
+#  build_vlc
 }
 
 # set some parameters initial values
