@@ -923,6 +923,10 @@ build_gdb() {
   unset LIBS
 }
 
+build_leptonica() {
+  generic_download_and_install http://www.leptonica.com/source/leptonica-1.72.tar.gz leptonica-1.72 "LIBS=-lopenjpeg --disable-silent-rules --without-libopenjpeg"
+}
+
 build_ncurses() {
   export PATH_SEPARATOR=";"
   echo "mkdir -v -p ${mingw_w64_x86_64_prefix}/share/terminfo"
@@ -1331,6 +1335,19 @@ build_libgcrypt() {
   do_git_checkout git://git.gnupg.org/libgcrypt.git libgcrypt
   cd libgcrypt
     generic_configure_make_install "GPG_ERROR_CONFIG=${mingw_w64_x86_64_prefix}/bin/gpg-error-config --disable-doc"
+  cd ..
+}
+
+build_tesseract() {
+  do_git_checkout https://github.com/tesseract-ocr/tesseract tesseract
+  cd tesseract
+    export LIBLEPT_HEADERSDIR="${mingw_w64_x86_64_prefix}/include/leptonica"
+    export LIBS="-ltiff -ljpeg -lpng -lwebp -lz"
+    sed -i.bak 's/Windows.h/windows.h/' opencl/openclwrapper.cpp
+    sed -i.bak 's/-ltesseract/-ltesseract -llept -ltiff -ljpeg -lpng -lwebp -lz/' tesseract.pc.in
+    generic_configure_make_install
+    unset LIBLEPT_HEADERSDIR
+    unset LIBS
   cd ..
 }
 
@@ -2260,7 +2277,7 @@ build_ffmpeg() {
 
 # --extra-cflags=$CFLAGS, though redundant, just so that FFmpeg lists what it used in its "info" output
 
-  config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --disable-doc --enable-opencl --enable-gpl --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-frei0r --enable-filter=frei0r --enable-libvo-aacenc --enable-bzlib --enable-libxavs --extra-cflags=-DPTW32_STATIC_LIB --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libschroedinger --enable-libvpx --enable-libilbc --enable-libwavpack --enable-libwebp --enable-libgme --enable-libdcadec --enable-libbs2b --enable-libmfx --enable-d3d11va --enable-dxva2 --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts --extra-cflags=$CFLAGS" # other possibilities: --enable-w32threads --enable-libflite
+  config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --disable-doc --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-frei0r --enable-filter=frei0r --enable-libvo-aacenc --enable-bzlib --enable-libxavs --extra-cflags=-DPTW32_STATIC_LIB --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libschroedinger --enable-libvpx --enable-libilbc --enable-libwavpack --enable-libwebp --enable-libgme --enable-libdcadec --enable-libbs2b --enable-libmfx --enable-d3d11va --enable-dxva2 --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts --extra-cflags=$CFLAGS" # other possibilities: --enable-w32threads --enable-libflite
   if [[ "$non_free" = "y" ]]; then
     config_options="$config_options --enable-nonfree --enable-libfdk-aac --disable-libfaac --enable-decoder=aac" # To use fdk-aac in VLC, we need to change FFMPEG's default (faac), but I haven't found how to do that... So I disabled it. This could be an new option for the script? -- faac deemed too poor quality and becomes the default -- add it in and uncomment the build_faac line to include it 
     # other possible options: --enable-openssl --enable-libaacplus
@@ -2408,6 +2425,8 @@ build_dependencies() {
   build_SWFTools
   build_opencv
   build_frei0r
+  build_leptonica
+  build_tesseract
   if [[ "$non_free" = "y" ]]; then
     build_fdk_aac
     # build_faac # not included for now, too poor quality :)
