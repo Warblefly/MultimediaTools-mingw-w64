@@ -1345,6 +1345,9 @@ build_tesseract() {
     export LIBS="-ltiff -ljpeg -lpng -lwebp -lz"
     sed -i.bak 's/Windows.h/windows.h/' opencl/openclwrapper.cpp
     sed -i.bak 's/-ltesseract/-ltesseract -llept -ltiff -ljpeg -lpng -lwebp -lz/' tesseract.pc.in
+    # Unpack English language tessdata into data directory
+    mkdir -p tessdata/eng
+    tar xvvf ${top_dir}/tessdata-snapshot-20150411.tar.xz
     generic_configure_make_install
     unset LIBLEPT_HEADERSDIR
     unset LIBS
