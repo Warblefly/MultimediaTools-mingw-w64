@@ -1348,7 +1348,7 @@ build_tesseract() {
     # Unpack English language tessdata into data directory
     mkdir -p tessdata/eng
     tar xvvf ${top_dir}/tessdata-snapshot-20150411.tar.xz
-    generic_configure_make_install
+    generic_configure_make_install LANGS="eng"
     unset LIBLEPT_HEADERSDIR
     unset LIBS
   cd ..
@@ -1632,14 +1632,20 @@ build_exiv2() {
 }
 
 build_bmx() {
-  do_git_checkout git://git.code.sf.net/p/bmxlib/bmx bmxlib-bmx
-  cd bmxlib-bmx
-  if [[ ! -f ./configure ]]; then
-    ./autogen.sh
-  fi
-  generic_configure_make_install
-  cd ..
+#  do_git_checkout git://git.code.sf.net/p/bmxlib/bmx bmxlib-bmx
+#  cd bmxlib-bmx
+#  if [[ ! -f ./configure ]]; then
+#    ./autogen.sh
+#  fi
+#  generic_configure_make_install
+#  cd ..
+# bmx has added support for win32 mmap files using MSVC structured exceptions
+# which GCC does not support. So we revert, for now, to the snapshot
+# before this was added
+  generic_download_and_install file://${top_dir}/bmxlib-bmx-15c92b198cb7378ccf54632718ed47a89aae1553.zip bmxlib-bmx-15c92b198cb7378ccf54632718ed47a89aae1553
 }
+
+
 
 build_liburiparser() {
   do_git_checkout git://git.code.sf.net/p/uriparser/git uriparser-git
@@ -2041,7 +2047,7 @@ build_libcdio() {
 }
 
 build_makemkv() { # THIS IS NOT WORKING - MAKEMKV NEEDS MORE THAN MINGW OFFERS
-  download_and_unpack http://www.makemkv.com/download/makemkv-oss-1.8.13.tar.gz makemkv-oss-1.8.13
+  download_and_unpack_file http://www.makemkv.com/download/makemkv-oss-1.8.13.tar.gz makemkv-oss-1.8.13
   cd makemkv-oss-1.8.13
   sed -i.bak 's/,-z,/,/' Makefile.in
   generic_configure "--disable-gui"
@@ -2147,12 +2153,14 @@ build_libMXF() {
   #cd libMXF-src-1.0.0
   #apply_patch https://raw.githubusercontent.com/rdp/ffmpeg-windows-build-helpers/master/patches/libMXF.diff
   #do_make "MINGW_CC_PREFIX=$cross_prefix"
-  do_git_checkout git://git.code.sf.net/p/bmxlib/libmxf bmxlib-libmxf
-  cd bmxlib-libmxf
-  cd tools/MXFDump
-  if [[ ! -e patch_done ]]; then
-    echo "applying patch to bmxlib-libmxf"
-    MXFPATCH="
+#  do_git_checkout git://git.code.sf.net/p/bmxlib/libmxf bmxlib-libmxf
+  download_and_unpack_file file://${top_dir}/bmxlib-libmxf-353c344ec81315e8936f54ed753bcff00dd783b4.zip bmxlib-libmxf-353c344ec81315e8936f54ed753bcff00dd783b4
+#  cd bmxlib-libmxf
+  cd bmxlib-libmxf-353c344ec81315e8936f54ed753bcff00dd783b4
+    cd tools/MXFDump
+    if [[ ! -e patch_done ]]; then
+      echo "applying patch to bmxlib-libmxf"
+      MXFPATCH="
 --- MXFDump.cpp 2014-09-24 08:46:22.840096500 +0100
 +++ MXFDump-patched.cpp 2014-09-24 09:28:00.964403200 +0100
 @@ -89,6 +89,9 @@
@@ -2165,12 +2173,12 @@ build_libMXF() {
  #else
  #error \"Unknown compiler\"
  #endif"
-    echo "$MXFPATCH" | patch
-    touch patch_done
-  else
-    echo "patch for MXFDump.exe already applied"
-  fi
-  cd ../..
+      echo "$MXFPATCH" | patch
+      touch patch_done
+    else
+      echo "patch for MXFDump.exe already applied"
+    fi
+    cd ../..
   if [[ ! -f ./configure ]]; then
     ./autogen.sh
   fi
