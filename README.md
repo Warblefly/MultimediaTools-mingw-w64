@@ -11,6 +11,7 @@ By these scripts, you can compile binaries, ready to run on 64-bit Windows, of u
 * opusenc and libopus
 * lame and libmp3lame
 * libcdio
+* tesseract optical character recognition
 * exiv2
 * youtube-dl
 * flac and libflac
@@ -62,11 +63,33 @@ HOW TO
 4. Make sure you've lots of swap space, and around 10GB disc space.
 5. Run ./build_shared.sh. This launches the other script in a controlled manner that I have tested.
 6. Wait quite a long time, maybe 12 hours, maybe a day.
-7. Enjoy and share. The resultant archive file, at the time of writing, is 80MB in size.
+7. Enjoy and share. The resultant archive file, at the time of writing, is 99MB in size.
 
 Run the command again to incorporate updates. Note that FFmpeg won't be rebuilt merely because updated libraries have been built: FFmpeg itself requires a code change before it is freshly built.
 
 These binaries for Windows 64-bit are tested on Windows 10, and are built both on a Fedora 22 box, and a Debian "testing" Apple G4 computer.
+
+
+INSTALLATION
+============
+
+Unpack the archive in a convenient directory on your Windows box. I use C:\Program Files\ffmpeg
+
+The result is that you have these directories:
+* C:\Program Files\ffmpeg\bin\
+* C:\Program Files\ffmpeg\lib\
+* C:\Program Files\ffmpeg\share\
+* C:\Program Files\ffmpeg\etc\
+
+Within lib\ and share\, there are subdirectories whose purpose is indicated by their names.
+
+You must set certain environment variables for some facilities to work properly. These are examples from my own system, but I cannot guarantee they are all correct, because they may reference facilities that I personally don't test (yet).
+
+FONTCONFIG_FILE=fonts.conf
+FONTCONFIG_PATH=C:\Program Files\ffmpeg\etc\fonts
+FREI0R_PATH=C:\Program Files\ffmpeg\lib\frei0r-1
+TESSDATA_PREFIX=C:\Program Files\ffmpeg\share\tessdata
+
 
 
 THANKS
