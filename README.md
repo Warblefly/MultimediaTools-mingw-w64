@@ -88,7 +88,8 @@ You must set certain environment variables for some facilities to work properly.
 FONTCONFIG_FILE=fonts.conf
 FONTCONFIG_PATH=C:\Program Files\ffmpeg\etc\fonts
 FREI0R_PATH=C:\Program Files\ffmpeg\lib\frei0r-1
-TESSDATA_PREFIX=C:\Program Files\ffmpeg\share\tessdata
+TESSDATA_PREFIX=C:\Program Files\ffmpeg\share\
+(note that TESSDATA_PREFIX is the *parent* of the tessdata language directory)
 
 
 
