@@ -1634,17 +1634,22 @@ build_exiv2() {
 }
 
 build_bmx() {
-#  do_git_checkout git://git.code.sf.net/p/bmxlib/bmx bmxlib-bmx
-#  cd bmxlib-bmx
-#  if [[ ! -f ./configure ]]; then
-#    ./autogen.sh
-#  fi
-#  generic_configure_make_install
-#  cd ..
+  do_git_checkout git://git.code.sf.net/p/bmxlib/bmx bmxlib-bmx
+  cd bmxlib-bmx
+    cd src/mxf_reader
+      apply_patch file://${top_dir}/bmxlib-bmx-MXFTextObject.cpp.patch
+    cd ../mxf_op1a
+      apply_patch file://${top_dir}/bmxlib-bmx-mxfop1a-OP1AXMLTrack.cpp.patch
+    cd ../..
+  if [[ ! -f ./configure ]]; then
+    ./autogen.sh
+  fi
+  generic_configure_make_install
+  cd ..
 # bmx has added support for win32 mmap files using MSVC structured exceptions
 # which GCC does not support. So we revert, for now, to the snapshot
 # before this was added
-  generic_download_and_install file://${top_dir}/bmxlib-bmx-15c92b198cb7378ccf54632718ed47a89aae1553.zip bmxlib-bmx-15c92b198cb7378ccf54632718ed47a89aae1553
+#  generic_download_and_install file://${top_dir}/bmxlib-bmx-15c92b198cb7378ccf54632718ed47a89aae1553.zip bmxlib-bmx-15c92b198cb7378ccf54632718ed47a89aae1553
 }
 
 
@@ -2155,32 +2160,43 @@ build_libMXF() {
   #cd libMXF-src-1.0.0
   #apply_patch https://raw.githubusercontent.com/rdp/ffmpeg-windows-build-helpers/master/patches/libMXF.diff
   #do_make "MINGW_CC_PREFIX=$cross_prefix"
-#  do_git_checkout git://git.code.sf.net/p/bmxlib/libmxf bmxlib-libmxf
-  download_and_unpack_file file://${top_dir}/bmxlib-libmxf-353c344ec81315e8936f54ed753bcff00dd783b4.zip bmxlib-libmxf-353c344ec81315e8936f54ed753bcff00dd783b4
-#  cd bmxlib-libmxf
-  cd bmxlib-libmxf-353c344ec81315e8936f54ed753bcff00dd783b4
-    cd tools/MXFDump
-    if [[ ! -e patch_done ]]; then
-      echo "applying patch to bmxlib-libmxf"
-      MXFPATCH="
---- MXFDump.cpp 2014-09-24 08:46:22.840096500 +0100
-+++ MXFDump-patched.cpp 2014-09-24 09:28:00.964403200 +0100
-@@ -89,6 +89,9 @@
- #elif defined(__GNUC__) && defined(__sparc__) && defined(__sun__)
- #define MXF_COMPILER_GCC_SPARC_SUNOS
- #define MXF_OS_UNIX
-+#elif defined(__GNUC__) && defined(__x86_64__) && defined(__MINGW64__)
-+#define MXF_COMPILER_GCC_INTEL_WINDOWS
-+#define MXF_OS_WINDOWS
- #else
- #error \"Unknown compiler\"
- #endif"
-      echo "$MXFPATCH" | patch
-      touch patch_done
-    else
-      echo "patch for MXFDump.exe already applied"
-    fi
-    cd ../..
+  do_git_checkout git://git.code.sf.net/p/bmxlib/libmxf bmxlib-libmxf
+#  download_and_unpack_file file://${top_dir}/bmxlib-libmxf-353c344ec81315e8936f54ed753bcff00dd783b4.zip bmxlib-libmxf-353c344ec81315e8936f54ed753bcff00dd783b4
+  cd bmxlib-libmxf
+#  cd bmxlib-libmxf-353c344ec81315e8936f54ed753bcff00dd783b4
+#    cd tools/MXFDump
+#    if [[ ! -e patch_done ]]; then
+#      echo "applying patch to bmxlib-libmxf"
+#      MXFPATCH="
+#--- MXFDump.cpp 2014-09-24 08:46:22.840096500 +0100
+#+++ MXFDump-patched.cpp 2014-09-24 09:28:00.964403200 +0100
+#@@ -89,6 +89,9 @@
+# #elif defined(__GNUC__) && defined(__sparc__) && defined(__sun__)
+# #define MXF_COMPILER_GCC_SPARC_SUNOS
+# #define MXF_OS_UNIX
+#+#elif defined(__GNUC__) && defined(__x86_64__) && defined(_WIN32)
+#+#define MXF_COMPILER_GCC_INTEL_WINDOWS
+#+#define MXF_OS_WINDOWS
+# #else
+# #error \"Unknown compiler\"
+# #endif"
+#      echo "$MXFPATCH" | patch
+#      touch patch_done
+#    else
+#      echo "patch for MXFDump.exe already applied"
+#    fi
+#    cd ../..
+  cd mxf
+    # GCC doesn't do structured exception handling
+    # but this boilerplate code from Tom Bramer at progammingunlimited.net
+    # seems to compile. I've modified it slightly to reference 32 bit registers
+    # in a 64 bit compile.
+    # And because this involves C++ style programming, we must
+    # rename the file accordingly.
+    mv mxf_win32_mmap.c mxf_win32_mmap.cpp
+    apply_patch_p1 file://${top_dir}/libmxf-win32-mmap-gcc.patch
+    apply_patch_p1 file://${top_dir}/libmxf-win32-mmap-Makefile.am.patch
+  cd ..
   if [[ ! -f ./configure ]]; then
     ./autogen.sh
   fi
