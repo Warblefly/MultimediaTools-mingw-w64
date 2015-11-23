@@ -1,0 +1,11 @@
+--- mxf/Makefile.am.orig	2015-11-09 19:30:18.515727786 +0000
++++ mxf/Makefile.am	2015-11-09 19:08:09.297727786 +0000
+@@ -28,7 +28,7 @@
+ 	mxf_version.c
+ 
+ if IS_WIN32
+-libMXF_@LIBMXF_MAJORMINOR@_la_SOURCES += mxf_win32_file.c mxf_win32_mmap.c
++libMXF_@LIBMXF_MAJORMINOR@_la_SOURCES += mxf_win32_file.c mxf_win32_mmap.cpp
+ endif
+ 
+ 

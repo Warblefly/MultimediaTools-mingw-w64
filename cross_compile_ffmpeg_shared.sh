@@ -38,7 +38,7 @@ yes_no_sel () {
 }
 
 check_missing_packages () {
-  local check_packages=('curl' 'pkg-config' 'make' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'xsltproc' 'autogen' 'rake')
+  local check_packages=('curl' 'pkg-config' 'make' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'xsltproc' 'autogen' 'rake' 'autopoint')
   for package in "${check_packages[@]}"; do
     type -P "$package" >/dev/null || missing_packages=("$package" "${missing_packages[@]}")
   done
@@ -752,8 +752,8 @@ build_libxavs() {
 }
 
 build_libpng() {
-  download_and_unpack_file http://download.sourceforge.net/libpng/libpng-1.6.16.tar.xz libpng-1.6.16
-  cd libpng-1.6.16
+  download_and_unpack_file http://download.sourceforge.net/libpng/libpng-1.6.18.tar.xz libpng-1.6.18
+  cd libpng-1.6.18
     # DBL_EPSILON 21 Feb 2015 starts to come back "undefined". I have NO IDEA why.
     grep -lr DBL_EPSILON contrib | xargs sed -i "s| DBL_EPSILON| 2.2204460492503131E-16|g"
     generic_configure_make_install
@@ -859,7 +859,7 @@ build_libflite() {
    else
      cp ./build/x86_64-mingw32/lib/*.a $mingw_w64_x86_64_prefix/lib || exit 1
    fi
-  cd ..
+   cd ..
 }
 
 build_libgsm() {
@@ -875,8 +875,8 @@ build_libgsm() {
 }
 
 build_libopus() {
-  download_and_unpack_file http://downloads.xiph.org/releases/opus/opus-1.1.1-beta.tar.gz opus-1.1.1-beta
-  cd opus-1.1.1-beta
+  download_and_unpack_file http://downloads.xiph.org/releases/opus/opus-1.1.1-rc.tar.gz opus-1.1.1-rc
+  cd opus-1.1.1-rc
     apply_patch file://${top_dir}/opus11.patch # allow it to work with shared builds
     generic_configure_make_install "--enable-custom-modes --enable-asm" 
   cd ..
@@ -884,8 +884,8 @@ build_libopus() {
 
 build_libdvdread() {
   build_libdvdcss
-  download_and_unpack_file http://download.videolan.org/pub/videolan/libdvdread/5.0.2/libdvdread-5.0.2.tar.bz2 libdvdread-5.0.2
-  cd libdvdread-5.0.2
+  download_and_unpack_file http://download.videolan.org/pub/videolan/libdvdread/5.0.3/libdvdread-5.0.3.tar.bz2 libdvdread-5.0.3
+  cd libdvdread-5.0.3
   generic_configure "--with-libdvdcss CFLAGS=-DHAVE_DVDCSS_DVDCSS_H LDFLAGS=-ldvdcss" # vlc patch: "--enable-libdvdcss" # XXX ask how I'm *supposed* to do this to the dvdread peeps [svn?]
   #apply_patch https://raw.githubusercontent.com/rdp/ffmpeg-windows-build-helpers/master/patches/dvdread-win32.patch # has been reported to them...
   do_make_install 
@@ -919,7 +919,7 @@ build_libdvdcss() {
 
 build_gdb() {
   export LIBS="-lpsapi -ldl"
-  generic_download_and_install http://ftp.gnu.org/gnu/gdb/gdb-7.9.tar.xz gdb-7.9
+  generic_download_and_install http://ftp.gnu.org/gnu/gdb/gdb-7.10.tar.xz gdb-7.10
   unset LIBS
 }
 
@@ -935,7 +935,7 @@ build_ncurses() {
     wget http://invisible-island.net/datafiles/current/terminfo.src.gz
     gunzip terminfo.src.gz
   fi
-  generic_download_and_install ftp://invisible-island.net/ncurses/current/ncurses-6.0-20150725.tgz ncurses-6.0-20150725 "--with-libtool --disable-termcap --enable-widec --enable-term-driver --enable-sp-funcs --without-ada --with-debug=no --with-shared=no --enable-database --with-progs --enable-interop --with-pkg-config-libdir=${mingw_w64_x86_64_prefix}/lib/pkgconfig --enable-pc-files"
+  generic_download_and_install http://invisible-mirror.net/archives/ncurses/current/ncurses-6.0-20151107.tgz ncurses-6.0-20151107 "--with-libtool --disable-termcap --enable-widec --enable-term-driver --enable-sp-funcs --without-ada --with-debug=no --with-shared=no --enable-database --with-progs --enable-interop --with-pkg-config-libdir=${mingw_w64_x86_64_prefix}/lib/pkgconfig --enable-pc-files"
   unset PATH_SEPARATOR
 }
 
@@ -1007,11 +1007,11 @@ build_libjpeg_turbo() {
 }
 
 build_libogg() {
-  generic_download_and_install http://downloads.xiph.org/releases/ogg/libogg-1.3.1.tar.gz libogg-1.3.1
+  generic_download_and_install http://downloads.xiph.org/releases/ogg/libogg-1.3.2.tar.gz libogg-1.3.2
 }
 
 build_libvorbis() {
-  generic_download_and_install http://downloads.xiph.org/releases/vorbis/libvorbis-1.3.4.tar.gz libvorbis-1.3.4
+  generic_download_and_install http://downloads.xiph.org/releases/vorbis/libvorbis-1.3.5.tar.gz libvorbis-1.3.5
 }
 
 build_libspeex() {
@@ -1037,10 +1037,10 @@ build_libtheora() {
 
 build_libfribidi() {
   # generic_download_and_install http://fribidi.org/download/fribidi-0.19.5.tar.bz2 fribidi-0.19.5 # got report of still failing?
-  download_and_unpack_file http://fribidi.org/download/fribidi-0.19.4.tar.bz2 fribidi-0.19.4
-  cd fribidi-0.19.4
+  download_and_unpack_file http://fribidi.org/download/fribidi-0.19.7.tar.bz2 fribidi-0.19.7
+  cd fribidi-0.19.7
     # make it export symbols right...
-    apply_patch file://${top_dir}/fribidi.diff
+#    apply_patch file://${top_dir}/fribidi.diff
     generic_configure
     do_make_install
   cd ..
@@ -1054,14 +1054,14 @@ build_libfribidi() {
 }
 
 build_libass() {
-  generic_download_and_install https://github.com/libass/libass/releases/download/0.12.1/libass-0.12.1.tar.gz libass-0.12.1
+  generic_download_and_install https://github.com/libass/libass/releases/download/0.13.0/libass-0.13.0.tar.gz libass-0.13.0
   # fribidi, fontconfig, freetype throw them all in there for good measure, trying to help mplayer once though it didn't help [FFmpeg needed a change for fribidi here though I believe]
   sed -i.bak 's/-lass -lm/-lass -lfribidi -lfontconfig -lfreetype -lexpat -lpng -lm/' "$PKG_CONFIG_PATH/libass.pc"
 }
 
 build_gmp() {
-  download_and_unpack_file https://gmplib.org/download/gmp/gmp-6.0.0a.tar.bz2 gmp-6.0.0
-  cd gmp-6.0.0
+  download_and_unpack_file https://gmplib.org/download/gmp/gmp-6.1.0.tar.bz2 gmp-6.1.0
+  cd gmp-6.1.0
 #    export CC_FOR_BUILD=/usr/bin/gcc
 #    export CPP_FOR_BUILD=usr/bin/cpp
     generic_configure "ABI=$bits_target"
@@ -1128,10 +1128,38 @@ build_libschroedinger() {
   cd ..
 }
 
+build_libunistring() {
+  generic_download_and_install http://ftp.gnu.org/gnu/libunistring/libunistring-0.9.5.tar.xz libunistring-0.9.5
+}
+
+build_libffi() {
+  generic_download_and_install ftp://sourceware.org/pub/libffi/libffi-3.2.1.tar.gz libffi-3.2.1
+}
+
+build_libatomic_ops() {
+  generic_download_and_install http://www.ivmaisoft.com/_bin/atomic_ops/libatomic_ops-7.4.2.tar.gz libatomic_ops-7.4.2
+}
+
+build_bdw-gc() {
+  generic_download_and_install http://www.hboehm.info/gc/gc_source/gc-7.4.2.tar.gz gc-7.4.2
+}
+
+build_guile() {
+  generic_download_and_install ftp://ftp.gnu.org/pub/gnu/guile/guile-2.0.11.tar.xz guile-2.0.11
+}
+
+build_autogen() {
+  generic_download_and_install http://ftp.gnu.org/gnu/autogen/rel5.18.6/autogen-5.18.6.tar.xz autogen-5.18.6
+}
+
 build_gnutls() {
-  download_and_unpack_file ftp://ftp.gnutls.org/gcrypt/gnutls/v3.4/gnutls-3.4.3.tar.xz gnutls-3.4.3
-  cd gnutls-3.4.3
-    generic_configure "--disable-cxx --disable-doc --without-p11-kit --enable-local-libopts --with-included-libtasn1" # don't need the c++ version, in an effort to cut down on size... XXXX test difference...
+  download_and_unpack_file ftp://ftp.gnutls.org/gcrypt/gnutls/v3.3/gnutls-3.3.18.tar.xz gnutls-3.3.18
+#  do_git_checkout https://gitlab.com/gnutls/gnutls.git gnutls
+  cd gnutls-3.3.18
+#    git submodule init
+#    git submodule update
+#    make autoreconf
+    generic_configure "--disable-doc" # --disable-cxx --disable-doc --without-p11-kit --disable-local-libopts --disable-libopts-install --with-included-libtasn1" # don't need the c++ version, in an effort to cut down on size... XXXX test difference...
     do_make_install
   cd ..
   sed -i.bak 's/-lgnutls *$/-lgnutls -lnettle -lhogweed -lgmp -lcrypt32 -lws2_32 -liconv/' "$PKG_CONFIG_PATH/gnutls.pc"
@@ -1174,7 +1202,7 @@ build_zlib() {
 }
 
 build_libxvid() {
-  download_and_unpack_file http://downloads.xvid.org/downloads/xvidcore-1.3.3.tar.gz xvidcore
+  download_and_unpack_file http://downloads.xvid.org/downloads/xvidcore-1.3.4.tar.gz xvidcore
   cd xvidcore/build/generic
   if [ "$bits_target" = "64" ]; then
     local config_opts="--build=x86_64-unknown-linux-gnu --disable-assembly" # kludgey work arounds for 64 bit
@@ -1276,8 +1304,8 @@ build_libsamplerate() {
 
 build_vamp-sdk() {
   export cpu_count=1
-  download_and_unpack_file http://code.soundsoftware.ac.uk/attachments/download/690/vamp-plugin-sdk-2.5.tar.gz vamp-plugin-sdk-2.5
-  cd vamp-plugin-sdk-2.5
+  download_and_unpack_file https://code.soundsoftware.ac.uk/attachments/download/1520/vamp-plugin-sdk-2.6.tar.gz vamp-plugin-sdk-2.6
+  cd vamp-plugin-sdk-2.6
     # Tell the build system to use the mingw-w64 versions of binary utilities
     sed -i.bak 's/AR		= ar/AR		= x86_64-w64-mingw32-ar/' Makefile.in
     sed -i.bak 's/RANLIB		= ranlib/RANLIB		= x86_64-w64-mingw32-ranlib/' Makefile.in
@@ -1323,8 +1351,8 @@ build_iconv() {
 
 build_libgpg-error() {
   # We remove one of the .po files due to a bug in Cygwin's iconv that causes it to loop when converting certain character encodings
-  download_and_unpack_file ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-1.19.tar.bz2 libgpg-error-1.19
-  cd libgpg-error-1.19
+  download_and_unpack_file ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-1.20.tar.bz2 libgpg-error-1.20
+  cd libgpg-error-1.20
 #    rm po/ro.* # The Romanian translation causes Cygwin's iconv to loop. This is a Cygwin bug.
     generic_configure_make_install # "--prefix=${mingw_compiler_path/}" # This is so gpg-error-config can be seen by other programs
   cd ..
@@ -1357,8 +1385,8 @@ build_tesseract() {
 }
 
 build_freetype() {
-  download_and_unpack_file http://download.savannah.gnu.org/releases/freetype/freetype-2.5.5.tar.bz2 freetype-2.5.5
-  cd freetype-2.5.5
+  download_and_unpack_file http://download.savannah.gnu.org/releases/freetype/freetype-2.6.1.tar.bz2 freetype-2.6.1
+  cd freetype-2.6.1
   generic_configure "--with-png=yes --host=x86_64-w64-mingw32" # --build=x86_64-pc-cygwin"
 #  cd src/tools
 #    "/usr/bin/gcc -v apinames.c -o apinames.exe"
@@ -1539,11 +1567,11 @@ build_libdcadec() {
 }
 
 build_libwebp() {
-  generic_download_and_install http://downloads.webmproject.org/releases/webp/libwebp-0.4.3.tar.gz libwebp-0.4.3
+  generic_download_and_install http://downloads.webmproject.org/releases/webp/libwebp-0.4.4.tar.gz libwebp-0.4.4
 }
 
 build_wavpack() {
-  generic_download_and_install http://wavpack.com/wavpack-4.70.0.tar.bz2 wavpack-4.70.0
+  generic_download_and_install http://wavpack.com/wavpack-4.75.2.tar.bz2 wavpack-4.75.2
 }
 
 
@@ -1619,7 +1647,7 @@ build_mediainfo() {
 }
 
 build_libtool() {
-  generic_download_and_install http://ftpmirror.gnu.org/libtool/libtool-2.4.2.tar.gz libtool-2.4.2 "--prefix=${mingw_w64_x86_64_prefix}/.."
+  generic_download_and_install http://ftpmirror.gnu.org/libtool/libtool-2.4.6.tar.gz libtool-2.4.6 "--prefix=${mingw_w64_x86_64_prefix}/.."
 }
 
 build_exiv2() {
@@ -1629,22 +1657,17 @@ build_exiv2() {
   export LIBS="-lws2_32 -lwldap32"
 #  make config
 #  generic_configure_make_install "--enable-static=yes --enable-shared=no --without-ssh"
-  generic_download_and_install http://www.exiv2.org/exiv2-0.24.tar.gz exiv2-0.24 "--enable-static=yes --enable-shared=no --without-ssh"
+  generic_download_and_install http://www.exiv2.org/exiv2-0.25.tar.gz exiv2-0.25 "--enable-static=yes --enable-shared=no --without-ssh"
   unset LIBS
 }
 
 build_bmx() {
   do_git_checkout git://git.code.sf.net/p/bmxlib/bmx bmxlib-bmx
   cd bmxlib-bmx
-    cd src/mxf_reader
-      apply_patch file://${top_dir}/bmxlib-bmx-MXFTextObject.cpp.patch
-    cd ../mxf_op1a
-      apply_patch file://${top_dir}/bmxlib-bmx-mxfop1a-OP1AXMLTrack.cpp.patch
-    cd ../..
-  if [[ ! -f ./configure ]]; then
-    ./autogen.sh
-  fi
-  generic_configure_make_install
+    if [[ ! -f ./configure ]]; then
+      ./autogen.sh
+    fi
+    generic_configure_make_install "--disable-silent-rules CXXFLAGS=-static"
   cd ..
 # bmx has added support for win32 mmap files using MSVC structured exceptions
 # which GCC does not support. So we revert, for now, to the snapshot
@@ -1731,8 +1754,8 @@ build_regex() {
 }
 
 build_boost() { 
-  download_and_unpack_file "http://downloads.sourceforge.net/project/boost/boost/1.58.0/boost_1_58_0.tar.gz" boost_1_58_0
-  cd boost_1_58_0 
+  download_and_unpack_file "http://downloads.sourceforge.net/project/boost/boost/1.59.0/boost_1_59_0.tar.gz" boost_1_59_0
+  cd boost_1_59_0 
     local touch_name=$(get_small_touchfile_name already_configured "$configure_options $configure_name $LDFLAGS $CFLAGS") 
     if [ ! -f  "$touch_name" ]; then 
       ./bootstrap.sh --prefix=${mingw_w64_x86_64_prefix} || exit 1
@@ -1878,7 +1901,7 @@ build_libmms() {
 }
 
 build_curl() {
-  generic_download_and_install http://curl.haxx.se/download/curl-7.42.1.tar.bz2 curl-7.42.1 "--enable-ipv6 --with-librtmp"
+  generic_download_and_install http://curl.haxx.se/download/curl-7.45.0.tar.bz2 curl-7.45.0 "--enable-ipv6 --with-librtmp"
 }
 
 build_asdcplib() {
@@ -1897,7 +1920,7 @@ build_asdcplib() {
 }
 
 build_libtiff() {
-  generic_download_and_install ftp://ftp.remotesensing.org/pub/libtiff/tiff-4.0.4beta.tar.gz tiff-4.0.4beta
+  generic_download_and_install ftp://ftp.remotesensing.org/pub/libtiff/tiff-4.0.6.tar.gz tiff-4.0.6
 }
 
 build_opencl() {
@@ -2186,6 +2209,7 @@ build_libMXF() {
 #      echo "patch for MXFDump.exe already applied"
 #    fi
 #    cd ../..
+#  sed -i.bak 's/@PC_ADD_LIBS@/-lmsvcrt @PC_ADD_LIBS@/' libMXF.pc.in
   cd mxf
     # GCC doesn't do structured exception handling
     # but this boilerplate code from Tom Bramer at progammingunlimited.net
@@ -2200,7 +2224,7 @@ build_libMXF() {
   if [[ ! -f ./configure ]]; then
     ./autogen.sh
   fi
-  generic_configure_make_install
+  generic_configure_make_install "V=1 CXXFLAGS=-static" 
   #
   # Manual equivalent of make install.  Enable it if desired.  We shouldn't need it in theory since we never use libMXF.a file and can just hand pluck out the *.exe files...
   #
@@ -2367,6 +2391,12 @@ build_dependencies() {
   build_libpng # for openjpeg, needs zlib
   build_gmp # for libnettle
   build_libnettle # needs gmp
+#  build_libunistring # Needed for guile
+#  build_libffi # Needed for guile
+#  build_libatomic_ops # Needed for bdw-gc
+#  build_bdw-gc # Needed for guile
+#  build_guile # Needed for autogen
+#  build_autogen # Required for gnutls to see libopts
 #  build_iconv # mplayer I think needs it for freetype [just it though], vlc also wants it.  looks like ffmpeg can use it too...not sure what for :)
   build_gnutls # needs libnettle, can use iconv it appears
   build_openssl
