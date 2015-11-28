@@ -950,11 +950,13 @@ build_less() {
 build_dvdbackup() {
   bzr branch lp:dvdbackup
   cd dvdbackup
+    export ac_cv_func_malloc_0_nonnull=yes
   if [[ ! -f "configure" ]]; then
     autoreconf -fiv || exit 1 # failure here, OS X means "you need libtoolize" perhaps? http://betterlogic.com/roger/2014/12/ilbc-cross-compile-os-x-mac-woe/
   fi
   sed -i.bak 's/mkdir(targetname, 0777)/mkdir(targetname)/' src/main.c
-  generic_configure_make_install "LIBS=-ldvdcss"
+  generic_configure_make_install "ac_cv_func_malloc_0_nonnull=yes LIBS=-ldvdcss"
+  unset ac_cv_func_malloc_0_nonnull
   cd ..
 }
 
@@ -988,6 +990,13 @@ build_libdlfcn() {
   cd dlfcn-win32
     ./configure --disable-shared --enable-static --cross-prefix=$cross_prefix --prefix=$mingw_w64_x86_64_prefix
     do_make_install
+  cd ..
+}
+
+build_rsync() {
+  do_git_checkout https://github.com/AndyA/rsync.git rsync
+  cd rsync
+    generic_configure_make_install
   cd ..
 }
 
@@ -2154,7 +2163,7 @@ build_mp4box() { # like build_gpac
   sed -i.bak 's#bin/gcc/MP42TS#bin/gcc/MP42TS.exe#' Makefile
   sed -i.bak 's/	$(MAKE) installdylib/#	$(MAKE) installdylib/' Makefile
 #  sed -i.bak 's/-DDIRECTSOUND_VERSION=0x0500/-DDIRECTSOUND_VERSION=0x0800/' src/Makefile
-  generic_configure_make_install "--verbose --static-mp4box --enable-static-bin --target-os=MINGW32 --cross-prefix=x86_64-w64-mingw32- --prefix=${mingw_w64_x86_64_prefix} --static-mp4box --extra-libs=-lz --enable-all" 
+  generic_configure_make_install "--verbose --static-mp4box --enable-static-bin --target-os=MINGW32 --cross-prefix=x86_64-w64-mingw32- --prefix=${mingw_w64_x86_64_prefix} --static-mp4box --extra-libs=-lz --enable-all --enable-ffmpeg" 
 #  do_make
   # I seem unable to pass 3 libs into the same config line so do it with sed...
 #  sed -i.bak "s/EXTRALIBS=.*/EXTRALIBS=-lws2_32 -lwinmm -lz/g" config.mak
@@ -2526,7 +2535,8 @@ build_apps() {
   build_mkvtoolnix
   build_opendcp
 #  build_openssh
-#  build_dvdbackup
+#  build_rsync
+  build_dvdbackup
   if [[ $build_ffmpeg_shared = "y" ]]; then
     build_ffmpeg ffmpeg shared
   fi
