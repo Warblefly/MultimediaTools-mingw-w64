@@ -607,7 +607,7 @@ build_libx265() {
       rm already_ran_cmake_* #Last build was high bitdepth. Forcing rebuild.
     fi
   fi
-  # apply_patch_p1 file://${top_dir}/x265-missing-bool.patch  
+  apply_patch_p1 file://${top_dir}/x265-missing-bool.patch  
   # Fixed by x265 developers now
   do_cmake "$cmake_params" 
   do_make_install
@@ -1121,6 +1121,12 @@ build_libxmlsec() {
 build_libbluray() {
   do_git_checkout git://git.videolan.org/libbluray.git libbluray
   cd libbluray
+    git submodule init
+    git submodule update
+    cd contrib/libudfread
+    # Overcome invalid detection of MSVC when using MinGW
+    apply_patch file://${top_dir}/libudfread-udfread-c.patch
+    cd ../..
     generic_configure_make_install "--disable-bdjava"
   cd ..
   sed -i.bak 's/-lbluray.*$/-lbluray -lxml2 -lws2_32/' "$PKG_CONFIG_PATH/libbluray.pc" # This is for mpv not linking against the right libraries
@@ -2046,6 +2052,15 @@ build_youtube-dl() {
   cd ..
 }
 
+build_libudfread() {
+  do_git_checkout http://git.videolan.org/git/libudfread.git libudfread
+  cd libudfread
+    # Patch to work around broken detection of MinGW in tendem with MSVC
+    apply_patch file://${top_dir}/libudfread-udfread-c.patch 
+    generic_configure_make_install
+  cd ..
+}
+
 # build_cdrecord() {
 #  download_and_unpack_bz2file http://downloads.sourceforge.net/project/cdrtools/alpha/cdrtools-3.01a27.tar.bz2 cdrtools-3.01
 #  cd cdrtools-3.01
@@ -2433,6 +2448,7 @@ build_dependencies() {
   build_libgpg-error # Needed by libgcrypt 
   build_libgcrypt # Needed by libxmlsec 
   build_libxmlsec
+#  build_libudfread # Needed by libbluray but built as submodule
   build_libbluray # needs libxml2, freetype [FFmpeg, VLC use this, at least]
   build_libopenjpeg
   build_libopenjpeg2

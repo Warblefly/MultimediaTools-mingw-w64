@@ -1,0 +1,13 @@
+--- src/udfread.c.orig	2015-12-09 16:15:58.546563815 +0000
++++ src/udfread.c	2015-12-09 16:16:34.517563815 +0000
+@@ -34,8 +34,10 @@
+ #include <string.h>
+ 
+ #ifdef _WIN32
++#ifdef _MSC_VER
+ #define strtok_r strtok_s
+ #endif
++#endif
+ 
+ 
+ /*
