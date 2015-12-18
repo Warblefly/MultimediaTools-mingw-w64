@@ -703,6 +703,14 @@ build_libsoxr() {
   cd ..
 }
 
+build_DJV() {
+  do_git_checkout git://git.code.sf.net/p/djv/git DJV
+  cd DJV
+    do_cmake
+    do_make_install
+  cd ..
+}
+
 build_opencv() {
   do_git_checkout https://github.com/Itseez/opencv.git "opencv"
   cd opencv
@@ -971,16 +979,6 @@ build_dvdbackup() {
   sed -i.bak 's/mkdir(targetname, 0777)/mkdir(targetname)/' src/main.c
   generic_configure_make_install "ac_cv_func_malloc_0_nonnull=yes LIBS=-ldvdcss"
   unset ac_cv_func_malloc_0_nonnull
-  cd ..
-}
-
-build_glew() { # opengl stuff, apparently [disabled...]
-  echo "still broken, wow this one looks tough LOL"
-  exit
-  download_and_unpack_file https://sourceforge.net/projects/glew/files/glew/1.10.0/glew-1.10.0.tgz/download glew-1.10.0 
-  cd glew-1.10.0
-    do_make_install "SYSTEM=linux-mingw32 GLEW_DEST=$mingw_w64_x86_64_prefix CC=${cross_prefix}gcc LD=${cross_prefix}ld CFLAGS=-DGLEW_STATIC" # could use $CFLAGS here [?] meh
-    # now you should delete some "non static" files that it installed anyway? maybe? vlc does more here...
   cd ..
 }
 
@@ -1595,6 +1593,18 @@ build_libdcadec() {
   cd ..
 }
 
+build_glew() {
+  do_git_checkout https://github.com/nigels-com/glew.git glew
+  cd glew
+    do_make extensions
+    cd build/cmake
+      do_cmake "-DBUILD_SHARED_LIBS=OFF"
+      do_make_install
+    cd ../..
+#    generic_configure_make_install
+  cd ..
+}
+
 build_libwebp() {
   generic_download_and_install http://downloads.webmproject.org/releases/webp/libwebp-0.4.4.tar.gz libwebp-0.4.4
 }
@@ -1966,7 +1976,7 @@ http://www.khronos.org/registry/cl/api/1.2/cl_gl.h \
 http://www.khronos.org/registry/cl/api/1.2/cl.h \
 http://www.khronos.org/registry/cl/api/1.2/cl_platform.h \
 http://www.khronos.org/registry/cl/api/1.2/opencl.h \
-http://www.khronos.org/registry/cl/api/1.2/cl.hpp \
+http://www.khronos.org/registry/cl/api/2.1/cl.hpp \
 http://www.khronos.org/registry/cl/api/1.2/cl_egl.h
   cd -
   cd ${top_dir}
@@ -2522,6 +2532,7 @@ build_dependencies() {
   build_libass # needs freetype, needs fribidi, needs fontconfig
   build_intel_quicksync_mfx
   build_opencl
+  build_glew
 #  build_libopenjpeg
 #  build_libopenjpeg2
   build_libwebp
@@ -2588,6 +2599,7 @@ build_apps() {
     build_vlc # NB requires ffmpeg static as well, at least once...so put this last :)
   fi
   build_graphicsmagick
+  build_DJV # Requires FFmpeg libraries
 #  build_vlc
 }
 
