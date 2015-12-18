@@ -159,13 +159,13 @@ install_cross_compiler() {
   echo "building cross compile gcc [requires internet access]"
 # Quick patch to update mingw to 4.0.4
   sed -i.bak "s/mingw_w64_release_ver='3.3.0'/mingw_w64_release_ver='4.0.4'/" mingw-w64-build-3.6.6
-  sed -i.bak "s/gcc_release_ver='4.9.2'/gcc_release_ver='5.2.0'/" mingw-w64-build-3.6.6
+  sed -i.bak "s/gcc_release_ver='4.9.2'/gcc_release_ver='5.3.0'/" mingw-w64-build-3.6.6
   sed -i.bak "s/mpfr_release_ver='3.1.2'/mpfr_release_ver='3.1.3'/" mingw-w64-build-3.6.6
   sed -i.bak "s/binutils_release_ver='2.25'/binutils_release_ver='2.25.1'/" mingw-w64-build-3.6.6
-  sed -i.bak "s/isl_release_ver='0.12.2'/isl_release_ver='0.14'/" mingw-w64-build-3.6.6
+  sed -i.bak "s/isl_release_ver='0.12.2'/isl_release_ver='0.15'/" mingw-w64-build-3.6.6
 # Gendef compilation throws a char-as-array-index error when invoked with "--target=" : "--host" avoids this.
 #  sed -i.bak 's#gendef/configure" --build="$system_type" --prefix="$mingw_w64_prefix" --target#gendef/configure" --build="$system_type" --prefix="$mingw_w64_prefix" --host#' mingw-w64-build-3.6.6
-  nice ./mingw-w64-build-3.6.6 --clean-build --disable-shared --default-configure --mingw-w64-ver=4.0.4 --gcc-ver=5.2.0 --pthreads-w32-ver=cvs --cpu-count=$gcc_cpu_count --build-type=$build_choice --enable-gendef --enable-widl --binutils-ver=2.25.1 --verbose || exit 1 # --disable-shared allows c++ to be distributed at all...which seemed necessary for some random dependency...
+  nice ./mingw-w64-build-3.6.6 --clean-build --disable-shared --default-configure --mingw-w64-ver=4.0.4 --gcc-ver=5.3.0 --pthreads-w32-ver=cvs --cpu-count=$gcc_cpu_count --build-type=$build_choice --enable-gendef --enable-widl --binutils-ver=2.25.1 --verbose || exit 1 # --disable-shared allows c++ to be distributed at all...which seemed necessary for some random dependency...
   export CFLAGS=$original_cflags # reset it
   if [ -d mingw-w64-x86_64 ]; then
     touch mingw-w64-x86_64/compiler.done
@@ -834,6 +834,20 @@ build_libcdio-paranoia() {
   cd ..
 }
 
+build_libx262() {
+  do_git_checkout http://git.videolan.org/git/x262.git x262
+  cd x262
+    generic_configure "--host=$host_target --enable-static --cross-prefix=$cross_prefix --prefix=$mingw_w64_x86_64_prefix --extra-cflags=-DPTW32_STATIC_LIB --disable-avs --disable-swscale --disable-lavf --disable-ffms --disable-gpac"
+    do_make
+    # We ONLY need the x262.exe binary, because the version of libx264 it incorporates is not up-to-date.
+    # Therefore, to use its MPEG2 video encoding capability, data must be piped to the x262.exe program
+    # and it cannot be linked as a library into FFmpeg, even though FFmpeg is ready for it.
+    #
+    # The best solution would be to merge the up-to-date x264 tree with the x262 tree but I haven't the time.
+    echo "Now copying ONLY the x262.exe binary."
+    cp x262.exe ${mingw_w64_x86_64_prefix}/bin/x262.exe
+  cd ..
+}
 
 build_lsdvd() {
   do_git_checkout git://git.code.sf.net/p/lsdvd/git lsdvd
@@ -1257,8 +1271,8 @@ build_libaacplus() {
 }
 
 build_openssl() {
-  download_and_unpack_file http://www.openssl.org/source/openssl-1.0.2d.tar.gz openssl-1.0.2d
-  cd openssl-1.0.2d
+  download_and_unpack_file http://www.openssl.org/source/openssl-1.0.2e.tar.gz openssl-1.0.2e
+  cd openssl-1.0.2e
   export cross="$cross_prefix"
   export CC="${cross}gcc"
   export AR="${cross}ar"
@@ -2022,7 +2036,8 @@ build_openssh() {
 
 
 build_ffms2() {
-  do_git_checkout https://github.com/FFMS/ffms2.git ffms2
+# Checkout specified owing to non-compatible recent change
+  do_git_checkout https://github.com/FFMS/ffms2.git ffms2 6df5632
   cd ffms2
     if [[ ! -f "configure" ]]; then
       autoreconf -fiv
@@ -2461,7 +2476,11 @@ build_dependencies() {
   build_libxvid
   build_libxavs
   build_libsoxr
-  build_libx264
+  build_libx262 
+  build_libx264 # Libx264 must be installed OVER libx262. x262 is like x264 but with
+                # MPEG-2 encoding on top of it. We don't want this, because the version
+		# of libx264 it tracks is way behind the current version. Instead, we must
+		# be happy with the command-line x262 program, and pipe data to it.
   build_libx265
   build_asdcplib
   build_lame
