@@ -1,0 +1,8 @@
+--- bootstrap.orig	2016-01-12 09:09:02.464332384 +0000
++++ bootstrap	2016-01-12 09:09:16.390332384 +0000
+@@ -11,4 +11,5 @@
+ automake --add-missing --copy
+ autoconf
+ autopoint                       # for iconv/gettext/config.rpath dependency
++autoreconf -fvi
+ #configure --enable-maintainer-mode

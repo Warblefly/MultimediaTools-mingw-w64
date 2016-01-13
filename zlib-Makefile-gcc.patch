@@ -1,0 +1,44 @@
+--- win32/Makefile.gcc.orig	2015-12-23 00:32:08.532332384 +0000
++++ win32/Makefile.gcc	2015-12-23 00:32:45.080332384 +0000
+@@ -29,6 +29,13 @@
+ # If the platform is *not* MinGW (e.g. it is Cygwin or UWIN),
+ # the DLL name should be changed from "zlib1.dll".
+ 
++DESTDIR = $(mingw_w64_x86_64_prefix)/
++PREFIX = x86_64-w64-mingw32-
++prefix = $(mingw_w64_x86_64_prefix)
++INCLUDE_PATH = include/
++LIBRARY_PATH = lib/
++BINARY_PATH = bin/
++
+ STATICLIB = libz.a
+ SHAREDLIB = zlib1.dll
+ IMPLIB    = libz.dll.a
+@@ -36,12 +43,12 @@
+ #
+ # Set to 1 if shared object needs to be installed
+ #
+-SHARED_MODE=0
++SHARED_MODE=1
+ 
+ #LOC = -DASMV
+ #LOC = -DDEBUG -g
+ 
+-PREFIX =
++#PREFIX =
+ CC = $(PREFIX)gcc
+ CFLAGS = $(LOC) -O3 -Wall
+ 
+@@ -61,10 +68,10 @@
+ 
+ CP = cp -fp
+ # If GNU install is available, replace $(CP) with install.
+-INSTALL = $(CP)
++INSTALL = /usr/bin/install
+ RM = rm -f
+ 
+-prefix ?= /usr/local
++prefix ?= $(mingw_w64_x86_64_prefix)
+ exec_prefix = $(prefix)
+ 
+ OBJS = adler32.o compress.o crc32.o deflate.o gzclose.o gzlib.o gzread.o \

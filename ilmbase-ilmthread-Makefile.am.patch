@@ -1,0 +1,14 @@
+--- Makefile.am.orig	2015-12-22 12:02:26.901332384 +0000
++++ Makefile.am	2015-12-22 12:03:23.958332384 +0000
+@@ -6,9 +6,8 @@
+ 			  IlmThreadSemaphore.h IlmThreadMutex.h \
+ 			  IlmThreadPool.cpp IlmThread.cpp \
+ 			  IlmThreadSemaphore.cpp IlmThreadMutex.cpp \
+-			  IlmThreadPosix.cpp IlmThreadSemaphorePosix.cpp \
+-			  IlmThreadSemaphorePosixCompat.cpp \
+-			  IlmThreadMutexPosix.cpp
++			  IlmThreadWin32.cpp IlmThreadSemaphoreWin32.cpp \
++			  IlmThreadMutexWin32.cpp
+ 
+ libIlmThread_la_LDFLAGS = -version-info @LIBTOOL_VERSION@ -no-undefined
+ if LIB_SUFFIX_EXISTS

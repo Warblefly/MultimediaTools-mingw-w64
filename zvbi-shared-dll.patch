@@ -1,0 +1,20 @@
+--- src/Makefile.am.orig	2015-12-28 11:16:13.383332384 +0000
++++ src/Makefile.am	2015-12-28 11:17:45.426332384 +0000
+@@ -115,7 +115,7 @@
+ 	$(LIBS) \
+ 	$(UNICODE_LIBS)
+ 
+-libzvbi_la_LDFLAGS = -version-info $(LIBZVBI_SO_VERSION)
++libzvbi_la_LDFLAGS = -no-undefined -version-info $(LIBZVBI_SO_VERSION)
+ 
+ libzvbi_chains_la_SOURCES = \
+ 	chains.c \
+@@ -124,6 +124,8 @@
+ 	proxy-client.c \
+ 	proxy-msg.c
+ 
++libzvbi_chains_la_LDFLAGS = -no-undefined
++
+ if MAINTAINER_MODE
+ 
+ hammgen: hammgen.c

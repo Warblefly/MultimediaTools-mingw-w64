@@ -1,0 +1,11 @@
+--- lib/djvCore/djvFileInfo.cpp.orig	2015-12-22 13:08:29.719332384 +0000
++++ lib/djvCore/djvFileInfo.cpp	2015-12-22 13:08:53.529332384 +0000
+@@ -335,7 +335,7 @@
+     {
+         QString err;
+ 
+-#if defined(DJV_WINDOWS)
++#if defined(DJV_WINDOWS) && !defined(__MINGW32__)
+ 
+         char tmp[djvStringUtil::cStringLength] = "";
+         ::strerror_s(tmp, djvStringUtil::cStringLength, errno);

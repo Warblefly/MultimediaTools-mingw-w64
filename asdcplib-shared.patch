@@ -1,0 +1,30 @@
+--- src/Makefile.am.orig	2015-12-28 10:28:28.532332384 +0000
++++ src/Makefile.am	2015-12-28 10:30:43.648332384 +0000
+@@ -84,7 +84,8 @@
+ 		KM_util.h KM_xml.cpp KM_xml.h KM_tai.h KM_tai.cpp
+ 
+ # linker flags (*not* including libraries to link against) for a library
+-libkumu_la_LDFLAGS = -release @VERSION@
++libkumu_la_LDFLAGS = -no-undefined -release @VERSION@
++libkumu_la_LIBADD = $(ASDCPLIB_LIBS)
+ 
+ 
+ # sources for asdcp library that don't get added to a distribution
+@@ -113,7 +114,7 @@
+ nodist_libasdcp_la_SOURCES += TimedText_Transform.h TimedText_Transform.cpp
+ endif
+ 
+-libasdcp_la_LDFLAGS = -release @VERSION@
++libasdcp_la_LDFLAGS = -no-undefined -release @VERSION@
+ # additional libraries to link against for a library
+ libasdcp_la_LIBADD = libkumu.la
+ libasdcp_la_CPPFLAGS = -DASDCP_PLATFORM=\"@host@\"
+@@ -138,7 +139,7 @@
+ 
+ 
+ libpyasdcp_la_CPPFLAGS = @PYTHON_CPPFLAGS@
+-libpyasdcp_la_LDFLAGS = @PYTHON_LSPEC@  -release @VERSION@
++libpyasdcp_la_LDFLAGS = -no-undefined @PYTHON_LSPEC@  -release @VERSION@
+ libpyasdcp_la_LIBADD = libkumu.la libasdcp.la
+ 
+ pyexecdir = @PYTHON_EXECDIR@

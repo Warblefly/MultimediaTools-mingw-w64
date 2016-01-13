@@ -1,0 +1,10 @@
+--- libasdcp/KM_prng.cpp.orig	2016-01-03 23:05:25.589332384 +0000
++++ libasdcp/KM_prng.cpp	2016-01-03 23:05:44.006332384 +0000
+@@ -34,6 +34,7 @@
+ #include <KM_mutex.h>
+ #include <string.h>
+ #include <assert.h>
++#include <openssl/aes.h>
+ 
+ #include <sha1.h>
+ #include <ttmath/ttmath.h>

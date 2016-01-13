@@ -1,0 +1,22 @@
+--- lib/djvCore/djvSystem.cpp	2015-12-22 18:04:34.294332384 +0000
++++ lib/djvCore/djvSystem.cpp	2015-12-22 18:03:58.973332384 +0000
+@@ -507,7 +507,7 @@
+ {
+     QString out;
+ 
+-#   if defined(DJV_WINDOWS)
++#if 0
+ 
+     size_t size = 0;
+ 
+@@ -538,8 +538,8 @@
+ bool djvSystem::setEnv(const QString & var, const QString & value)
+ {
+ #if defined(DJV_WINDOWS)
+-
+-    return ::_putenv_s(var.toLatin1().data(), value.toLatin1().data()) == 0;
++    std::string vareq = var.toLatin1().toStdString() + "=" + value.toLatin1().toStdString();
++    return ::putenv(const_cast<char*>(vareq.c_str())) == 0;
+ 
+ #else // DJV_WINDOWS
+ 

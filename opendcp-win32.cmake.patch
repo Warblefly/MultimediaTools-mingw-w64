@@ -1,0 +1,65 @@
+--- toolchains/win32.cmake.orig	2016-01-04 10:55:33.936332384 +0000
++++ toolchains/win32.cmake	2016-01-04 18:58:10.564332384 +0000
+@@ -1,7 +1,7 @@
+ #--set OS Specific Compiler Flags-----------------------------------------------
+-SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DOPJ_STATIC -DKM_WIN32 -static")
++SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DKM_WIN32")
+ SET(CMAKE_CXX_FLAGS ${CMAKE_C_FLAGS}) 
+-SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
++SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
+ #-------------------------------------------------------------------------------
+ 
+ #--set os specifc linking mode-------------------------------------------------
+@@ -11,18 +11,20 @@
+ SET(LIB_DIR_SYS ${SYSROOT_PATH}/lib)
+ 
+ IF(TARGET_ARCH STREQUAL "i686")
+-    SET(CMAKE_RC_COMPILER /usr/bin/i686-w64-mingw32-windres) 
++    SET(CMAKE_RC_COMPILER ${SYSROOT_PATH}/../bin/i686-w64-mingw32-windres) 
+ ELSE()
+-    SET(CMAKE_RC_COMPILER /usr/bin/x86_64-w64-mingw32-windres) 
++    SET(CMAKE_RC_COMPILER ${SYSROOT_PATH}/../bin/x86_64-w64-mingw32-windres) 
+ ENDIF()
+ 
+ INCLUDE_DIRECTORIES(${SYSROOT_PATH}/include/libxml2)
+ 
++SET(LIBS ${LIBS} -L../libopendcp -L../libasdcp)
++
+ IF(ENABLE_XMLSEC)
+     INCLUDE_DIRECTORIES(${SYSROOT_PATH}/include/libxslt)
+     INCLUDE_DIRECTORIES(${SYSROOT_PATH}/include/xmlsec1)
+-    SET(COMPILE_XMLSEC 1)
+-    SET(LIBS ${LIBS} ${LIB_DIR_SYS}/libxmlsec1-openssl.a ${LIB_DIR_SYS}/libxmlsec1.a)
++    SET(COMPILE_XMLSEC 0)
++    SET(LIBS ${LIBS} -lxmlsec1-openssl -lxmlsec1)
+     SET(LIBS ${LIBS} -L${LIB_DIR_SYS} -lxslt)
+ ENDIF(ENABLE_XMLSEC)
+ 
+@@ -32,10 +34,12 @@
+ SET(COMPILE_EXPAT 0)
+ SET(LIBS ${LIBS} -L${LIB_DIR_SYS} -lexpat)
+ 
+-SET(COMPILE_OPENJPEG 1)
+-SET(LIBS ${LIBS} ${LIB_DIR}/libopenjp2.a)
++SET(COMPILE_OPENJPEG 0)
++INCLUDE_DIRECTORIES(${SYSROOT_PATH}/include/openjpeg-2.1)
++SET(LIBS ${LIBS} -lopenjp2)
+ 
+-SET(LIBS ${LIBS} ${LIB_DIR_SYS}/libtiff.a ${LIB_DIR_SYS}/libjpeg.a)
++SET(COMPILE_TIFF 0)
++SET(LIBS ${LIBS} -ltiff -ljpeg)
+ SET(LIBS ${LIBS} -L${LIB_DIR_SYS} -lcrypto -lssl)
+ SET(LIBS ${LIBS} -L${LIB_DIR_SYS} -lz -lws2_32)
+ #-------------------------------------------------------------------------------
+@@ -46,7 +50,7 @@
+     SET(MING mingw32)
+ ENDIF()
+ 
+-SET(CONFIGURE ${MING}-configure)
+-SET(CMAKE ${MING}-cmake)
+-SET(MAKE ${MING}-make)
+-SET(INSTALL sudo make)
++SET(CONFIGURE ./configure)
++SET(CMAKE cmake)
++SET(MAKE make)
++SET(INSTALL make)
