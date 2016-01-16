@@ -45,7 +45,7 @@ if  [[ "$dump_archive" = [Yy] ]]; then
   echo "Archive dump selected."
   cd sandbox/mingw-w64-x86_64/x86_64-w64-mingw32
   # Symbolic links are de-referenced because Windows doesn't understand these.
-  tar hacvvf ${dump_file} ./bin/*exe ./bin/*com ./bin/*dll ./bin/*py ./bin/*pl ./bin/*cmd ./bin/*config ./bin/platforms/*dll ./lib/frei0r-1/* ./lib/mlt/* ./plugins/* ./share/OpenCV/* ./share/tessdata || exit 1
+  tar hcvvf - ./bin/*exe ./bin/*com ./bin/*dll ./bin/*py ./bin/*pl ./bin/*cmd ./bin/*config ./bin/platforms/*dll ./bin/lib/* ./bin/share/* ./lib/frei0r-1/* ./plugins/* ./share/OpenCV/* ./share/tessdata | xz -8 -z - > ${dump_file}|| exit 1
   echo "Archive made and stored in ${dump_file}"
 fi
 

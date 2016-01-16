@@ -822,10 +822,19 @@ build_mlt() {
     export CXX=x86_64-w64-mingw32-g++
     export CROSS=x86_64-w64-mingw32-
     export CC=x86_64-w64-mingw32-gcc
-    generic_configure_make_install "--enable-gpl --enable-gpl3 --target-os=mingw --target-arch=x86_64"
+    # The --avformat-ldextra option must contain all the libraries that 
+    # libavformat.dll is linked against. These we obtain by reading libavformat.pc
+    # from the pkgconfig directory
+    avformat_ldextra=`pkg-config --static --libs-only-l libavformat`
+    generic_configure_make_install "--enable-gpl --enable-gpl3 --target-os=mingw --target-arch=x86_64 --libdir=${mingw_w64_x86_64_prefix}/bin/lib --datadir=${mingw_w64_x86_64_prefix}/bin/share --avformat-swscale --avformat-ldextra=${avformat_ldextrahttps// /\\ \\}"
     unset CXX
     unset CROSS
     unset CC
+    # The Makefiles don't use Autotools, and put the binaries in the wrong places with
+    # no executable extension for 'melt.exe'
+    # Also, the paths are not correct for Windows execution. So we must move things
+    mv -v ${mingw_w64_x86_64_prefix}/melt ${mingw_w64_x86_64_prefix}/bin/melt.exe
+    mv -v ${mingw_w64_x86_64_prefix}/libmlt* ${mingw_w64_x86_64_prefix}/bin/
   cd ..
 }
 
@@ -1159,9 +1168,46 @@ build_readline() {
   cd ..
 }
 
+build_portaudio() {
+  download_and_unpack_file http://www.portaudio.com/archives/pa_stable_v19_20140130.tgz portaudio
+  cd portaudio
+    rm configure
+    apply_patch file://${top_dir}/portaudio-1-fixes-crlf.patch
+    generic_configure_make_install "--with-host_os=mingw --with-winapi=wasapi ac_cv_path_AR=x86_64-w64-mingw32-ar"
+  cd ..
+}
+
+build_jack() {
+  download_and_unpack_file https://dl.dropboxusercontent.com/u/28869550/jack-1.9.10.tar.bz2 jack-1.9.10
+  cd jack-1.9.10
+    if [ ! -f "jack.built" ] ; then
+      apply_patch file://${top_dir}/jack-1-fixes.patch
+      export AR=x86_64-w64-mingw32-ar 
+      export CC=x86_64-w64-mingw32-gcc 
+      export CXX=x86_64-w64-mingw32-g++ 
+      do_configure "configure --prefix=${mingw_w64_x86_64_prefix} --dist-target=mingw" "./waf"
+      ./waf build || exit 1
+      ./waf install || exit 1
+    else
+      echo "Jack already built."
+    fi
+    touch "jack.built"
+  cd ..
+}
+
 build_leptonica() {
   generic_download_and_install http://www.leptonica.com/source/leptonica-1.72.tar.gz leptonica-1.72 "LIBS=-lopenjpeg --disable-silent-rules --without-libopenjpeg"
 }
+
+build_libpopt() {
+  download_and_unpack_file http://rpm5.org/files/popt/popt-1.16.tar.gz popt-1.16
+  cd popt-1.16
+    apply_patch file://${top_dir}/popt-get-w32-console-maxcols.patch
+    apply_patch file://${top_dir}/popt-no-uid.patch
+    generic_configure_make_install
+  cd ..
+}
+  
 
 build_termcap() {
   download_and_unpack_file ftp://ftp.gnu.org/gnu/termcap/termcap-1.3.1.tar.gz termcap-1.3.1
@@ -1779,16 +1825,16 @@ build_sdl() {
   # apparently ffmpeg expects prefix-sdl-config not sdl-config that they give us, so rename...
   hold_cflags="${CFLAGS}"
   export CFLAGS=-DDECLSPEC=  # avoid SDL trac tickets 939 and 282, not worried about optimizing yet
-  generic_download_and_install http://www.libsdl.org/release/SDL-1.2.15.tar.gz SDL-1.2.15
+  generic_download_and_install http://www.libsdl.org/release/SDL-1.2.15.tar.gz SDL-1.2.15 "--disable-stdio-redirect"
   export CFLAGS="${hold_cflags}" # and reset it
   mkdir temp
   cd temp # so paths will work out right
-  local prefix=$(basename $cross_prefix)
-  local bin_dir=$(dirname $cross_prefix)
-  sed -i.bak "s/-mwindows//" "$mingw_w64_x86_64_prefix/bin/sdl-config" # update this one too for good measure, ffmpeg can use either, not sure which one it defaults to...
-  sed -i.bak "s/-mwindows//" "$PKG_CONFIG_PATH/sdl.pc" # allow ffmpeg to output anything to console: :|
-  sed -i.bak "s/-lSDL *$/-lSDL  -lwinmm -lgdi32 -ldxguid/" "$PKG_CONFIG_PATH/sdl.pc" # mpv shared needs this linkage
-  cp "$mingw_w64_x86_64_prefix/bin/sdl-config" "$bin_dir/${prefix}sdl-config" # this is the only mingw dir in the PATH so use it for now
+    local prefix=$(basename $cross_prefix)
+    local bin_dir=$(dirname $cross_prefix)
+    sed -i.bak "s/-mwindows//" "$mingw_w64_x86_64_prefix/bin/sdl-config" # update this one too for good measure, ffmpeg can use either, not sure which one it defaults to...
+    sed -i.bak "s/-mwindows//" "$PKG_CONFIG_PATH/sdl.pc" # allow ffmpeg to output anything to console: :|
+    sed -i.bak "s/-lSDL *$/-lSDL  -lwinmm -lgdi32 -ldxguid/" "$PKG_CONFIG_PATH/sdl.pc" # mpv shared needs this linkage
+    cp "$mingw_w64_x86_64_prefix/bin/sdl-config" "$bin_dir/${prefix}sdl-config" # this is the only mingw dir in the PATH so use it for now
   cd ..
   rmdir temp
 }
@@ -1883,6 +1929,12 @@ build_mpv() {
     export DEST_OS=win32
     export TARGET=x86_64-w64-mingw32
     do_configure "configure -pp --prefix=${mingw_w64_x86_64_prefix} --enable-win32-internal-pthreads --disable-x11 --disable-lcms2 --enable-sdl1 --disable-sdl2 --disable-debug-build --enable-gpl3" "./waf"
+    # In this cross-compile for Windows, we keep the Python script up-to-date and therefore
+    # must call it directly by its full name, because mpv can only explore for executables
+    # with the .exe suffix.
+    sed -i.bak 's/path = "youtube-dl"/path = "youtube-dl.py"/' player/lua/ytdl_hook.lua
+    sed -i.bak 's/mp.find_config_file("youtube-dl")/mp.find_config_file("youtube-dl.py")/' player/lua/ytdl_hook.lua
+    sed -i.bak 's/  ytdl.path, "--no-warnings"/  "python.exe", ytdl.path, "--no-warnings"/' player/lua/ytdl_hook.lua
     ./waf build || exit 1
     ./waf install || exit 1
     unset DEST_OS
@@ -2545,6 +2597,7 @@ build_libcdio_libcddb() {
   # This needs compiling twice to work around a circular dependency with libcddb
   do_git_checkout http://git.savannah.gnu.org/r/libcdio.git libcdio_cddb
   cd libcdio_cddb
+    sed -i.bak 's/noinst_PROGRAMS/bin_PROGRAMS/' example/Makefile.am
     if [[ ! -f "configure" ]]; then
       autoreconf -fvi
     fi
@@ -2566,6 +2619,27 @@ build_makemkv() { # THIS IS NOT WORKING - MAKEMKV NEEDS MORE THAN MINGW OFFERS
   sed -i.bak 's/#include <alloca.h>/#include <malloc.h>/' libmmbd/src/mmconn.cpp
   do_make_install
   generic_download_and_install http://www.makemkv.com/download/makemkv-bin-1.8.13.tar.gz makemkv-bin-1.8.13
+  cd ..
+}
+
+build_libexif() {
+  download_and_unpack_file http://kent.dl.sourceforge.net/project/libexif/libexif/0.6.21/libexif-0.6.21.tar.gz libexif-0.6.21
+  cd libexif-0.6.21
+    # We need to update autotools because a check is needed for JPEG files > 2GB
+    rm configure
+    generic_configure_make_install
+  cd ..
+}
+
+build_exif() {
+  download_and_unpack_file http://heanet.dl.sourceforge.net/project/libexif/exif/0.6.21/exif-0.6.21.tar.bz2 exif-0.6.21
+  cd exif-0.6.21
+    rm configure
+    # Inclusion of langinfo.h is not needed, and doesn't exist in MinGW-w64
+    sed -i.bak 's!#  include <langinfo.h>!/*#  include <langinfo.h> */!' exif/exif-i18n.c
+    # exif calls a bad autoconfig macro for locating popt. We must, therefore, explicitly
+    # tell it where our cross-compiled libpopt is located.
+    generic_configure_make_install "POPT_CFLAGS=-I${mingw_w64_x86_64_prefix}/include POPT_LIBS=-L${mingw_w64_x86_64_prefix}/lib LIBS=-lpopt"
   cd ..
 }
 
@@ -2781,6 +2855,9 @@ build_get_iplayer() {
   # to the BBC website
   curl -o ${mingw_w64_x86_64_prefix}/bin/get_iplayer.pl https://raw.githubusercontent.com/get-iplayer/get_iplayer/develop/get_iplayer
   curl -o ${mingw_w64_x86_64_prefix}/bin/get_iplayer.cmd https://raw.githubusercontent.com/get-iplayer/get_iplayer/master/windows/get_iplayer/get_iplayer.cmd
+  # Change the Perl path to include the full path to my default location for this suite
+  # otherwise the Perl script isn't found by the command interpreter on Windows
+  sed -i.bak 's/get_iplayer.pl/C:\\Program Files\\ffmpeg\\bin\\get_iplayer.pl/' ${mingw_w64_x86_64_prefix}/bin/get_iplayer.cmd
 }
 
 build_libdecklink() {
@@ -2925,6 +3002,7 @@ build_dependencies() {
   build_termcap
   build_ncurses
   build_readline
+  build_libpopt
   build_freetype # uses bz2/zlib seemingly
   build_libexpat
   build_libxml2
@@ -2942,6 +3020,7 @@ build_dependencies() {
   build_libdvdread # vlc, mplayer use it. needs dvdcss
   build_libdvdnav # vlc, mplayer use this
   build_libtiff
+  build_libexif # For manipulating EXIF data
   build_libxvid
   build_libxavs
   build_libsoxr
@@ -2969,6 +3048,7 @@ build_dependencies() {
   build_libilbc
   build_icu # Needed for Qt5 / QtWebKit
   build_libmms
+  build_portaudio # for JACK
   build_flac
   if [[ -d gsm-1.0-pl13 ]]; then # this is a TERRIBLE kludge because sox mustn't see libgsm
     cd gsm-1.0-pl13
@@ -2998,6 +3078,7 @@ build_dependencies() {
 #  build_libopenjpeg2
   build_libwebp
   build_SWFTools
+  build_jack
   build_opencv
   build_frei0r
   build_leptonica
@@ -3020,6 +3101,7 @@ build_apps() {
   # now the things that use the dependencies...
 #  build_less
 #  build_coreutils
+  build_exif
   build_opustools
   build_curl # Needed for mediainfo to read Internet streams or file, also can get RTMP streamss
   build_gdb # Really useful, and the correct version for Windows executables
@@ -3061,7 +3143,7 @@ build_apps() {
     build_vlc # NB requires ffmpeg static as well, at least once...so put this last :)
   fi
   build_graphicsmagick
-  build_mlt # Framework, but might come to rely on binaries we've built
+  build_mlt # Framework, but relies on FFmpeg, Qt, and many other libraries we've built.
   build_DJV # Requires FFmpeg libraries
   build_get_iplayer
 #  build_vlc

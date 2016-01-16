@@ -73,6 +73,17 @@ These binaries for Windows 64-bit are tested on Windows 10, and are built both o
 INSTALLATION
 ============
 
+This package is designed for 64-bit Windows 10, and is not tested with any other version of Windows.
+
+Your Windows installation needs to have certain packages installed:
+
+* Python 3.5 or later
+* Perl, the multi-threaded version
+
+...and, if you use some of my scripts for on-line television viewing,
+
+* The Python m3u8 module (run "pip install m3u8" from an Administrator prompt)
+
 Unpack the archive in a convenient directory on your Windows box. I use C:\Program Files\ffmpeg
 
 The result is that you have these directories:
