@@ -2356,6 +2356,14 @@ build_vidstab() {
   cd ..
 }
 
+build_libchromaprint() {
+  do_git_checkout https://bitbucket.org/acoustid/chromaprint.git chromaprint
+  cd chromaprint
+    do_cmake "-DWITH_FFTW3=ON -DBUILD_EXAMPLES=ON -DBUILD_SHARED_LIBS=ON"
+    do_make_install
+  cd ..
+}
+
 build_pkg-config() {
   cp -v /usr/bin/pkg-config ${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config
 }
@@ -2584,6 +2592,15 @@ build_libudfread() {
 #  export PATH="${orig_path}"
 #  cd ..
 #}
+
+
+build_zimg() {
+  do_git_checkout https://github.com/sekrit-twc/zimg.git zimg
+  cd zimg
+    sed -i.bak 's/Windows\.h/windows.h/' src/testcommon/mmap.cpp
+    generic_configure_make_install "--enable-x86simd --enable-example" 
+  cd ..
+}
 
 build_libcdio() {
   do_git_checkout http://git.savannah.gnu.org/r/libcdio.git libcdio
@@ -2902,7 +2919,7 @@ build_ffmpeg() {
 
   # FFmpeg + libav compatible options
   # add libpsapi to enable libdlfcn for Windows to work, thereby enabling frei0r plugins
-  local extra_configure_opts="--enable-libsoxr --enable-fontconfig --enable-libass --enable-libutvideo --enable-libbluray --enable-iconv --enable-libtwolame --enable-libzvbi --enable-libcaca --enable-libmodplug --extra-libs=-lstdc++ --extra-libs=-lpsapi --enable-opengl --extra-libs=-lz --extra-libs=-lpng --enable-libvidstab --enable-libx265 --enable-decklink --extra-libs=-loleaut32 --enable-libcdio --enable-libbluray "
+  local extra_configure_opts="--enable-libsoxr --enable-fontconfig --enable-libass --enable-libutvideo --enable-libbluray --enable-iconv --enable-libtwolame --enable-libzvbi --enable-libcaca --enable-libmodplug --extra-libs=-lstdc++ --extra-libs=-lpsapi --enable-opengl --extra-libs=-lz --extra-libs=-lpng --enable-libvidstab --enable-libx265 --enable-decklink --extra-libs=-loleaut32 --enable-libcdio --enable-libbluray --enable-libzimg --enable-chromaprint"
 
   if [[ $type = "libav" ]]; then
     # libav [ffmpeg fork]  has a few missing options?
@@ -3048,6 +3065,7 @@ build_dependencies() {
   build_libdvdread # vlc, mplayer use it. needs dvdcss
   build_libdvdnav # vlc, mplayer use this
   build_libtiff
+  build_zimg # Image format conversion library for FFmpeg and others
   build_libexif # For manipulating EXIF data
   build_libxvid
   build_libxavs
@@ -3086,6 +3104,7 @@ build_dependencies() {
                                              # doesn't actually remove the installed library
   fi
   build_libfftw
+  build_libchromaprint
   build_libsndfile
   build_glib
   build_vamp-sdk
