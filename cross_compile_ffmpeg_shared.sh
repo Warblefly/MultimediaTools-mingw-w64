@@ -982,7 +982,7 @@ build_libvpx() {
   else
 #    do_configure "--extra-cflags=-DPTW32_STATIC_LIB --target=x86_64-win64-gcc --prefix=$mingw_w64_x86_64_prefix --enable-static --disable-shared --disable-unit-tests --disable-encode-perf-tests --disable-decode-perf-tests --enable-vp10 --enable-vp10-encoder --enable-vp10-decoder --enable-vp9-highbitdepth --enable-vp9-temporal-denoising --enable-postproc --enable-vp9-postproc"
     # libvpx only supports static building on MinGW platform
-    do_configure "--target=x86_64-win64-gcc --prefix=$mingw_w64_x86_64_prefix --enable-static --disable-unit-tests --disable-encode-perf-tests --disable-decode-perf-tests --enable-vp10 --enable-vp10-encoder --enable-vp10-decoder --enable-vp9-highbitdepth --enable-vp9-temporal-denoising --enable-postproc --enable-vp9-postproc"
+    do_configure "--target=x86_64-win64-gcc --prefix=$mingw_w64_x86_64_prefix --enable-static --disable-unit-tests --disable-encode-perf-tests --disable-decode-perf-tests --enable-vp10 --enable-vp10-encoder --enable-vp10-decoder --enable-vp9-highbitdepth --enable-vp9-temporal-denoising --enable-postproc --enable-vp9-postproc --disable-multithread"
   fi
   do_make_install
   # Now create the shared library
@@ -2492,6 +2492,10 @@ build_openssh() {
     generic_download_and_install http://mirror.bytemark.co.uk/pub/OpenBSD/OpenSSH/portable/openssh-7.1p1.tar.gz openssh-7.1p1 "LIBS=-lgdi32"
 }
 
+build_libffi() {
+  generic_download_and_install ftp://sourceware.org/pub/libffi/libffi-3.2.1.tar.gz libffi-3.2.1
+}
+
 build_ilmbase() {
   do_git_checkout https://github.com/openexr/openexr.git openexr
   cd openexr/IlmBase
@@ -2619,6 +2623,27 @@ build_makemkv() { # THIS IS NOT WORKING - MAKEMKV NEEDS MORE THAN MINGW OFFERS
   sed -i.bak 's/#include <alloca.h>/#include <malloc.h>/' libmmbd/src/mmconn.cpp
   do_make_install
   generic_download_and_install http://www.makemkv.com/download/makemkv-bin-1.8.13.tar.gz makemkv-bin-1.8.13
+  cd ..
+}
+
+build_gettext() {
+  generic_download_and_install http://ftp.gnu.org/pub/gnu/gettext/gettext-0.19.7.tar.xz gettext-0.19.7 "CFLAGS=-O2 CXXFLAGS=-O2 LIBS=-lpthread"
+}
+
+build_pcre() {
+  generic_download_and_install ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.38.tar.bz2 pcre-8.38 "--enable-pcre16 --enable-pcre32 --enable-newline-is-any --enable-jit --enable-utf --enable-pcregrep-libz --enable-pcregrep-libbz2 --enable-pcregrep-libreadline --enable-unicode-properties"
+}
+
+build_glib() {
+  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/glib/2.47/glib-2.47.5.tar.xz glib-2.47.5
+  cd glib-2.47.5
+    export glib_cv_long_long_format=I64
+    export glib_cv_stack_grows=no
+    # Work around mingw-w64 lacking strerror_s()
+#    sed -i.bak 's/strerror_s (buf, sizeof (buf), errnum);/strerror_r (errno, buf, sizeof (buf);/' glib/gstrfuncs.c
+    generic_configure_make_install "--disable-compile-warnings --disable-silent-rules CFLAGS=-DMINGW_HAS_SECURE_API"
+    unset glib_cv_long_long_format
+    unset glib_cv_stack_grows
   cd ..
 }
 
@@ -2857,7 +2882,7 @@ build_get_iplayer() {
   curl -o ${mingw_w64_x86_64_prefix}/bin/get_iplayer.cmd https://raw.githubusercontent.com/get-iplayer/get_iplayer/master/windows/get_iplayer/get_iplayer.cmd
   # Change the Perl path to include the full path to my default location for this suite
   # otherwise the Perl script isn't found by the command interpreter on Windows
-  sed -i.bak 's/get_iplayer.pl/C:\\Program Files\\ffmpeg\\bin\\get_iplayer.pl/' ${mingw_w64_x86_64_prefix}/bin/get_iplayer.cmd
+  sed -i.bak 's/get_iplayer.pl/"C:\\Program Files\\ffmpeg\\bin\\get_iplayer.pl"/' ${mingw_w64_x86_64_prefix}/bin/get_iplayer.cmd
 }
 
 build_libdecklink() {
@@ -2966,12 +2991,14 @@ build_dependencies() {
   build_libtool
   build_pkg-config # because MPV likes to see a mingw version of pkg-config
   build_iconv # Because Cygwin's iconv is buggy, and loops on certain character set conversions
+  build_libffi # for glib among others
   build_doxygen
   build_libdlfcn # ffmpeg's frei0r implentation needs this <sigh>
   build_zlib # rtmp depends on it [as well as ffmpeg's optional but handy --enable-zlib]
   build_bzlib2 # in case someone wants it [ffmpeg uses it]
   build_libpng # for openjpeg, needs zlib
   build_gmp # for libnettle
+  build_pcre # for glib and others
   build_libnettle # needs gmp
 #  build_libunistring # Needed for guile
 #  build_libffi # Needed for guile
@@ -3002,6 +3029,7 @@ build_dependencies() {
   build_termcap
   build_ncurses
   build_readline
+  build_gettext
   build_libpopt
   build_freetype # uses bz2/zlib seemingly
   build_libexpat
@@ -3059,6 +3087,7 @@ build_dependencies() {
   fi
   build_libfftw
   build_libsndfile
+  build_glib
   build_vamp-sdk
   build_libsamplerate # for librubberband
   build_libbs2b
