@@ -3324,7 +3324,7 @@ fi
 # TODO: CHECK THIS LIST WHEN ADDING NEW PACKAGES
 
 echo "Copying runtime libraries that have gone to the wrong build directory."
-wrong_libs=('libatomic-1.dll' 'libboost_date_time.dll' 'libboost_filesystem.dll' 'libboost_regex.dll' 'libboost_system.dll' 'libdcadec.dll' 'libgcc_s_seh-1.dll' 'libopendcp-asdcp.dll' 'libpthread.dll' 'libquadmath-0.dll' 'libssp-0.dll' 'libstdc++-6.dll' 'libvtv-0.dll' 'libvtv_stubs-0.dll' 'pthreadGC2.dll')
+wrong_libs=('icudt.dll' 'icuin.dll' 'icuio.dll' 'icule.dll' 'iculx.dll' 'icutest.dll' 'icuuc.dll' 'libatomic-1.dll' 'libboost_date_time.dll' 'libboost_filesystem.dll' 'libboost_regex.dll' 'libboost_system.dll' 'libdcadec.dll' 'libgcc_s_seh-1.dll' 'libopendcp-asdcp.dll' 'libpthread.dll' 'libquadmath-0.dll' 'libssp-0.dll' 'libstdc++-6.dll' 'libvtv-0.dll' 'libvtv_stubs-0.dll' 'pthreadGC2.dll')
 for move in "${wrong_libs[@]}"; do
   cp -Lv "${mingw_w64_x86_64_prefix}/lib/${move}" "${mingw_w64_x86_64_prefix}/bin/${move}" || exit 1
 done
