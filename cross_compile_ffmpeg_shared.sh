@@ -1928,7 +1928,7 @@ build_mpv() {
     ./bootstrap.py
     export DEST_OS=win32
     export TARGET=x86_64-w64-mingw32
-    do_configure "configure -pp --prefix=${mingw_w64_x86_64_prefix} --enable-win32-internal-pthreads --disable-x11 --disable-lcms2 --enable-sdl1 --disable-sdl2 --disable-debug-build --enable-gpl3" "./waf"
+    do_configure "configure -pp --prefix=${mingw_w64_x86_64_prefix} --enable-win32-internal-pthreads --disable-x11 --disable-lcms2 --disable-debug-build --enable-gpl3 --enable-sdl2 --enable-libmpv-shared --disable-libmpv-static --enable-gpl3 " "./waf"
     # In this cross-compile for Windows, we keep the Python script up-to-date and therefore
     # must call it directly by its full name, because mpv can only explore for executables
     # with the .exe suffix.
@@ -2344,6 +2344,14 @@ build_frei0r() {
     # These are ALWAYS compiled as DLLs... there is no static library model in frei0r
     do_cmake "-DOpenCV_DIR=${OpenCV_DIR} -DOpenCV_INCLUDE_DIR=${OpenCV_INCLUDE_DIR} -DCMAKE_CXX_FLAGS=-std=c++14"
     do_make_install "-j1"
+  cd ..
+}
+
+build_snappy () {
+  do_git_checkout https://github.com/google/snappy.git snappy
+  cd snappy
+    apply_patch file://${top_dir}/snappy-shared-dll.patch
+    generic_configure_make_install
   cd ..
 }
 
@@ -2919,7 +2927,7 @@ build_ffmpeg() {
 
   # FFmpeg + libav compatible options
   # add libpsapi to enable libdlfcn for Windows to work, thereby enabling frei0r plugins
-  local extra_configure_opts="--enable-libsoxr --enable-fontconfig --enable-libass --enable-libutvideo --enable-libbluray --enable-iconv --enable-libtwolame --enable-libzvbi --enable-libcaca --enable-libmodplug --extra-libs=-lstdc++ --extra-libs=-lpsapi --enable-opengl --extra-libs=-lz --extra-libs=-lpng --enable-libvidstab --enable-libx265 --enable-decklink --extra-libs=-loleaut32 --enable-libcdio --enable-libbluray --enable-libzimg --enable-chromaprint"
+  local extra_configure_opts="--enable-libsoxr --enable-fontconfig --enable-libass --enable-libutvideo --enable-libbluray --enable-iconv --enable-libtwolame --enable-libzvbi --enable-libcaca --enable-libmodplug --extra-libs=-lstdc++ --extra-libs=-lpsapi --enable-opengl --extra-libs=-lz --extra-libs=-lpng --enable-libvidstab --enable-libx265 --enable-decklink --extra-libs=-loleaut32 --enable-libcdio --enable-libbluray --enable-libzimg --enable-chromaprint --enable-libsnappy"
 
   if [[ $type = "libav" ]]; then
     # libav [ffmpeg fork]  has a few missing options?
@@ -3013,6 +3021,7 @@ build_dependencies() {
   build_libdlfcn # ffmpeg's frei0r implentation needs this <sigh>
   build_zlib # rtmp depends on it [as well as ffmpeg's optional but handy --enable-zlib]
   build_bzlib2 # in case someone wants it [ffmpeg uses it]
+  build_snappy # For certain types of very fast video compression
   build_libpng # for openjpeg, needs zlib
   build_gmp # for libnettle
   build_pcre # for glib and others
