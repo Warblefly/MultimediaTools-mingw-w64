@@ -1188,6 +1188,9 @@ build_jack() {
       do_configure "configure --prefix=${mingw_w64_x86_64_prefix} --dist-target=mingw" "./waf"
       ./waf build || exit 1
       ./waf install || exit 1
+      # The Jack development libraries are, strangely, placed into a subdirectory of lib
+      echo "Placing the Jack development libraries in the expected place..."
+      cp -v ${mingw_w64_x86_64_prefix}/lib/jack/*dll.a ${mingw_w64_x86_64_prefix}/lib
     else
       echo "Jack already built."
     fi
@@ -1513,7 +1516,7 @@ build_gnutls() {
 #    git submodule init
 #    git submodule update
 #    make autoreconf
-    generic_configure "--disable-doc" # --disable-cxx --disable-doc --without-p11-kit --disable-local-libopts --disable-libopts-install --with-included-libtasn1" # don't need the c++ version, in an effort to cut down on size... XXXX test difference...
+    generic_configure "--disable-doc --enable-local-libopts" # --disable-cxx --disable-doc --without-p11-kit --disable-local-libopts --disable-libopts-install --with-included-libtasn1" # don't need the c++ version, in an effort to cut down on size... XXXX test difference...
     do_make_install
   cd ..
   sed -i.bak 's/-lgnutls *$/-lgnutls -lnettle -lhogweed -lgmp -lcrypt32 -lws2_32 -liconv/' "$PKG_CONFIG_PATH/gnutls.pc"
@@ -2756,9 +2759,11 @@ build_mp4box() { # like build_gpac
   # sed -i "s/has_dvb4linux=\"yes\"/has_dvb4linux=\"no\"/g" configure
   # sed -i "s/`uname -s`/MINGW32/g" configure
   # XXX do I want to disable more things here?
-  sed -i.bak 's#bin/gcc/MP4Box#bin/gcc/MP4Box.exe#' Makefile
-  sed -i.bak 's#bin/gcc/MP42TS#bin/gcc/MP42TS.exe#' Makefile
-  sed -i.bak 's#bin/gcc/MP4Client#bin/gcc/MP4Client.exe#' Makefile
+  sed -i.bak 's#bin/gcc/MP4Box #bin/gcc/MP4Box.exe #' Makefile
+  sed -i.bak 's#bin/gcc/MP42TS #bin/gcc/MP42TS.exe #' Makefile
+  sed -i.bak 's#bin/gcc/MP4Client #bin/gcc/MP4Client.exe #' Makefile
+  # The Makefile for the jack module has a hard-coded library search path. This is bad.
+  sed -i.bak 's#/bin/gcc -lgpac -L/usr/lib#/bin/gcc -lgpac -L${mingw_w64_x86_64_prefix}/lib#' modules/jack/Makefile
   # The object dll seems to have the wrong link
   sed -i.bak 's#FLAGS) -m 755 bin/gcc/libgpac\.dll\.a \$(DESTDIR)\$(prefix)/\$(libdir)#FLAGS) -m 755 bin/gcc/libgpac.dll $(DESTDIR)$(prefix)/$(libdir)/libgpac.dll.a#' Makefile
 #  sed -i.bak 's/	$(MAKE) installdylib/#	$(MAKE) installdylib/' Makefile
