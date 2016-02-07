@@ -23,7 +23,7 @@ By these scripts, you can compile binaries, ready to run on 64-bit Windows, of u
 
 * FFmpeg including the kitchen sink (libfdk_aac, frei0r plugins and others not normally included)
 * sox
-* MP4Box
+* MP4Box and many other tools from the GPAC project
 * raw2bmx and many other BBC MXF utilities and libraries
 * opusenc and libopus
 * lame and libmp3lame
@@ -127,6 +127,7 @@ THANKS
 
 * Zeranoe and associated developers. http://zeranoe.com/
 * Roger D Pack, https://github.com/rdp/ffmpeg-windows-build-helpers
+* The GPAC project http://www.gpac-licensing.com/
 * The FFmpeg developers. http://ffmpeg.org
 * The whole GNU project, creators of the Gnu Compiler Collection and other utilities
 * The BBC developers behind Ingest and libMXF
@@ -139,6 +140,6 @@ THANKS
 LICENCE
 =======
 
-My script, very much derived from others' work, is released under the GNU Affero GPL Version 3 licence. You will find it at the top of this repository. Please adhere to it.
+My script, very much derived from others' work, is released under the GNU Affero GPL Version 3 licence. You will find it at the top of this repository. Please adhere to it. All other programs have their own open source licences, which can be found within their source trees.
 
 The version of FFmpeg built here is non-redistributable.

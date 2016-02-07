@@ -10,7 +10,10 @@
 
 build_ffmpeg=y
 dump_archive=y
-dump_file="/home/john/www/gallery/html/mingw-multimedia-executables-shared.tar.xz"
+dump_file="mingw-multimedia-executables-shared.tar.xz"
+gcc_cpu_count="$(grep -c processor /proc/cpuinfo)" 
+
+
 
 # parse command line parameters, if any
 while true; do
@@ -33,7 +36,7 @@ echo "dump_archive is ${dump_archive}"
 echo "Archive will be dumped to ${dump_file}"
 
 
-./cross_compile_ffmpeg_shared.sh --build-ffmpeg-shared=n --build-ffmpeg-static=$build_ffmpeg --disable-nonfree=n --sandbox-ok=y --build-libmxf=y --build-mp4box=y --build-choice=win64 --git-get-latest=y --prefer-stable=n --build-mplayer=n || { echo "Build failure. Please see error messages above." ; exit 1; } 
+./cross_compile_ffmpeg_shared.sh --build-ffmpeg-shared=n --build-ffmpeg-static=$build_ffmpeg --disable-nonfree=n --sandbox-ok=y --build-libmxf=y --build-mp4box=y --build-choice=win64 --git-get-latest=y --prefer-stable=n --build-mplayer=n --gcc-cpu-count=$gcc_cpu_count || { echo "Build failure. Please see error messages above." ; exit 1; } 
 
 # A few shared libraries necessary for runtime have been stored in ./lib.
 # These must now be moved somewhere more useful.
@@ -45,7 +48,9 @@ if  [[ "$dump_archive" = [Yy] ]]; then
   echo "Archive dump selected."
   cd sandbox/mingw-w64-x86_64/x86_64-w64-mingw32
   # Symbolic links are de-referenced because Windows doesn't understand these.
-  tar hcvvf - ./bin/*exe ./bin/*com ./bin/*dll ./bin/*py ./bin/*pl ./bin/*cmd ./bin/*config ./bin/platforms/*dll ./bin/lib/* ./bin/share/* ./lib/frei0r-1/* ./plugins/* ./share/OpenCV/* ./share/tessdata | xz -8 -z - > ${dump_file}|| exit 1
+  tar hcvvf - ./bin/*exe ./bin/*com ./bin/*dll ./bin/*py ./bin/*pl ./bin/*cmd ./bin/*config ./bin/platforms/*dll ./bin/lib/* ./bin/share/* ./lib/frei0r-1/* ./plugins/* ./share/OpenCV/* ./share/tessdata | pxz -9 -T 4 -v -v -z - > ${dump_file}|| exit 1
+  cd -
+  mv -v  "sandbox/mingw-w64-x86_64/x86_64-w64-mingw32/${dump_file}" .
   echo "Archive made and stored in ${dump_file}"
 fi
 

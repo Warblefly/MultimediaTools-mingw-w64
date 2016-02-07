@@ -38,7 +38,7 @@ yes_no_sel () {
 }
 
 check_missing_packages () {
-  local check_packages=('curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint')
+  local check_packages=('curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint' 'pxz')
   for package in "${check_packages[@]}"; do
     type -P "$package" >/dev/null || missing_packages=("$package" "${missing_packages[@]}")
   done
@@ -350,6 +350,23 @@ do_rake() {
   fi
 }
 
+do_drake() {
+  local extra_make_options="$1 -j $cpu_count"
+  local cur_dir2=$(pwd)
+  local touch_name=$(get_small_touchfile_name already_ran_drake "$extra_make_options")
+
+  if [ ! -f $touch_name ]; then
+    echo
+    echo "draking $cur_dir2 as $ PATH=$PATH drake $extra_make_options"
+    echo
+    nice drake $extra_make_options || exit 1
+    touch $touch_name || exit 1 # only touch if the build was OK
+  else
+    echo "already did drake $(basename "$cur_dir2")"
+  fi
+}
+						    
+
 do_smake() {
   local extra_make_options="$1"
   local cur_dir2=$(pwd)
@@ -505,6 +522,10 @@ generic_configure_rake_install() {
   do_rake_and_rake_install
 }
 
+generic_configure_drake_install() {
+  generic_configure "$1"
+  do_drake_and_drake_install
+}
 
 do_make_and_make_install() {
   local extra_make_options="$1"
@@ -524,6 +545,17 @@ do_rake_and_rake_install() {
   if [ ! -f $touch_name ]; then
     echo "rake installing $(pwd) as $ PATH=$PATH rake install $extra_make_options"
     nice rake install $extra_make_options || exit 1
+    touch $touch_name || exit 1
+  fi
+}
+
+do_drake_and_drake_install() {
+  local extra_make_options="$1"
+  do_drake "$extra_make_options"
+  local touch_name=$(get_small_touchfile_name already_ran_drake_install "$extra_make_options")
+  if [ ! -f $touch_name ]; then
+    echo "drake installing $(pwd) as $ PATH=$PATH drake install $extra_make_options"
+    nice drake install $extra_make_options || exit 1
     touch $touch_name || exit 1
   fi
 }
@@ -906,6 +938,7 @@ build_opendcp() {
     export CMAKE_INCLUDE_PATH="${mingw_w64_x86_64_prefix}/include:${mingw_w64_x86_64_prefix}/include/openjpeg-2.1"
     export CMAKE_CXX_FLAGS="-fopenmp"
     export CMAKE_C_FLAGS="-fopenmp"
+    export cpu_count=1
     apply_patch file://${top_dir}/opendcp-win32.cmake.patch
     apply_patch file://${top_dir}/opendcp-libopendcp-CMakeLists.txt.patch
     apply_patch file://${top_dir}/opendcp-CMakeLists.txt.patch
@@ -921,6 +954,7 @@ build_opendcp() {
     unset CMAKE_CXX_FLAGS
     unset CMAKE_LIBRARY_PATH
     unset CMAKE_INCLUDE_PATH
+    export cpu_count=$original_cpu_count
   cd ..
 }
 
@@ -1335,6 +1369,7 @@ build_libspeexdsp() {
 }
 
 build_libtheora() {
+  original_cpu_count=$cpu_count
   cpu_count=1 # can't handle it
 #  download_and_unpack_file http://downloads.xiph.org/releases/theora/libtheora-1.2.0alpha1.tar.gz libtheora-1.2.0alpha1
 #  cd libtheora-1.2.0alpha1
@@ -2101,6 +2136,7 @@ build_exiv2() {
 #    cp -Rv config/* .
 #    generic_configure_make_install
 #    do_make_install "VERBOSE=1"
+  cpu_count=$original_cpu_count
   cd ..
 #  unset LIBS
 }
@@ -2269,7 +2305,7 @@ build_mkvtoolnix() {
     # and this piece of code unfortunately tries to pull in a static version of the Windows Qt
     # platform library libqwindows.a
     sed -i.bak 's!sources("src/info/sys_windows.o!#!' Rakefile
-    do_rake_and_rake_install
+    do_drake_and_drake_install
 #    export LDFLAGS=${orig_ldflags}
   cd ..
 }
@@ -2545,7 +2581,7 @@ build_ffms2() {
       autoreconf -fiv
     fi
     apply_patch file://${top_dir}/ffms2.videosource.cpp.patch
-    generic_configure_make_install "--disable-static --enable-shared"
+    generic_configure_make_install "--disable-static --enable-shared --disable-silent-rules"
   cd ..
 }
 
@@ -3223,6 +3259,7 @@ if [ -z "$cpu_count" ]; then
     cpu_count=1 # else default to just 1, instead of blank, which means infinite 
   fi
 fi
+echo "Processors found: ${cpu_count}"
 original_cpu_count=$cpu_count # save it away for some that revert it temporarily
 gcc_cpu_count=1 # allow them to specify more than 1, but default to the one that's most compatible...
 build_ffmpeg_static=y
@@ -3244,7 +3281,7 @@ while true; do
     -h | --help ) echo "available options [with defaults]: 
       --build-ffmpeg-shared=n 
       --build-ffmpeg-static=y 
-      --gcc-cpu-count=1x [number of cpu cores set it higher than 1 if you have multiple cores and > 1GB RAM, this speeds up cross compiler build. FFmpeg build uses number of cores regardless.] 
+      --gcc-cpu-count=1 [number of cpu cores set it higher than 1 if you have multiple cores and > 1GB RAM, this speeds up cross compiler build. FFmpeg build uses number of cores regardless.] 
       --disable-nonfree=y (set to n to include nonfree like libfdk-aac) 
       --sandbox-ok=n [skip sandbox prompt if y] 
       --rebuild-compilers=y (prompts you which compilers to build, even if you already have some)
