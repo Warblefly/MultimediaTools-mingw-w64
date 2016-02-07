@@ -7,19 +7,20 @@ A binary package is available for download from this address:
 These binaries are for Windows 64-bit editions only, and hae been tested only on Windows 10.
 
 # How To Compile
-1. Ensure your development requirement is adequate. Spin up a Linux Debian image on AWS if you don't already have a GNU/Linux development environment, and give it around 25GB of space. The t2.micro machine type (which falls within the 'Free Tier' for new customers) is sufficient but very slow.
+1. Ensure your development requirement is adequate. Spin up a Linux Debian image on AWS if you don't already have a GNU/Linux development environment, and give it around 25GB of space. The t2.micro machine type (which falls within the 'Free Tier' for new customers) is sufficient but very slow. I personally use the c4.xlarge for the few hours a full compilation takes.
 2. Update to Debian Testing (or your favourite up-to-date distribution), so you have the latest compilers and other tools.
 3. Install the pre-requisites. On Debian Testing, you can execute this command:
-apt-get install gcc cmake libtool libtool-bin git  autopoint rake autogen xsltproc asciidoc doxygen ruby gperf bzr pax ed g++ bison flex cvs yasm gettext automake autoconf subversion mercurial texinfo pkg-config curl
-4. Clone my package from git (see the address at the top of this page).
-5. cd into the top directory of the git tree.
-6. Execute ./build_script
-7. Wait for about two days on a t2.micro instance.
-8. 
+apt-get install gcc cmake libtool libtool-bin git  autopoint rake autogen xsltproc asciidoc doxygen ruby gperf bzr pax ed g++ bison flex cvs yasm gettext automake autoconf subversion mercurial texinfo pkg-config curl pxz
+4. Then install the 'drake' make system that runs under Ruby: gem install drake
+5. Clone my package from git (see the address at the top of this page).
+6. cd into the top directory of the git tree.
+7. Execute ./build_script
+8. Wait for about two days on a t2.micro instance.
+9. The archive you can copy and unpack has been placed in the root of your build tree.
 
 
 # Tools Included
-By these scripts, you can compile binaries, ready to run on 64-bit Windows, of up-to-date:
+With these scripts, you can compile binaries, ready to run on 64-bit Windows, of up-to-date:
 
 * FFmpeg including the kitchen sink (libfdk_aac, frei0r plugins and others not normally included)
 * sox
@@ -34,6 +35,7 @@ By these scripts, you can compile binaries, ready to run on 64-bit Windows, of u
 * flac and libflac
 * fdk_aac advanced CLI
 * x264 H.264 cli and library
+* x262 MPEG2 video cli
 * x265 HEVC (H.265) cli and library
 * opencv libraries and examples
 * libqt version 5
@@ -72,22 +74,6 @@ Supporting the cross-compilation of the very versatile FFmpeg utilities under mi
 With grateful thanks to the Zeranoe and other developers especially Roger Pack, I have extended this build system for my own purposes. At first, this was developed using the Cygwin compatibility suite for Windows, but now it is developed on GNU/Linux.
 
 
-HOW TO
-======
-
-1. Install your favourite GNU/Linux distribution. Ensure you have development tools.
-2. Use git to checkout the project.
-3. Edit ./build_shared.sh to select where you want your binaries to be dumped.
-4. Make sure you've lots of swap space, and around 10GB disc space.
-5. Run ./build_shared.sh. This launches the other script in a controlled manner that I have tested.
-6. Wait quite a long time, maybe 12 hours, maybe a day.
-7. Enjoy and share. The resultant archive file, at the time of writing, is 99MB in size.
-
-Run the command again to incorporate updates. Note that FFmpeg won't be rebuilt merely because updated libraries have been built: FFmpeg itself requires a code change before it is freshly built.
-
-These binaries for Windows 64-bit are tested on Windows 10, and are built both on a Fedora 22 box, and a Debian "testing" Apple G4 computer.
-
-
 INSTALLATION
 ============
 
@@ -114,11 +100,10 @@ Within lib\ and share\, there are subdirectories whose purpose is indicated by t
 
 You must set certain environment variables for some facilities to work properly. These are examples from my own system, but I cannot guarantee they are all correct, because they may reference facilities that I personally don't test (yet).
 
-FONTCONFIG_FILE=fonts.conf
-FONTCONFIG_PATH=C:\Program Files\ffmpeg\etc\fonts
-FREI0R_PATH=C:\Program Files\ffmpeg\lib\frei0r-1
-TESSDATA_PREFIX=C:\Program Files\ffmpeg\share\
-(note that TESSDATA_PREFIX is the *parent* of the tessdata language directory)
+* FONTCONFIG_FILE=fonts.conf
+* FONTCONFIG_PATH=C:\Program Files\ffmpeg\etc\fonts
+* FREI0R_PATH=C:\Program Files\ffmpeg\lib\frei0r-1
+* TESSDATA_PREFIX=C:\Program Files\ffmpeg\share\ (note that TESSDATA_PREFIX is the *parent* of the tessdata language directory)
 
 
 
