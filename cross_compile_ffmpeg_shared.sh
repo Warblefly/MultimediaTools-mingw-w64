@@ -1546,7 +1546,7 @@ build_autogen() {
 }
 
 build_gnutls() {
-  download_and_unpack_file ftp://ftp.gnutls.org/gcrypt/gnutls/v3.3/gnutls-3.3.18.tar.xz gnutls-3.3.18
+  download_and_unpack_file http://mirror.tje.me.uk/pub/mirrors/ftp.gnupg.org/gnutls/v3.3/gnutls-3.3.18.tar.xz gnutls-3.3.18
 #  do_git_checkout https://gitlab.com/gnutls/gnutls.git gnutls
   cd gnutls-3.3.18
 #    git submodule init
