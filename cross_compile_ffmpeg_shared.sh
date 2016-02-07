@@ -38,7 +38,7 @@ yes_no_sel () {
 }
 
 check_missing_packages () {
-  local check_packages=('curl' 'pkg-config' 'make' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint')
+  local check_packages=('curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint')
   for package in "${check_packages[@]}"; do
     type -P "$package" >/dev/null || missing_packages=("$package" "${missing_packages[@]}")
   done
@@ -715,7 +715,7 @@ build_qt() {
     cd ..
     mkdir -p "${QT_BUILD}"
     cd "${QT_BUILD}"
-      do_configure "-prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -release -opensource -qt-freetype -fontconfig -no-qml-debug -confirm-license -c++11 -largefile -accessibility -no-compile-examples -strip -no-dbus -xplatform win32-g++ -opengl desktop -device-option CROSS_COMPILE=$cross_prefix -nomake examples -nomake tests -no-use-gold-linker -v" "../${QT_SOURCE}/configure" "noclean"
+      do_configure "-prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -release -opensource -qt-freetype -fontconfig -no-qml-debug -confirm-license -c++11 -largefile -accessibility -no-compile-examples -strip -no-dbus -platform linux-g++-64 -xplatform win32-g++ -opengl desktop -device-option CROSS_COMPILE=$cross_prefix -nomake examples -nomake tests -no-use-gold-linker -v" "../${QT_SOURCE}/configure" "noclean"
       do_make_install || exit 1
       # Because some parts of Qt produce Pkgconfig pc files that reference debug libraries only,
       # and because we do not want the binary overhead of these libraries appearing in our
@@ -982,7 +982,7 @@ build_libvpx() {
   else
 #    do_configure "--extra-cflags=-DPTW32_STATIC_LIB --target=x86_64-win64-gcc --prefix=$mingw_w64_x86_64_prefix --enable-static --disable-shared --disable-unit-tests --disable-encode-perf-tests --disable-decode-perf-tests --enable-vp10 --enable-vp10-encoder --enable-vp10-decoder --enable-vp9-highbitdepth --enable-vp9-temporal-denoising --enable-postproc --enable-vp9-postproc"
     # libvpx only supports static building on MinGW platform
-    do_configure "--target=x86_64-win64-gcc --prefix=$mingw_w64_x86_64_prefix --enable-static --disable-unit-tests --disable-encode-perf-tests --disable-decode-perf-tests --enable-vp10 --enable-vp10-encoder --enable-vp10-decoder --enable-vp9-highbitdepth --enable-vp9-temporal-denoising --enable-postproc --enable-vp9-postproc --disable-multithread"
+    do_configure "--target=x86_64-win64-gcc --prefix=$mingw_w64_x86_64_prefix --enable-static --disable-unit-tests --disable-encode-perf-tests --disable-decode-perf-tests --enable-vp10 --enable-vp10-encoder --enable-vp10-decoder --enable-vp9-temporal-denoising --enable-postproc --enable-vp9-postproc --disable-multithread"
   fi
   do_make_install
   # Now create the shared library
@@ -1305,6 +1305,7 @@ build_rsync() {
 build_libjpeg_turbo() {
   do_git_checkout https://github.com/libjpeg-turbo/libjpeg-turbo libjpeg-turbo
   cd libjpeg-turbo
+    apply_patch file://${top_dir}/libjpeg-turbo-simd-yasm.patch
     do_cmake "-DENABLE_STATIC=FALSE -DENABLE_SHARED=TRUE"
     do_make_install
   # Change to CMAKE

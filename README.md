@@ -1,6 +1,23 @@
 # MultimediaTools-mingw-w64
 Scripts and patches to cross-compile, for Windows 64-bit, many multimedia utilities, including FFmpeg, OpenDCP and all the BBC Avid-compatible MXF utilities.
 
+# How To Install
+A binary package is available for download from this address:
+<a href="http://gallery.johnwarburton.net/mingw-multimedia-executables-shared.tar.xz">http://gallery.johnwarburton.net/mingw-multimedia-executables-shared.tar.xz</a>
+These binaries are for Windows 64-bit editions only, and hae been tested only on Windows 10.
+
+# How To Compile
+1. Ensure your development requirement is adequate. Spin up a Linux Debian image on AWS if you don't already have a GNU/Linux development environment, and give it around 25GB of space. The t2.micro machine type (which falls within the 'Free Tier' for new customers) is sufficient but very slow.
+2. Update to Debian Testing (or your favourite up-to-date distribution), so you have the latest compilers and other tools.
+3. Install the pre-requisites. On Debian Testing, you can execute this command:
+apt-get install gcc cmake libtool libtool-bin git  autopoint rake autogen xsltproc asciidoc doxygen ruby gperf bzr pax ed g++ bison flex cvs yasm gettext automake autoconf subversion mercurial texinfo pkg-config curl
+4. Clone my package from git (see the address at the top of this page).
+5. cd into the top directory of the git tree.
+6. Execute ./build_script
+7. Wait for about two days on a t2.micro instance.
+8. 
+
+
 # Tools Included
 By these scripts, you can compile binaries, ready to run on 64-bit Windows, of up-to-date:
 
@@ -19,8 +36,8 @@ By these scripts, you can compile binaries, ready to run on 64-bit Windows, of u
 * x264 H.264 cli and library
 * x265 HEVC (H.265) cli and library
 * opencv libraries and examples
-* libqt version 4
-* opendcp (including GUI)
+* libqt version 5
+* opendcp (not including GUI)
 * gdb, the Gnu Debugger
 * libtiff and many tiff utilities
 * freetype
@@ -30,6 +47,7 @@ By these scripts, you can compile binaries, ready to run on 64-bit Windows, of u
 * GraphicsMagick
 * mediainfo (CLI)
 * mpv media player
+* DJV viewer for many professional video image sequence formats
 * openssl
 * librubberband for pitch shifting
 * rtmpdump and librtmpdump
@@ -40,7 +58,7 @@ and many others and their associated libraries. The compiled programs are native
 BINARY DISTRIBUTION
 ===================
 
-I keep a binary tarball on my website. The script in this project automatically creates and copies it.
+I keep a binary tarball on my website.
 <a href="http://gallery.johnwarburton.net/mingw-multimedia-executables-shared.tar.xz">http://gallery.johnwarburton.net/mingw-multimedia-executables-shared.tar.xz</a>
 
 Some of the binaries use shared libraries, ending in .dll. Like the executable programs, they're in the /bin/ directory of the distribution. Please keep them together with the .exe programs.
