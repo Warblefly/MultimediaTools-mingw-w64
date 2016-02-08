@@ -1219,12 +1219,14 @@ build_jack() {
       export AR=x86_64-w64-mingw32-ar 
       export CC=x86_64-w64-mingw32-gcc 
       export CXX=x86_64-w64-mingw32-g++ 
+#      export cpu_count=1
       do_configure "configure --prefix=${mingw_w64_x86_64_prefix} --dist-target=mingw" "./waf"
       ./waf build || exit 1
       ./waf install || exit 1
       # The Jack development libraries are, strangely, placed into a subdirectory of lib
       echo "Placing the Jack development libraries in the expected place..."
       cp -v ${mingw_w64_x86_64_prefix}/lib/jack/*dll.a ${mingw_w64_x86_64_prefix}/lib
+#      export cpu_count=$original_cpu_count
     else
       echo "Jack already built."
     fi
@@ -2025,7 +2027,9 @@ build_libdcadec() {
 build_glew() {
   do_git_checkout https://github.com/nigels-com/glew.git glew
   cd glew
+    cpu_count=1
     do_make extensions
+    export cpu_count=$original_cpu_count
     cd build/cmake
       do_cmake "-DBUILD_SHARED_LIBS=ON -DBUILD_STATIC_LIBS=OFF"
       do_make_install
@@ -2586,14 +2590,14 @@ build_ffms2() {
 }
 
 build_flac() {
-  do_git_checkout https://git.xiph.org/flac.git flac
+  do_git_checkout https://git.xiph.org/flac.git flac b821ac2
   cd flac
-  # microbench target hasn't been tested on many platforms yet
-  sed -i.bak 's/microbench//' Makefile.am
-  if [[ ! -f "configure" ]]; then
-    ./autogen.sh
-  fi
-  generic_configure_make_install "--disable-doxygen-docs"
+    # microbench target hasn't been tested on many platforms yet
+    sed -i.bak 's/microbench//' Makefile.am
+    if [[ ! -f "configure" ]]; then
+      ./autogen.sh
+    fi
+    generic_configure_make_install "--disable-doxygen-docs --disable-silent-rules"
   cd ..
 }
 
