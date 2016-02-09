@@ -2539,7 +2539,7 @@ EOF
 }
 
 build_sox() {
-  do_git_checkout git://sox.git.sourceforge.net/gitroot/sox/sox sox
+  do_git_checkout git://git.code.sf.net/p/sox/code sox
   cd sox
   if [[ ! -f "configure" ]]; then
     autoreconf -fiv
