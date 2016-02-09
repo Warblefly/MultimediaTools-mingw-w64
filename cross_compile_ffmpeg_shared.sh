@@ -2590,7 +2590,7 @@ build_ffms2() {
 }
 
 build_flac() {
-  do_git_checkout https://git.xiph.org/flac.git flac b821ac2
+  do_git_checkout https://git.xiph.org/flac.git flac # b821ac2
   cd flac
     # microbench target hasn't been tested on many platforms yet
     sed -i.bak 's/microbench//' Makefile.am
