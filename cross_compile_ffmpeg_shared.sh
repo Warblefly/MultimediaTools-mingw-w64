@@ -747,7 +747,7 @@ build_qt() {
     cd ..
     mkdir -p "${QT_BUILD}"
     cd "${QT_BUILD}"
-      do_configure "-prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -release -opensource -qt-freetype -fontconfig -no-qml-debug -confirm-license -c++11 -largefile -accessibility -no-compile-examples -strip -no-dbus -platform linux-g++-64 -xplatform win32-g++ -opengl desktop -device-option CROSS_COMPILE=$cross_prefix -nomake examples -nomake tests -no-use-gold-linker -v" "../${QT_SOURCE}/configure" "noclean"
+      do_configure "-prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -release -opensource -qt-freetype -fontconfig -no-qml-debug -confirm-license -largefile -accessibility -no-compile-examples -strip -no-dbus -xplatform win32-g++ -opengl desktop -device-option CROSS_COMPILE=$cross_prefix -nomake examples -nomake tests -no-use-gold-linker -v" "../${QT_SOURCE}/configure" "noclean"
       do_make_install || exit 1
       # Because some parts of Qt produce Pkgconfig pc files that reference debug libraries only,
       # and because we do not want the binary overhead of these libraries appearing in our
@@ -1016,7 +1016,7 @@ build_libvpx() {
   else
 #    do_configure "--extra-cflags=-DPTW32_STATIC_LIB --target=x86_64-win64-gcc --prefix=$mingw_w64_x86_64_prefix --enable-static --disable-shared --disable-unit-tests --disable-encode-perf-tests --disable-decode-perf-tests --enable-vp10 --enable-vp10-encoder --enable-vp10-decoder --enable-vp9-highbitdepth --enable-vp9-temporal-denoising --enable-postproc --enable-vp9-postproc"
     # libvpx only supports static building on MinGW platform
-    do_configure "--target=x86_64-win64-gcc --prefix=$mingw_w64_x86_64_prefix --enable-static --disable-unit-tests --disable-encode-perf-tests --disable-decode-perf-tests --enable-vp10 --enable-vp10-encoder --enable-vp10-decoder --enable-vp9-temporal-denoising --enable-postproc --enable-vp9-postproc --disable-multithread"
+    do_configure "--target=x86_64-win64-gcc --prefix=$mingw_w64_x86_64_prefix --enable-static --disable-unit-tests --disable-encode-perf-tests --disable-decode-perf-tests --enable-vp10 --enable-vp10-encoder --enable-vp10-decoder --enable-vp9-temporal-denoising --enable-postproc --enable-vp9-postproc --enable-multithread"
   fi
   do_make_install
   # Now create the shared library
@@ -2590,7 +2590,8 @@ build_ffms2() {
 }
 
 build_flac() {
-  do_git_checkout https://git.xiph.org/flac.git flac # b821ac2
+  do_git_checkout https://git.xiph.org/flac.git flac  # b821ac2
+#  cpu_count=1
   cd flac
     # microbench target hasn't been tested on many platforms yet
     sed -i.bak 's/microbench//' Makefile.am
@@ -2598,6 +2599,7 @@ build_flac() {
       ./autogen.sh
     fi
     generic_configure_make_install "--disable-doxygen-docs --disable-silent-rules"
+#    cpu_count=$original_cpu_count
   cd ..
 }
 
