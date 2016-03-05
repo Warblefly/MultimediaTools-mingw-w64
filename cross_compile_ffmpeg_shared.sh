@@ -168,7 +168,7 @@ install_cross_compiler() {
 #  sed -i.bak "s/--enable-threads=win32/--enable-threads=posix/" mingw-w64-build-3.6.6
 # Gendef compilation throws a char-as-array-index error when invoked with "--target=" : "--host" avoids this.
 #  sed -i.bak 's#gendef/configure" --build="$system_type" --prefix="$mingw_w64_prefix" --target#gendef/configure" --build="$system_type" --prefix="$mingw_w64_prefix" --host#' mingw-w64-build-3.6.6
-  ./mingw-w64-build-3.6.6 --clean-build --default-configure --mingw-w64-ver=4.0.4 --gcc-ver=5.3.0 --pthreads-w32-ver=2-9-1 --cpu-count=$gcc_cpu_count --build-type=$build_choice --enable-gendef --enable-widl --binutils-ver=2.26 --verbose || exit 1 # --disable-shared allows c++ to be distributed at all...which seemed necessary for some random dependency...
+  ./mingw-w64-build-3.6.6 --clean-build --default-configure --mingw-w64-ver=git --gcc-ver=5.3.0 --pthreads-w32-ver=2-9-1 --cpu-count=$gcc_cpu_count --build-type=$build_choice --enable-gendef --enable-widl --binutils-ver=2.26 --verbose || exit 1 # --disable-shared allows c++ to be distributed at all...which seemed necessary for some random dependency...
   export CFLAGS=$original_cflags # reset it
 # We need to move the plain cross-compiling versions of bintools out of the way
 # because exactly the same binaries exist with the host triplet prefix
@@ -639,7 +639,7 @@ build_libx265() {
   
   local cmake_params="-DENABLE_SHARED=ON -DENABLE_STATIC=OFF"
   if [[ $high_bitdepth == "y" ]]; then
-    cmake_params="$cmake_params -DHIGH_BIT_DEPTH=ON" # Enable 10 bits (main10) and 12 bits (???) per pixels profiles.
+    cmake_params="$cmake_params -DHIGH_BIT_DEPTH=ON -DMAIN12=ON" # Enable 10 bits (main10) and 12 bits (???) per pixels profiles.
     if grep "DHIGH_BIT_DEPTH=0" CMakeFiles/cli.dir/flags.make; then
       rm already_ran_cmake_* #Last build was not high bitdepth. Forcing rebuild.
     fi
@@ -648,7 +648,7 @@ build_libx265() {
       rm already_ran_cmake_* #Last build was high bitdepth. Forcing rebuild.
     fi
   fi
-  apply_patch_p1 file://${top_dir}/x265-missing-bool.patch  
+#  apply_patch_p1 file://${top_dir}/x265-missing-bool.patch  
   # Fixed by x265 developers now
   do_cmake "$cmake_params" 
   do_make_install
@@ -747,7 +747,11 @@ build_qt() {
     cd ..
     mkdir -p "${QT_BUILD}"
     cd "${QT_BUILD}"
-      do_configure "-prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -release -opensource -qt-freetype -fontconfig -no-qml-debug -confirm-license -largefile -accessibility -no-compile-examples -strip -no-dbus -xplatform win32-g++ -opengl desktop -device-option CROSS_COMPILE=$cross_prefix -nomake examples -nomake tests -no-use-gold-linker -v" "../${QT_SOURCE}/configure" "noclean"
+      echo "About to configure. Environment:"
+      env > environment-qt-before-configure.txt
+      do_configure "-prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -release -opensource -qt-freetype -fontconfig -no-qml-debug -confirm-license -largefile -accessibility -no-compile-examples -strip -no-dbus -xplatform win32-g++ -opengl desktop -device-option CROSS_COMPILE=$cross_prefix -device-option PKG_CONFIG=${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config -nomake examples -nomake tests -no-use-gold-linker -v" "../${QT_SOURCE}/configure" "noclean"
+      echo "About to make. Environment:"
+      env > environment-qt-before-build.txt
       do_make_install || exit 1
       # Because some parts of Qt produce Pkgconfig pc files that reference debug libraries only,
       # and because we do not want the binary overhead of these libraries appearing in our
@@ -1663,8 +1667,8 @@ build_libaacplus() {
 }
 
 build_openssl() {
-  download_and_unpack_file ftp://ftp.openssl.org/source/openssl-1.0.2f.tar.gz openssl-1.0.2f
-  cd openssl-1.0.2f
+  download_and_unpack_file ftp://ftp.openssl.org/source/openssl-1.0.2g.tar.gz openssl-1.0.2g
+  cd openssl-1.0.2g
 #  export cross="$cross_prefix"
   export CROSS_COMPILE="${cross_prefix}"
 #  export CC="${cross}gcc"
@@ -1687,9 +1691,10 @@ build_openssl() {
 }
 
 build_intel_quicksync_mfx() { # qsv
-  do_git_checkout https://github.com/mjb2000/mfx_dispatch.git mfx_dispatch_git
+  do_git_checkout https://github.com/lu-zero/mfx_dispatch.git mfx_dispatch_git
   cd mfx_dispatch_git
     sed -i.bak 's/-version-info/-no-undefined -version-info/' Makefile.am
+#    sed -i.bak 's/-DMINGW_HAS_SECURE_API=1//' Makefile.am
     if [[ ! -f "configure" ]]; then
       autoreconf -fiv || exit 1
     fi
@@ -1787,7 +1792,7 @@ build_libgcrypt() {
 #  generic_download_and_install ftp://ftp.gnupg.org/gcrypt/libgcrypt/libgcrypt-1.6.3.tar.gz libgcrypt-1.6.3 "GPG_ERROR_CONFIG=${mingw_w64_x86_64_prefix}/bin/gpg-error-config"
   do_git_checkout git://git.gnupg.org/libgcrypt.git libgcrypt
   cd libgcrypt
-    generic_configure_make_install "GPG_ERROR_CONFIG=${mingw_w64_x86_64_prefix}/bin/gpg-error-config --disable-asm --disable-doc"
+    generic_configure_make_install "GPG_ERROR_CONFIG=${mingw_w64_x86_64_prefix}/bin/gpg-error-config --disable-doc"
   cd ..
 }
 
@@ -2103,7 +2108,7 @@ build_mediainfo() {
                 # Overcome a case-sensitivity issue
                 sed -i.bak 's/Windows.h/windows.h/' MediaInfoLib/Source/MediaInfo/Reader/Reader_File.h
 		sed -i.bak 's/Windows.h/windows.h/' MediaInfoLib/Source/MediaInfo/Reader/Reader_File.cpp
-#		sed -i.bak '/#include <windows.h>/ a\#include <time.h>' ZenLib/Source/ZenLib/Ztring.cpp
+		sed -i.bak '/#include <windows.h>/ a\#include <time.h>' ZenLib/Source/ZenLib/Ztring.cpp
 		cd ZenLib/Project/GNU/Library
                 generic_configure "--prefix=$mingw_w64_x86_64_prefix --host=x86_64-w64-mingw32"
 		sed -i.bak 's/ -DSIZE_T_IS_LONG//g' Makefile
@@ -2304,12 +2309,12 @@ build_mkvtoolnix() {
 #    orig_ldflags=${LDFLAGS}
     # GNU ld uses a huge amount of memory here.
 #    export LDFLAGS="-Wl,--hash-size=31"
-    generic_configure "--with-boost=${mingw_w64_x86_64_prefix} --with-boost-system=boost_system --with-boost-filesystem=boost_filesystem --with-boost-date-time=boost_date_time --with-boost-regex=boost_regex --without-curl --enable-qt"
+    generic_configure "--enable-qt --with-boost=${mingw_w64_x86_64_prefix} --with-boost-system=boost_system --with-boost-filesystem=boost_filesystem --with-boost-date-time=boost_date_time --with-boost-regex=boost_regex --without-curl --enable-qt"
     # Now we must prevent inclusion of sys_windows.cpp because our build uses shared libraries,
     # and this piece of code unfortunately tries to pull in a static version of the Windows Qt
     # platform library libqwindows.a
     sed -i.bak 's!sources("src/info/sys_windows.o!#!' Rakefile
-    do_drake_and_drake_install
+    do_rake_and_rake_install
 #    export LDFLAGS=${orig_ldflags}
   cd ..
 }
@@ -2472,17 +2477,17 @@ build_opencl() {
 # on the compilation system.
 # Get the headers from the source
   mkdir -p ${mingw_w64_x86_64_prefix}/include/CL && cd ${mingw_w64_x86_64_prefix}/include/CL
-    wget --no-clobber http://www.khronos.org/registry/cl/api/1.2/cl_d3d10.h \
-http://www.khronos.org/registry/cl/api/1.2/cl_d3d11.h \
-http://www.khronos.org/registry/cl/api/1.2/cl_dx9_media_sharing.h \
-http://www.khronos.org/registry/cl/api/1.2/cl_ext.h \
-http://www.khronos.org/registry/cl/api/1.2/cl_gl_ext.h \
-http://www.khronos.org/registry/cl/api/1.2/cl_gl.h \
-http://www.khronos.org/registry/cl/api/1.2/cl.h \
-http://www.khronos.org/registry/cl/api/1.2/cl_platform.h \
-http://www.khronos.org/registry/cl/api/1.2/opencl.h \
-http://www.khronos.org/registry/cl/api/2.1/cl.hpp \
-http://www.khronos.org/registry/cl/api/1.2/cl_egl.h
+    wget --no-clobber https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl12/cl_d3d10.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl12/cl_d3d11.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl12/cl_dx9_media_sharing.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl12/cl_ext.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl12/cl_gl_ext.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl12/cl_gl.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl12/cl.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl12/cl_platform.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl12/opencl.h \
+https://www.khronos.org/registry/cl/api/2.1/cl.hpp \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl12/cl_egl.h
   cd -
   cd ${top_dir}
 # Use the installed OpenCL.dll to make libOpenCL.a
