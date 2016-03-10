@@ -38,14 +38,14 @@ yes_no_sel () {
 }
 
 check_missing_packages () {
-  local check_packages=('curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint' 'pxz')
+  local check_packages=('curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint' 'pxz' 'wget' 'zip')
   for package in "${check_packages[@]}"; do
     type -P "$package" >/dev/null || missing_packages=("$package" "${missing_packages[@]}")
   done
 
   if [[ -n "${missing_packages[@]}" ]]; then
     clear
-    echo "Could not find the following execs (svn is actually package subversion, makeinfo is actually package texinfo if you're missing them): ${missing_packages[@]}"
+    echo "Could not find the following execs (svn is actually package subversion, autopoint is gettext or gettext-devel, makeinfo is actually package texinfo if you're missing them): ${missing_packages[@]}"
     echo 'Install the missing packages before running this script.'
     echo "for ubuntu: $ sudo apt-get install subversion curl texinfo g++ bison flex cvs yasm automake libtool autoconf gcc cmake git make pkg-config zlib1g-dev mercurial" 
     echo "for gentoo (a non ubuntu distro): same as above, but no g++, no gcc, git is dev-vcs/git, zlib1g-dev is zlib, pkg-config is dev-util/pkgconfig, add ed..."
@@ -749,7 +749,7 @@ build_qt() {
     cd "${QT_BUILD}"
       echo "About to configure. Environment:"
       env > environment-qt-before-configure.txt
-      do_configure "-prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -release -opensource -qt-freetype -fontconfig -no-qml-debug -confirm-license -largefile -accessibility -no-compile-examples -strip -no-dbus -xplatform win32-g++ -opengl desktop -device-option CROSS_COMPILE=$cross_prefix -device-option PKG_CONFIG=${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config -nomake examples -nomake tests -no-use-gold-linker -v" "../${QT_SOURCE}/configure" "noclean"
+      do_configure "-prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -release -opensource -qt-freetype -fontconfig -no-qml-debug -confirm-license -largefile -accessibility -no-compile-examples -strip -no-dbus -xplatform win32-g++ -opengl desktop -device-option CROSS_COMPILE=$cross_prefix -device-option PKG_CONFIG=${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config -nomake examples -nomake tests -no-use-gold-linker -v" "../${QT_SOURCE}/configure" # "noclean"
       echo "About to make. Environment:"
       env > environment-qt-before-build.txt
       do_make_install || exit 1
@@ -2110,15 +2110,15 @@ build_mediainfo() {
 		sed -i.bak 's/Windows.h/windows.h/' MediaInfoLib/Source/MediaInfo/Reader/Reader_File.cpp
 		sed -i.bak '/#include <windows.h>/ a\#include <time.h>' ZenLib/Source/ZenLib/Ztring.cpp
 		cd ZenLib/Project/GNU/Library
-                generic_configure "--prefix=$mingw_w64_x86_64_prefix --host=x86_64-w64-mingw32"
+                generic_configure "--prefix=$mingw_w64_x86_64_prefix --host=x86_64-w64-mingw32 --enable-debug"
 		sed -i.bak 's/ -DSIZE_T_IS_LONG//g' Makefile
 		do_make_install
 		cd ../../../../MediaInfoLib/Project/GNU/Library
-		do_configure "--host=x86_64-w64-mingw32 --prefix=$mingw_w64_x86_64_prefix --with-libcurl --with-libmms" # LDFLAGS=-static-libgcc
+		do_configure "--host=x86_64-w64-mingw32 --prefix=$mingw_w64_x86_64_prefix --with-libcurl --with-libmms --enable-debug" # LDFLAGS=-static-libgcc
 		sed -i.bak 's/ -DSIZE_T_IS_LONG//g' Makefile
 		do_make_install
 		cd ../../../../MediaInfo/Project/GNU/CLI
-		do_configure "--host=x86_64-w64-mingw32 --prefix=$mingw_w64_x86_64_prefix" # --enable-staticlibs --enable-shared=no LDFLAGS=-static-libgcc"
+		do_configure "--host=x86_64-w64-mingw32 --prefix=$mingw_w64_x86_64_prefix --enable-debug" # --enable-staticlibs --enable-shared=no LDFLAGS=-static-libgcc"
 		sed -i.bak 's/ -DSIZE_T_IS_LONG//g' Makefile
 		do_make_install
 #                cd ../../../../..
@@ -2309,12 +2309,12 @@ build_mkvtoolnix() {
 #    orig_ldflags=${LDFLAGS}
     # GNU ld uses a huge amount of memory here.
 #    export LDFLAGS="-Wl,--hash-size=31"
-    generic_configure "--enable-qt --with-boost=${mingw_w64_x86_64_prefix} --with-boost-system=boost_system --with-boost-filesystem=boost_filesystem --with-boost-date-time=boost_date_time --with-boost-regex=boost_regex --without-curl --enable-qt"
+    generic_configure "--with-boost=${mingw_w64_x86_64_prefix} --with-boost-system=boost_system --with-boost-filesystem=boost_filesystem --with-boost-date-time=boost_date_time --with-boost-regex=boost_regex --without-curl --enable-qt --disable-optimization"
     # Now we must prevent inclusion of sys_windows.cpp because our build uses shared libraries,
     # and this piece of code unfortunately tries to pull in a static version of the Windows Qt
     # platform library libqwindows.a
     sed -i.bak 's!sources("src/info/sys_windows.o!#!' Rakefile
-    do_rake_and_rake_install
+    do_rake_and_rake_install "V=1"
 #    export LDFLAGS=${orig_ldflags}
   cd ..
 }
