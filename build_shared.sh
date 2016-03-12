@@ -10,30 +10,47 @@
 
 build_ffmpeg=y
 dump_archive=y
+upload_archive=y
+
+# This is the filename where the complete binary archive is stored
 dump_file="mingw-multimedia-executables-shared.tar.xz"
+
+# This works out how many CPUs we have
 gcc_cpu_count="$(grep -c processor /proc/cpuinfo)" 
 
+# This is the location that scp copies your archive to
+# You will UNDOUBTEDLY want to change this.
+upload_location="john@johnwarburton.net:~/www/gallery/html/"
 
-
-# parse command line parameters, if any
-while true; do
-  case $1 in
-    -h | --help ) echo "option is:
---ffmpeg=y/n  Build (y) or don't build (n) ffmpeg static binary
---archive=y/n  Zip-up and dump archive (y) or not (n) in a directory of your choice
-       "; exit 0 ;;
-    --ffmpeg=* ) build_ffmpeg="${1#*=}"; shift ;;
-    --archive=* ) dump_archive="${1#*=}"; shift ;;
-    -- ) shift; break ;;
-    -* ) echo "Error, unknown option: '$1'."; exit 1 ;;
-    * ) break ;;
+while getopts faup opt_check; do
+  case $opt_check in
+    f)
+      echo "Not building FFmpeg"
+      build_ffmpeg=n 
+      ;;
+    a)
+      echo "Not creating archive"
+      dump_archive=n
+      ;;
+    u)
+      echo "Not uploading archive"
+      upload_archive=n
+      ;;
+    *)
+      echo "Invalid option"
+      ;;
   esac
 done
+
+if [[ "${upload_archive}" = [Yy] ]]; then
+  read -s -p "Password for scp when uploading:" upload_password
+fi
 
 echo "Going to cross compile."
 echo "build_ffmpeg is ${build_ffmpeg}"
 echo "dump_archive is ${dump_archive}"
 echo "Archive will be dumped to ${dump_file}"
+echo "Archive will be uploaded to ${upload_location}"
 
 
 ./cross_compile_ffmpeg_shared.sh --build-ffmpeg-shared=n --build-ffmpeg-static=$build_ffmpeg --disable-nonfree=n --sandbox-ok=y --build-libmxf=y --build-mp4box=y --build-choice=win64 --git-get-latest=y --prefer-stable=n --build-mplayer=n --gcc-cpu-count=$gcc_cpu_count || { echo "Build failure. Please see error messages above." ; exit 1; } 
@@ -52,6 +69,11 @@ if  [[ "$dump_archive" = [Yy] ]]; then
   cd -
   mv -v  "sandbox/mingw-w64-x86_64/x86_64-w64-mingw32/${dump_file}" .
   echo "Archive made and stored in ${dump_file}"
+fi
+
+if [[ "${upload_archive}" = [Yy] ]]; then
+  echo "Uploading archive to ${upload_location}..."
+  sshpass -p "${upload_password}" scp "${dump_file}" "${upload_location}"
 fi
 
 echo "Build script finished."
