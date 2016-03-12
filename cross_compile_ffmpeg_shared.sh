@@ -38,7 +38,7 @@ yes_no_sel () {
 }
 
 check_missing_packages () {
-  local check_packages=('curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint' 'pxz' 'wget' 'zip')
+  local check_packages=('sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint' 'pxz' 'wget' 'zip')
   for package in "${check_packages[@]}"; do
     type -P "$package" >/dev/null || missing_packages=("$package" "${missing_packages[@]}")
   done
@@ -2309,7 +2309,10 @@ build_mkvtoolnix() {
 #    orig_ldflags=${LDFLAGS}
     # GNU ld uses a huge amount of memory here.
 #    export LDFLAGS="-Wl,--hash-size=31"
-    generic_configure "--with-boost=${mingw_w64_x86_64_prefix} --with-boost-system=boost_system --with-boost-filesystem=boost_filesystem --with-boost-date-time=boost_date_time --with-boost-regex=boost_regex --without-curl --enable-qt --disable-optimization"
+    # Configure fixes an optimization problem with mingw 5.1.0 but in fact
+    # the problem persists in 5.3.0
+    sed -i.bak 's/xx86" && check_version 5\.1\.0/xamd64" \&\& check_version 5.3.0/' configure
+    generic_configure "--with-boost=${mingw_w64_x86_64_prefix} --with-boost-system=boost_system --with-boost-filesystem=boost_filesystem --with-boost-date-time=boost_date_time --with-boost-regex=boost_regex --without-curl --enable-qt --enable-optimization"
     # Now we must prevent inclusion of sys_windows.cpp because our build uses shared libraries,
     # and this piece of code unfortunately tries to pull in a static version of the Windows Qt
     # platform library libqwindows.a
