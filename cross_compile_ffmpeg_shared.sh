@@ -651,7 +651,10 @@ build_libx265() {
 #  apply_patch_p1 file://${top_dir}/x265-missing-bool.patch  
   # Fixed by x265 developers now
   do_cmake "$cmake_params" 
-  do_make_install
+  # x265 seems to fail on parallel builds
+  export cpu_count=1
+  do_make_install 
+  export cpu_count=$original_cpu_count
   cd ../..
 }
 
@@ -749,7 +752,7 @@ build_qt() {
     cd "${QT_BUILD}"
       echo "About to configure. Environment:"
       env > environment-qt-before-configure.txt
-      do_configure "-prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -release -opensource -qt-freetype -fontconfig -no-qml-debug -confirm-license -largefile -accessibility -no-compile-examples -strip -no-dbus -xplatform win32-g++ -opengl desktop -device-option CROSS_COMPILE=$cross_prefix -device-option PKG_CONFIG=${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config -nomake examples -nomake tests -no-use-gold-linker -v" "../${QT_SOURCE}/configure" # "noclean"
+      do_configure "-prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -release -opensource -qt-freetype -fontconfig -glib -no-qml-debug -confirm-license -largefile -accessibility -no-compile-examples -strip -no-dbus -xplatform win32-g++ -opengl desktop -device-option CROSS_COMPILE=$cross_prefix -device-option PKG_CONFIG=${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config -nomake examples -nomake tests -no-use-gold-linker -I ${mingw_w64_x86_64_prefix}/include/glib-2.0 -I ${mingw_w64_x86_64_prefix}/lib/glib-2.0/include -l glib-2.0 -v" "../${QT_SOURCE}/configure" # "noclean"
       echo "About to make. Environment:"
       env > environment-qt-before-build.txt
       do_make_install || exit 1
@@ -2318,7 +2321,7 @@ build_mkvtoolnix() {
     # platform library libqwindows.a
     sed -i.bak 's!sources("src/info/sys_windows.o!#!' Rakefile
     do_rake_and_rake_install "V=1"
-#    export LDFLAGS=${orig_ldflags}
+    #    export LDFLAGS=${orig_ldflags}
   cd ..
 }
 
@@ -2879,18 +2882,19 @@ build_libMXF() {
 #    fi
 #    cd ../..
 #  sed -i.bak 's/@PC_ADD_LIBS@/-lmsvcrt @PC_ADD_LIBS@/' libMXF.pc.in
-  cd mxf
-    # GCC doesn't do structured exception handling
-    # but this boilerplate code from Tom Bramer at progammingunlimited.net
-    # seems to compile. I've modified it slightly to reference 32 bit registers
-    # in a 64 bit compile.
-    # And because this involves C++ style programming, we must
-    # rename the file accordingly.
-    mv mxf_win32_mmap.c mxf_win32_mmap.cpp
-    apply_patch_p1 file://${top_dir}/libmxf-win32-mmap-gcc.patch
-    apply_patch_p1 file://${top_dir}/libmxf-win32-mmap-Makefile.am.patch
-    sed -i.bak 's/) -version-info/) -no-undefined -version-info/' Makefile.am
-  cd ..
+#  cd mxf
+#    # GCC doesn't do structured exception handling
+##    # but this boilerplate code from Tom Bramer at progammingunlimited.net
+#    # seems to compile. I've modified it slightly to reference 32 bit registers
+#    # in a 64 bit compile.
+#    # And because this involves C++ style programming, we must
+#    # rename the file accordingly.
+#    mv mxf_win32_mmap.c mxf_win32_mmap.cpp
+#    apply_patch_p1 file://${top_dir}/libmxf-win32-mmap-gcc.patch
+#    apply_patch_p1 file://${top_dir}/libmxf-win32-mmap-Makefile.am.patch
+#    sed -i.bak 's/) -version-info/) -no-undefined -version-info/' Makefile.am
+#  cd ..
+  sed -i.bak 's/) -version-info/) -no-undefined -version-info/' mxf/Makefile.am
   sed -i.bak 's/= -version-info/= -no-undefined -version-info/' examples/reader/Makefile.am
   sed -i.bak 's/= -version-info/= -no-undefined -version-info/' examples/writeavidmxf/Makefile.am
   sed -i.bak 's/= -version-info/= -no-undefined -version-info/' examples/avidmxfinfo/Makefile.am

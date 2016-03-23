@@ -73,7 +73,7 @@ fi
 
 if [[ "${upload_archive}" = [Yy] ]]; then
   echo "Uploading archive to ${upload_location}..."
-  sshpass -p "${upload_password}" scp "${dump_file}" "${upload_location}"
+  sshpass -p "${upload_password}" scp -v "${dump_file}" "${upload_location}"
 fi
 
 echo "Build script finished."
