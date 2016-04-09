@@ -1,0 +1,13 @@
+--- src/AtomicParsley.h.orig	2016-04-06 22:03:05.362000000 +0000
++++ src/AtomicParsley.h	2016-04-06 22:03:46.409000000 +0000
+@@ -135,8 +135,8 @@
+ #endif
+ 
+ #ifndef MIN
+-//#define MIN(X,Y) ((X) < (Y) ? : (X) : (Y))
+-#define MIN min
++#define MIN(X,Y) ((X) < (Y) ? (X) : (Y))
++//#define MIN min
+ #endif
+ 
+ 

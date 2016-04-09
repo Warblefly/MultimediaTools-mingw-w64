@@ -173,6 +173,11 @@ install_cross_compiler() {
 # We need to move the plain cross-compiling versions of bintools out of the way
 # because exactly the same binaries exist with the host triplet prefix
 #  rm ${mingw_w64_x86_64_prefix}/bin/objdump ${mingw_w64_x86_64_prefix}/bin/ar ${mingw_w64_x86_64_prefix}/bin/ranlib ${mingw_w64_x86_64_prefix}/bin/objcopy ${mingw_w64_x86_64_prefix}/bin/dlltool ${mingw_w64_x86_64_prefix}/bin/nm ${mingw_w64_x86_64_prefix}/bin/strip ${mingw_w64_x86_64_prefix}/bin/as ${mingw_w64_x86_64_prefix}/bin/ld.bfd ${mingw_w64_x86_64_prefix}/bin/ld 
+  # A couple of multimedia-related files need cases changing because of QT5 includes
+  cd mingw-w64-x86_64/include
+    ln -s evr9.h Evr9.h
+    ln -s mferror.h Mferror.h
+  cd ../..
   if [ -d mingw-w64-x86_64 ]; then
     touch mingw-w64-x86_64/compiler.done
   fi
@@ -715,106 +720,19 @@ build_librtmp() {
 }
 
 build_qt() {
-  export QT_VERSION="5.5.1"
+  export QT_VERSION="5.6.0"
   export QT_SOURCE="qt-source"
   export QT_BUILD="qt-build"
   if [ ! -f qt.built ]; then
-    ln -vs "qt-everywhere-opensource-src-${QT_VERSION}" "${QT_SOURCE}"
-    download_and_unpack_file http://download.qt.io/official_releases/qt/5.5/${QT_VERSION}/submodules/qt5-opensource-src-${QT_VERSION}.tar.xz "qt-everywhere-opensource-src-${QT_VERSION}"
-    cd "qt-source"
-      ln -vs "qtbase-opensource-src-${QT_VERSION}" "qtbase"
-      download_and_unpack_file "http://download.qt.io/official_releases/qt/5.5/${QT_VERSION}/submodules/qtbase-opensource-src-${QT_VERSION}.tar.xz" "qtbase-opensource-src-${QT_VERSION}"
-      ln -vs "qttools-opensource-src-${QT_VERSION}" "qttools"
-      download_and_unpack_file "http://download.qt.io/official_releases/qt/5.5/${QT_VERSION}/submodules/qttools-opensource-src-${QT_VERSION}.tar.xz" "qttools-opensource-src-${QT_VERSION}"
-      ln -vs "qtsvg-opensource-src-${QT_VERSION}" "qtsvg"
-      download_and_unpack_file "http://download.qt.io/official_releases/qt/5.5/${QT_VERSION}/submodules/qtsvg-opensource-src-${QT_VERSION}.tar.xz" "qtsvg-opensource-src-${QT_VERSION}"
-      ln -vs "qtwinextras-opensource-src-${QT_VERSION}" "qtwinextras"
-      download_and_unpack_file "http://download.qt.io/official_releases/qt/5.5/${QT_VERSION}/submodules/qtwinextras-opensource-src-${QT_VERSION}.tar.xz" "qtwinextras-opensource-src-${QT_VERSION}"
-      ln -vs "qtquick1-opensource-src-${QT_VERSION}" "qtquick1"
-      download_and_unpack_file "http://download.qt.io/official_releases/qt/5.5/${QT_VERSION}/submodules/qtquick1-opensource-src-${QT_VERSION}.tar.xz" "qtquick1-opensource-src-${QT_VERSION}"
-      ln -vs "qtquickcontrols-opensource-src-${QT_VERSION}" "qtquickcontrols"
-      download_and_unpack_file "http://download.qt.io/official_releases/qt/5.5/${QT_VERSION}/submodules/qtquickcontrols-opensource-src-${QT_VERSION}.tar.xz" "qtquickcontrols-opensource-src-${QT_VERSION}"
-      ln -vs "qtmultimedia-opensource-src-${QT_VERSION}" "qtmultimedia"
-      download_and_unpack_file "http://download.qt.io/official_releases/qt/5.5/${QT_VERSION}/submodules/qtmultimedia-opensource-src-${QT_VERSION}.tar.xz" "qtmultimedia-opensource-src-${QT_VERSION}"
-#      ln -vs "qtwebkit-opensource-src-${QT_VERSION}" "qtwebkit"
-#      download_and_unpack_file "http://download.qt.io/official_releases/qt/5.5/${QT_VERSION}/submodules/qtwebkit-opensource-src-${QT_VERSION}.tar.xz" "qtwebkit-opensource-src-${QT_VERSION}"
-      ln -vs "qtwebsockets-opensource-src-${QT_VERSION}" "qtwebsockets"
-      download_and_unpack_file "http://download.qt.io/official_releases/qt/5.5/${QT_VERSION}/submodules/qtwebsockets-opensource-src-${QT_VERSION}.tar.xz" "qtwebsockets-opensource-src-${QT_VERSION}"
-      ln -vs "qtdeclarative-opensource-src-${QT_VERSION}" "qtdeclarative"
-      download_and_unpack_file "http://download.qt.io/official_releases/qt/5.5/${QT_VERSION}/submodules/qtdeclarative-opensource-src-${QT_VERSION}.tar.xz" "qtdeclarative-opensource-src-${QT_VERSION}"
-#      cd qtwebkit
-#        # Qt5WebKit is difficult on MinGW so here are some RedHat patches
-#        apply_patch file://${top_dir}/qt5-qtwebkit-use-linux-shell.patch
-#        apply_patch file://${top_dir}/qtwebkit-dont-use-bundled-angle-libraries.patch
-#        apply_patch file://${top_dir}/qt5-qtwebkit-enable-pkgconfig-support-for-win32-target.patch
-#      cd ..
-    cd ..
+    download_and_unpack_file http://download.qt.io/official_releases/qt/5.6/${QT_VERSION}/single/qt-everywhere-opensource-src-${QT_VERSION}.tar.gz "qt-everywhere-opensource-src-${QT_VERSION}"
     mkdir -p "${QT_BUILD}"
+    ln -vs "qt-everywhere-opensource-src-${QT_VERSION}" "${QT_SOURCE}"
     cd "${QT_BUILD}"
-      echo "About to configure. Environment:"
-      env > environment-qt-before-configure.txt
-      do_configure "-prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -release -opensource -qt-freetype -fontconfig -glib -no-qml-debug -confirm-license -largefile -accessibility -no-compile-examples -strip -no-dbus -xplatform win32-g++ -opengl desktop -device-option CROSS_COMPILE=$cross_prefix -device-option PKG_CONFIG=${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config -nomake examples -nomake tests -no-use-gold-linker -I ${mingw_w64_x86_64_prefix}/include/glib-2.0 -I ${mingw_w64_x86_64_prefix}/lib/glib-2.0/include -l glib-2.0 -v" "../${QT_SOURCE}/configure" # "noclean"
-      echo "About to make. Environment:"
-      env > environment-qt-before-build.txt
+      do_configure "-xplatform win32-g++ -prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -opensource -skip qtactiveqt -qt-freetype -fontconfig -glib -confirm-license -accessibility -nomake examples -nomake tests -debug -debug-and-release -strip -openssl -opengl desktop -device-option CROSS_COMPILE=$cross_prefix -device-option PKG_CONFIG=${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config -no-use-gold-linker -I ${mingw_w64_x86_64_prefix}/include/glib-2.0 -I ${mingw_w64_x86_64_prefix}/lib/glib-2.0/include -l glib-2.0 -v" "../${QT_SOURCE}/configure" # "noclean"
+      do_make || exit 1
       do_make_install || exit 1
-      # Because some parts of Qt produce Pkgconfig pc files that reference debug libraries only,
-      # and because we do not want the binary overhead of these libraries appearing in our
-      # distribution, some of the .pc files need altering so that the refer to the release
-      # libraries, not the debug libraries which have 'd' appended to their names.
-      # This is bug QTBUG-30898
-      # ANY FUTURE ADDITIONS TO THE QT COMPILATION WILL NEED CHECKING
-      sed -i.bak 's/-lQt5CLucened/-lQt5CLucene/' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5CLucene.pc
-      sed -i.bak 's#-lQt5Cored .obj/debug/Qt5CLucened_resource_res.o#-lQt5Core#' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5CLucene.pc
-      sed -i.bak 's/-lQt5Concurrentd/-lQt5Concurrent/' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5Concurrent.pc
-      sed -i.bak 's#-lQt5Cored .obj/debug/Qt5Concurrentd_resource_res.o#-lQt5Core#' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5Concurrent.pc
-      sed -i.bak 's/-lQt5Cored/-lQt5Core/' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5Core.pc
-      sed -i.bak 's#-lkernel32 -lmpr .obj/debug/Qt5Cored_resource_res.o -lz  -lqtpcred#-lkernel32 -lmpr -lqtpcre#' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5Core.pc
-      sed -i.bak 's/-lQt5Guid/-lQt5Gui/' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5Gui.pc
-      sed -i.bak 's#-luser32  -lQt5Cored .obj/debug/Qt5Guid_resource_res.o -lpng  -lqtharfbuzzngd#-luser32  -lQt5Core -lpng -lqtharfbuzzng#' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5Gui.pc
-      sed -i.bak 's/-lQt5Helpd/-lQt5Help/' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5Help.pc
-      sed -i.bak 's#-lQt5Widgetsd -lQt5Guid -lQt5Cored .obj/debug/Qt5Helpd_resource_res.o  -lQt5Networkd -lQt5Sqld  -lQt5CLucened -lQt5Cored#-lQt5Widgets -lQt5Gui -lQt5Core -lQt5Network -lQt5Sql  -lQt5CLucene -lQt5Core#' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5Help.pc
-      sed -i.bak 's/-lQt5Networkd/-lQt5Network/' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5Network.pc
-      sed -i.bak 's#-lQt5Cored .obj/debug/Qt5Networkd_resource_res.o#-lQt5Core#' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5Network.pc
-      sed -i.bak 's/-lQt5OpenGLExtensionsd/-lQt5OpenGLExtensions/' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5OpenGLExtensions.pc
-      sed -i.bak 's/-lQt5Guid -lQt5Cored/-lQt5Gui -lQt5Core/' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5OpenGLExtensions.pc
-      sed -i.bak 's/-lQt5OpenGLd/-lQt5OpenGL/' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5OpenGL.pc
-      sed -i.bak 's#-lQt5Widgetsd -lQt5Guid -lQt5Cored .obj/debug/Qt5OpenGLd_resource_res.o#-lQt5Widgets -lQt5Gui -lQt5Core#' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5OpenGL.pc
-      sed -i.bak 's/-lQt5PlatformSupportd/-lQt5PlatformSupport/' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5PlatformSupport.pc
-      sed -i.bak 's/-lQt5Guid -lQt5Cored  -lqtfreetyped/-lQt5Gui -lQt5Core  -lqtfreetype/' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5PlatformSupport.pc
-      sed -i.bak 's/-lQt5PrintSupportd/-lQt5PrintSupport/' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5PrintSupport.pc
-      sed -i.bak 's#-lQt5Widgetsd -lQt5Guid -lQt5Cored .obj/debug/Qt5PrintSupportd_resource_res.o#-lQt5Widgets -lQt5Gui -lQt5Core#' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5PrintSupport.pc
-      sed -i.bak 's/-lQt5Sqld/-lQt5Sql/' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5Sql.pc
-      sed -i.bak 's#-lQt5Cored .obj/debug/Qt5Sqld_resource_res.o#-lQt5Core#' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5Sql.pc
-      sed -i.bak 's/-lQt5Svgd/-lQt5Svg/' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5Svg.pc
-      sed -i.bak 's#-lQt5Widgetsd -lQt5Guid -lQt5Cored .obj/debug/Qt5Svgd_resource_res.o#-lQt5Widgets -lQt5Gui -lQt5Core#' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5Svg.pc
-      sed -i.bak 's/-lQt5Testd/-lQt5Test/' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5Test.pc
-      sed -i.bak 's#-lQt5Cored .obj/debug/Qt5Testd_resource_res.o#-lQt5Core#' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5Test.pc
-      sed -i.bak 's/-lQt5UiToolsd/-lQt5UiTools/' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5UiTools.pc
-      sed -i.bak 's/-lQt5Widgetsd -lQt5Guid -lQt5Cored/-lQt5Widgets -lQt5Gui -lQt5Core/' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5UiTools.pc
-      sed -i.bak 's/-lQt5Widgetsd/-lQt5Widgets/' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5Widgets.pc
-      sed -i.bak 's#-lQt5Guid -lQt5Cored .obj/debug/Qt5Widgetsd_resource_res.o#-lQt5Gui -lQt5Core#' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5Widgets.pc
-      sed -i.bak 's/-lQt5WinExtrasd/-lQt5WinExtras/' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5WinExtras.pc
-      sed -i.bak 's#-lQt5Guid -lQt5Cored .obj/debug/Qt5WinExtrasd_resource_res.o#-lQt5Gui -lQt5Core#' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5WinExtras.pc
-      sed -i.bak 's/-lQt5Xmld/-lQt5Xml/' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5Xml.pc
-      sed -i.bak 's#-lQt5Cored .obj/debug/Qt5Xmld_resource_res.o#-lQt5Core#' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5Xml.pc
-      sed -i.bak 's/: -lQt5Multimediad/: -lQt5Multimedia/' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5Multimedia.pc
-      sed -i.bak 's#-lQt5Networkd -lQt5Guid -lQt5Cored .obj/debug/Qt5Multimediad_resource_res.o#-lQt5Network -lQt5Gui -lQt5Core#' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5Multimedia.pc
-      sed -i.bak 's/: -lQt5MultimediaWidgetsd/: -lQt5MultimediaWidgets/' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5MultimediaWidgets.pc
-      sed -i.bak 's#-lQt5Multimediad  -lQt5Widgetsd -lQt5Guid -lQt5Networkd -lQt5Cored .obj/debug/Qt5MultimediaWidgetsd_resource_res.o  -lQt5OpenGLd -lQt5Widgetsd -lQt5Guid -lQt5Cored#-lQt5Multimedia  -lQt5Widgets -lQt5Gui -lQt5Network -lQt5Core  -lQt5OpenGL -lQt5Widgets -lQt5Gui -lQt5Core#' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5MultimediaWidgets.pc
-      sed -i.bak 's/: -lQt5WebSocketsd/: -lQt5WebSockets/' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5WebSockets.pc
-      sed -i.bak 's#-lQt5Networkd -lQt5Cored .obj/debug/Qt5WebSocketsd_resource_res.o#-lQt5Network -lQt5Core#' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5WebSockets.pc
-      sed -i.bak 's/-lQt5Qmld/-lQt5Qml/' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5Qml.pc
-      sed -i.bak 's#-lQt5Networkd -lQt5Cored .obj/debug/Qt5Qmld_resource_res.o#-lQt5Network -lQt5Core#' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5Qml.pc
-      sed -i.bak 's/-lQt5QuickParticlesd/-lQt5QuickParticles/' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5QuickParticles.pc
-      sed -i.bak 's#-lQt5Quickd  -lQt5Guid -lQt5Qmld -lQt5Networkd -lQt5Cored .obj/debug/Qt5QuickParticlesd_resource_res.o#-lQt5Quick  -lQt5Gui -lQt5Qml -lQt5Network -lQt5Core#' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5QuickParticles.pc
-      sed -i.bak 's/-lQt5Quickd/-lQt5Quick/' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5Quick.pc
-      sed -i.bak 's#-lQt5Guid  -lQt5Qmld -lQt5Networkd -lQt5Cored .obj/debug/Qt5Quickd_resource_res.o  -lQt5Networkd -lQt5Cored#-lQt5Gui  -lQt5Qml -lQt5Network -lQt5Core  -lQt5Network -lQt5Core#' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5Quick.pc
-      sed -i.bak 's/-lQt5QuickTestd/-lQt5QuickTest/' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5QuickTest.pc
-      sed -i.bak 's#-lQt5Widgetsd -lQt5Guid -lQt5Cored .obj/debug/Qt5QuickTestd_resource_res.o  -lQt5Testd  -lQt5Quickd -lQt5Guid -lQt5Qmld -lQt5Networkd -lQt5Cored#-lQt5Widgets -lQt5Gui -lQt5Core  -lQt5Test  -lQt5Quick -lQt5Gui -lQt5Qml -lQt5Network -lQt5Core#' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5QuickTest.pc
-      sed -i.bak 's/-lQt5QuickWidgetsd/-lQt5QuickWidgets/' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5QuickWidgets.pc
-      sed -i.bak 's#-lQt5Quickd  -lQt5Widgetsd -lQt5Guid -lQt5Qmld -lQt5Networkd -lQt5Cored .obj/debug/Qt5QuickWidgetsd_resource_res.o#-lQt5Quick  -lQt5Widgets -lQt5Gui -lQt5Qml -lQt5Network -lQt5Core#' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/Qt5QuickWidgets.pc
-      touch "qt.built"
     cd ..
+      touch "qt.built"
   else
     echo "Skipping QT build... already completed."
   fi
@@ -1017,6 +935,7 @@ build_libvpx() {
   else
     do_git_checkout https://chromium.googlesource.com/webm/libvpx "libvpx_git"
     cd libvpx_git
+    apply_patch file://${top_dir}/libvpx-vp8-common-threading-h-mingw.patch
   fi
   export CROSS="$cross_prefix"
   if [[ "$bits_target" = "32" ]]; then
@@ -1998,6 +1917,17 @@ build_faac() {
   generic_download_and_install http://downloads.sourceforge.net/faac/faac-1.28.tar.gz faac-1.28 "--with-mp4v2=no"
 }
 
+build_atomicparsley() {
+  git clone https://github.com/evolver56k/atomicparsley.git atomicparsley
+  export ac_cv_func_malloc_0_nonnull=yes
+  cd atomicparsley
+    rm configure
+    apply_patch file://${top_dir}/atomicparsley-min.patch
+    generic_configure_make_install
+  cd ..
+  unset ac_cv_func_malloc_0_nonnull
+}
+
 build_wx() {
   generic_download_and_install https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.0/wxWidgets-3.1.0.tar.bz2 wxWidgets-3.1.0 "--enable-monolithic --enable-official_build --enable-compat28 --enable-compat30 --with-opengl"
 }
@@ -2143,10 +2073,11 @@ build_libtool() {
 build_exiv2() {
   do_svn_checkout svn://dev.exiv2.org/svn/trunk exiv2
   cd exiv2
-  cpu_count=1 # svn_version.h gets written too early otherwise
-  # export LIBS="-lws2_32 -lwldap32"
-  make config
-  generic_configure_make_install ""
+    apply_patch file://${top_dir}/exiv2-makernote.patch
+     cpu_count=1 # svn_version.h gets written too early otherwise
+    # export LIBS="-lws2_32 -lwldap32"
+     make config
+     generic_configure_make_install ""
 #  download_and_unpack_file http://www.exiv2.org/exiv2-0.25.tar.gz exiv2-0.25
 #  cd exiv2-0.25
    # A little patch to use the correct definition to pick up mingw-w64 compiler
@@ -2155,13 +2086,13 @@ build_exiv2() {
 #    cp -Rv config/* .
 #    generic_configure_make_install
 #    do_make_install "VERBOSE=1"
-  cpu_count=$original_cpu_count
+    cpu_count=$original_cpu_count
   cd ..
 #  unset LIBS
 }
 
 build_bmx() {
-  do_git_checkout git://git.code.sf.net/p/bmxlib/bmx bmxlib-bmx
+  do_git_checkout git://git.code.sf.net/p/bmxlib/bmx bmxlib-bmx 723e48
   cd bmxlib-bmx
     sed -i.bak 's/) -version-info/) -no-undefined -version-info/' src/Makefile.am
     if [[ ! -f ./configure ]]; then
@@ -2360,17 +2291,30 @@ build_fdkaac-commandline() {
   cd ..
 }
 
+build_poppler() {
+  do_git_checkout git://git.freedesktop.org/git/poppler/poppler poppler
+  cd poppler
+    sed -i.bak 's!string\.h!sec_api/string_s.h!' test/perf-test.cc
+    sed -i.bak 's/noinst_PROGRAMS += perf-test/noinst_PROGRAMS += /' test/Makefile.am
+    generic_configure_make_install "CFLAGS=-DMINGW_HAS_SECURE_API LIBOPENJPEG_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/openjpeg-1.5/ --enable-xpdf-headers" # "--enable-libcurl"
+  cd ..
+}
+
 build_SWFTools() {
   do_git_checkout git://github.com/matthiaskramm/swftools swftools
   cd swftools
+    export DISABLEPDF2SWF=true
     rm configure # Force regeneration of configure script to alleviate mingw-w64 conflicts
     aclocal -I m4
     autoconf
+    apply_patch file://${top_dir}/swftools-lib-pdf-Makefile-in.patch
     sed -i.bak 's/$(INSTALL_MAN1);//' src/Makefile.in
     sed -i.bak 's/cd swfs;$(MAKE) $@//' Makefile.in
-    generic_configure
+    generic_configure "CPPFLAGS=-I${mingw_w64_x86_64_prefix}/include/poppler/ --enable-poppler"
     sed -i.bak 's/#define boolean int/typedef unsigned char boolean;/' config.h
+    apply_patch file://${top_dir}/swftools-xpdf-unlink.patch
     do_make_and_make_install
+    unset DISABLEPDF2SWF
   cd ..
 }
 
@@ -3051,7 +2995,7 @@ build_ffmpeg() {
 
 # --extra-cflags=$CFLAGS, though redundant, just so that FFmpeg lists what it used in its "info" output
 
-  config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --disable-doc --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libschroedinger --enable-libvpx --enable-libilbc --enable-libwavpack --enable-libwebp --enable-libgme --enable-libdcadec --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts --extra-cflags=$CFLAGS" # other possibilities: --enable-w32threads --enable-libflite
+  config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --disable-doc --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libschroedinger --enable-libvpx --enable-libilbc --enable-libwavpack --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts --extra-cflags=$CFLAGS" # other possibilities: --enable-w32threads --enable-libflite
   if [[ "$non_free" = "y" ]]; then
     config_options="$config_options --enable-nonfree --enable-libfdk-aac --disable-libfaac --enable-decoder=aac" # To use fdk-aac in VLC, we need to change FFMPEG's default (faac), but I haven't found how to do that... So I disabled it. This could be an new option for the script? -- faac deemed too poor quality and becomes the default -- add it in and uncomment the build_faac line to include it 
     # other possible options: --enable-openssl --enable-libaacplus
@@ -3224,6 +3168,7 @@ build_dependencies() {
 #  build_libopenjpeg
 #  build_libopenjpeg2
   build_libwebp
+  build_poppler
   build_SWFTools
   build_jack
   build_opencv
@@ -3252,6 +3197,7 @@ build_apps() {
   build_opustools
   build_curl # Needed for mediainfo to read Internet streams or file, also can get RTMP streamss
   build_gdb # Really useful, and the correct version for Windows executables
+  build_atomicparsley
   build_mediainfo
   if [[ $build_libmxf = "y" ]]; then
     build_libMXF

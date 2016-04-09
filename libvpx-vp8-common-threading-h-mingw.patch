@@ -1,0 +1,10 @@
+--- vp8/common/threading.h.orig	2016-04-03 09:28:31.359000000 +0000
++++ vp8/common/threading.h	2016-04-03 09:29:11.699000000 +0000
+@@ -66,6 +66,7 @@
+ #include <unistd.h>
+ 
+ #else
++#include <sys/types.h>
+ #include <semaphore.h>
+ #endif
+ 

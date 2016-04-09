@@ -43,7 +43,7 @@ while getopts faup opt_check; do
 done
 
 if [[ "${upload_archive}" = [Yy] ]]; then
-  read -s -p "Password for scp when uploading:" upload_password
+  read -s -p "Password for scp when uploading: " upload_password
 fi
 
 echo "Going to cross compile."

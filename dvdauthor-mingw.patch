@@ -1,0 +1,170 @@
+--- dvdauthor-orig/configure.ac	2016-03-25 10:24:33.365000000 +0000
++++ dvdauthor/configure.ac	2016-03-24 20:42:45.955000000 +0000
+@@ -135,10 +135,7 @@
+ 
+ AM_ICONV
+ 
+-ifdef([AM_PATH_XML2],
+-    [AM_PATH_XML2(2.6.0, , AC_MSG_ERROR([You must have libxml2 >= 2.6.0 installed]))],
+-    [errprint([You must have libxml2 (>= 2.6.0) installed
+-])m4_exit(1)AC_MSG_ERROR([You must have libxml2 (>= 2.6.0) installed])])
++PKG_CHECK_MODULES([XML2], [libxml-2.0])
+ 
+ AC_CHECK_DECLS(O_BINARY, , , [ #include <fcntl.h> ] )
+ 
+--- dvdauthor-orig/Makefile.am	2016-03-25 10:24:33.365000000 +0000
++++ dvdauthor/Makefile.am	2016-03-25 09:49:36.347000000 +0000
+@@ -1,4 +1,4 @@
+-SUBDIRS = doc src
++SUBDIRS = src
+ 
+ noinst_DATA = dvdauthor.spec
+ 
+--- dvdauthor-orig/src/compat.c	2016-03-25 10:24:33.367000000 +0000
++++ dvdauthor/src/compat.c	2016-03-24 20:42:45.999000000 +0000
+@@ -9,8 +9,9 @@
+ #include <errno.h>
+ #include <assert.h>
+ #include <locale.h>
++#ifndef _WIN32
+ #include <langinfo.h>
+-
++#endif
+ /*
+     Useful string stuff
+ */
+--- dvdauthor-orig/src/dvdauthor.c	2016-03-25 10:24:33.368000000 +0000
++++ dvdauthor/src/dvdauthor.c	2016-03-24 20:42:45.982000000 +0000
+@@ -1260,19 +1260,31 @@
+             deletedir(fbase);
+             delete_output_dir = false; /* only do on first call */
+           } /*if*/
++#ifdef _WIN32
++	if (mkdir(fbase) && errno != EEXIST)
++#else
+         if (mkdir(fbase, 0777) && errno != EEXIST)
++#endif
+           {
+             fprintf(stderr, "ERR:  cannot create dir %s: %s\n", fbase, strerror(errno));
+             exit(1);
+           } /*if*/
+         snprintf(realfbase, sizeof realfbase, "%s/VIDEO_TS", fbase);
+-        if (mkdir(realfbase, 0777) && errno != EEXIST)
++#ifdef _WIN32
++	if (mkdir(realfbase) && errno != EEXIST)
++#else
++	if (mkdir(realfbase, 0777) && errno != EEXIST)
++#endif
+           {
+             fprintf(stderr, "ERR:  cannot create dir %s: %s\n", realfbase, strerror(errno));
+             exit(1);
+           } /*if*/
+         snprintf(realfbase, sizeof realfbase, "%s/AUDIO_TS", fbase);
++#ifdef _WIN32
++	if (mkdir(realfbase) && errno != EEXIST)
++#else
+         if (mkdir(realfbase, 0777) && errno != EEXIST)
++#endif
+           {
+             fprintf(stderr, "ERR:  cannot create dir %s: %s\n", realfbase, strerror(errno));
+             exit(1);
+--- dvdauthor-orig/src/dvdvob.c	2016-03-25 10:24:33.370000000 +0000
++++ dvdauthor/src/dvdvob.c	2016-03-24 20:42:46.019000000 +0000
+@@ -63,8 +63,12 @@
+ #if defined(_POSIX_SYNCHRONIZED_IO) && _POSIX_SYNCHRONIZED_IO > 0
+         fdatasync(fd)
+ #else
++#if defined(_WIN32)
++	_commit(fd)
++#else
+         fsync(fd)
+ #endif
++#endif
+       )
+       {
+         if (errno != EINVAL)
+--- dvdauthor-orig/src/Makefile.am	2016-03-25 10:24:33.367000000 +0000
++++ dvdauthor/src/Makefile.am	2016-03-25 09:49:36.348000000 +0000
+@@ -8,7 +8,7 @@
+ nodist_bin_SCRIPTS = dvddirdel
+ 
+ AM_CPPFLAGS = -DSYSCONFDIR="\"$(sysconfdir)\"" \
+-    @XML_CPPFLAGS@ @MAGICK_CFLAGS@ @FREETYPE_CPPFLAGS@ @FRIBIDI_CFLAGS@ @FONTCONFIG_CFLAGS@
++    @XML2_CFLAGS@ @MAGICK_CFLAGS@ @FREETYPE_CPPFLAGS@ @FRIBIDI_CFLAGS@ @FONTCONFIG_CFLAGS@
+ AM_CFLAGS = -Wall
+ 
+ dvdauthor_SOURCES = dvdauthor.c common.h dvdauthor.h da-internal.h \
+--- dvdauthor-orig/src/mpeg2desc.c	2016-03-25 10:24:33.371000000 +0000
++++ dvdauthor/src/mpeg2desc.c	2016-03-25 09:47:41.707000000 +0000
+@@ -29,6 +29,9 @@
+ #include <assert.h>
+ #include <errno.h>
+ #include <fcntl.h>
++#ifdef _WIN32
++#include <winsock2.h>
++#endif
+ 
+ // this is needed for FreeBSD and Windows
+ #include <sys/time.h>
+@@ -186,7 +189,11 @@
+                 if (o->fd == FD_TOOPEN)
+                   {
+                     int fd;
++#ifdef _WIN32
++                    fd = open(o->fname, O_CREAT | O_WRONLY, 0666);
++#else
+                     fd = open(o->fname, O_CREAT | O_WRONLY | O_NONBLOCK, 0666);
++#endif
+                     if (fd == -1 && errno == ENXIO)
+                       {
+                         continue; /* try again later, in case pipe not created yet */
+--- dvdauthor-orig/src/spuunmux.c	2016-03-25 10:24:33.371000000 +0000
++++ dvdauthor/src/spuunmux.c	2016-03-24 20:59:46.724000000 +0000
+@@ -36,7 +36,7 @@
+ #include <fcntl.h>
+ #include <errno.h>
+ 
+-#include <netinet/in.h>
++/* #include <netinet/in.h> */
+ 
+ #include <png.h>
+ #include <zlib.h>
+--- dvdauthor-orig/src/subfont.c	2016-03-25 10:24:33.371000000 +0000
++++ dvdauthor/src/subfont.c	2016-03-24 20:49:41.866000000 +0000
+@@ -44,7 +44,7 @@
+ 
+ #include <math.h>
+ 
+-#include <netinet/in.h>
++/* #include <netinet/in.h> */
+ 
+ #include "subglobals.h"
+ #include "subfont.h"
+--- dvdauthor-orig/src/subgen.c	2016-03-25 10:24:33.372000000 +0000
++++ dvdauthor/src/subgen.c	2016-03-24 20:47:27.258000000 +0000
+@@ -33,7 +33,7 @@
+ #include <errno.h>
+ #include <fcntl.h>
+ 
+-#include <netinet/in.h>
++/* #include <netinet/in.h> */
+ 
+ #include "common.h"
+ #include "conffile.h"
+--- dvdauthor-orig/src/subreader.c	2016-03-25 10:24:33.373000000 +0000
++++ dvdauthor/src/subreader.c	2016-03-24 20:57:36.630000000 +0000
+@@ -1446,10 +1446,10 @@
+     const char *p;
+     char *q;
+ 
+-    bzero(current, sizeof(subtitle_elt));
+-    bzero(line1, LINE_LEN);
+-    bzero(line2, LINE_LEN);
+-    bzero(directive, LINE_LEN);
++    memset(current, '\0', sizeof(subtitle_elt));
++    memset(line1, '\0', LINE_LEN);
++    memset(line2, '\0', LINE_LEN);
++    memset(directive, '\0', LINE_LEN);
+     while (!current->text[0])
+       {
+         if (!sub_fgets(line1, LINE_LEN))

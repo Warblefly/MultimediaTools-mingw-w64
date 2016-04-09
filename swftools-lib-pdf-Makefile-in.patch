@@ -1,0 +1,21 @@
+--- lib/pdf/Makefile.in.orig	2016-04-04 18:39:13.400000000 +0000
++++ lib/pdf/Makefile.in	2016-04-04 18:40:31.762000000 +0000
+@@ -135,6 +135,18 @@
+ 	$(CC) -I ./ -I xpdf xpdf/PDFDoc.cc -o $@
+ xpdf/SecurityHandler.$(O): xpdf/SecurityHandler.cc xpdf/SecurityHandler.h
+ 	$(CC) -I ./ -I xpdf xpdf/SecurityHandler.cc -o $@
++xpdf/TextOutputDev.$(O): xpdf/TextOutputDev.cc xpdf/Stream.h xpdf/Object.h xpdf/OutputDev.h xpdf/gtypes.h xpdf/CharTypes.h
++	$(CC) -I ./ -I xpdf xpdf/TextOutputDev.cc -o $@
++xpdf/UnicodeTypeTable.$(O): xpdf/UnicodeTypeTable.cc xpdf/Stream.h xpdf/Object.h xpdf/OutputDev.h xpdf/gtypes.h xpdf/CharTypes.h
++	$(CC) -I ./ -I xpdf xpdf/UnicodeTypeTable.cc -o $@
++xpdf/SplashOutputDev.$(O): xpdf/SplashOutputDev.cc xpdf/Stream.h xpdf/Object.h xpdf/OutputDev.h xpdf/gtypes.h xpdf/CharTypes.h
++	$(CC) -I ./ -I xpdf xpdf/SplashOutputDev.cc -o $@
++xpdf/SplashFont.$(O): xpdf/SplashFont.cc xpdf/Stream.h xpdf/Object.h xpdf/OutputDev.h xpdf/gtypes.h xpdf/CharTypes.h
++	$(CC) -I ./ -I xpdf xpdf/SplashFont.cc -o $@
++xpdf/SplashState.$(O): xpdf/SplashState.cc xpdf/Stream.h xpdf/Object.h xpdf/OutputDev.h xpdf/gtypes.h xpdf/CharTypes.h
++	$(CC) -I ./ -I xpdf xpdf/SplashState.cc -o $@
++xpdf/Splash.$(O): xpdf/Splash.cc xpdf/Stream.h xpdf/Object.h xpdf/OutputDev.h xpdf/gtypes.h xpdf/CharTypes.h
++	$(CC) -I ./ -I xpdf xpdf/Splash.cc -o $@
+ xpdf/OutputDev.$(O): xpdf/OutputDev.cc xpdf/GfxState.h xpdf/Stream.h xpdf/Object.h xpdf/OutputDev.h xpdf/gtypes.h xpdf/CharTypes.h
+ 	$(CC) -I ./ -I xpdf xpdf/OutputDev.cc -o $@
+ xpdf/FoFiBase.$(O): xpdf/FoFiBase.cc

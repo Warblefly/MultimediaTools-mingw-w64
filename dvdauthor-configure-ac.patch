@@ -1,0 +1,14 @@
+--- configure.ac.orig	2016-03-24 14:41:20.142000000 +0000
++++ configure.ac	2016-03-24 14:42:09.758000000 +0000
+@@ -135,10 +135,7 @@
+ 
+ AM_ICONV
+ 
+-ifdef([AM_PATH_XML2],
+-    [AM_PATH_XML2(2.6.0, , AC_MSG_ERROR([You must have libxml2 >= 2.6.0 installed]))],
+-    [errprint([You must have libxml2 (>= 2.6.0) installed
+-])m4_exit(1)AC_MSG_ERROR([You must have libxml2 (>= 2.6.0) installed])])
++PKG_CHECK_MODULES([XML2], [libxml-2.0])
+ 
+ AC_CHECK_DECLS(O_BINARY, , , [ #include <fcntl.h> ] )
+ 

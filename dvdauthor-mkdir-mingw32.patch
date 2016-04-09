@@ -1,0 +1,35 @@
+--- src/dvdauthor.c.orig	2016-03-24 15:59:48.098000000 +0000
++++ src/dvdauthor.c	2016-03-24 16:03:19.312000000 +0000
+@@ -1260,19 +1260,31 @@
+             deletedir(fbase);
+             delete_output_dir = false; /* only do on first call */
+           } /*if*/
++#ifdef _WIN32
++	if (mkdir(fbase) && errno != EEXIST)
++#else
+         if (mkdir(fbase, 0777) && errno != EEXIST)
++#endif
+           {
+             fprintf(stderr, "ERR:  cannot create dir %s: %s\n", fbase, strerror(errno));
+             exit(1);
+           } /*if*/
+         snprintf(realfbase, sizeof realfbase, "%s/VIDEO_TS", fbase);
+-        if (mkdir(realfbase, 0777) && errno != EEXIST)
++#ifdef _WIN32
++	if (mkdir(realfbase) && errno != EEXIST)
++#else
++	if (mkdir(realfbase, 0777) && errno != EEXIST)
++#endif
+           {
+             fprintf(stderr, "ERR:  cannot create dir %s: %s\n", realfbase, strerror(errno));
+             exit(1);
+           } /*if*/
+         snprintf(realfbase, sizeof realfbase, "%s/AUDIO_TS", fbase);
++#ifdef _WIN32
++	if (mkdir(realfbase) && errno != EEXIST)
++#else
+         if (mkdir(realfbase, 0777) && errno != EEXIST)
++#endif
+           {
+             fprintf(stderr, "ERR:  cannot create dir %s: %s\n", realfbase, strerror(errno));
+             exit(1);

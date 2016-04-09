@@ -1,0 +1,13 @@
+--- src/compat.c.orig	2016-03-24 20:09:59.108000000 +0000
++++ src/compat.c	2016-03-24 20:10:41.108000000 +0000
+@@ -9,8 +9,9 @@
+ #include <errno.h>
+ #include <assert.h>
+ #include <locale.h>
++#ifndef _WIN32
+ #include <langinfo.h>
+-
++#endif
+ /*
+     Useful string stuff
+ */

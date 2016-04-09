@@ -1,0 +1,15 @@
+--- src/dvdvob.c.orig	2016-03-24 20:37:27.140000000 +0000
++++ src/dvdvob.c	2016-03-24 20:38:05.591000000 +0000
+@@ -63,8 +63,12 @@
+ #if defined(_POSIX_SYNCHRONIZED_IO) && _POSIX_SYNCHRONIZED_IO > 0
+         fdatasync(fd)
+ #else
++#if defined(_WIN32)
++	_commit(fd)
++#else
+         fsync(fd)
+ #endif
++#endif
+       )
+       {
+         if (errno != EINVAL)
