@@ -918,11 +918,19 @@ build_libopenjpeg() {
   cd ..
 }
 
+build_lcms2() {
+  do_git_checkout https://github.com/mm2/Little-CMS.git lcms2
+  cd lcms2
+    generic_configure_make_install
+  cd ..
+}
+
 build_libopenjpeg2() {
-  download_and_unpack_file "http://downloads.sourceforge.net/project/openjpeg.mirror/2.1.0/openjpeg-2.1.0.tar.gz" openjpeg-2.1.0
-  cd openjpeg-2.1.0
+  do_git_checkout https://github.com/uclouvain/openjpeg.git openjpeg2
+#  download_and_unpack_file "http://downloads.sourceforge.net/project/openjpeg.mirror/2.1.0/openjpeg-2.1.0.tar.gz" openjpeg-2.1.0
+  cd openjpeg2
     export CFLAGS="$CFLAGS" # -DOPJ_STATIC"
-    do_cmake "-D_BUILD_SHARED_LIBS:BOOL=ON -DBUILD_VIEWER:bool=OFF -DBUILD_MJ2:bool=OFF -DBUILD_JPWL:bool=OFF -DBUILD_JPIP:bool=OFF -DBUILD_TESTS:bool=OFF -DBUILD_SHARED_LIBS:bool=ON -DBUILD_STATIC_LIBS:BOOL=OFF -DBUILD_CODEC:bool=OFF"
+    do_cmake "-D_BUILD_SHARED_LIBS:BOOL=ON -DBUILD_VIEWER:bool=OFF -DBUILD_MJ2:bool=OFF -DBUILD_JPWL:bool=OFF -DBUILD_JPIP:bool=OFF -DBUILD_TESTS:bool=OFF -DBUILD_SHARED_LIBS:bool=ON -DBUILD_STATIC_LIBS:BOOL=OFF -DBUILD_CODEC:bool=ON"
     do_make_install
     export CFLAGS=$original_cflags
   cd ..
@@ -1688,6 +1696,7 @@ build_librubberband() {
 #     export cpu_count=$original_cpu_count
     apply_patch file://${top_dir}/rubberband-mingw-shared.patch
     generic_configure_make_install
+    mv -v ${mingw_w64_x86_64_prefix}/bin/rubberband ${mingw_w64_x86_64_prefix}/bin/rubberband.exe
   cd ..
 }
 
@@ -1929,7 +1938,7 @@ build_atomicparsley() {
 }
 
 build_wx() {
-  generic_download_and_install https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.0/wxWidgets-3.1.0.tar.bz2 wxWidgets-3.1.0 "--enable-monolithic --enable-official_build --enable-compat28 --enable-compat30 --with-opengl"
+  generic_download_and_install https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.0/wxWidgets-3.1.0.tar.bz2 wxWidgets-3.1.0 "--enable-monolithic --enable-compat28 --enable-compat30 --with-opengl"
 }
 
 build_libsndfile() {
@@ -2092,9 +2101,10 @@ build_exiv2() {
 }
 
 build_bmx() {
-  do_git_checkout git://git.code.sf.net/p/bmxlib/bmx bmxlib-bmx 723e48
+  do_git_checkout git://git.code.sf.net/p/bmxlib/bmx bmxlib-bmx # 723e48
   cd bmxlib-bmx
     sed -i.bak 's/) -version-info/) -no-undefined -version-info/' src/Makefile.am
+    apply_patch file://${top_dir}/bmxlib-bmx-apps-writers-Makefile-am.patch
     if [[ ! -f ./configure ]]; then
       ./autogen.sh
     fi
@@ -2465,7 +2475,7 @@ build_lua() {
   cd lua-5.2.3
     apply_patch_p1 file://${top_dir}/lua-5.2.3-static-mingw.patch
     # Adjustments when not building on Cygwin
-    sed -i.bak 's/TO_BIN= lua luac/TO_BIN= lua.exe luac.exe/' Makefile
+    sed -i.bak 's/TO_BIN= lua luac/TO_BIN= lua.exe luac.exe lua52.dll/' Makefile
     sed -i.bak 's/-gcc.exe/-gcc/' Makefile
     sed -i.bak 's/-ar.exe/-ar/' Makefile
     sed -i.bak 's/-ranlib.exe/-ranlib/' Makefile
@@ -2722,6 +2732,14 @@ build_exif() {
     # tell it where our cross-compiled libpopt is located.
     generic_configure_make_install "POPT_CFLAGS=-I${mingw_w64_x86_64_prefix}/include POPT_LIBS=-L${mingw_w64_x86_64_prefix}/lib LIBS=-lpopt"
   cd ..
+}
+
+build_hdf() {
+  generic_download_and_install http://www.hdfgroup.org/ftp/HDF5/current/src/hdf5-1.8.16.tar.bz2 hdf5-1.8.16
+}
+
+build_netcdf() {
+  generic_download_and_install ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-4.4.0.tar.gz netcdf-4.4.0 "--enable-dll --disable-netcdf4"
 }
 
 build_vlc() {
@@ -2995,7 +3013,7 @@ build_ffmpeg() {
 
 # --extra-cflags=$CFLAGS, though redundant, just so that FFmpeg lists what it used in its "info" output
 
-  config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --disable-doc --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libschroedinger --enable-libvpx --enable-libilbc --enable-libwavpack --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts --extra-cflags=$CFLAGS" # other possibilities: --enable-w32threads --enable-libflite
+  config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --disable-doc --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-netcdf --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libschroedinger --enable-libvpx --enable-libilbc --enable-libwavpack --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts --extra-cflags=$CFLAGS" # other possibilities: --enable-w32threads --enable-libflite
   if [[ "$non_free" = "y" ]]; then
     config_options="$config_options --enable-nonfree --enable-libfdk-aac --disable-libfaac --enable-decoder=aac" # To use fdk-aac in VLC, we need to change FFMPEG's default (faac), but I haven't found how to do that... So I disabled it. This could be an new option for the script? -- faac deemed too poor quality and becomes the default -- add it in and uncomment the build_faac line to include it 
     # other possible options: --enable-openssl --enable-libaacplus
@@ -3098,6 +3116,7 @@ build_dependencies() {
   build_libgpg-error # Needed by libgcrypt 
   build_libgcrypt # Needed by libxmlsec 
   build_libxmlsec
+  build_lcms2 # Openjpeg2 and others require this
 #  build_libudfread # Needed by libbluray but built as submodule
   build_libbluray # needs libxml2, freetype [FFmpeg, VLC use this, at least]
   build_libopenjpeg
@@ -3187,6 +3206,8 @@ build_dependencies() {
   build_librubberband # for mpv
   build_vim
   build_ilmbase
+#  build_hdf
+  build_netcdf
 }
 
 build_apps() {
@@ -3372,7 +3393,7 @@ fi
 # TODO: CHECK THIS LIST WHEN ADDING NEW PACKAGES
 
 echo "Copying runtime libraries that have gone to the wrong build directory."
-wrong_libs=('icudt56.dll' 'icuin56.dll' 'icuio56.dll' 'icule56.dll' 'iculx56.dll' 'icutest56.dll' 'icuuc56.dll' 'libatomic-1.dll' 'libboost_date_time.dll' 'libboost_filesystem.dll' 'libboost_regex.dll' 'libboost_system.dll' 'libdcadec.dll' 'libgcc_s_seh-1.dll' 'libopendcp-asdcp.dll' 'libopendcp-lib.dll' 'libpthread.dll' 'libquadmath-0.dll' 'libssp-0.dll' 'libstdc++-6.dll' 'libvtv-0.dll' 'libvtv_stubs-0.dll' 'pthreadGC2.dll')
+wrong_libs=('icudt56.dll' 'icutu56.dll' 'icuin56.dll' 'icuio56.dll' 'icule56.dll' 'iculx56.dll' 'icutest56.dll' 'icuuc56.dll' 'libatomic-1.dll' 'libboost_date_time.dll' 'libboost_filesystem.dll' 'libboost_regex.dll' 'libboost_system.dll' 'libdcadec.dll' 'libgcc_s_seh-1.dll' 'libopendcp-asdcp.dll' 'libopendcp-lib.dll' 'libpthread.dll' 'libquadmath-0.dll' 'libssp-0.dll' 'libstdc++-6.dll' 'libvtv-0.dll' 'libvtv_stubs-0.dll' 'pthreadGC2.dll' 'wxmsw310u_gl_gcc_custom.dll' 'wxmsw310u_gcc_custom.dll')
 for move in "${wrong_libs[@]}"; do
   cp -Lv "${mingw_w64_x86_64_prefix}/lib/${move}" "${mingw_w64_x86_64_prefix}/bin/${move}" || exit 1
 done
