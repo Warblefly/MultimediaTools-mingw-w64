@@ -319,6 +319,7 @@ With these scripts, you can compile binaries, ready to run on 64-bit Windows. Ma
  * luac — lua language compiler (version 5.2.3)
 * Mediainfo — library and utility for parsing many types of media files
  * mediainfo — command-line program for recognising and displaying data about many types of media files
+ * mediainfo-gui — the GUI for Mediainfo. Temporarily lacks icons
 * MLT — Multimedia Framework
  * melt — command-line interface to MLT libraries, plugins, filters, etc.
 * GnuTLS
