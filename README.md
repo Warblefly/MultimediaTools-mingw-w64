@@ -210,6 +210,17 @@ With these scripts, you can compile binaries, ready to run on 64-bit Windows. Ma
  * sndfile-regtest — requires libsqlite3, which we do not currently include
  * sndfile-resample — uses libsamplerate to resample files readable/writable by libsndfile. Many algorithms
  * sndfile-salvage — salvages audio data from conventional WAV files that are over 4GB in size, converts in W64 format
+* LCMS — Little Colour Management System v. 2, a colour management library
+ * psicc — generates ICC Postscript using colour management
+ * tificc — applies a colour profile to TIFF files, with options to control CMYK printing
+ * transicc — calculates conversions between colourspaces
+ * jpcicc — applies a colour profile to JPEG files, with options to control CMYK printing
+ * linkicc — links profiles into a single devicelink
+* NetCDF —  library for creation, access, and sharing of array-oriented scientific data
+ * ncgen — generates a program to create a NetCDF data set (older version)
+ * ncgen3 — generates a program to create a NetCDF data set (newer version)
+ * nccopy — copies and optionally compresses and chunks netCDF data
+ * ncdump — converts netCDF data to human-readable form
 * Glib — the GNU extension library
  * glib-compile-resources — compile a resource specification into a resource file
  * glib-compile-schemas — compile all GSettings schema files into a schema cache
@@ -326,6 +337,10 @@ With these scripts, you can compile binaries, ready to run on 64-bit Windows. Ma
   * wrjpgcom — writes and replaces comments into JPEG files
 * libjpeg-turbo
  * tjbench — benchmark and test libjpeg-turbo
+* OpenJPEG and OpenJPEG2 — create, decode and manipulate JPEG 2000 images
+ * opj_compress — the standard JPEG 2000 compressor. Compresses with many options
+ * opj_decompress — the standard JPEG 2000 decompressor. Decompresses to several formats
+ * opj_dump — dumps JPEG 2000 datastream
 * OpenCV — artificial intelligence applied to imaging
  * opencv_annotation — add annotations to images
  * opencv_createsamples — produces dataset of positive samples in a format that is supported by both opencv_haartraining and opencv_traincascade applications
@@ -455,6 +470,8 @@ With these scripts, you can compile binaries, ready to run on 64-bit Windows. Ma
   * dumpsexp — debug tool for S-expressions
   * hmac256 — compute an HMAC-SHA-256 message authentication code
   * mpicalc — Reverse Polish Notation interactive big integer calculator
+* wxWidgets — GUI library
+ * wxrc — compiles binary resource files
 * MPV — modern multimedia player using FFmpeg libav* foundation
  * mpv — player for multimedia files
 * dvdauthor — very comprehensive toolkit for DVD authoring
