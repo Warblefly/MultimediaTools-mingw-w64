@@ -1408,6 +1408,20 @@ build_libxmlsec() {
   cd ..
 }
 
+build_libaacs() {
+  do_git_checkout https://git.videolan.org/git/libaacs.git libaacs
+  cd libaacs
+    generic_configure_make_install "--with-libgcrypt-prefix=${mingw_w64_x86_64_prefix} --with-gpg-error-prefix=${mingw_w64_x86_64_prefix}"
+  cd ..
+}
+
+build_libbdplus() {
+  do_git_checkout http://git.videolan.org/git/libbdplus.git libbdplus
+  cd libbdplus
+    generic_configure_make_install "--with-libgcrypt-prefix=${mingw_w64_x86_64_prefix} --with-gpg-error-prefix=${mingw_w64_x86_64_prefix}"
+  cd ..
+}
+
 build_libbluray() {
   do_git_checkout git://git.videolan.org/libbluray.git libbluray
   cd libbluray
@@ -1908,7 +1922,7 @@ build_mpv() {
     ./bootstrap.py
     export DEST_OS=win32
     export TARGET=x86_64-w64-mingw32
-    do_configure "configure -pp --prefix=${mingw_w64_x86_64_prefix} --enable-win32-internal-pthreads --disable-x11 --disable-lcms2 --disable-debug-build --enable-gpl3 --enable-sdl2 --enable-libmpv-shared --disable-libmpv-static --enable-gpl3 " "./waf"
+    do_configure "configure -pp --prefix=${mingw_w64_x86_64_prefix} --enable-win32-internal-pthreads --disable-x11 --disable-debug-build --enable-gpl3 --enable-sdl2 --enable-libmpv-shared --disable-libmpv-static --enable-gpl3 " "./waf"
     # In this cross-compile for Windows, we keep the Python script up-to-date and therefore
     # must call it directly by its full name, because mpv can only explore for executables
     # with the .exe suffix.
@@ -3122,6 +3136,8 @@ build_dependencies() {
   build_libgpg-error # Needed by libgcrypt 
   build_libgcrypt # Needed by libxmlsec 
   build_libxmlsec
+  build_libaacs
+  build_libbdplus
   build_lcms2 # Openjpeg2 and others require this
 #  build_libudfread # Needed by libbluray but built as submodule
   build_libbluray # needs libxml2, freetype [FFmpeg, VLC use this, at least]
