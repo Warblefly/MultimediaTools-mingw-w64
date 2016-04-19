@@ -2067,9 +2067,15 @@ build_mediainfo() {
 		sed -i.bak 's/ -DSIZE_T_IS_LONG//g' Makefile
 		do_make_install
 		cd ../../../../MediaInfo/Project/GNU/CLI
-		do_configure "--host=x86_64-w64-mingw32 --prefix=$mingw_w64_x86_64_prefix --enable-debug" # --enable-staticlibs --enable-shared=no LDFLAGS=-static-libgcc"
+		do_configure "--host=x86_64-w64-mingw32 --prefix=$mingw_w64_x86_64_prefix --enable-debug --disable-static-libs" # --enable-staticlibs --enable-shared=no LDFLAGS=-static-libgcc"
 		sed -i.bak 's/ -DSIZE_T_IS_LONG//g' Makefile
 		do_make_install
+                cd ../../..
+                apply_patch file://${top_dir}/mediainfo-GUI_Main_Menu-cpp.patch
+                cd Project/GNU/GUI
+                do_configure "--host=x86_64-w64-mingw32 --prefix=$mingw_w64_x86_64_prefix --enable-debug --with-wx-config=${mingw_w64_x86_64_prefix}/bin/wx-config --disable-static-libe"
+                sed -i.bak 's/ -DSIZE_T_IS_LONG//g' Makefile
+                do_make_install
 #                cd ../../../../..
 		cd ../../../../..
 #		echo "Now returned to `pwd`"
