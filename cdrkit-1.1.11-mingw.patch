@@ -1,0 +1,1988 @@
+--- cdrkit-1.1.11/CMakeLists.txt	2007-05-30 07:55:02 -1000
++++ cdrkit-1.1.11-new/CMakeLists.txt	2012-09-08 15:25:47 -1000
+@@ -1,3 +1,4 @@
++cmake_minimum_required(VERSION 2.6)
+ PROJECT (cdrkit C)
+ SUBDIRS(include genisoimage wodim libedc libhfs_iso libparanoia icedax libusal librols libunls readom netscsid 3rd-party/dirsplit)
+ 
+--- cdrkit-1.1.11/genisoimage/CMakeLists.txt	2009-11-27 12:57:01 -1000
++++ cdrkit-1.1.11-new/genisoimage/CMakeLists.txt	2012-09-08 16:12:15 -1000
+@@ -1,14 +1,15 @@
+ PROJECT (MKISOFS C)
+-
++cmake_minimum_required(VERSION 2.6)
+ INCLUDE(../include/AddScgBits.cmake)
+ INCLUDE(../include/AddSchilyBits.cmake)
+ 
+-INCLUDE_DIRECTORIES(../include ../libhfs_iso ../wodim ${CMAKE_BINARY_DIR} ${CMAKE_BINARY_DIR}/include)
++INCLUDE_DIRECTORIES(../include ../libhfs_iso ../wodim ../libusal ${CMAKE_BINARY_DIR} ${CMAKE_BINARY_DIR}/include)
+ 
+ INCLUDE(CheckIncludeFiles)
+ CHECK_INCLUDE_FILES("magic.h" USE_MAGIC)
+ IF(USE_MAGIC)
+ 	ADD_DEFINITIONS(-DUSE_MAGIC)
++	LIST(APPEND EXTRA_LIBS "shlwapi")
+ 	SET(MAGICLIBS magic)
+ ENDIF(USE_MAGIC)
+ 
+@@ -29,6 +30,10 @@
+ ENDIF(USE_LIBICONV)
+ ENDIF(HAVE_ICONV_H)
+ 
++IF(USE_LIBREGEX)
++    LIST(APPEND EXTRA_LIBS "regex")
++ENDIF(USE_LIBREGEX)
++
+ ADD_DEFINITIONS(-DUSE_LARGEFILES -DABORT_DEEP_ISO_ONLY -DAPPLE_HYB -DUDF -DDVD_VIDEO -DSORTING -DHAVE_CONFIG_H -DUSE_LIBSCHILY -DUSE_SCG -DJIGDO_TEMPLATE)
+ 
+ SET(MKISOFS_MOST_SRCS apple.c boot.c desktop.c dvd_file.c dvd_reader.c eltorito.c exclude.c files.c fnmatch.c hash.c ifo_read.c joliet.c mac_label.c match.c multi.c name.c rock.c scsi.c stream.c tree.c udf.c vms.c volume.c write.c boot-alpha.c boot-hppa.c boot-mips.c md5.c jte.c rsync.c	boot-mipsel.c endian.c sha1.c sha256.c sha512.c checksum.c )
+@@ -45,7 +50,7 @@
+ LINK_DIRECTORIES(../libhfs_iso ../librols ../libusal ../libunls  ../wodim)
+ 
+ ADD_EXECUTABLE (genisoimage genisoimage.c ${MKISOFS_MOST_SRCS})
+-TARGET_LINK_LIBRARIES(genisoimage wodimstuff hfs_iso  ${MAGICLIBS} c unls z bz2 ${EXTRA_LIBICONV} ${EXTRA_LIBS})
++TARGET_LINK_LIBRARIES(genisoimage wodimstuff hfs_iso  ${MAGICLIBS} unls z bz2 ${EXTRA_LIBICONV} ${EXTRA_LIBS})
+ 
+ # common lib set and genisoimage source parts for the rest
+ LINK_LIBRARIES(wodimstuff ${EXTRA_LIBS}  unls ${EXTRA_LIBICONV} )
+--- cdrkit-1.1.11/genisoimage/apple.c	2007-04-06 04:22:38 -1000
++++ cdrkit-1.1.11-new/genisoimage/apple.c	2012-09-08 15:25:47 -1000
+@@ -53,7 +53,9 @@
+ #include <fctldefs.h>
+ #include <utypes.h>
+ #include <ctype.h>
++#ifdef	HAVE_NETINET_IN_H
+ #include <netinet/in.h>
++#endif
+ #include "apple.h"
+ #include <schily.h>
+ 
+--- cdrkit-1.1.11/genisoimage/checksum.c	2009-05-13 15:34:04 -1000
++++ cdrkit-1.1.11-new/genisoimage/checksum.c	2012-09-08 16:10:03 -1000
+@@ -303,12 +303,12 @@
+         struct algo_context *a = &c->algo[i];
+ 
+ #ifdef THREADED_CHECKSUMS
+-        if (a->thread)
++        if ((a->thread).p)
+         {
+             void *ret;
+             pthread_cancel(a->thread);
+             pthread_join(a->thread, &ret);
+-            a->thread = 0;
++            (a->thread).p = 0;
+         }
+ #endif
+         free(a->context);
+@@ -395,7 +395,7 @@
+             pthread_cond_signal(&a->start_cv);
+             pthread_mutex_unlock(&a->start_mutex);
+             pthread_join(a->thread, &ret);
+-            a->thread = 0;
++            (a->thread).p = 0;
+         }
+     }
+ #endif
+--- cdrkit-1.1.11/genisoimage/defaults.h	2007-04-12 01:27:04 -1000
++++ cdrkit-1.1.11-new/genisoimage/defaults.h	2012-09-08 15:25:47 -1000
+@@ -72,7 +72,7 @@
+ #define	SYSTEM_ID_DEFAULT	"AIX"
+ #endif
+ 
+-#if	defined(_WIN) || defined(__CYGWIN32__) || defined(__CYGWIN__)
++#if	defined(_WIN) || defined(__CYGWIN32__) || defined(__CYGWIN__) || defined(__MINGW32__)
+ #define	SYSTEM_ID_DEFAULT	"Win32"
+ #endif /* _WIN */
+ 
+--- cdrkit-1.1.11/genisoimage/genisoimage.c	2010-07-13 02:21:21 -1000
++++ cdrkit-1.1.11-new/genisoimage/genisoimage.c	2012-09-08 15:25:47 -1000
+@@ -83,8 +83,12 @@
+ 
+ #ifdef USE_ICONV
+ #include <locale.h>
++#ifdef HAVE_LOCALCHARSET_H
++#include <localcharset.h>
++#elif defined(HAVE_LANGINFO_H)
+ #include <langinfo.h>
+ #endif
++#endif
+ 
+ struct directory *root = NULL;
+ int		path_ind;
+@@ -139,7 +143,7 @@
+ int	gui = 0;
+ int	all_files = 1;	/* New default is to include all files */
+ int	follow_links = 0;
+-#ifdef	IS_CYGWIN
++#if defined(IS_CYGWIN) || defined(__MINGW32__)
+ int	cache_inodes = 0; /* Do not cache inodes on Cygwin by default */
+ #else
+ int	cache_inodes = 1; /* Cache inodes if OS has unique inodes */
+@@ -1868,6 +1872,7 @@
+ 			break;
+ 		}
+ 
++#ifndef __MINGW32__
+ 		case OPTION_UID:
+ 			rationalize++;
+ 			use_RockRidge++;
+@@ -1905,6 +1910,7 @@
+ 			}
+ 			break;
+ 		}
++#endif /* __MINGW32__ */
+ 
+ 		case OPTION_FILEMODE:
+ 			rationalize++;
+@@ -2556,6 +2562,7 @@
+ 	setlocale(LC_CTYPE, "");
+ 	
+   	if (icharset == NULL && iconv_possible) {
++#ifdef HAVE_LANGINFO_H
+ 		char *charset = nl_langinfo(CODESET);
+ 		/* set to detected value but only if it is not pure US-ASCII */
+   	if(charset) { /* workaround for SunOS, iconv is case-sensitive */
+@@ -2564,9 +2571,12 @@
+  			for(t=charset;*t!='\0';t++)
+  				*t=tolower(*t);
+  		}
+-
++#else
++		const char *charset = locale_charset();
++#endif
+ 		if(strcmp(charset, "ansi_x3.4-1968") != 0)
+-			icharset = charset;
++			/* this is bad -- the const should not be cast away unless it is unavoidable */
++			icharset = (char *)charset;
+ 
+ 		if(icharset && verbose > 0)
+ 			fprintf(stderr, "I: -input-charset not specified, using %s (detected in locale settings)\n",
+@@ -2583,7 +2593,7 @@
+ #endif
+ 
+ 	if (icharset == NULL) {
+-#if	(defined(__CYGWIN32__) || defined(__CYGWIN__) || defined(__DJGPP__)) && !defined(IS_CYGWIN_1)
++#if	(defined(__CYGWIN32__) || defined(__CYGWIN__) || defined(__DJGPP__) || defined(__MINGW32__)) && !defined(IS_CYGWIN_1)
+ 		in_nls = load_unls("cp437");
+ #else
+ 		in_nls = load_unls("iso8859-1");
+@@ -2659,6 +2669,8 @@
+ #endif
+ 		}
+ 	}
++	
++#ifdef HAVE_UID_T_AND_GID_T
+ 	/* We don't need root privilleges anymore. */
+ #ifdef	HAVE_SETREUID
+ 	if (setreuid(-1, getuid()) < 0)
+@@ -2677,7 +2689,7 @@
+ 		exit(1);
+ 	}
+ #endif
+-
++#endif /* HAVE_UID_T_AND_GID_T */
+ 
+ #ifdef	no_more_needed
+ #ifdef __NetBSD__
+--- cdrkit-1.1.11/genisoimage/genisoimage.h	2008-05-25 11:00:55 -1000
++++ cdrkit-1.1.11-new/genisoimage/genisoimage.h	2012-09-08 15:25:47 -1000
+@@ -67,9 +67,14 @@
+  * XXX we know a secure way to let autoconf ckeck for fseeko()/ftello()
+  * XXX without defining FILE_OFFSETBITS to 64 in confdefs.h
+  */
++#ifdef __MINGW32__
++#	define	fseek	fseeko64
++#	define	ftell	ftello64
++#else
+ #	define	fseek	fseeko
+ #	define	ftell	ftello
+ #endif
++#endif
+ 
+ #ifndef	HAVE_LSTAT
+ #ifndef	VMS
+--- cdrkit-1.1.11/genisoimage/joliet.c	2008-05-25 10:21:29 -1000
++++ cdrkit-1.1.11-new/genisoimage/joliet.c	2012-09-08 15:25:47 -1000
+@@ -259,7 +259,8 @@
+ 		size_t outleft = size;
+ 
+ 		iconv(inls->iconv_d, NULL, NULL, NULL, NULL);
+-		if(iconv(inls->iconv_d, &inptr, &inleft, &outptr, &outleft) ==
++		if(iconv(inls->iconv_d, (const char **)&inptr, &inleft, &outptr,
++				 &outleft) ==
+ 				(size_t)-1 && errno == EILSEQ) {
+ 			fprintf(stderr, "Incorrectly encoded string (%s) "
+ 				"encountered.\nPossibly creating an invalid "
+@@ -394,7 +395,7 @@
+ 		tmp_ptr = tmp;
+ 
+ 		iconv(inls->iconv_d, NULL, NULL, NULL, NULL);
+-		iconv(inls->iconv_d, &string_ptr, &string_len, &tmp_ptr,
++		iconv(inls->iconv_d, (const char **)&string_ptr, &string_len, &tmp_ptr,
+ 			&tmp_len);
+ 
+ 		/*
+--- cdrkit-1.1.11/genisoimage/scsi.c	2006-12-08 03:38:43 -1000
++++ cdrkit-1.1.11-new/genisoimage/scsi.c	2012-09-08 15:25:47 -1000
+@@ -144,12 +144,14 @@
+ 	char	*buf;	/* ignored, bit OS/2 ASPI layer needs memory which */
+ 			/* has been allocated by scsi_getbuf()		   */
+ 
++#ifdef USE_SCSI_REMOTE
+ 	/*
+ 	 * Call usal_remote() to force loading the remote SCSI transport library
+ 	 * code that is located in librusal instead of the dummy remote routines
+ 	 * that are located inside libusal.
+ 	 */
+ 	usal_remote();
++#endif
+ 
+ 	cdr_defaults(&path, NULL, NULL, NULL);
+ 			/* path, debug, verboseopen */
+--- cdrkit-1.1.11/genisoimage/sha256.c	2009-10-11 08:27:59 -1000
++++ cdrkit-1.1.11-new/genisoimage/sha256.c	2012-09-08 15:58:53 -1000
+@@ -24,26 +24,20 @@
+ 
+ /* Written by Ulrich Drepper <drepper@redhat.com>, 2007.  */
+ 
+-#include <endian.h>
+ #include <stdlib.h>
+ #include <string.h>
+ #include <sys/types.h>
+ 
+ #include "sha256.h"
+ 
+-#if __BYTE_ORDER == __LITTLE_ENDIAN
+-# ifdef _LIBC
++#ifdef _LIBC
+ #  include <byteswap.h>
+ #  define SWAP(n) bswap_32 (n)
+-# else
++#else
+ #  define SWAP(n) \
+     (((n) << 24) | (((n) & 0xff00) << 8) | (((n) >> 8) & 0xff00) | ((n) >> 24))
+-# endif
+-#else
+-# define SWAP(n) (n)
+ #endif
+ 
+-
+ /* This array contains the bytes used to pad the buffer to the next
+    64-byte boundary.  (FIPS 180-2:5.1.1)  */
+ static const unsigned char fillbuf[64] = { 0x80, 0 /* , 0, 0, ...  */ };
+--- cdrkit-1.1.11/genisoimage/sha256.h	2009-05-10 11:49:54 -1000
++++ cdrkit-1.1.11-new/genisoimage/sha256.h	2012-09-08 15:58:53 -1000
+@@ -42,14 +42,14 @@
+ 
+ /* Initialize structure containing state of computation.
+    (FIPS 180-2: 5.3.2)  */
+-extern void sha256_init_ctx (struct sha256_ctx *ctx) __THROW;
++extern void sha256_init_ctx (struct sha256_ctx *ctx) __attribute__ ((__nothrow__));
+ 
+ /* Starting with the result of former calls of this function (or the
+    initialization function update the context for the next LEN bytes
+    starting at BUFFER.
+    It is NOT required that LEN is a multiple of 64.  */
+ extern void sha256_process_bytes (const void *buffer, size_t len,
+-				    struct sha256_ctx *ctx) __THROW;
++				    struct sha256_ctx *ctx) __attribute__ ((__nothrow__));
+ 
+ /* Process the remaining bytes in the buffer and put result from CTX
+    in first 32 bytes following RESBUF.
+@@ -57,6 +57,6 @@
+    IMPORTANT: On some systems it is required that RESBUF is correctly
+    aligned for a 32 bits value.  */
+ extern void *sha256_finish_ctx (struct sha256_ctx *ctx, void *resbuf)
+-  __THROW;
++  __attribute__ ((__nothrow__));
+ 
+ #endif /* sha256.h */
+--- cdrkit-1.1.11/genisoimage/sha512.c	2009-10-11 08:27:59 -1000
++++ cdrkit-1.1.11-new/genisoimage/sha512.c	2012-09-08 16:08:37 -1000
+@@ -24,18 +24,16 @@
+ 
+ /* Written by Ulrich Drepper <drepper@redhat.com>, 2007.  */
+ 
+-#include <endian.h>
+ #include <stdlib.h>
+ #include <string.h>
+ #include <sys/types.h>
+ 
+ #include "sha512.h"
+ 
+-#if __BYTE_ORDER == __LITTLE_ENDIAN
+-# ifdef _LIBC
++#ifdef _LIBC
+ #  include <byteswap.h>
+ #  define SWAP(n) bswap_64 (n)
+-# else
++#else
+ #  define SWAP(n) \
+   (((n) << 56)					\
+    | (((n) & 0xff00) << 40)			\
+@@ -45,9 +43,6 @@
+    | (((n) >> 24) & 0xff0000)			\
+    | (((n) >> 40) & 0xff00)			\
+    | ((n) >> 56))
+-# endif
+-#else
+-# define SWAP(n) (n)
+ #endif
+ 
+ 
+--- cdrkit-1.1.11/genisoimage/sha512.h	2009-05-10 11:49:54 -1000
++++ cdrkit-1.1.11-new/genisoimage/sha512.h	2012-09-08 16:08:38 -1000
+@@ -42,14 +42,14 @@
+ 
+ /* Initialize structure containing state of computation.
+    (FIPS 180-2: 5.3.3)  */
+-extern void sha512_init_ctx (struct sha512_ctx *ctx) __THROW;
++extern void sha512_init_ctx (struct sha512_ctx *ctx) __attribute__ ((__nothrow__));
+ 
+ /* Starting with the result of former calls of this function (or the
+    initialization function update the context for the next LEN bytes
+    starting at BUFFER.
+    It is NOT required that LEN is a multiple of 128.  */
+ extern void sha512_process_bytes (const void *buffer, size_t len,
+-				    struct sha512_ctx *ctx) __THROW;
++				    struct sha512_ctx *ctx) __attribute__ ((__nothrow__));
+ 
+ /* Process the remaining bytes in the buffer and put result from CTX
+    in first 64 bytes following RESBUF.
+@@ -57,6 +57,6 @@
+    IMPORTANT: On some systems it is required that RESBUF is correctly
+    aligned for a 64 bits value.  */
+ extern void *sha512_finish_ctx (struct sha512_ctx *ctx, void *resbuf)
+-  __THROW;
++  __attribute__ ((__nothrow__));
+ 
+ #endif /* sha512.h */
+--- cdrkit-1.1.11/genisoimage/tree.c	2008-10-21 13:57:47 -1000
++++ cdrkit-1.1.11-new/genisoimage/tree.c	2012-09-08 15:25:47 -1000
+@@ -241,7 +241,11 @@
+ int
+ lstat_filter(char *path, struct stat *st)
+ {
++#ifdef __MINGW32__
++	int	result = stat(path, st);
++#else
+ 	int	result = lstat(path, st);
++#endif
+ 
+ 	if (result >= 0 && rationalize)
+ 		stat_fix(st);
+@@ -1551,7 +1555,7 @@
+ 		return (0);
+ 	}
+ 	/* print a warning but don't spam too much */
+-	if (S_ISREG(lstatbuf.st_mode) && (lstatbuf.st_size >= (off_t)0xFFFFFFFF)) {
++	if (S_ISREG(lstatbuf.st_mode) && ((UInt64_t)lstatbuf.st_size >= (UInt64_t)0xFFFFFFFF)) {
+ 		static int udf_warned;
+ 
+ 		if( !allow_limited_size || verbose>1)
+@@ -2681,6 +2685,7 @@
+ 
+ 	if (fstatbuf.st_ctime == 0) {
+ 		time(&current_time);
++#ifdef HAVE_UID_T_AND_GID_T
+ 		if (rationalize_uid)
+ 			fstatbuf.st_uid = uid_to_use;
+ 		else
+@@ -2689,6 +2694,11 @@
+ 			fstatbuf.st_gid = gid_to_use;
+ 		else
+ 			fstatbuf.st_gid = getgid();
++#else
++		fstatbuf.st_uid = 0;
++		fstatbuf.st_gid = 0;
++#endif
++		
+ 		fstatbuf.st_ctime = current_time;
+ 		fstatbuf.st_mtime = current_time;
+ 		fstatbuf.st_atime = current_time;
+--- cdrkit-1.1.11/genisoimage/write.c	2008-02-26 22:54:08 -1000
++++ cdrkit-1.1.11-new/genisoimage/write.c	2012-09-08 15:25:47 -1000
+@@ -1043,7 +1043,7 @@
+ 		    ((p = strstr(dpnt->whole_name, "VIDEO_TS")) != 0)&&
+ 		    strcmp(p, "VIDEO_TS") == 0) {
+ 
+-			int     maxlen = strlen(dpnt->whole_name)-8;
++			int maxlen = strlen(dpnt->whole_name) - 9; /* subtract /VIDEO_TS */
+ 			if (maxlen > (sizeof (dvd_path)-1))
+ 				maxlen = sizeof (dvd_path)-1;
+ 			strncpy(dvd_path, dpnt->whole_name, maxlen);
+--- cdrkit-1.1.11/genisoimage/diag/dump.c	2008-02-25 21:59:05 -1000
++++ cdrkit-1.1.11-new/genisoimage/diag/dump.c	2012-09-08 15:25:47 -1000
+@@ -72,7 +72,7 @@
+ #ifdef	USE_V7_TTY
+ static	struct sgttyb	savetty;
+ static	struct sgttyb	newtty;
+-#else
++#elif	defined(HAVE_TERMIOS_H)
+ static	struct termios	savetty;
+ static	struct termios	newtty;
+ #endif
+@@ -94,8 +94,10 @@
+ #else
+ #ifdef TCSANOW
+ 	if (tcsetattr(STDIN_FILENO, TCSANOW, &savetty) == -1) {
+-#else
++#elif defined(HAVE_SYS_IOCTL_H)
+ 	if (ioctl(STDIN_FILENO, TCSETAF, &savetty) == -1) {
++#else
++	if (FALSE) {
+ #endif
+ #endif
+ #ifdef	USE_LIBSCHILY
+@@ -115,8 +117,10 @@
+ #else
+ #ifdef TCSANOW
+ 	if (tcsetattr(STDIN_FILENO, TCSANOW, &newtty) == -1) {
+-#else
++#elif defined(HAVE_SYS_IOCTL_H)
+ 	if (ioctl(STDIN_FILENO, TCSETAF, &newtty) == -1) {
++#else
++	if (FALSE) {
+ #endif
+ #endif
+ #ifdef	USE_LIBSCHILY
+@@ -334,13 +338,15 @@
+ 	/*
+ 	 * Now setup the keyboard for single character input.
+ 	 */
+-#ifdef USE_V7_TTY
++#if defined(HAVE_SYS_IOCTL_H) && defined(USE_V7_TTY)
+ 	if (ioctl(STDIN_FILENO, TIOCGETP, &savetty) == -1) {
+ #else
+ #ifdef TCSANOW
+ 	if (tcgetattr(STDIN_FILENO, &savetty) == -1) {
+-#else
++#elif defined(HAVE_SYS_IOCTL_H)
+ 	if (ioctl(STDIN_FILENO, TCGETA, &savetty) == -1) {
++#else
++	if (FALSE) {
+ #endif
+ #endif
+ #ifdef	USE_LIBSCHILY
+@@ -350,11 +356,15 @@
+ 		exit(1);
+ #endif
+ 	}
++
++#if defined(USE_V7_TTY) || defined(HAVE_TERMIOS_H)
+ 	newtty = savetty;
++#endif
++
+ #ifdef USE_V7_TTY
+ 	newtty.sg_flags  &= ~(ECHO|CRMOD);
+ 	newtty.sg_flags  |= CBREAK;
+-#else
++#elif defined(HAVE_TERMIOS_H)
+ 	newtty.c_lflag   &= ~ICANON;
+ 	newtty.c_lflag   &= ~ECHO;
+ 	newtty.c_cc[VMIN] = 1;
+--- cdrkit-1.1.11/genisoimage/diag/isodump.c	2008-02-25 21:59:05 -1000
++++ cdrkit-1.1.11-new/genisoimage/diag/isodump.c	2012-09-08 15:25:47 -1000
+@@ -189,7 +189,7 @@
+ #ifdef	USE_V7_TTY
+ static	struct sgttyb	savetty;
+ static	struct sgttyb	newtty;
+-#else
++#elif defined(HAVE_TERMIOS_H)
+ static	struct termios savetty;
+ static	struct termios newtty;
+ #endif
+@@ -202,8 +202,10 @@
+ #else
+ #ifdef TCSANOW
+ 	if (tcsetattr(STDIN_FILENO, TCSANOW, &savetty) == -1)  {
+-#else
++#elif defined(HAVE_SYS_IOCTL_H)
+ 	if (ioctl(STDIN_FILENO, TCSETAF, &savetty) == -1) {
++#else
++	if (FALSE) {
+ #endif
+ #endif
+ #ifdef	USE_LIBSCHILY
+@@ -223,8 +225,10 @@
+ #else
+ #ifdef TCSANOW
+ 	if (tcsetattr(STDIN_FILENO, TCSANOW, &newtty) == -1) {
+-#else
++#elif defined(HAVE_SYS_IOCTL_H)
+ 	if (ioctl(STDIN_FILENO, TCSETAF, &newtty) == -1) {
++#else
++	if (FALSE) {
+ #endif
+ #endif
+ #ifdef	USE_LIBSCHILY
+@@ -625,8 +629,10 @@
+ #else
+ #ifdef TCSANOW
+ 	if (tcgetattr(STDIN_FILENO, &savetty) == -1) {
+-#else
++#elif defined(HAVE_SYS_IOCTL_H)
+ 	if (ioctl(STDIN_FILENO, TCGETA, &savetty) == -1) {
++#else
++	if (FALSE) {
+ #endif
+ #endif
+ #ifdef	USE_LIBSCHILY
+@@ -636,11 +642,15 @@
+ 		exit(1);
+ #endif
+ 	}
++
++#if defined(USE_V7_TTY) || defined(HAVE_TERMIOS_H)
+ 	newtty = savetty;
++#endif
++
+ #ifdef USE_V7_TTY
+ 	newtty.sg_flags  &= ~(ECHO|CRMOD);
+ 	newtty.sg_flags  |= CBREAK;
+-#else
++#elif defined(HAVE_TERMIOS_H)
+ 	newtty.c_lflag   &= ~ICANON;
+ 	newtty.c_lflag   &= ~ECHO;
+ 	newtty.c_cc[VMIN] = 1;
+--- cdrkit-1.1.11/genisoimage/diag/isoinfo.c	2008-02-25 21:59:05 -1000
++++ cdrkit-1.1.11-new/genisoimage/diag/isoinfo.c	2012-09-08 15:25:47 -1000
+@@ -66,7 +66,7 @@
+ 
+ #include <unls.h>
+ 
+-#if	defined(__CYGWIN32__) || defined(__EMX__) || defined(__DJGPP__)
++#if	defined(__CYGWIN32__) || defined(__MINGW32__) || defined(__EMX__) || defined(__DJGPP__)
+ #include <io.h>					/* for setmode() prototype */
+ #endif
+ 
+@@ -633,7 +633,7 @@
+ 	int		extent, len, tlen;
+ 	unsigned char	buff[2048];
+ 
+-#if	defined(__CYGWIN32__) || defined(__CYGWIN__) || defined(__EMX__) || defined(__DJGPP__)
++#if	defined(__CYGWIN32__) || defined(__CYGWIN__) || defined(__EMX__) || defined(__DJGPP__) || defined(__MINGW32__)
+ 	setmode(fileno(stdout), O_BINARY);
+ #endif
+ 
+@@ -871,7 +871,7 @@
+ 	init_unls();		/* Initialize UNICODE tables */
+ 	init_unls_file(charset);
+ 	if (charset == NULL) {
+-#if	(defined(__CYGWIN32__) || defined(__CYGWIN__) || defined(__DJGPP__)) && !defined(IS_CYGWIN_1)
++#if	(defined(__CYGWIN32__) || defined(__CYGWIN__) || defined(__DJGPP__) || defined(__MINGW32__)) && !defined(IS_CYGWIN_1)
+ 		unls = load_unls("cp437");
+ #else
+ 		unls = load_unls("iso8859-1");
+--- cdrkit-1.1.11/icedax/CMakeLists.txt	2009-11-27 12:57:01 -1000
++++ cdrkit-1.1.11-new/icedax/CMakeLists.txt	2012-09-08 15:25:47 -1000
+@@ -1,5 +1,5 @@
+ PROJECT (icedax C)
+-INCLUDE_DIRECTORIES(../include ../wodim ../libparanoia ${CMAKE_BINARY_DIR} ${CMAKE_BINARY_DIR}/include)
++INCLUDE_DIRECTORIES(../include ../wodim ../libparanoia ../libusal ${CMAKE_BINARY_DIR} ${CMAKE_BINARY_DIR}/include)
+ include(../include/AddScgBits.cmake)
+ include(../include/AddSchilyBits.cmake)
+ include(../include/AddNetworkBits.cmake)
+@@ -29,6 +29,6 @@
+ SET_TARGET_PROPERTIES(icedax PROPERTIES  SKIP_BUILD_RPATH TRUE)
+ 
+ INSTALL(TARGETS icedax DESTINATION bin)
+-INSTALL(PROGRAMS pitchplay readmult cdda2mp3 cdda2ogg DESTINATION bin)
++INSTALL(PROGRAMS pitchplay readmult cdda2ogg DESTINATION bin)
+ INSTALL(FILES cdda2ogg.1 icedax.1 pitchplay.1 readmult.1 list_audio_tracks.1 DESTINATION ${MANSUBDIR}/man1)
+ 
+--- cdrkit-1.1.11/icedax/icedax.c	2007-02-09 12:02:42 -1000
++++ cdrkit-1.1.11-new/icedax/icedax.c	2012-09-08 15:25:47 -1000
+@@ -96,7 +96,7 @@
+ #include <errno.h>
+ #include <statdefs.h>
+ #include <waitdefs.h>
+-#if defined (HAVE_SETPRIORITY)
++#if defined (HAVE_SETPRIORITY) && defined(HAVE_SYS_RESOURCE_H)
+ #include <sys/resource.h>
+ #endif
+ #include <vadefs.h>
+@@ -496,7 +496,7 @@
+ 		return;	/* end of child or single process */
+ 	}
+ 
+-
++#ifdef HAVE_FORK
+ 	if (global.have_forked == 1) {
+ #ifdef DEBUG_CLEANUP
+ 		fprintf(stderr, "Parent wait for child death, \n");
+@@ -523,6 +523,7 @@
+ 		fprintf(stderr, "\nW Parent child death, state:%d\n", chld_return_status);
+ #endif
+ 	}
++#endif /* HAVE_FORK */
+ 
+ #ifdef GPROF
+ 	rename("gmon.out", "gmon.child");
+@@ -573,6 +574,7 @@
+ 
+ 	va_end(marker);
+ 
++#ifdef HAVE_KILL
+ 	if (child_pid >= 0) {
+ 		if (child_pid == 0) {
+ 			pid_t	ppid;
+@@ -586,6 +588,7 @@
+ 			kill(child_pid, SIGINT);
+ 		}
+ 	}
++#endif
+ 	exit (1);
+ }
+ 
+@@ -988,7 +991,7 @@
+ 	}
+ }
+ #else
+-#if defined(__CYGWIN32__)
++#if defined(__CYGWIN32__) || defined(__MINGW32__)
+ 
+ /*
+  * NOTE: Base.h from Cygwin-B20 has a second typedef for BOOL.
+@@ -1075,6 +1078,7 @@
+ #if defined DEBUG_CLEANUP
+ fprintf( stderr, "SIGPIPE received from %s\n.", child_pid == 0 ? "Child" : "Parent");
+ #endif
++#ifdef HAVE_KILL
+ 	if (child_pid == 0) {
+ 		pid_t	ppid;
+ 		/*
+@@ -1086,6 +1090,7 @@
+ 	} else {
+ 		kill(child_pid, SIGINT);
+ 	}
++#endif
+ 	exit(SIGPIPE_ERROR);
+ }
+ 
+@@ -1568,6 +1573,7 @@
+ 		if ( SaveBuffer ( p->data + current_offset/4,
+ 			 how_much,
+ 			 &nSamplesDone) ) {
++#ifdef HAVE_KILL
+ 			if (global.have_forked == 1) {
+ 				pid_t	ppid;
+ 				/*
+@@ -1577,6 +1583,7 @@
+ 				if (ppid > 1)
+ 					kill(ppid, SIGINT);
+ 			}
++#endif
+ 			exit(WRITE_ERROR);
+ 		}
+ 
+@@ -2466,11 +2473,12 @@
+ #define SETSIGHAND(PROC, SIG, SIGNAME) if (signal(SIG, PROC) == SIG_ERR) \
+ 	{ fprintf(stderr, "cannot set signal %s handler\n", SIGNAME); exit(SETSIG_ERROR); }
+     SETSIGHAND(exit_wrapper, SIGINT, "SIGINT")
+-    SETSIGHAND(exit_wrapper, SIGQUIT, "SIGQUIT")
+     SETSIGHAND(exit_wrapper, SIGTERM, "SIGTERM")
++#ifdef HAVE_SIGHUP
+     SETSIGHAND(exit_wrapper, SIGHUP, "SIGHUP")
+-
++    SETSIGHAND(exit_wrapper, SIGQUIT, "SIGQUIT")
+     SETSIGHAND(set_nonforked, SIGPIPE, "SIGPIPE")
++#endif
+ 
+   /* setup interface and open cdrom device */
+   /* request sychronization facilities and shared memory */
+--- cdrkit-1.1.11/icedax/interface.c	2007-09-27 06:14:44 -1000
++++ cdrkit-1.1.11-new/icedax/interface.c	2012-09-08 15:25:47 -1000
+@@ -52,7 +52,9 @@
+ #include <schily.h>
+ #include <device.h>
+ 
++#ifdef HAVE_SYS_IOCTL_H
+ #include <sys/ioctl.h>
++#endif
+ #include <statdefs.h>
+ 
+ 
+@@ -599,12 +601,14 @@
+ 	priv_on();
+ 	needroot(0);
+ 	needgroup(0);
++#ifdef USE_SCSI_REMOTE
+ 	/*
+ 	 * Call usal_remote() to force loading the remote SCSI transport library
+ 	 * code that is located in librusal instead of the dummy remote routines
+ 	 * that are located inside libusal.
+ 	 */
+ 	usal_remote();
++#endif
+ 	if (pdev_name != NULL &&
+ 	    ((strncmp(pdev_name, "HELP", 4) == 0) ||
+ 	     (strncmp(pdev_name, "help", 4) == 0))) {
+@@ -618,8 +622,12 @@
+ 		int	err = geterrno();
+ 
+ 		errmsgno(err, "%s%sCannot open SCSI driver.\n", errstr, errstr[0]?". ":"");
++#ifdef HAVE_UID_T_GID_T
+ 		errmsgno(EX_BAD, "For possible targets try 'wodim -scanbus'.%s\n",
+ 					geteuid() ? " Make sure you are root.":"");
++#else
++		errmsgno(EX_BAD, "For possible targets try 'wodim -scanbus'.\n");
++#endif
+ 		priv_off();
+         	dontneedgroup();
+         	dontneedroot();
+--- cdrkit-1.1.11/icedax/ioctl.c	2006-12-08 03:38:43 -1000
++++ cdrkit-1.1.11-new/icedax/ioctl.c	2012-09-08 15:25:47 -1000
+@@ -31,7 +31,9 @@
+ #include <fctldefs.h>
+ #include <assert.h>
+ 
++#ifdef HAVE_SYS_IOCTL_H
+ #include <sys/ioctl.h>
++#endif
+ #include <statdefs.h>
+ #include <schily.h>
+ #include <device.h>
+--- cdrkit-1.1.11/icedax/semshm.c	2006-12-10 11:54:40 -1000
++++ cdrkit-1.1.11-new/icedax/semshm.c	2012-09-08 15:25:47 -1000
+@@ -64,6 +64,7 @@
+ #include <errno.h>
+ #include <standard.h>
+ #include <schily.h>
++#include <libport.h>
+ 
+ #if defined(HAVE_SEMGET) && defined(USE_SEMAPHORES)
+ #include <sys/types.h>
+--- cdrkit-1.1.11/icedax/setuid.c	2006-12-08 03:38:43 -1000
++++ cdrkit-1.1.11-new/icedax/setuid.c	2012-09-08 15:25:47 -1000
+@@ -43,10 +43,12 @@
+ /*#define DEBUG*/
+ 
+ /* True at return from initsecurity */
++#ifdef HAVE_UID_T_GID_T
+ static uid_t real_uid = (uid_t) (-1);
+ static uid_t effective_uid = (uid_t) (-1);
+ static gid_t real_gid = (gid_t) (-1);
+ static gid_t effective_gid = (gid_t) (-1);
++#endif /* HAVE_UID_T_GID_T */
+ 
+ /* Run this at the beginning of the program to initialize this code and
+    to drop privileges before someone uses them to shoot us in the foot.
+@@ -54,6 +56,7 @@
+ 
+ void initsecurity()
+ {
++#ifdef HAVE_UID_T_GID_T
+     int leffective_uid;
+ 
+     alarm(0);			/* can be inherited from parent process */
+@@ -70,6 +73,7 @@
+     effective_gid = getegid();
+     dontneedroot();
+     dontneedgroup();
++#endif /* HAVE_UID_T_GID_T */
+ }
+ 
+ /* Temporarily gain root privileges. */
+@@ -82,6 +86,7 @@
+ 
+ void needroot(int necessary)
+ {
++#ifdef HAVE_UID_T_GID_T
+ #ifdef DEBUG
+     fprintf(stderr, "call to     needroot (_euid_=%d, uid=%d), current=%d/%d, pid=%d\n",
+ 			effective_uid, real_uid, geteuid(), getuid(), getpid());
+@@ -121,12 +126,14 @@
+     fprintf(stderr, "exit of     needroot (_euid_=%d, uid=%d), current=%d/%d, pid=%d\n",
+ 			effective_uid, real_uid, geteuid(), getuid(), getpid());
+ #endif
++#endif /* HAVE_UID_T_GID_T */
+ }
+ 
+ /* Temporarily drop root privileges.  */
+ 
+ void dontneedroot()
+ {
++#ifdef HAVE_UID_T_GID_T
+ #ifdef DEBUG
+     fprintf(stderr, "call to dontneedroot (_euid_=%d, uid=%d), current=%d/%d, pid=%d\n",
+ 			effective_uid, real_uid, geteuid(), getuid(), getpid());
+@@ -160,12 +167,14 @@
+ #endif
+ 	exit(PERM_ERROR);
+     }
++#endif /* HAVE_UID_T_GID_T */
+ }
+ 
+ /* Permanently drop root privileges.  */
+ 
+ void neverneedroot()
+ {
++#ifdef HAVE_UID_T_GID_T
+ #ifdef DEBUG
+     fprintf(stderr, "call to neverneedroot (_euid_=%d, uid=%d), current=%d/%d, pid=%d\n",
+ 			effective_uid, real_uid, geteuid(), getuid(), getpid());
+@@ -205,12 +214,14 @@
+     fprintf(stderr, "exit of neverneedroot (_euid_=%d, uid=%d), current=%d/%d, pid=%d\n",
+ 			effective_uid, real_uid, geteuid(), getuid(), getpid());
+ #endif
++#endif /* HAVE_UID_T_GID_T */
+ }
+ 
+ /* Temporarily gain group privileges. */
+ 
+ void needgroup(int necessary)
+ {
++#ifdef HAVE_UID_T_GID_T
+ #ifdef DEBUG
+     fprintf(stderr, "call to     needgroup (egid=%d, gid=%d), current=%d/%d, pid=%d\n",
+ 			effective_gid, real_gid, getegid(), getgid(), getpid());
+@@ -239,12 +250,14 @@
+ 	fprintf(stderr, "Fatal error:  did not get group privilege.\n");
+ 	exit(PERM_ERROR);
+     }
++#endif /* HAVE_UID_T_GID_T */
+ }
+ 
+ /* Temporarily drop group privileges.  */
+ 
+ void dontneedgroup()
+ {
++#ifdef HAVE_UID_T_GID_T
+ #ifdef DEBUG
+     fprintf(stderr, "call to dontneedgroup (egid=%d, gid=%d), current=%d/%d, pid=%d\n",
+ 			effective_gid, real_gid, getegid(), getgid(), getpid());
+@@ -275,12 +288,14 @@
+     fprintf(stderr, "exit if dontneedgroup (egid=%d, gid=%d), current=%d/%d, pid=%d\n",
+ 			effective_gid, real_gid, getegid(), getgid(), getpid());
+ #endif
++#endif /* HAVE_UID_T_GID_T */
+ }
+ 
+ /* Permanently drop group privileges.  */
+ 
+ void neverneedgroup()
+ {
++#ifdef HAVE_UID_T_GID_T
+ #ifdef DEBUG
+     fprintf(stderr, "call to neverneedgroup (egid=%d, gid=%d), current=%d/%d, pid=%d\n",
+ 			effective_gid, real_gid, getegid(), getgid(), getpid());
+@@ -312,6 +327,7 @@
+ 	exit(PERM_ERROR);
+     }
+     effective_gid = real_gid;
++#endif /* HAVE_UID_T_GID_T */
+ }
+ 
+ #if defined (HPUX)
+--- cdrkit-1.1.11/icedax/sndconfig.c	2006-12-08 03:38:43 -1000
++++ cdrkit-1.1.11-new/icedax/sndconfig.c	2012-09-08 15:25:47 -1000
+@@ -18,9 +18,11 @@
+ #include <strdefs.h>
+ #include <fctldefs.h>
+ #include <unixstd.h>
++#ifdef HAVE_SYS_IOCTL_H
+ #include <sys/ioctl.h>
++#endif
+ 
+-#if	!defined __CYGWIN32__
++#if	!(defined(__CYGWIN32__) || defined(__MINGW32__))
+ # include <timedefs.h>
+ #endif
+ #include <schily.h>
+@@ -52,7 +54,7 @@
+ #include "sndconfig.h"
+ 
+ #ifdef	ECHO_TO_SOUNDCARD
+-#   if defined(__CYGWIN32__)
++#   if defined(__CYGWIN32__) || defined(__MINGW32__)
+ #      include <windows.h>
+ #      include "mmsystem.h"
+ #   endif
+@@ -85,11 +87,19 @@
+ 	return 0;
+ }
+ 
+-#   if	defined __CYGWIN32__
++#   if	defined __CYGWIN32__ || defined __MINGW32__
+ static HWAVEOUT	DeviceID;
++#ifndef __MINGW32__
+ #      define WAVEHDRS	3
++#else
++#      define WAVEHDRS	75
++#endif
+ static WAVEHDR	wavehdr[WAVEHDRS];
+ static unsigned lastwav = 0;
++#ifdef	__MINGW32__
++static unsigned wavehdrinuse = 0;
++static HANDLE waveOutEvent;
++#endif
+ 
+ static int check_winsound_caps(int bits, double rate, int channels);
+ 
+@@ -127,6 +137,23 @@
+ 
+   return result;
+ }
++
++#ifdef	__MINGW32__
++static void CALLBACK waveOutProc(HWAVEOUT hwo,
++								 UINT uMsg,
++								 DWORD dwInstance,
++								 DWORD dwParam1,
++								 DWORD dwParam2)
++{
++	if (uMsg == WOM_DONE) {
++		if (wavehdrinuse) {
++			wavehdrinuse--;
++			SetEvent(waveOutEvent);
++		}
++	}
++}
++#endif
++
+ #   endif /* defined CYGWIN */
+ #endif /* defined ECHO_TO_SOUNDCARD */
+ 
+@@ -252,7 +279,7 @@
+ #   endif
+     }
+ #  else /* SUN audio */
+-#   if defined(__CYGWIN32__)
++#   if defined(__CYGWIN32__) || defined(__MINGW32__)
+     /* Windows sound info */
+ 
+     MMRESULT mmres;
+@@ -281,7 +308,12 @@
+     wavform.nBlockAlign = global.channels * (wavform.wBitsPerSample / 8);
+   
+     DeviceID = 0;
++#ifdef	__MINGW32__
++	waveOutEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
++	mmres = waveOutOpen(&DeviceID, WAVE_MAPPER, &wavform, (DWORD)&waveOutProc, 0, CALLBACK_FUNCTION);
++#else
+     mmres = waveOutOpen(&DeviceID, WAVE_MAPPER, &wavform, (unsigned long)WIN_CallBack, 0, CALLBACK_FUNCTION);
++#endif
+     if (mmres) {
+ 	char erstr[329];
+ 
+@@ -316,7 +348,11 @@
+ 	    }
+ 
+ 	    wavehdr[i].dwLoops = 0;
++#ifdef	__MINGW32__
++		wavehdr[i].dwFlags |= WHDR_DONE;
++#else
+ 	    wavehdr[i].dwFlags = WHDR_DONE;
++#endif
+ 	    wavehdr[i].dwBufferLength = 0;
+ 	}
+     }
+@@ -463,7 +499,7 @@
+ 	int	fl;
+ #endif
+ 
+-#if	defined ECHO_TO_SOUNDCARD && !defined __CYGWIN32__ && !defined __EMX__
++#if	defined ECHO_TO_SOUNDCARD && !defined __CYGWIN32__ && !defined __MINGW32__ && !defined __EMX__
+ 	global.soundcard_fd = open(snd_device, O_WRONLY
+ #ifdef	linux
+ 		/* Linux BUG: the sound driver open() blocks, if the device is in use. */
+@@ -489,8 +525,11 @@
+ 	return 0;
+ #else
+ 
+-# if	defined __CYGWIN32__
++# if	defined __CYGWIN32__ || defined __MINGW32__
+ 	waveOutReset(0);
++#ifdef	__MINGW32__
++ 	CloseHandle(waveOutEvent);
++#endif
+ 	return waveOutClose(DeviceID);
+ # else /* !Cygwin32 */
+ 
+@@ -518,9 +557,16 @@
+ {
+ 	int result = 0;
+ #ifdef	ECHO_TO_SOUNDCARD
+-#if	defined __CYGWIN32__
++#if	defined __CYGWIN32__ || defined __MINGW32__
+ 	MMRESULT mmres;
+ 
++#ifdef	__MINGW32__
++ 	while (wavehdrinuse >= WAVEHDRS) {
++ 		WaitForSingleObject(waveOutEvent, INFINITE);
++ 		ResetEvent(waveOutEvent);
++ 	}
++ 	wavehdrinuse++;
++#endif
+ 	wavehdr[lastwav].dwBufferLength = todo;
+ 	memcpy(wavehdr[lastwav].lpData, buffer, todo);
+ 
+--- cdrkit-1.1.11/icedax/toc.c	2008-02-25 21:59:05 -1000
++++ cdrkit-1.1.11-new/icedax/toc.c	2012-09-08 15:25:47 -1000
+@@ -45,7 +45,9 @@
+ #include <vadefs.h>
+ #include <schily.h>
+ #include <libport.h>
++#ifdef HAVE_SYS_IOCTL_H
+ #include <sys/ioctl.h>
++#endif
+ 
+ #define CD_TEXT
+ #define CD_EXTRA
+--- cdrkit-1.1.11/include/AddNetworkBits.cmake	2006-12-01 23:13:25 -1000
++++ cdrkit-1.1.11-new/include/AddNetworkBits.cmake	2012-09-08 15:28:40 -1000
+@@ -6,11 +6,14 @@
+ INCLUDE(CheckCSourceCompiles)
+ 
+ SET(TESTSRC "
++#if defined(_WIN32) || defined(__MINGW32__)
++#include <winsock2.h>
++#else
+ #include <sys/types.h>
+ #include <sys/socket.h>
+-
++#endif
+ int main(int argc, char **argv) {
+-return socket(AF_INET, SOCK_STREAM, 0);
++return 0; /* socket(AF_INET, SOCK_STREAM, 0); */
+ }
+ ")
+ 
+@@ -18,11 +21,18 @@
+ CHECK_C_SOURCE_COMPILES("${TESTSRC}" USE_LIBC_SOCKET)
+ 
+ IF(NOT USE_LIBC_SOCKET)
+-
++   IF(WIN32)
++	   SET(CMAKE_REQUIRED_LIBRARIES ws2_32)
++	   CHECK_C_SOURCE_COMPILES("${TESTSRC}" USE_LIBSOCKET)
++	   IF(USE_LIBSOCKET)
++		 LIST(APPEND EXTRA_LIBS ws2_32)
++	   ENDIF(USE_LIBSOCKET)
++	   #SET(USE_LIBSOCKET TRUE)
++   ELSE(WIN32)
+    LIST(APPEND EXTRA_LIBS socket)
+-
+    SET(CMAKE_REQUIRED_LIBRARIES socket)
+    CHECK_C_SOURCE_COMPILES("${TESTSRC}" USE_LIBSOCKET)
++   ENDIF(WIN32)
+    IF(NOT USE_LIBSOCKET)
+       MESSAGE(FATAL_ERROR "No working socket(...) found in libc or libsocket")
+    ENDIF(NOT USE_LIBSOCKET)
+@@ -30,9 +40,13 @@
+ ENDIF(NOT USE_LIBC_SOCKET)
+ 
+ SET(TESTSRC "
++#if defined(_WIN32) || defined(__MINGW32__)
++#include <winsock2.h>
++#else
+ #include <sys/types.h>
+ #include <sys/socket.h>
+ #include <netdb.h>
++#endif
+ 
+ int main(int argc, char **argv) {
+ struct hostent *h = gethostbyname(argv[0]);
+@@ -40,7 +54,18 @@
+ }
+ ")
+ 
+-CHECK_C_SOURCE_COMPILES("${TESTSRC}" USE_LIBC_NLS)
++IF(WIN32)
++   # actuall, ws2_32.lib/.dll provide the gethostbyname functionality:
++   SET(CMAKE_REQUIRED_LIBRARIES ws2_32)
++   CHECK_C_SOURCE_COMPILES("${TESTSRC}" USE_LIBC_NLS)
++   IF(USE_LIBC_NLS)
++      LIST(APPEND EXTRA_LIBS ws2_32)
++   ENDIF(USE_LIBC_NLS)
++ELSE(WIN32)
++   SET(CMAKE_REQUIRED_LIBRARIES nls)
++   CHECK_C_SOURCE_COMPILES("${TESTSRC}" USE_LIBC_NLS)
++ENDIF(WIN32)
++
+ IF(NOT USE_LIBC_NLS)
+    SET(CMAKE_REQUIRED_LIBRARIES nls)
+    CHECK_C_SOURCE_COMPILES("${TESTSRC}" USE_LIBNLS)
+--- cdrkit-1.1.11/include/AddScgBits.cmake	2006-11-23 08:57:28 -1000
++++ cdrkit-1.1.11-new/include/AddScgBits.cmake	2012-09-08 15:25:47 -1000
+@@ -27,23 +27,6 @@
+ 
+    INCLUDE(CheckCSourceCompiles)
+ 
+-   SET(TESTSRC "
+-#include <sys/types.h>
+-#include <sys/socket.h>
+-
+-int main(int argc, char **argv) {
+-   return socket(AF_INET, SOCK_STREAM, 0);
+-}
+-")
+-
+-SET(CMAKE_REQUIRED_LIBRARIES )
+-   CHECK_C_SOURCE_COMPILES("${TESTSRC}" LIBC_SOCKET)
+-
+-IF(NOT LIBC_SOCKET)
+-   LIST(APPEND EXTRA_LIBS -lsocket)
+-   #MESSAGE("Using libsocket for socket functions")
+-ENDIF(NOT LIBC_SOCKET)
+-
+ 
+    SET(TESTSRC "
+ #include <sched.h>
+@@ -58,8 +41,10 @@
+    CHECK_C_SOURCE_COMPILES("${TESTSRC}" LIBC_SCHED)
+ 
+ IF(NOT LIBC_SCHED)
++   IF(NOT WIN32)
+    LIST(APPEND EXTRA_LIBS -lrt)
+    #MESSAGE("Using librt for realtime functions")
++   ENDIF(NOT WIN32)
+ ENDIF(NOT LIBC_SCHED)
+ 
+ ENDIF(NOT GUARD_SCGCONFIG)
+--- cdrkit-1.1.11/include/CMakeLists.txt	2007-05-30 07:55:02 -1000
++++ cdrkit-1.1.11-new/include/CMakeLists.txt	2012-09-08 15:25:47 -1000
+@@ -74,6 +74,9 @@
+ CHECK_INCLUDE_FILES("sys/types.h;sys/dkio.h" HAVE_SYS_DKIO_H)
+ CHECK_INCLUDE_FILES("sys/types.h;sun/dkio.h" HAVE_SUN_DKIO_H)
+ CHECK_INCLUDE_FILES("iconv.h" HAVE_ICONV_H)
++CHECK_INCLUDE_FILES("localcharset.h" HAVE_LOCALCHARSET_H)
++CHECK_INCLUDE_FILES("langinfo.h" HAVE_LANGINFO_H)
++CHECK_INCLUDE_FILES("netinet/in.h" HAVE_NETINET_IN_H)
+ 
+ 
+ INCLUDE(CheckCSourceCompiles)
+@@ -109,15 +112,102 @@
+ 
+ SET(CMAKE_REQUIRED_LIBRARIES )
+ SET(TESTSRC " 
++#include <sys/sysmacros.h>
++int main() { ; return 0; }
++")
++CHECK_C_SOURCE_COMPILES("${TESTSRC}" MAJOR_IN_SYSMACROS)
++SET(TESTSRC " 
++#include <sys/types.h>
++int main() { uid_t u = 0; gid_t g = 0; return 0; }
++")
++CHECK_C_SOURCE_COMPILES("${TESTSRC}" HAVE_UID_T_AND_GID_T)
++SET(TESTSRC " 
++#include <sys/types.h>
++int main() { caddr_t a = 0; return 0; }
++")
++CHECK_C_SOURCE_COMPILES("${TESTSRC}" HAVE_CADDR_T)
++SET(TESTSRC " 
++#include <sys/types.h>
++int main() { nlink_t a = 0; return 0; }
++")
++CHECK_C_SOURCE_COMPILES("${TESTSRC}" HAVE_NLINK_T)
++SET(TESTSRC " 
++#include <signal.h>
++int main() { int s = SIGHUP; return 0; }
++")
++CHECK_C_SOURCE_COMPILES("${TESTSRC}" HAVE_SIGHUP)
++SET(TESTSRC " 
++#include <unistd.h>
++int main() { return ( (int) fork()  )  ; }
++")
++CHECK_C_SOURCE_COMPILES("${TESTSRC}" HAVE_FORK)
++SET(TESTSRC " 
++#include <sys/types.h>
++#include <unistd.h>
++int main() { return ( setreuid(-1, -1)  )  ; }
++")
++CHECK_C_SOURCE_COMPILES("${TESTSRC}" HAVE_SETREUID)
++SET(TESTSRC " 
++#include <sys/types.h>
++#include <unistd.h>
++int main() { return ( seteuid(-1)  )  ; }
++")
++CHECK_C_SOURCE_COMPILES("${TESTSRC}" HAVE_SETEUID)
++SET(TESTSRC " 
++#include <sys/types.h>
++#include <unistd.h>
++int main() { return ( setuid(-1)  )  ; }
++")
++CHECK_C_SOURCE_COMPILES("${TESTSRC}" HAVE_SETUID)
++SET(TESTSRC " 
++#include <sys/types.h>
++#include <unistd.h>
++int main() { return ( setregid(-1, -1)  )  ; }
++")
++CHECK_C_SOURCE_COMPILES("${TESTSRC}" HAVE_SETREGID)
++SET(TESTSRC " 
++#include <sys/types.h>
++#include <unistd.h>
++int main() { return ( setegid(-1)  )  ; }
++")
++CHECK_C_SOURCE_COMPILES("${TESTSRC}" HAVE_SETEGID)
++SET(TESTSRC " 
++#include <sys/types.h>
++#include <unistd.h>
++int main() { return ( setgid(-1)  )  ; }
++")
++CHECK_C_SOURCE_COMPILES("${TESTSRC}" HAVE_SETGID)
++SET(TESTSRC " 
++#include <unistd.h>
++int main() { int r = sbrk(0); return 0; }
++")
++CHECK_C_SOURCE_COMPILES("${TESTSRC}" HAVE_SBRK)
++SET(TESTSRC " 
++#include <sys/mman.h>
++int main() { return 0; }
++")
++CHECK_C_SOURCE_COMPILES("${TESTSRC}" HAVE_SMMAP)
++SET(TESTSRC " 
++#include <sys/types.h>
++#include <sys/shm.h>
++int main() { void * r = shmat(0, NULL, 0); return 0; }
++")
++CHECK_C_SOURCE_COMPILES("${TESTSRC}" HAVE_SHMAT)
++SET(TESTSRC " 
+ #include <stdlib.h>
+ int main() { return ( (int) drand48()  )  ; }
+ ")
+ CHECK_C_SOURCE_COMPILES("${TESTSRC}" HAVE_DRAND48)
+ SET(TESTSRC " 
+ #include <stdlib.h>
+-int main() { return ( (int) drand()  )  ; }
++int main() { return ( rand()  )  ; }
++")
++CHECK_C_SOURCE_COMPILES("${TESTSRC}" HAVE_RAND)
++SET(TESTSRC " 
++#include <unistd.h>
++int main() { return ( nice(0)  )  ; }
+ ")
+-CHECK_C_SOURCE_COMPILES("${TESTSRC}" HAVE_DRAND)
++CHECK_C_SOURCE_COMPILES("${TESTSRC}" HAVE_NICE)
+ SET(TESTSRC " 
+ #include <sys/socket.h>
+ #include <netdb.h>
+@@ -166,5 +256,23 @@
+ ")
+ CHECK_C_SOURCE_COMPILES("${TESTSRC}" HAVE_DYN_ARRAYS)
+ 
++SET(TESTSRC "
++#include <regex.h>
++#include <stdlib.h>
++int main(int argc, char **argv) { int r = regexec(NULL, NULL, 0, NULL, 0); return r; }
++")
++SET(CMAKE_REQUIRED_LIBRARIES )
++CHECK_C_SOURCE_COMPILES("${TESTSRC}" USE_LIBC_REGEX)
++
++IF(NOT USE_LIBC_REGEX)
++	SET(CMAKE_REQUIRED_LIBRARIES regex)
++	CHECK_C_SOURCE_COMPILES("${TESTSRC}" USE_LIBREGEX)
++	IF(USE_LIBREGEX)
++	   LIST(APPEND EXTRA_LIBS regex)
++	ELSE(USE_LIBREGEX)
++	   MESSAGE(FATAL_ERROR "No working regex(...) found in libc or libregex")
++	ENDIF(USE_LIBREGEX)
++ENDIF(NOT USE_LIBC_REGEX)
++
+ CONFIGURE_FILE( xconfig.h.in xconfig.h)
+ 
+--- cdrkit-1.1.11/include/libport.h	2008-02-25 01:14:07 -1000
++++ cdrkit-1.1.11-new/include/libport.h	2012-09-08 15:25:47 -1000
+@@ -61,6 +61,11 @@
+ #endif
+ #endif
+ 
++#ifdef __MINGW32__
++#include <fcntl.h>
++#define pipe(x) _pipe(x, 512, O_BINARY)
++#endif
++
+ #ifndef HOST_NAME_MAX
+ #ifdef	HAVE_SYS_PARAM_H
+ #include <sys/param.h>	/* Include various defs needed with some OS */
+@@ -117,6 +122,10 @@
+ extern	int		rename(const char *old, const char *new);
+ #endif
+ 
++#ifdef __MINGW32__
++#define sleep(sec) usleep(sec * 1000000)
++#endif
++
+ #ifdef	__cplusplus
+ }
+ #endif
+--- cdrkit-1.1.11/include/standard.h	2006-09-04 22:39:04 -1000
++++ cdrkit-1.1.11-new/include/standard.h	2012-09-08 15:25:47 -1000
+@@ -113,7 +113,9 @@
+ 		typedef int void;
+ #	endif
+ #else
++#	ifndef VOID
+ 	typedef	void	VOID;
++#	endif
+ #endif
+ 
+ #if	defined(_INCL_SYS_TYPES_H) || defined(off_t)
+--- cdrkit-1.1.11/include/timedefs.h	2006-09-04 22:39:04 -1000
++++ cdrkit-1.1.11-new/include/timedefs.h	2012-09-08 15:25:47 -1000
+@@ -72,7 +72,7 @@
+ extern "C" {
+ #endif
+ 
+-#if	defined(__CYGWIN32__) || defined(__EMX__) || defined(__linux__) || defined(__DJGPP__)
++#if	defined(__CYGWIN32__) || defined(__EMX__) || defined(__linux__) || defined(__DJGPP__) || defined(__MINGW32__)
+ /*
+  * Cygnus defines struct timeval in sys/time.h but not timerclear
+  * timerclear is defined in windows32/Sockets.h ???
+--- cdrkit-1.1.11/include/ttydefs.h	2006-09-04 22:39:04 -1000
++++ cdrkit-1.1.11-new/include/ttydefs.h	2012-09-08 15:25:47 -1000
+@@ -68,7 +68,7 @@
+ #		define	TCGETS	TCGETA
+ #		define	TCSETSW	TCSETAW
+ #		endif
+-#	else
++#	elif defined(HAVE_SYS_IOCTL_H)
+ #		define	USE_V7_TTY
+ #	endif
+ #endif
+@@ -79,7 +79,7 @@
+ #endif
+ 
+ #ifndef	TCSANOW
+-#	if	!defined(TCGETS) || !defined(TCSETSW)
++#	if	(!defined(TCGETS) || !defined(TCSETSW)) && defined(HAVE_SYS_IOCTL_H)
+ #		define	USE_V7_TTY
+ #	endif
+ #endif
+@@ -97,7 +97,7 @@
+ #include <sys/bsdtty.h>
+ #endif
+ 
+-#if	!defined(TIOCGWINSZ) && ! defined(TIOCGSIZE)
++#if	!defined(TIOCGWINSZ) && ! defined(TIOCGSIZE) && defined(HAVE_SYS_IOCTL_H)
+ #	ifndef	_INCL_SYS_IOCTl_H
+ #	include	<sys/ioctl.h>
+ #	define	_INCL_SYS_IOCTL_H
+--- cdrkit-1.1.11/include/unixstd.h	2006-10-12 09:38:29 -1000
++++ cdrkit-1.1.11-new/include/unixstd.h	2012-09-08 15:25:47 -1000
+@@ -113,7 +113,7 @@
+ #define	SEEK_END	2	/* Set file pointer to EOF plus "offset" */
+ #endif
+ 
+-#if	!defined(HAVE_UNISTD_H) || !defined(_POSIX_VERSION)
++#if	!(defined(HAVE_UNISTD_H) && defined(_POSIX_VERSION)) && !defined(__MINGW32__)
+ /*
+  * Maybe we need a lot more definitions here...
+  * It is not clear whether we should have prototyped definitions.
+--- cdrkit-1.1.11/include/utypes.h	2006-10-25 11:06:11 -1000
++++ cdrkit-1.1.11-new/include/utypes.h	2012-09-08 15:25:47 -1000
+@@ -392,6 +392,10 @@
+ #define	OFF_T_MIN	TYPE_MINVAL(off_t)
+ #define	OFF_T_MAX	TYPE_MAXVAL(off_t)
+ 
++#ifndef HAVE_UID_T_AND_GID_T
++	typedef int uid_t;
++	typedef int gid_t;
++#endif
+ #define	UID_T_MIN	TYPE_MINVAL(uid_t)
+ #define	UID_T_MAX	TYPE_MAXVAL(uid_t)
+ 
+@@ -407,6 +411,9 @@
+ #define	TIME_T_MIN	TYPE_MINVAL(time_t)
+ #define	TIME_T_MAX	TYPE_MAXVAL(time_t)
+ 
++#ifndef HAVE_CADDR_T
++	typedef char * caddr_t;
++#endif
+ #define	CADDR_T_MIN	TYPE_MINVAL(caddr_t)
+ #define	CADDR_T_MAX	TYPE_MAXVAL(caddr_t)
+ 
+@@ -425,6 +432,9 @@
+ #define	INO_T_MIN	TYPE_MINVAL(ino_t)
+ #define	INO_T_MAX	TYPE_MAXVAL(ino_t)
+ 
++#ifndef	HAVE_NLINK_T
++	typedef unsigned short nlink_t;
++#endif
+ #define	NLINK_T_MIN	TYPE_MINVAL(nlink_t)
+ #define	NLINK_T_MAX	TYPE_MAXVAL(nlink_t)
+ 
+--- cdrkit-1.1.11/include/xconfig.h.in	2006-12-02 01:10:05 -1000
++++ cdrkit-1.1.11-new/include/xconfig.h.in	2012-09-08 15:25:47 -1000
+@@ -88,7 +88,10 @@
+ 
+ #cmakedefine HAVE_SYS_MMAN_H
+ 		/* to use definitions for mmap()/madvise()... from sys/mman.h */
+-#define MAJOR_IN_SYSMACROS 1	/* if we should include sys/sysmacros.h to get major()/minor()/makedev() */
++
++#cmakedefine MAJOR_IN_SYSMACROS
++		/* check if we should include sys/sysmacros.h to get major()/minor()/makedev() */
++
+ #cmakedefine HAVE_SYS_DKIO_H
+ #cmakedefine HAVE_SUN_DKIO_H
+ #cmakedefine HAVE_POLL_H
+@@ -111,6 +114,13 @@
+ 				/* BeOS has inet_ntoa() in <netdb.h> */
+ 
+ #cmakedefine HAVE_ICONV_H
++	/* check whether iconv.h is available */
++
++#cmakedefine HAVE_LOCALCHARSET_H
++	/* check whether langinfo.h is available */
++
++#cmakedefine HAVE_LANGINFO_H
++	/* check whether langinfo.h is available */
+ 
+ /*
+  * Convert to SCHILY name
+@@ -132,12 +142,18 @@
+ #cmakedefine HAVE_MLOCKALL
+ 	/* working mlockall() is present in libc */
+ #define HAVE_FLOCK 1		/* *BSD flock() is present in libc */
+-#define HAVE_SETREUID 1		/* setreuid() is present in libc */
+-#define HAVE_SETEUID 1		/* seteuid() is present in libc */
+-#define HAVE_SETUID 1		/* setuid() is present in libc */
+-#define HAVE_SETREGID 1		/* setregid() is present in libc */
+-#define HAVE_SETEGID 1		/* setegid() is present in libc */
+-#define HAVE_SETGID 1		/* setgid() is present in libc */
++#cmakedefine HAVE_SETREUID
++	/* setreuid() is present in libc */
++#cmakedefine HAVE_SETEUID
++	/* seteuid() is present in libc */
++#cmakedefine HAVE_SETUID
++	/* setuid() is present in libc */
++#cmakedefine HAVE_SETREGID
++	/* setregid() is present in libc */
++#cmakedefine HAVE_SETEGID
++	/* setegid() is present in libc */
++#cmakedefine HAVE_SETGID
++	/* setgid() is present in libc */
+ #define HAVE_TCGETATTR 1		/* tcgetattr() is present in libc */
+ #define HAVE_TCSETATTR 1		/* tcsetattr() is present in libc */
+ #define HAVE_GETHOSTID 1		/* gethostid() is present in libc */
+@@ -147,23 +163,32 @@
+ #define HAVE_POLL 1		/* poll() is present in libc */
+ #define HAVE_SELECT 1		/* select() is present in libc */
+ #define HAVE_LCHOWN 1		/* lchown() is present in libc */
+-#define HAVE_SBRK 1		/* sbrk() is present in libc */
++
++#cmakedefine HAVE_SBRK
++	/* check if sbrk() is present in libc */
++
+ #define HAVE_VA_COPY 1		/* va_copy() is present in varargs.h/stdarg.h */
+ #define HAVE_DUP2 1		/* dup2() is present in libc */
+ #define HAVE_GETCWD 1		/* POSIX getcwd() is present in libc */
+-#define HAVE_SMMAP 1		/* may map anonymous memory to get shared mem */
+-#define HAVE_SHMAT 1		/* shmat() is present in libc */
++
++#cmakedefine HAVE_SMMAP
++	/* check whether may map anonymous memory to get shared mem */
++
++#cmakedefine HAVE_SHMAT
++	/* check whether shmat() is present in libc */
++
+ #define HAVE_SEMGET 1		/* semget() is present in libc */
+ #define HAVE_LSTAT 1		/* lstat() is present in libc */
+ #define HAVE_READLINK 1		/* readlink() is present in libc */
+ #define HAVE_RENAME 1		/* rename() is present in libc */
+ 
+ #cmakedefine HAVE_RAND 
+-		/* rand() is present in libc */
++	/* check whether rand() is present in libc */
+ #cmakedefine HAVE_DRAND48
+-  /* drand48() is present in libc */
++	/* check whether drand48() is present in libc */
+ #define HAVE_SETPRIORITY 1		/* setpriority() is present in libc */
+-#define HAVE_NICE 1		/* nice() is present in libc */
++#cmakedefine HAVE_NICE
++	/* check whether nice() is present in libc */
+ #define HAVE_UNAME 1		/* uname() is present in libc */
+ #define HAVE_SNPRINTF 1		/* snprintf() is present in libc */
+ #define HAVE_STRCASECMP 1		/* strcasecmp() is present in libc */
+@@ -172,7 +197,13 @@
+ #define HAVE_SIGSET 1		/* sigset() is present in libc (POSIX) */
+ #define HAVE_NANOSLEEP 1		/* nanosleep() is present in libc */
+ #define HAVE_USLEEP 1		/* usleep() is present in libc */
+-#define HAVE_FORK 1		/* fork() is present in libc */
++
++#cmakedefine HAVE_SIGHUP
++	/* check whether signup is available -- it's not on mingw */
++
++#cmakedefine HAVE_FORK
++	/* check whether fork() is present in libc */
++
+ #define HAVE_ALLOCA 1		/* alloca() is present (else use malloc())*/
+ #define HAVE_VALLOC 1		/* valloc() is present in libc (else use malloc())*/
+ 
+@@ -255,6 +286,14 @@
+ 
+ #define HAVE_LONGLONG 1		/* Compiler defines long long type */
+ 
++#cmakedefine HAVE_UID_T_AND_GID_T
++	/* Check whether uid_t and gid_t are available (from sys/types.h) */
++
++#cmakedefine HAVE_CADDR_T
++	/* Check whether caddr_t is available (from sys/types.h) */
++
++#cmakedefine HAVE_NLINK_T
++	/* Check whether nlink_t is available (from sys/types.h) */
+ 
+ /* 
+  * Critical on some of Debian architectures (EB) */
+--- cdrkit-1.1.11/librols/fexec.c	2009-10-11 12:31:30 -1000
++++ cdrkit-1.1.11-new/librols/fexec.c	2012-09-08 15:25:47 -1000
+@@ -31,6 +31,7 @@
+  * Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+  */
+ 
++#ifndef __MINGW32__
+ #include <mconfig.h>
+ #include <stdio.h>
+ #include <standard.h>
+@@ -419,3 +420,5 @@
+ 		ev++;
+ 	}
+ }
++
++#endif /* __MINGW32__ */
+--- cdrkit-1.1.11/librols/spawn.c	2009-10-11 12:31:30 -1000
++++ cdrkit-1.1.11-new/librols/spawn.c	2012-09-08 15:25:47 -1000
+@@ -31,6 +31,7 @@
+  * Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+  */
+ 
++#ifndef __MINGW32__
+ #include <mconfig.h>
+ #include <stdio.h>
+ #include <standard.h>
+@@ -168,3 +169,5 @@
+ 
+ 	return (WEXITSTATUS(status));
+ }
++
++#endif /* __MINGW32__ */
+--- cdrkit-1.1.11/librols/stdio/schilyio.h	2006-09-04 22:39:04 -1000
++++ cdrkit-1.1.11-new/librols/stdio/schilyio.h	2012-09-08 15:25:47 -1000
+@@ -55,8 +55,13 @@
+  * If HAVE_LARGEFILES is defined, it is guaranteed that fseeko()/ftello()
+  * both are available.
+  */
++#ifdef __MINGW32__
++#	define	fseek	fseeko64
++#	define	ftell	ftello64
++#else
+ #	define	fseek	fseeko
+ #	define	ftell	ftello
++#endif
+ 
+ #else	/* !HAVE_LARGEFILES */
+ /*
+--- cdrkit-1.1.11/libusal/CMakeLists.txt	2009-11-27 12:57:01 -1000
++++ cdrkit-1.1.11-new/libusal/CMakeLists.txt	2012-09-08 15:25:47 -1000
+@@ -1,5 +1,5 @@
+ PROJECT (LIBSCG C)
+-INCLUDE_DIRECTORIES(../include ${CMAKE_BINARY_DIR} ${CMAKE_BINARY_DIR}/include)
++INCLUDE_DIRECTORIES(../include ../libusal ${CMAKE_BINARY_DIR} ${CMAKE_BINARY_DIR}/include)
+ include(../include/AddScgBits.cmake)
+ ADD_DEFINITIONS(-DUSE_RCMD_RSH)
+ 
+--- cdrkit-1.1.11/libusal/scsi-remote.c	2006-12-08 03:38:43 -1000
++++ cdrkit-1.1.11-new/libusal/scsi-remote.c	2012-09-08 15:25:47 -1000
+@@ -86,7 +86,7 @@
+  * On Cygwin, there are no privilleged ports.
+  * On UNIX, rcmd() uses privilleged port that only work for root.
+  */
+-#ifdef	IS_CYGWIN
++#if defined(IS_CYGWIN) || defined(__MINGW32__)
+ #define	privport_ok()	(1)
+ #else
+ #ifdef	HAVE_GETPPRIV
+--- cdrkit-1.1.11/libusal/scsi-wnt.c	2007-04-10 08:53:27 -1000
++++ cdrkit-1.1.11-new/libusal/scsi-wnt.c	2012-09-08 15:25:47 -1000
+@@ -94,6 +94,10 @@
+ };
+ #define	usallocal(p)	((struct usal_local *)((p)->local))
+ 
++#if !defined(offsetof) && defined(__MINGW32__)
++#define offsetof(TYPE, MEMBER)  ((size_t) &((TYPE *)0)->MEMBER)
++#endif
++
+ /*
+  * Local variables
+  */
+--- cdrkit-1.1.11/libusal/scsihack.c	2007-04-10 05:01:46 -1000
++++ cdrkit-1.1.11-new/libusal/scsihack.c	2012-09-08 15:25:47 -1000
+@@ -60,7 +60,9 @@
+ #include <unixstd.h>
+ #include <errno.h>
+ #include <timedefs.h>
++#ifdef	HAVE_SYS_IOCTL_H
+ #include <sys/ioctl.h>
++#endif
+ #include <fctldefs.h>
+ #include <strdefs.h>
+ #include <schily.h>
+@@ -234,7 +236,7 @@
+ #include "scsi-beos.c"
+ #endif
+ 
+-#ifdef	__CYGWIN32__
++#if defined(__CYGWIN32__) || defined(__MINGW32__)
+ #define	SCSI_IMPL		/* Yep, we support WNT and W9? */
+ #include "scsi-wnt.c"
+ #endif
+--- cdrkit-1.1.11/libusal/scsiopen.c	2007-04-10 05:01:46 -1000
++++ cdrkit-1.1.11-new/libusal/scsiopen.c	2012-09-08 15:25:47 -1000
+@@ -294,7 +294,9 @@
+ 
+ 		printf("Supported SCSI transports for this platform:\n");
+ 		SCGO_HELP(usalp, f);
++#ifdef USE_SCSI_REMOTE
+ 		usal_remote()->usalo_help(usalp, f);
++#endif
+ 		usal_sfree(usalp);
+ 	}
+ 	return (0);
+--- cdrkit-1.1.11/libusal/scsitransp.c	2009-10-11 12:31:30 -1000
++++ cdrkit-1.1.11-new/libusal/scsitransp.c	2012-09-08 15:25:47 -1000
+@@ -171,13 +171,13 @@
+ extern	usal_ops_t usal_std_ops;
+ 
+ 	usalp->ops = &usal_std_ops;
+-
++#ifdef USE_SCSI_REMOTE
+ 	if (device && strncmp(device, "REMOTE", 6) == 0) {
+ 		ops = usal_remote();
+ 		if (ops != NULL)
+ 			usalp->ops = ops;
+ 	}
+-
++#endif
+ 	ret = SCGO_OPEN(usalp, device);
+ 	if (ret < 0)
+ 		return (ret);
+--- cdrkit-1.1.11/libusal/usal/scsitransp.h	2007-04-10 08:53:27 -1000
++++ cdrkit-1.1.11-new/libusal/usal/scsitransp.h	2012-09-08 15:25:47 -1000
+@@ -34,6 +34,8 @@
+ #ifndef	_SCG_SCSITRANSP_H
+ #define	_SCG_SCSITRANSP_H
+ 
++#include <mconfig.h>
++
+ #ifdef	__cplusplus
+ extern "C" {
+ #endif
+@@ -246,7 +248,12 @@
+ /*
+  * From scsi-remote.c:
+  */
++#if defined(HAVE_FORK) && defined(HAVE_SOCKETPAIR) && defined(HAVE_DUP2) && defined(HAVE_NETDB_H) && defined(HAVE_RCMD)
++#ifndef USE_SCSI_REMOTE
++#define USE_SCSI_REMOTE 1
++#endif
+ extern	usal_ops_t *usal_remote(void);
++#endif
+ 
+ /*
+  * From scsihelp.c:
+--- cdrkit-1.1.11/netscsid/CMakeLists.txt	2009-11-27 12:57:01 -1000
++++ cdrkit-1.1.11-new/netscsid/CMakeLists.txt	2012-09-08 15:25:47 -1000
+@@ -1,5 +1,5 @@
+ PROJECT (netscsid C)
+-INCLUDE_DIRECTORIES(../include ../wodim ${CMAKE_BINARY_DIR} ${CMAKE_BINARY_DIR}/include)
++INCLUDE_DIRECTORIES(../include ../wodim ../libusal ${CMAKE_BINARY_DIR} ${CMAKE_BINARY_DIR}/include)
+ INCLUDE(../include/AddScgBits.cmake)
+ INCLUDE(../include/AddSchilyBits.cmake)
+ INCLUDE(../include/AddNetworkBits.cmake)
+--- cdrkit-1.1.11/netscsid/netscsid.c	2006-12-08 03:38:43 -1000
++++ cdrkit-1.1.11-new/netscsid/netscsid.c	2012-09-08 15:25:47 -1000
+@@ -50,7 +50,9 @@
+ #include <sys/param.h>	/* BSD-4.2 & Linux need this for MAXHOSTNAMELEN */
+ #endif
+ #include <errno.h>
++#ifdef	HAVE_PWD_H
+ #include <pwd.h>
++#endif
+ 
+ #include <standard.h>
+ #include <deflts.h>
+@@ -60,7 +62,11 @@
+ #include <usal/usalcmd.h>
+ #include <usal/scsitransp.h>
+ 
++#ifdef __MINGW32__
++#include <winsock2.h>
++#else
+ #include <netinet/in.h>
++#endif
+ #ifdef	HAVE_ARPA_INET_H
+ #include <arpa/inet.h>		/* BeOS does not have <arpa/inet.h> */
+ #endif				/* but inet_ntaoa() is in <netdb.h> */
+--- cdrkit-1.1.11/readom/CMakeLists.txt	2009-11-27 12:57:01 -1000
++++ cdrkit-1.1.11-new/readom/CMakeLists.txt	2012-09-08 15:25:47 -1000
+@@ -1,5 +1,5 @@
+ PROJECT (READECD C)
+-INCLUDE_DIRECTORIES(../include ../wodim ${CMAKE_BINARY_DIR} ${CMAKE_BINARY_DIR}/include)
++INCLUDE_DIRECTORIES(../include ../wodim ../libusal ${CMAKE_BINARY_DIR} ${CMAKE_BINARY_DIR}/include)
+ INCLUDE(../include/AddScgBits.cmake)
+ INCLUDE(../include/AddSchilyBits.cmake)
+ 
+--- cdrkit-1.1.11/readom/readom.c	2009-10-11 12:31:30 -1000
++++ cdrkit-1.1.11-new/readom/readom.c	2012-09-08 15:25:47 -1000
+@@ -371,13 +371,14 @@
+ 	}
+ 	if (dev || scanbus) {
+ 		char	errstr[80];
+-
++#ifdef USE_SCSI_REMOTE
+ 		/*
+ 		 * Call usal_remote() to force loading the remote SCSI transport
+ 		 * library code that is located in librusal instead of the dummy
+ 		 * remote routines that are located inside libusal.
+ 		 */
+ 		usal_remote();
++#endif
+ 		if (dev != NULL &&
+ 		    ((strncmp(dev, "HELP", 4) == 0) ||
+ 		    (strncmp(dev, "help", 4) == 0))) {
+@@ -388,8 +389,12 @@
+ 			int	err = geterrno();
+ 
+ 			errmsgno(err, "%s%sCannot open SCSI driver.\n", errstr, errstr[0]?". ":"");
++#ifdef HAVE_UID_T_AND_GID_T
+ 			errmsgno(EX_BAD, "For possible targets try 'wodim -scanbus'.%s\n",
+ 						geteuid() ? " Make sure you are root.":"");
++#else
++			errmsgno(EX_BAD, "For possible targets try 'wodim -scanbus'.\n");
++#endif
+ 			errmsgno(EX_BAD, "For possible transport specifiers try 'wodim dev=help'.\n");
+ 			exit(err);
+ 		}
+@@ -434,6 +439,7 @@
+ 	priv_set(PRIV_OFF, PRIV_INHERITABLE,
+ 		PRIV_FILE_DAC_READ, PRIV_NET_PRIVADDR, PRIV_SYS_DEVICES, NULL);
+ #endif
++#ifdef HAVE_UID_T_AND_GID_T
+ 	/*
+ 	 * This is only for OS that do not support fine grained privs.
+ 	 */
+@@ -452,7 +458,7 @@
+ #endif
+ #endif
+ 		comerr("Panic cannot set back effective uid.\n");
+-
++#endif /* HAVE_UID_T_GID_T */
+ 	/* code to use SCG */
+ 
+ 	if (scanbus) {
+--- cdrkit-1.1.11/wodim/CMakeLists.txt	2009-11-27 12:57:01 -1000
++++ cdrkit-1.1.11-new/wodim/CMakeLists.txt	2012-09-08 15:25:47 -1000
+@@ -1,7 +1,8 @@
+ PROJECT (CDRECORD C)
+-INCLUDE_DIRECTORIES(../include ../libedc ${CMAKE_BINARY_DIR} ${CMAKE_BINARY_DIR}/include)
++INCLUDE_DIRECTORIES(../include ../libedc ../libusal ${CMAKE_BINARY_DIR} ${CMAKE_BINARY_DIR}/include)
+ INCLUDE(../include/AddScgBits.cmake)
+ include(../include/AddSchilyBits.cmake)
++include(../include/AddNetworkBits.cmake)
+ 
+ #AUX_SOURCE_DIRECTORY(. CDRECORD_SRCS)
+ SET(CDRECORD_SRCS wodim.c audiosize.c auinfo.c  cdr_drv.c cdtext.c clone.c crc16.c cue.c  diskid.c drv_7501.c drv_jvc.c drv_mmc.c drv_philips.c drv_simul.c drv_sony.c fifo.c  isosize.c scsi_cdr_mmc4.c scsi_mmc4.c sector.c subchan.c wm_packet.c wm_session.c wm_track.c xio.c)
+--- cdrkit-1.1.11/wodim/drv_jvc.c	2006-12-08 03:38:43 -1000
++++ cdrkit-1.1.11-new/wodim/drv_jvc.c	2012-09-08 15:25:47 -1000
+@@ -50,6 +50,7 @@
+ #include <btorder.h>
+ #include <intcvt.h>
+ #include <schily.h>
++#include <libport.h>
+ 
+ #include <usal/usalcmd.h>
+ #include <usal/scsidefs.h>
+--- cdrkit-1.1.11/wodim/drv_mmc.c	2008-10-21 13:52:05 -1000
++++ cdrkit-1.1.11-new/wodim/drv_mmc.c	2012-09-08 15:25:47 -1000
+@@ -50,6 +50,7 @@
+ #include <btorder.h>
+ #include <intcvt.h>
+ #include <schily.h>
++#include <libport.h>
+ 
+ #include <usal/usalcmd.h>
+ #include <usal/scsidefs.h>
+--- cdrkit-1.1.11/wodim/scsi_cdr.c	2008-02-25 01:14:07 -1000
++++ cdrkit-1.1.11-new/wodim/scsi_cdr.c	2012-09-08 15:25:47 -1000
+@@ -61,6 +61,8 @@
+ #include <usal/scsireg.h>
+ #include <usal/scsitransp.h>
+ 
++#include <libport.h>
++
+ #include "scsimmc.h"
+ #include "wodim.h"
+ #include "scsi_scan.h"
+@@ -1279,6 +1281,10 @@
+ 	unsigned char sense_table[18];
+ 	int i;
+ 	
++#ifndef HAVE_FORK
++	background = FALSE;
++#endif
++	
+ 	printf("scsi_format: preparing\n");
+ 
+ 	fillbytes((caddr_t)scmd, sizeof(*scmd), '\0');
+@@ -1298,6 +1304,8 @@
+ 	ret = (usal_cmd(usalp));
+ 	printf("scsi_format: post processing %d\n", ret);
+ 	if (ret == -1) return ret;
++	
++#ifdef HAVE_FORK
+ 	if (background) {
+ 		if ((pid=fork()) == (pid_t)-1)
+ 			perror ("- [unable to fork()]");
+@@ -1312,6 +1320,8 @@
+ 			}
+ 		}
+ 	}
++#endif
++	
+ 	printf("Formating in progress: 0.00 %% done.");
+ 	sleep(20);
+ 	i = 0;
+--- cdrkit-1.1.11/wodim/scsi_scan.c	2008-02-25 01:14:07 -1000
++++ cdrkit-1.1.11-new/wodim/scsi_scan.c	2012-09-08 15:25:47 -1000
+@@ -234,10 +234,12 @@
+ 			if(fd>=0 && 0==fstat(fd, &statbuf)) {
+ 				if(statbuf.st_mode&S_IRUSR) perms[0]= 'r';
+ 				if(statbuf.st_mode&S_IWUSR) perms[1]= 'w';
++#ifndef __MINGW32__
+ 				if(statbuf.st_mode&S_IRGRP) perms[2]= 'r';
+ 				if(statbuf.st_mode&S_IWGRP) perms[3]= 'w';
+ 				if(statbuf.st_mode&S_IROTH) perms[4]= 'r';
+ 				if(statbuf.st_mode&S_IWOTH) perms[5]= 'w';
++#endif
+ 			}
+ 			getdev(usalp, FALSE);
+ 			if(usalp->inq->type == INQ_ROMD || usalp->inq->type == INQ_WORM) {
+--- cdrkit-1.1.11/wodim/wodim.c	2009-10-11 12:31:30 -1000
++++ cdrkit-1.1.11-new/wodim/wodim.c	2012-09-08 15:25:47 -1000
+@@ -37,6 +37,9 @@
+  */
+ 
+ #include <mconfig.h>
++#ifdef __MINGW32__
++#include <winsock2.h>
++#endif
+ #include <stdio.h>
+ #include <standard.h>
+ #include <stdxlib.h>
+@@ -61,6 +64,7 @@
+ #ifdef	HAVE_PRIV_H
+ #include <priv.h>
+ #endif
++#include <libport.h>
+ 
+ #include "xio.h"
+ 
+@@ -307,8 +311,9 @@
+ 	_wildcard(&argc, &argv);
+ #endif
+ 	save_args(argc, argv);
++#ifdef HAVE_UID_T_AND_GID_T
+ 	oeuid = geteuid();		/* Remember saved set uid	*/
+-
++#endif
+ 	fillbytes(track, sizeof (track), '\0');
+ 	for (i = 0; i < MAX_TRACK+2; i++)
+ 		track[i].track = track[i].trackno = i;
+@@ -388,13 +393,14 @@
+ 			printf("Waiting for data on stdin...\n");
+ 		wait_input();
+ 	}
+-
++#ifdef USE_SCSI_REMOTE
+ 	/*
+ 	 * Call usal_remote() to force loading the remote SCSI transport library
+ 	 * code that is located in librusal instead of the dummy remote routines
+ 	 * that are located inside libusal.
+ 	 */
+ 	usal_remote();
++#endif
+ 	if (dev != NULL &&
+ 	    ((strncmp(dev, "HELP", 4) == 0) ||
+ 	    (strncmp(dev, "help", 4) == 0))) {
+@@ -453,6 +459,7 @@
+ 		PRIV_FILE_DAC_READ, PRIV_PROC_LOCK_MEMORY,
+ 		PRIV_PROC_PRIOCNTL, PRIV_NET_PRIVADDR, PRIV_SYS_DEVICES, NULL);
+ #endif
++#ifdef HAVE_SETUID
+ 	/*
+ 	 * This is only for OS that do not support fine grained privs.
+ 	 *
+@@ -471,6 +478,7 @@
+ #endif
+ 			comerr("Panic cannot set back effective uid.\n");
+ 	}
++#endif /* HAVE_SETUID */
+ 
+ #ifdef __linux__
+ 	/* get the rawio capability */
+@@ -1489,7 +1497,9 @@
+ 		(dp->cdr_cmdflags & F_DUMMY)?"dummy":"real", gracetime);
+ 	flush();
+ 	signal(SIGINT, intr);
++#ifdef HAVE_SIGHUP
+ 	signal(SIGHUP, intr);
++#endif
+ 	signal(SIGTERM, intr);
+ 
+ 	for (i = gracetime; --i >= 0; ) {
+@@ -1498,7 +1508,9 @@
+ 			printf("\n");
+ 			excdr(SIGINT, &exargs);
+ 			signal(SIGINT, SIG_DFL);
++#ifdef HAVE_KILL
+ 			kill(getpid(), SIGINT);
++#endif
+ 			/*
+ 			 * In case kill() did not work ;-)
+ 			 */
+@@ -1513,10 +1525,14 @@
+ 	printf(" Operation starts.");
+ 	flush();
+ 	signal(SIGINT, SIG_DFL);
++#ifdef HAVE_SIGHUP
+ 	signal(SIGHUP, SIG_DFL);
++#endif
+ 	signal(SIGTERM, SIG_DFL);
+ 	signal(SIGINT, intfifo);
++#ifdef HAVE_SIGHUP
+ 	signal(SIGHUP, intfifo);
++#endif
+ 	signal(SIGTERM, intfifo);
+ 	printf("\n");
+ 
+@@ -3899,8 +3915,10 @@
+ 	scsi_start_stop_unit(usalp, 1, 0, immed);
+ 	wait_unit_ready(usalp, 120);
+ 	usalp->silent++;
++#ifdef HAVE_SETEUID
+ 	if(geteuid() == 0) /* EB: needed? Not allowed for non-root, that is sure. */
+       rezero_unit(usalp);	/* Is this needed? Not supported by some drvives */
++#endif
+ 	usalp->silent--;
+ 	test_unit_ready(usalp);
+ 	scsi_start_stop_unit(usalp, 1, 0, immed);
+@@ -4279,7 +4297,7 @@
+ 
+ #else	/* _POSIX_PRIORITY_SCHEDULING */
+ 
+-#ifdef	__CYGWIN32__
++#if defined(__CYGWIN32__) || defined(__MINGW32__)
+ /*
+  * Win32 specific priority settings.
+  */
+@@ -4299,7 +4317,9 @@
+  *	 is used by COM/OLE2, I guess it is class on C++
+  *	 We man need to #undef 'interface'
+  */
++#ifndef __MINGW32__
+ #define	BOOL	WBOOL		/* This is the Win BOOL		*/
++#endif
+ #define	format	__format	/* Avoid format parameter hides global ... */
+ #include <windows.h>
+ #undef format

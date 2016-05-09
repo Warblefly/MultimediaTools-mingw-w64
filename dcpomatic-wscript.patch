@@ -1,0 +1,21 @@
+--- wscript.orig	2016-04-28 20:15:06.832000000 +0000
++++ wscript	2016-04-28 20:15:27.945000000 +0000
+@@ -75,6 +75,7 @@
+                                        '-D__STDC_FORMAT_MACROS',
+                                        '-msse',
+                                        '-fno-strict-aliasing',
++                                       '-fpermissive',
+                                        '-Wall',
+                                        '-Wno-attributes',
+                                        '-Wextra',
+@@ -110,8 +110,8 @@
+         conf.check(lib='iberty', uselib_store='IBERTY', msg="Checking for library iberty")
+         conf.check(lib='shlwapi', uselib_store='SHLWAPI', msg="Checking for library shlwapi")
+         conf.check(lib='mswsock', uselib_store='MSWSOCK', msg="Checking for library mswsock")
+-        boost_lib_suffix = '-mt'
+-        boost_thread = 'boost_thread-mt'
++        boost_lib_suffix = ''
++        boost_thread = 'boost_thread_win32'
+         conf.check_cxx(fragment="""
+                                #include <boost/locale.hpp>\n
+                                int main() { std::locale::global (boost::locale::generator().generate ("")); }\n

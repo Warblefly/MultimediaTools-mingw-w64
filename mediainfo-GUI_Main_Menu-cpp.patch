@@ -1,0 +1,11 @@
+--- Source/GUI/WxWidgets/GUI_Main_Menu.cpp.orig	2016-04-15 14:16:37.884000000 +0000
++++ Source/GUI/WxWidgets/GUI_Main_Menu.cpp	2016-04-15 14:35:56.657000000 +0000
+@@ -76,7 +76,7 @@
+ END_EVENT_TABLE()
+ 
+ //---------------------------------------------------------------------------
+-#ifndef __WXMSW__
++#if (!defined __WXMSW__) || (defined _WIN32)
+     #include "Resource/Image/Menu/K20/File_Open_File.xpm"
+     #include "Resource/Image/Menu/K20/File_Open_Directory.xpm"
+     #include "Resource/Image/Menu/K20/Help_About.xpm"

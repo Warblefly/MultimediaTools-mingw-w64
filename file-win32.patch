@@ -1,0 +1,21 @@
+--- src/der.c.orig	2016-05-05 15:54:39.332000000 +0000
++++ src/der.c	2016-05-05 15:55:03.052000000 +0000
+@@ -41,7 +41,6 @@
+ 
+ #include <sys/types.h>
+ #include <sys/stat.h>
+-#include <sys/mman.h>
+ 
+ #include <stdio.h>
+ #include <fcntl.h>
+--- magic/Makefile.am.orig	2016-05-05 16:03:00.098000000 +0000
++++ magic/Makefile.am	2016-05-05 16:03:32.336000000 +0000
+@@ -286,7 +286,7 @@
+ # FIXME: Build file natively as well so that it can be used to compile
+ # the target's magic file; for now we bail if the local version does not match
+ if IS_CROSS_COMPILE
+-FILE_COMPILE = file${EXEEXT}
++FILE_COMPILE = file # ${EXEEXT}
+ FILE_COMPILE_DEP =
+ else
+ FILE_COMPILE = $(top_builddir)/src/file${EXEEXT}

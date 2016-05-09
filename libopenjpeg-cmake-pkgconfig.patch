@@ -1,0 +1,20 @@
+--- CMakeLists.txt.orig	2016-04-29 19:23:21.412000000 +0000
++++ CMakeLists.txt	2016-04-29 19:23:43.070000000 +0000
+@@ -183,7 +183,7 @@
+ 
+ #-----------------------------------------------------------------------------
+ # pkgconfig support
+-IF(UNIX)
++#IF(UNIX)
+   # install in lib and not share (see multi-arch note above)
+   CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/libopenjpeg1.pc.cmake
+     ${CMAKE_CURRENT_BINARY_DIR}/libopenjpeg1.pc @ONLY)
+@@ -192,7 +192,7 @@
+   INSTALL( CODE "EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E create_symlink
+   \"libopenjpeg1.pc\"
+   \"\$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/${OPENJPEG_INSTALL_SHARE_DIR}/pkgconfig/libopenjpeg.pc\")")
+-ENDIF(UNIX)
++#ENDIF(UNIX)
+ 
+ #-----------------------------------------------------------------------------
+ # Compiler specific flags:

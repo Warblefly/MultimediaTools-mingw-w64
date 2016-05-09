@@ -1,0 +1,12 @@
+--- src/session.c.orig	2016-05-05 15:42:57.187000000 +0000
++++ src/session.c	2016-05-05 15:44:01.811000000 +0000
+@@ -270,7 +270,9 @@
+       ssh_list_free(session->opts.identity);
+   }
+ 
++#ifndef _WIN32
+   ssh_agent_state_free (session->agent_state);
++#endif /* _WIN32 */
+   session->agent_state = NULL;
+ 
+   SAFE_FREE(session->auth_auto_state);
