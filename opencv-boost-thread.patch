@@ -1,0 +1,11 @@
+--- CMakeLists.txt.orig	2016-05-10 16:13:40.939000000 +0000
++++ CMakeLists.txt	2016-05-10 16:14:55.478000000 +0000
+@@ -510,7 +510,7 @@
+     elseif(EMSCRIPTEN)
+       # no need to link to system libs with emscripten
+     else()
+-      set(OPENCV_LINKER_LIBS ${OPENCV_LINKER_LIBS} dl m pthread rt)
++      set(OPENCV_LINKER_LIBS ${OPENCV_LINKER_LIBS} dl m pthread rt boost_thread_win32)
+     endif()
+   else()
+     set(HAVE_LIBPTHREAD YES)

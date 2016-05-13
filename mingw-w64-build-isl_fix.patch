@@ -1,0 +1,10 @@
+--- mingw-w64-build-3.6.6.orig	2016-05-11 18:00:55.701000000 +0000
++++ mingw-w64-build-3.6.6	2016-05-11 18:01:53.595000000 +0000
+@@ -675,6 +675,7 @@
+ case "$gcc_ver" in
+   $gcc_release_ver ) cloog_ver="$cloog_release_ver"; isl_ver="$isl_release_ver" ;;
+   $gcc_old_release_ver ) cloog_ver='0.18.0';  isl_ver='0.11.1' ;;
++  'svn' ) cloog_ver="$cloog_release_ver"; isl_ver="$isl_release_ver" ;;
+ esac
+ 
+ mpfr_prefix="$pkgs_dir/mpfr/mpfr-$mpfr_release_ver-$uname_m"
