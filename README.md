@@ -1,5 +1,5 @@
 # MultimediaTools-mingw-w64
-Scripts and patches to cross-compile, for Windows 64-bit, many multimedia utilities, including FFmpeg, OpenDCP and all the BBC Avid-compatible MXF utilities. Also includes all Qt5 (version 5.6) libraries that will compile on mingw-w64, GraphicMagick, Poppler-utils (for PDF files) and many, many more.
+Scripts and patches to cross-compile, for Windows 64-bit, many multimedia utilities, including FFmpeg, Dcp-o-matic, SoX, the mpv player, and all the BBC Avid-compatible MXF utilities. Also includes all Qt5 (version 5.6) libraries that will compile on mingw-w64, GraphicMagick, Poppler-utils (for PDF files) and many, many more.
 
 # How To Install
 
@@ -108,6 +108,18 @@ With these scripts, you can compile binaries, ready to run on 64-bit Windows. Ma
  * gio-querymodules — GIO cache creation
  * qdbus — interrogates a D-Bus server
  * qdbusviewer — QT5 application that interrogates a D-Bus server
+* DCP-o-matic
+ * dcopmatic2 — a very flexible DCP creation package (my GUI broken, official build is OK)
+ * dcpdiff — compares metadata and content, ignoring timestamps, of two DCPs
+ * dcpdumpsub — extracts subtitles from DCP MXF
+ * dcpinfo — outputs information about a DCP
+ * dcpomatic2_batch — dcpomatic batch worker
+ * dcpomatic2_cli — CLI to DCP-o-matic server
+ * dcpomatic2_create — create DCP (my binary broken, official build is OK)
+ * dcpomatic2_kdm — DCP-o-matic KDM creator with GUI
+ * dcpomatic2_kdm_cli — CLI DCP-o-matic KDM creator
+ * dcpomatic2_server — DCP-o-matic server (my binary broken, official build is OK)
+ * dcpomatic_server_cli — CLI to DCP-o-matic server (my binary broken, official build is OK)
 * OpenDCP — create SMTPE and Interop DCP packages
  * opendcp_j2k — creates OpenDCP compliant JPEG2000 images in XYZ colourspace from TIFF files
  * opendcp_largefile — tests for large-file support
@@ -116,6 +128,10 @@ With these scripts, you can compile binaries, ready to run on 64-bit Windows. Ma
  * opendcp_xml_verify — verifies the digital signature of an XML DCP file
 * openssl — package to generate, test and manipulate cryptographic keys
  * openssl — shell into libopenssl, for generating, testing and manipulating cryptographic keys and encryption/decryption
+* libzip — library and utilities for zip files
+ * ziptool — modifies zip files
+ * zipmerge — merges zip files
+ * zipcmp — compares many details of zip files
 * libOpus — encodes, decodes and manipulates audio using the Opus codec
  * opusdec — decodes Opus audio files
  * opusenc — encodes and tags Opus audio files
@@ -431,6 +447,7 @@ With these scripts, you can compile binaries, ready to run on 64-bit Windows. Ma
   * uconv — intelligently converts from one character set to another following ICU standards
 * Mediainfo — libraries and executable to parse many types of media files
  * mediainfo — command-line media file parser
+ * mediainfo-gui — GUI to mediainfo. Icons lacking at time of writing
 * Get_Iplayer — package to download and save BBC iPlayer programmes, and hear live radio. Licence-fee payers may also watch live TV
  * get_iplayer.cmd — command-line launcher for get_iplayer
  * get_iplayer.pl — Perl program interacting with BBC iPlayer media servers
