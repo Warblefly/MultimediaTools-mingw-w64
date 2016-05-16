@@ -1,6 +1,28 @@
---- CMakeLists.txt.orig	2016-01-04 10:54:58.647332384 +0000
-+++ CMakeLists.txt	2016-01-04 19:51:58.588332384 +0000
-@@ -107,7 +107,7 @@
+--- CMakeLists.txt.orig	2016-05-16 10:09:25.023000000 +0000
++++ CMakeLists.txt	2016-05-16 10:10:29.904000000 +0000
+@@ -24,7 +24,7 @@
+ OPTION(ENABLE_GUI      "Enable GUI compiling" ON)
+ OPTION(ENABLE_CLANG    "Enable CLANG compiling (OSX)" ON)
+ OPTION(ENABLE_DEBUG    "Enable debug symbols" OFF)
+-OPTION(BUILD_STATIC    "Enable debug symbols" ON)
++OPTION(BUILD_STATIC    "Enable static build" OFF)
+ OPTION(GENERATE_LANGUAGE_FILES "Generate Translation files" OFF)
+ OPTION(RPM             "Create RPM package" OFF)
+ OPTION(DEB             "Create DEB package" OFF)
+@@ -42,9 +42,9 @@
+ #--set optional packages--------------------------------------------------------
+ IF(ENABLE_XMLSEC)
+     ADD_DEFINITIONS(-DXMLSEC)
+-    ADD_DEFINITIONS(-DLIBXML_STATIC)
+-    ADD_DEFINITIONS(-DLIBXSLT_STATIC)
+-    ADD_DEFINITIONS(-DXMLSEC_STATIC)
++    ADD_DEFINITIONS(-DLIBXML_SHARED)
++    ADD_DEFINITIONS(-DLIBXSLT_SHARED)
++    ADD_DEFINITIONS(-DXMLSEC_SHARED)
+ ENDIF()
+ 
+ IF(ENABLE_RAGNAROK)
+@@ -107,9 +107,9 @@
  #-------------------------------------------------------------------------------
  
  #--build packages---------------------------------------------------------------
@@ -9,3 +31,6 @@
  #-------------------------------------------------------------------------------
  
  #--upload packages--------------------------------------------------------------
+-ADD_SUBDIRECTORY(upload)
++#ADD_SUBDIRECTORY(upload)
+ #-------------------------------------------------------------------------------

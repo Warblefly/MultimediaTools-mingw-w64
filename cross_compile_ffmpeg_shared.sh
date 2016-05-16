@@ -878,7 +878,7 @@ build_opendcp() {
     apply_patch file://${top_dir}/opendcp-win32.cmake.patch
     apply_patch file://${top_dir}/opendcp-libopendcp-CMakeLists.txt.patch
     apply_patch file://${top_dir}/opendcp-CMakeLists.txt.patch
-    apply_patch file://${top_dir}/opendcp-CMakeLists.txt-static.patch
+#    apply_patch file://${top_dir}/opendcp-CMakeLists.txt-static.patch
 #    apply_patch file://${top_dir}/opendcp-libasdcp-KM_prng.cpp.patch
     #apply_patch file://${top_dir}/opendcp-toolchains-win32.cmake.patch
     #apply_patch file://${top_dir}/opendcp-toolchains-win32.cmake.openjpeg-2.1.patch
@@ -909,7 +909,7 @@ build_dcpomatic() {
     sed -i.bak 's!wx-3\.0/wx/msw/wx\.rc!wx-3.1/wx/msw/wx.rc!' platform/windows/dcpomatic_server.rc
     sed -i.bak 's!wx-3\.0/wx/msw/wx\.rc!wx-3.1/wx/msw/wx.rc!' platform/windows/dcpomatic_kdm.rc
     export cCFLAGS="-fpermissive"
-    do_configure "configure WINRC=x86_64-w64-mingw32-windres CXX=x86_64-w64-mingw32-g++ -v -pp --prefix=${mingw_w64_x86_64_prefix} --target-windows --check-cxx-compiler=gxx --disable-tests" "./waf"
+    do_configure "configure WINRC=x86_64-w64-mingw32-windres CXX=x86_64-w64-mingw32-g++ -v -pp --prefix=${mingw_w64_x86_64_prefix} --target-windows --check-cxx-compiler=gxx --disable-tests --enable-debug" "./waf"
     ./waf build || exit 1
     ./waf install || exit 1
     export CFLAGS="${original_cflags}"
@@ -1734,7 +1734,7 @@ build_libdcp() {
     sed -i.bak "s/boost_lib_suffix = '-mt'/boost_lib_suffix = ''/" wscript
     sed -i.bak "s/boost_lib_suffix = '-mt'/boost_lib_suffix = ''/" test/wscript
     export CXX=x86_64-w64-mingw32-g++
-    do_configure "configure -v -pp --prefix=${mingw_w64_x86_64_prefix} --target-windows --check-cxx-compiler=gxx --disable-tests" "./waf" # --disable-gcov
+    do_configure "configure -v -pp --prefix=${mingw_w64_x86_64_prefix} --target-windows --check-cxx-compiler=gxx --disable-tests --enable-debug" "./waf" # --disable-gcov
     ./waf build || exit 1
     ./waf install || exit 1
     unset CXX
@@ -2365,8 +2365,8 @@ build_regex() {
 }
 
 build_boost() { 
-  download_and_unpack_file "http://sourceforge.net/projects/boost/files/boost/1.60.0/boost_1_60_0.tar.bz2/download" boost_1_60_0
-  cd boost_1_60_0 
+  download_and_unpack_file "http://sourceforge.net/projects/boost/files/boost/1.61.0/boost_1_61_0.tar.bz2/download" boost_1_61_0
+  cd boost_1_61_0 
     local touch_name=$(get_small_touchfile_name already_configured "$configure_options $configure_name $LDFLAGS $CFLAGS") 
     if [ ! -f  "$touch_name" ]; then 
 #      ./bootstrap.sh mingw target-os=windows address-model=64 link=shared threading=multi threadapi=win32 toolset=gcc-mingw --prefix=${mingw_w64_x86_64_prefix} || exit 1
@@ -2387,7 +2387,7 @@ build_boost() {
     # Configure and build in one step. ONLY the libraries necessary for mkvtoolnix are built.
 #      ./b2 --prefix=${mingw_w64_x86_64_prefix} -j 2 --ignore-site-config --user-config=user-config.jam address-model=64 architecture=x86 binary-format=pe link=static --target-os=windows threadapi=win32 threading=multi toolset=gcc-mxe --layout=tagged --disable-icu cxxflags='-std=c++11' --with-system --with-filesystem --with-regex --with-date_time install || exit 1
 #      ./b2 --prefix=${mingw_w64_x86_64_prefix} -j 2 --ignore-site-config --user-config=user-config.jam address-model=64 architecture=x86 binary-format=pe link=shared --runtime-link=shared --target-os=windows threadapi=win32 threading=multi toolset=gcc-mingw --layout=tagged --disable-icu cxxflags='-std=c++11' --with-system --with-filesystem --with-regex --with-date_time install || exit 1
-      ./b2 -a -d+2 --debug-configuration --prefix=${mingw_w64_x86_64_prefix} variant=release target-os=windows toolset=gcc-mingw address-model=64 link=shared runtime-link=shared threading=multi threadapi=win32 architecture=x86 binary-format=pe --with-system --with-filesystem --with-regex --with-date_time --with-locale --with-thread --with-test --user-config=user-config.jam install || exit 1
+      ./b2 -a -d+2 --debug-configuration --prefix=${mingw_w64_x86_64_prefix} variant=release target-os=windows toolset=gcc-mingw address-model=64 link=shared runtime-link=shared threading=multi threadapi=win32 architecture=x86 binary-format=pe boost.locale.winapi=on boost.locale.std=on boost.locale.icu=on boost.locale.iconv=on boost.locale.posix=off --with-system --with-filesystem --with-regex --with-date_time --with-locale --with-thread --with-test --user-config=user-config.jam install || exit 1
       touch -- "$touch_name"
     else
       echo "Already built and installed Boost libraries"
@@ -3372,6 +3372,7 @@ build_dependencies() {
   build_libopus
   build_libopencore
   build_libogg
+  build_libicu
   build_boost # needed for mkv tools
   build_libspeexdsp # Speex now split into two libraries
   build_libspeex # needs libogg for exe's
@@ -3535,7 +3536,7 @@ build_apps() {
   build_youtube-dl
 # build_qt5
   build_mkvtoolnix
-#  build_opendcp
+  build_opendcp
 #  build_openssh
 #  build_rsync
   build_dvdbackup
