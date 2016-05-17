@@ -3699,7 +3699,7 @@ fi
 # TODO: CHECK THIS LIST WHEN ADDING NEW PACKAGES
 
 echo "Copying runtime libraries that have gone to the wrong build directory."
-wrong_libs=('icudt57.dll' 'icutu57.dll' 'icuin57.dll' 'icuio57.dll' 'icule57.dll' 'iculx57.dll' 'icutest57.dll' 'icuuc57.dll' 'libatomic-1.dll' 'libboost_date_time.dll' 'libboost_filesystem.dll' 'libboost_regex.dll' 'libboost_system.dll' 'libboost_locale.dll' 'libboost_thread_win32.dll' 'libboost_unit_test_framework.dll' 'libdcadec.dll' 'libgcc_s_seh-1.dll' 'libpthread.dll' 'libquadmath-0.dll' 'libssp-0.dll' 'libstdc++-6.dll' 'libvtv-0.dll' 'libvtv_stubs-0.dll' 'pthreadGC2.dll' 'wxmsw311u_gl_gcc_custom.dll' 'wxmsw311u_gcc_custom.dll')
+wrong_libs=('icudt57.dll' 'icutu57.dll' 'icuin57.dll' 'icuio57.dll' 'icule57.dll' 'iculx57.dll' 'icutest57.dll' 'icuuc57.dll' 'libatomic-1.dll' 'libboost_chrono.dll' 'libboost_date_time.dll' 'libboost_filesystem.dll' 'libboost_prg_exec_monitor.dll' 'libboost_regex.dll' 'libboost_system.dll' 'libboost_locale.dll' 'libboost_thread_win32.dll' 'libboost_unit_test_framework.dll' 'libboost_timer.dll' 'libdcadec.dll' 'libgcc_s_seh-1.dll' 'libopendcp-asdcp.dll' 'libopendcp-lib.dll' 'libpthread.dll' 'libquadmath-0.dll' 'libssp-0.dll' 'libstdc++-6.dll' 'libvtv-0.dll' 'libvtv_stubs-0.dll' 'pthreadGC2.dll' 'wxmsw311u_gl_gcc_custom.dll' 'wxmsw311u_gcc_custom.dll')
 for move in "${wrong_libs[@]}"; do
   cp -Lv "${mingw_w64_x86_64_prefix}/lib/${move}" "${mingw_w64_x86_64_prefix}/bin/${move}" || exit 1
 done

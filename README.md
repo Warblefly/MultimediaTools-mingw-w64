@@ -4,9 +4,9 @@ Scripts and patches to cross-compile, for Windows 64-bit, many multimedia utilit
 # How To Install
 
 A binary package is available for download from this address:
-<a href="http://gallery.johnwarburton.net/mingw-multimedia-executables-shared.tar.xz">http://gallery.johnwarburton.net/mingw-multimedia-executables-shared.tar.xz</a>
+<a href="http://gallery.johnwarburton.net/mingw-multimedia-executables-shared.zip">http://gallery.johnwarburton.net/mingw-multimedia-executables-shared.zip</a>
 
-These binaries are for Windows 64-bit editions only, and have been tested only on Windows 10.
+These binaries are for Windows 64-bit editions only, and have been tested only on Windows 10. The .zip file can be opened, and its files extracted, using Windows Explorer.
 
 Your Windows installation needs to have certain packages installed:
 
@@ -17,7 +17,7 @@ Your Windows installation needs to have certain packages installed:
 
 * The Python m3u8 module (run "pip install m3u8" from an Administrator prompt)
 
-Unpack the archive in a convenient directory on your Windows box. You will need to set your decompression program to over-write certain directories and files in the termcap directory, because some descriptions use the same letters but in different cases e.g. 'vt100' and 'VT100'. Windows cannot distinguish between these two names because its filesystem is case-insensitive.
+Unpack the archive in a convenient directory on your Windows box. You will need to allow Windows Explorer to overwrite certain files where names differ in case alone, because some terminal descriptions use the same letters but in different cases e.g. 'vt100' and 'VT100'. Windows cannot distinguish between these two names because its filesystem is case-insensitive. I am, of course, working on fixing the build process so these similarly-named files do not disturb your installation.
 
 A sensible place to unpack everything is C:\Program Files\ffmpeg
 
@@ -542,7 +542,7 @@ BINARY DISTRIBUTION
 ===================
 
 I keep a binary tarball on my website.
-<a href="http://gallery.johnwarburton.net/mingw-multimedia-executables-shared.tar.xz">http://gallery.johnwarburton.net/mingw-multimedia-executables-shared.tar.xz</a>
+<a href="http://gallery.johnwarburton.net/mingw-multimedia-executables-shared.zip">http://gallery.johnwarburton.net/mingw-multimedia-executables-shared.zip</a>
 
 Some of the binaries use shared libraries, ending in .dll. Like the executable programs, they're in the /bin/ directory of the distribution. Please keep them together with the .exe programs.
 
