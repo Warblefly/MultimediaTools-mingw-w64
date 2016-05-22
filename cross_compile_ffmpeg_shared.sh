@@ -2365,8 +2365,8 @@ build_regex() {
 }
 
 build_boost() { 
-  download_and_unpack_file "http://sourceforge.net/projects/boost/files/boost/1.61.0/boost_1_61_0.tar.bz2/download" boost_1_61_0
-  cd boost_1_61_0 
+  download_and_unpack_file "http://sourceforge.net/projects/boost/files/boost/1.60.0/boost_1_60_0.tar.bz2/download" boost_1_60_0
+  cd boost_1_60_0 
     local touch_name=$(get_small_touchfile_name already_configured "$configure_options $configure_name $LDFLAGS $CFLAGS") 
     if [ ! -f  "$touch_name" ]; then 
 #      ./bootstrap.sh mingw target-os=windows address-model=64 link=shared threading=multi threadapi=win32 toolset=gcc-mingw --prefix=${mingw_w64_x86_64_prefix} || exit 1
@@ -2387,7 +2387,8 @@ build_boost() {
     # Configure and build in one step. ONLY the libraries necessary for mkvtoolnix are built.
 #      ./b2 --prefix=${mingw_w64_x86_64_prefix} -j 2 --ignore-site-config --user-config=user-config.jam address-model=64 architecture=x86 binary-format=pe link=static --target-os=windows threadapi=win32 threading=multi toolset=gcc-mxe --layout=tagged --disable-icu cxxflags='-std=c++11' --with-system --with-filesystem --with-regex --with-date_time install || exit 1
 #      ./b2 --prefix=${mingw_w64_x86_64_prefix} -j 2 --ignore-site-config --user-config=user-config.jam address-model=64 architecture=x86 binary-format=pe link=shared --runtime-link=shared --target-os=windows threadapi=win32 threading=multi toolset=gcc-mingw --layout=tagged --disable-icu cxxflags='-std=c++11' --with-system --with-filesystem --with-regex --with-date_time install || exit 1
-      ./b2 -a -d+2 --debug-configuration --prefix=${mingw_w64_x86_64_prefix} variant=release target-os=windows toolset=gcc-mingw address-model=64 link=shared runtime-link=shared threading=multi threadapi=win32 architecture=x86 binary-format=pe boost.locale.winapi=on boost.locale.std=on boost.locale.icu=on boost.locale.iconv=on boost.locale.posix=off --with-system --with-filesystem --with-regex --with-date_time --with-locale --with-thread --with-test --user-config=user-config.jam install || exit 1
+      ./b2 -a -d+2 --debug-configuration --prefix=${mingw_w64_x86_64_prefix} variant=release target-os=windows toolset=gcc-mingw address-model=64 link=shared runtime-link=shared threading=multi threadapi=win32 architecture=x86 binary-format=pe --with-system --with-filesystem --with-regex --with-date_time --with-thread --with-test --user-config=user-config.jam install || exit 1
+      ./b2 -a -d+2 --debug-configuration --prefix=${mingw_w64_x86_64_prefix} variant=debug target-os=windows toolset=gcc-mingw address-model=64 link=shared runtime-link=shared threading=multi threadapi=win32 architecture=x86 binary-format=pe boost.locale.winapi=on boost.locale.std=on boost.locale.icu=on boost.locale.iconv=on boost.locale.posix=off --with-locale --user-config=user-config.jam install || exit 1
       touch -- "$touch_name"
     else
       echo "Already built and installed Boost libraries"
@@ -2684,7 +2685,7 @@ build_wxsvg() {
 }
 
 build_pixman() {
-  do_git_checkout git://anongit.freedesktop.org/git/pixman.git pixman
+  do_git_checkout https://github.com/aseprite/pixman.git pixman
   cd pixman
     generic_configure_make_install
   cd ..
@@ -2839,6 +2840,48 @@ build_cdrkit() {
     do_cmake
     do_make
     do_make_install
+  cd ..
+}
+
+build_libebur128() {
+  do_git_checkout https://github.com/jiixyj/libebur128.git libebur128
+  cd libebur128
+    do_cmake "-DENABLE_INTERNAL_QUEUE_H=ON"
+    do_make
+    do_make_install
+  cd ..
+}
+
+build_loudness-scanner() {
+  do_git_checkout https://github.com/jiixyj/loudness-scanner.git loudness-scanner
+  cd loudness-scanner
+    git submodule init
+    git submodule update
+    # This has installed a BAD libebur128. Now we must replace it
+    # with the real thing
+    # rm -rv ebur128
+    # ln -s ../libebur128 ebur128
+    # Alter the CMakeLists.txt to force use of the up-to-date
+    # ready-compiled ebur128 library, as compiled into FFmpeg
+    sed -i.bak 's/add_subdirectory\(ebur12/#add_subdirectory(ebur12/' CMakeLists.txt
+    # update some code for latest FFmpeg
+    sed -i.bak 's/avcodec_alloc_frame/av_frame_alloc/' scanner/inputaudio/ffmpeg/input_ffmpeg.c 
+    do_cmake "-DENABLE_INTERNAL_QUEUE_H=ON"
+    do_make
+    do_make_install
+    # The executable doesn't get installed
+    cp -v loudness.exe ${mingw_w64_x86_64_prefix}/bin/loudness.exe
+  cd ..
+}
+
+build_filewalk() {
+  do_git_checkout https://github.com/jiixyj/filewalk.git filewalk
+  cd filewalk
+    do_cmake
+    do_make
+    # There is no 'install' target in the Makefile
+    cp -v libfiletree.a ${mingw_w64_x86_64_prefix}/lib/libfiletree.a
+    cp -v filetree.h ${mingw_w64_x86_64_prefix}/include/filetree.h
   cd ..
 }
 
@@ -3250,7 +3293,7 @@ build_ffmpeg() {
 
   # FFmpeg + libav compatible options
   # add libpsapi to enable libdlfcn for Windows to work, thereby enabling frei0r plugins
-  local extra_configure_opts="--enable-libsoxr --enable-fontconfig --enable-libass --enable-libutvideo --enable-libbluray --enable-iconv --enable-libtwolame --enable-libzvbi --enable-libcaca --enable-libmodplug --extra-libs=-lstdc++ --extra-libs=-lpsapi --enable-opengl --extra-libs=-lz --extra-libs=-lpng --enable-libvidstab --enable-libx265 --enable-decklink --extra-libs=-loleaut32 --enable-libcdio --enable-libzimg --enable-chromaprint --enable-libsnappy"
+  local extra_configure_opts="--enable-libsoxr --enable-fontconfig --enable-libass --enable-libutvideo --enable-libbluray --enable-iconv --enable-libtwolame --enable-libzvbi --enable-libcaca --enable-libmodplug --extra-libs=-lstdc++ --extra-libs=-lpsapi --enable-opengl --extra-libs=-lz --extra-libs=-lpng --enable-libvidstab --enable-libx265 --enable-decklink --extra-libs=-loleaut32 --enable-libcdio --enable-libzimg --enable-chromaprint --enable-libsnappy --enable-libebur128"
 
   if [[ $type = "libav" ]]; then
     # libav [ffmpeg fork]  has a few missing options?
@@ -3372,7 +3415,7 @@ build_dependencies() {
   build_libopus
   build_libopencore
   build_libogg
-  build_libicu
+  build_icu
   build_boost # needed for mkv tools
   build_libspeexdsp # Speex now split into two libraries
   build_libspeex # needs libogg for exe's
@@ -3380,6 +3423,7 @@ build_dependencies() {
   build_libtheora # needs libvorbis, libogg
   build_orc
   build_libschroedinger # needs orc
+  build_libebur128
   build_regex # needed by ncurses and cddb among others
   build_termcap
   build_ncurses
@@ -3434,7 +3478,7 @@ build_dependencies() {
   build_libdecklink
   build_liburiparser
   build_libilbc
-  build_icu # Needed for Qt5 / QtWebKit
+#  build_icu # Needed for Qt5 / QtWebKit
   build_libmms
   build_portaudio # for JACK
   build_flac
@@ -3471,6 +3515,7 @@ build_dependencies() {
 #  build_libopenjpeg
 #  build_libopenjpeg2
   build_libwebp
+  build_filewalk
   build_poppler
   build_SWFTools
   build_jack
@@ -3564,6 +3609,8 @@ build_apps() {
   build_DJV # Requires FFmpeg libraries
   build_get_iplayer
   build_dcpomatic
+  build_loudness-scanner
+  # Because loudness scanner installs its own out-of-date libebur128, we must re-install our own.
 #  build_dvdstyler
 #  build_vlc # REquires many static libraries, for good reason: but not my remit just now
 }
@@ -3699,7 +3746,7 @@ fi
 # TODO: CHECK THIS LIST WHEN ADDING NEW PACKAGES
 
 echo "Copying runtime libraries that have gone to the wrong build directory."
-wrong_libs=('icudt57.dll' 'icutu57.dll' 'icuin57.dll' 'icuio57.dll' 'icule57.dll' 'iculx57.dll' 'icutest57.dll' 'icuuc57.dll' 'libatomic-1.dll' 'libboost_chrono.dll' 'libboost_date_time.dll' 'libboost_filesystem.dll' 'libboost_prg_exec_monitor.dll' 'libboost_regex.dll' 'libboost_system.dll' 'libboost_locale.dll' 'libboost_thread_win32.dll' 'libboost_unit_test_framework.dll' 'libboost_timer.dll' 'libdcadec.dll' 'libgcc_s_seh-1.dll' 'libopendcp-asdcp.dll' 'libopendcp-lib.dll' 'libpthread.dll' 'libquadmath-0.dll' 'libssp-0.dll' 'libstdc++-6.dll' 'libvtv-0.dll' 'libvtv_stubs-0.dll' 'pthreadGC2.dll' 'wxmsw311u_gl_gcc_custom.dll' 'wxmsw311u_gcc_custom.dll')
+wrong_libs=('icudt57.dll' 'icutu57.dll' 'icuin57.dll' 'icuio57.dll' 'icule57.dll' 'iculx57.dll' 'icutest57.dll' 'icuuc57.dll' 'libatomic-1.dll' 'libboost_chrono.dll' 'libboost_date_time.dll' 'libboost_filesystem.dll' 'libboost_prg_exec_monitor.dll' 'libboost_regex.dll' 'libboost_system.dll' 'libboost_locale.dll' 'libboost_thread_win32.dll' 'libboost_unit_test_framework.dll' 'libboost_timer.dll' 'libdcadec.dll' 'libgcc_s_seh-1.dll' 'libopendcp-asdcp.dll' 'libopendcp-lib.dll' 'libpthread.dll' 'libquadmath-0.dll' 'libssp-0.dll' 'libstdc++-6.dll' 'libvtv-0.dll' 'libvtv_stubs-0.dll' 'pthreadGC2.dll' 'wxmsw311u_gl_gcc_custom.dll' 'wxmsw311u_gcc_custom.dll' 'libebur128.dll')
 for move in "${wrong_libs[@]}"; do
   cp -Lv "${mingw_w64_x86_64_prefix}/lib/${move}" "${mingw_w64_x86_64_prefix}/bin/${move}" || exit 1
 done
