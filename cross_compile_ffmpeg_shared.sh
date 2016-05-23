@@ -2863,12 +2863,12 @@ build_loudness-scanner() {
     # ln -s ../libebur128 ebur128
     # Alter the CMakeLists.txt to force use of the up-to-date
     # ready-compiled ebur128 library, as compiled into FFmpeg
-    sed -i.bak 's/add_subdirectory\(ebur12/#add_subdirectory(ebur12/' CMakeLists.txt
+    sed -i.bak 's/add_subdirectory(ebur12/#add_subdirectory(ebur12/' CMakeLists.txt
     # update some code for latest FFmpeg
     sed -i.bak 's/avcodec_alloc_frame/av_frame_alloc/' scanner/inputaudio/ffmpeg/input_ffmpeg.c 
     do_cmake "-DENABLE_INTERNAL_QUEUE_H=ON"
     do_make
-    do_make_install
+    # do_make_install
     # The executable doesn't get installed
     cp -v loudness.exe ${mingw_w64_x86_64_prefix}/bin/loudness.exe
   cd ..
