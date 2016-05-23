@@ -3229,6 +3229,16 @@ build_imagemagick()
   generic_download_and_install http://www.imagemagick.org/download/ImageMagick.tar.gz ImageMagick-6.9.1-10
 }
 
+build_jasper() {
+  download_and_unpack_file https://www.ece.uvic.ca/~frodo/jasper/software/jasper-1.900.1.zip jasper-1.900.1
+  cd jasper-1.900.1
+    apply_patch file://${top_dir}/jasper-dll.patch
+    rm -v configure
+    # We must regenerate configure for libjasper so that a DLL is made
+    generic_configure_make_install
+  cd ..
+}
+
 build_graphicsmagick() {
   local old_hg_version
   if [[ -d GM ]]; then
@@ -3497,6 +3507,7 @@ build_dependencies() {
   build_glibmm
   build_libxml++
   build_libcxml
+  build_jasper # JPEG2000 codec for GraphicsMagick among others
   build_vamp-sdk
   build_libsamplerate # for librubberband
   build_libbs2b
