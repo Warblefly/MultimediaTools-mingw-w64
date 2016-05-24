@@ -36,6 +36,7 @@ You must set certain environment variables for some facilities to work properly.
 * FREI0R_PATH=C:\Program Files\ffmpeg\lib\frei0r-1
 * TESSDATA_PREFIX=C:\Program Files\ffmpeg\share\ (note that TESSDATA_PREFIX is the *parent* of the tessdata language directory)
 * TERMINFO=C:\Program Files\ffmpeg\share\terminfo
+* VIMRUNTIME=C:\Program Files\ffmpeg\share\vim
 
 
 # How To Compile
@@ -128,6 +129,14 @@ With these scripts, you can compile binaries, ready to run on 64-bit Windows. Ma
  * opendcp_xml_verify — verifies the digital signature of an XML DCP file
 * openssl — package to generate, test and manipulate cryptographic keys
  * openssl — shell into libopenssl, for generating, testing and manipulating cryptographic keys and encryption/decryption
+* libebur128 — library and utilities for measuring loudness to EBU R.128 standard
+ * loudness — measures EBU R.128 loudness of file, and optionally tag it with this data
+* taglib — library for manipulating metadata of many media file types
+ * tagreader — Displays some basic tag information about a file
+ * tagreader_c — as 'tagreader' but written in plain C
+ * tagwriter — adds metadata to a media file
+ * strip_id3v1 — removes the v1 tag in an MP* audio file
+ * framelist — offers certain information about id3v1 and id3v2 tags, or APE tags     
 * libzip — library and utilities for zip files
  * ziptool — modifies zip files
  * zipmerge — merges zip files
@@ -136,6 +145,9 @@ With these scripts, you can compile binaries, ready to run on 64-bit Windows. Ma
  * opusdec — decodes Opus audio files
  * opusenc — encodes and tags Opus audio files
  * opusinfo — shows metadata about Opus audio files
+* libspeex — library for encoding and decoding audio with the Speex codec
+ * speexenc — encodes audio data using the Speex codec
+ * speecdec — decodes compressed audio data using the Speex codec
 * liborc — library for compiling and running simple programs on arrays of data
  * orc-bugreport — processor opcode testing tool
  * orcc — compiles orc instructions

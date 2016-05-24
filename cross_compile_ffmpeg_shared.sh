@@ -739,6 +739,8 @@ build_qt() {
       touch "qt.built"
   else
     echo "Skipping QT build... already completed."
+    # Remove the debug versions of libQt5 libraries
+    rm -v ${mingw_w64_x86_64_prefix}/bin/Qt5*d.dll
   fi
   unset QT_VERSION
   unset QT_SOURCE
@@ -2716,6 +2718,19 @@ build_cairomm() {
   cd ..
 }
 
+build_taglib() {
+  do_git_checkout https://github.com/taglib/taglib.git taglib
+  cd taglib
+    do_cmake "-DBUILD_EXAMPLES=ON -DBUILD_SHARED_LIBS=ON"
+    do_make
+    do_make_install
+    # The examples are not installed
+    cd examples
+      cp -v *exe ${mingw_w64_x86_64_prefix}/bin/
+    cd ..
+  cd ..
+}
+
 build_dvdauthor() {
   do_git_checkout https://github.com/ldo/dvdauthor.git dvdauthor
   cd dvdauthor
@@ -3403,6 +3418,7 @@ build_dependencies() {
   build_libdlfcn # ffmpeg's frei0r implentation needs this <sigh>
   build_zlib # rtmp depends on it [as well as ffmpeg's optional but handy --enable-zlib]
   build_bzlib2 # in case someone wants it [ffmpeg uses it]
+  build_taglib # Used by loudness-scanner among others
   build_snappy # For certain types of very fast video compression
   build_libpng # for openjpeg, needs zlib
   build_gmp # for libnettle

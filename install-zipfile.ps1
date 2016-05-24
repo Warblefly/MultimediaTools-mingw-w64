@@ -12,7 +12,7 @@ $website = "http://gallery.johnwarburton.net";
 echo "About to fetch the file $filename from website $website";
 
 Start-BitsTransfer -Source "$website/$filename" -Destination C:\Users\$env:username\Downloads -Verbose:$true;
-Expand-Archive -Path C:\Users\$env:username\Downloads\$filename -DestinationPath 'C:\Program Files\ffmpeg' -Verbose:$true -Force:$true -Debug:$true;
+Expand-Archive -Path C:\Users\$env:username\Downloads\$filename -DestinationPath 'C:\Program Files\ffmpeg' -Verbose:$true -Force;
 echo "Unzip process done.";
 echo "About to set environment variables. If this fails, it could be";
 echo "because you are running this script with insufficient permissions.";
