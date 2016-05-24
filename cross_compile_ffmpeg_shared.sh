@@ -2857,20 +2857,18 @@ build_loudness-scanner() {
   cd loudness-scanner
     git submodule init
     git submodule update
-    # This has installed a BAD libebur128. Now we must replace it
-    # with the real thing
-    # rm -rv ebur128
-    # ln -s ../libebur128 ebur128
-    # Alter the CMakeLists.txt to force use of the up-to-date
-    # ready-compiled ebur128 library, as compiled into FFmpeg
-    sed -i.bak 's/add_subdirectory(ebur12/#add_subdirectory(ebur12/' CMakeLists.txt
+    # Rename internal copy of libebur128 because of slight differences
     # update some code for latest FFmpeg
+    apply_patch file://${top_dir}/ebur128-CMakeLists.txt-private.patch
     sed -i.bak 's/avcodec_alloc_frame/av_frame_alloc/' scanner/inputaudio/ffmpeg/input_ffmpeg.c 
     do_cmake "-DENABLE_INTERNAL_QUEUE_H=ON"
     do_make
-    # do_make_install
+    do_make_install
     # The executable doesn't get installed
     cp -v loudness.exe ${mingw_w64_x86_64_prefix}/bin/loudness.exe
+    cp -v libebur128-ls.dll ${mingw_w64_x86_64_prefix}/bin/libebur128-ls.dll
+    cp -v libinput_ffmpeg.dll ${mingw_w64_x86_64_prefix}/bin/libinput_ffmpeg.dll
+    cp -v libinput_sndfile.dll ${mingw_w64_x86_64_prefix}/bin/libinput_sndfile.dll
   cd ..
 }
 
