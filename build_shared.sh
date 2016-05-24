@@ -65,7 +65,7 @@ if  [[ "$dump_archive" = [Yy] ]]; then
   echo "Archive dump selected."
   # Put the unzip scripts where we can find them.
   cp -v install-zipfile.ps1 sandbox/mingw-w64-x86_64/x86_64-w64-mingw32/bin/install-zipfile.ps1
-  cp -v install-zipfile.cmd sandbox/mingw-w64-x86_64/x86_64-w64-mingwew/bin/install-zipfile.cmd
+  cp -v install-zipfile.cmd sandbox/mingw-w64-x86_64/x86_64-w64-mingw32/bin/install-zipfile.cmd
   
   cd sandbox/mingw-w64-x86_64/x86_64-w64-mingw32
   # Symbolic links are de-referenced because Windows doesn't understand these.

@@ -1,11 +1,18 @@
-# Please run this as a users with Administrator permissions
-# so that the program files can be written into the given 
+# Please run this as a user with Administrator permissions
+# so that the program files can be written into the given
 # directory. Alternatively, you can change the -DestinationPath
 # to something local to your user directory, and leave your
 # system Program Files directory untouched.
 
-echo "About to unzip archive into FFmpeg binary directory...";
-Expand-Archive -Path C:\Users\john_000\Downloads\mingw-multimedia-executables-shared.zip -DestinationPath 'C:\Program Files\ffmpeg' -Verbose:$true -Force:$true -Debug:$true;
+Import-Module BitsTransfer
+
+$filename = "mingw-multimedia-executables-shared.zip";
+$website = "http://gallery.johnwarburton.net";
+
+echo "About to fetch the file $filename from website $website";
+
+Start-BitsTransfer -Source "$website/$filename" -Destination C:\Users\$env:username\Downloads -Verbose:$true;
+Expand-Archive -Path C:\Users\$env:username\Downloads\$filename -DestinationPath 'C:\Program Files\ffmpeg' -Verbose:$true -Force:$true -Debug:$true;
 echo "Unzip process done.";
 echo "About to set environment variables. If this fails, it could be";
 echo "because you are running this script with insufficient permissions.";
