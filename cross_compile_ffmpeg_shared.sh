@@ -2029,6 +2029,18 @@ build_vim() {
       # On the installation host, these files must be pointed to by VIMRUNTIME
       mkdir ${mingw_w64_x86_64_prefix}/share/vim && cp -Rv ../runtime/* ${mingw_w64_x86_64_prefix}/share/vim
   cd ../..
+
+  do_git_checkout https://github.com/vim/vim.git vim_console
+  cd vim_console/src
+      sed -i.bak 's/FEATURES=BIG/FEATURES=HUGE/' Make_cyg_ming.mak
+      sed -i.bak 's/ARCH=i686/ARCH=x86-64/' Make_cyg_ming.mak
+      sed -i.bak 's/CROSS=no/CROSS=yes/' Make_cyg_ming.mak
+      sed -i.bak 's/WINDRES := windres/WINDRES := $(CROSS_COMPILE)windres/' Make_cyg_ming.mak
+      echo "Now we are going to build vim."
+      WINVER=0x0A00 CROSS_COMPILE=${cross_prefix} do_make "-f Make_cyg_ming.mak GUI=no vim.exe " # gvim.exe
+      echo "Vim is built, but not installed."
+      cp -fv vim.exe "${mingw_w64_x86_64_prefix}/bin"
+  cd ../.. 
 }
 
 
