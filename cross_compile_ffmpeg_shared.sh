@@ -2020,9 +2020,12 @@ build_vim() {
       sed -i.bak 's/CROSS=no/CROSS=yes/' Make_cyg_ming.mak
       sed -i.bak 's/WINDRES := windres/WINDRES := $(CROSS_COMPILE)windres/' Make_cyg_ming.mak
       echo "Now we are going to build vim."
-      WINVER=0x0603 CROSS_COMPILE=${cross_prefix} make -f Make_cyg_ming.mak gvim.exe
+      WINVER=0x0A00 CROSS_COMPILE=${cross_prefix} do_make "-f Make_cyg_ming.mak" # gvim.exe
       echo "Vim is built, but not installed."
-      cp -fv gvim.exe vimrun.exe "${mingw_w64_x86_64_prefix}/bin"
+      cp -fv gvim.exe vimrun.exe xxd/xxd.exe GvimExt/gvimext.dll GvimExt/gvimext.res "${mingw_w64_x86_64_prefix}/bin"
+      # Here come the runtime files, necessary for syntax highlighting, etc.
+      # On the installation host, these files must be pointed to by VIMRUNTIME
+      mkdir ${mingw_w64_x86_64_prefix}/share/vim && cp -Rv ../runtime/* ${mingw_w64_x86_64_prefix}/share/vim
   cd ../..
 }
 
@@ -2862,8 +2865,8 @@ build_loudness-scanner() {
     apply_patch file://${top_dir}/ebur128-CMakeLists.txt-private.patch
     sed -i.bak 's/avcodec_alloc_frame/av_frame_alloc/' scanner/inputaudio/ffmpeg/input_ffmpeg.c 
     do_cmake "-DENABLE_INTERNAL_QUEUE_H=ON"
-    do_make
-    do_make_install
+    do_make "VERBOSE=1"
+    do_make_install "VERBOSE=1"
     # The executable doesn't get installed
     cp -v loudness.exe ${mingw_w64_x86_64_prefix}/bin/loudness.exe
     cp -v libebur128-ls.dll ${mingw_w64_x86_64_prefix}/bin/libebur128-ls.dll

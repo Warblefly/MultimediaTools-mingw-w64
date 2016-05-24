@@ -16,14 +16,17 @@ Expand-Archive -Path C:\Users\$env:username\Downloads\$filename -DestinationPath
 echo "Unzip process done.";
 echo "About to set environment variables. If this fails, it could be";
 echo "because you are running this script with insufficient permissions.";
+
+
 echo "FONTCONFIG_FILE=fonts.conf";
 [Environment]::SetEnvironmentVariable("FONTCONFIG_FILE", "fonts.conf", "User");
-echo "FONTCONFIG_PATH=C:\Users\%USERNAME%\AppData\Local\fontconfig";
-[Environment]::SetEnvironmentVariable("FONTCONFIG_PATH", "C:\Users\%USERNAME%\AppData\Local\fontconfig", "User");
-echo "FREI0R_PATH=%ProgramFiles%\ffmpeg\lib\frei0r-1";
-[Environment]::SetEnvironmentVariable("FREI0R_PATH", "%ProgramFiles%\ffmpeg\lib\frei0r-1", "User");
-echo "TESSDATA_PREFIX=C:\Program Files\ffmpeg\share\";
-[Environment]::SetEnvironmentVariable("TESSDATA_PREFIX", "C:\Program Files\ffmpeg\share\", "User");
-echo "TERMINFO=C:\Program Files\ffmpeg\share\terminfo";
-[Environment]::SetEnvironmentVariable("TERMINFO", "C:\Program Files\ffmpeg\share\terminfo", "User");
-
+echo "FONTCONFIG_PATH=C:\Users\$env:USERNAME\AppData\Local\fontconfig";
+[Environment]::SetEnvironmentVariable("FONTCONFIG_PATH", "C:\Users\$env:USERNAME\AppData\Local\fontconfig", "User");
+echo "FREI0R_PATH=$env:ProgramFiles\ffmpeg\lib\frei0r-1";
+[Environment]::SetEnvironmentVariable("FREI0R_PATH", "$env:ProgramFiles\ffmpeg\lib\frei0r-1", "User");
+echo "TESSDATA_PREFIX=$env:ProgramFiles\ffmpeg\share\";
+[Environment]::SetEnvironmentVariable("TESSDATA_PREFIX", "$env:ProgramFiles\ffmpeg\share\", "User");
+echo "TERMINFO=$env:ProgramFiles\ffmpeg\share\terminfo";
+[Environment]::SetEnvironmentVariable("TERMINFO", "$env:ProgramFiles\ffmpeg\share\terminfo", "User");
+echo "VIMRUNTIME=$env:ProgramFiles\ffmpeg\share\vim";
+[Environment]::SetEnvironmentVariable("VIMRUNTIME", "$env:ProgramFiles\ffmpeg\share\vim", "User");

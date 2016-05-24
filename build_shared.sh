@@ -69,7 +69,7 @@ if  [[ "$dump_archive" = [Yy] ]]; then
   
   cd sandbox/mingw-w64-x86_64/x86_64-w64-mingw32
   # Symbolic links are de-referenced because Windows doesn't understand these.
-  zip -r -9 -v -db -dc ${dump_file}  ./bin/*exe ./bin/*com ./bin/*dll ./bin/*py ./bin/*pl ./bin/*cmd ./bin/*config ./bin/platforms/*dll ./bin/lib/* ./bin/share/* ./lib/frei0r-1/* ./plugins/* ./share/OpenCV/* ./share/tessdata ./share/terminfo ./share/misc/magic.mgc ./bin/install-zipfile.ps1 ./bin/install-zipfile.cmd || exit 1
+  zip -r -9 -v -db -dc ${dump_file}  ./bin/*exe ./bin/*com ./bin/*dll ./bin/*py ./bin/*pl ./bin/*cmd ./bin/*config ./bin/platforms/*dll ./bin/lib/* ./bin/share/* ./lib/frei0r-1/* ./plugins/* ./share/OpenCV/* ./share/tessdata ./share/terminfo ./share/misc/magic.mgc ./share/vim/* ./bin/install-zipfile.ps1 ./bin/install-zipfile.cmd || exit 1
   cd -
   mv -v  "sandbox/mingw-w64-x86_64/x86_64-w64-mingw32/${dump_file}" .
   echo "Archive made and stored in ${dump_file}"
