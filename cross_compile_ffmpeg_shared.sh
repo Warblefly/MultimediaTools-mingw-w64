@@ -1980,39 +1980,54 @@ build_sdl() {
 
 
 build_sdl2() {
-  local old_hg_version
-  if [[ -d SDL ]]; then
-    cd SDL
-      echo "doing hg pull -u SDL"
-      old_hg_version=`hg --debug id -i`
-      hg pull -u || exit 1
-      hg update || exit 1 # guess you need this too if no new changes are brought down [what the...]
-  else
-    hg clone http://hg.libsdl.org/SDL || exit 1
-    cd SDL
-      old_hg_version=none-yet
-  fi
-  mkdir build
+#  local old_hg_version
+#  if [[ -d SDL ]]; then
+#    cd SDL
+#      echo "doing hg pull -u SDL"
+#      old_hg_version=`hg --debug id -i`
+#      hg pull -u || exit 1
+#      hg update || exit 1 # guess you need this too if no new changes are brought down [what the...]
+#  else
+#    hg clone http://hg.libsdl.org/SDL || exit 1
+#    cd SDL
+#      old_hg_version=none-yet
+#  fi
+#  mkdir build
+  do_git_checkout https://github.com/spurious/SDL-mirror.git SDL
+  cd SDL
+    mkdir -v build
 
-  local new_hg_version=`hg --debug id -i`
-  if [[ "$old_hg_version" != "$new_hg_version" ]]; then
-    echo "got upstream hg changes, forcing rebuild...SDL2"
-#    apply_patch file://${top_dir}/SDL2-prevent-duplicate-d3d11-declarations.patch
+#  local new_hg_version=`hg --debug id -i`
+#  if [[ "$old_hg_version" != "$new_hg_version" ]]; then
+#    echo "got upstream hg changes, forcing rebuild...SDL2"
+##    apply_patch file://${top_dir}/SDL2-prevent-duplicate-d3d11-declarations.patch
     cd build
-      rm already*
+#      rm already*
       do_configure "--host=x86_64-w64-mingw32 --target=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-shared --enable-static --disable-render-d3d" "../configure" #3d3 disabled with --disable-render-d3d due to mingw-w64-4.0.0 and SDL disagreements
       do_make_install "V=1" 
    cd ..
- else
-    echo "still at hg $new_hg_version SDL2"
-  fi
+# else
+#    echo "still at hg $new_hg_version SDL2"
+#  fi
   cd ..  
 
 #  generic_download_and_install "https://www.libsdl.org/tmp/SDL-2.0.4-9799.tar.gz" "SDL-2.0.4-9799" "--disable-render-d3d"
 
 }
 
-
+build_OpenCL() {
+  do_git_checkout https://github.com/KhronosGroup/OpenCL-ICD-Loader.git OpenCL-ICD-Loader
+  cd OpenCL-ICD-Loader
+    mkdir -v inc/CL
+    cp -v ${mingw_w64_x86_64_prefix}/include/CL/* inc/CL/
+    do_cmake
+    do_make
+    # There is no install target for make
+    cp bin/*dll ${mingw_w64_x86_64_prefix}/bin/
+    cp bin/*exe ${mingw_w64_x86_64_prefix}/bin/
+    cp libOpenCL.dll.a ${mingw_w64_x86_64_prefix}/lib/
+  cd ..
+}
 
 build_vim() {
   do_git_checkout https://github.com/vim/vim.git vim
@@ -2050,7 +2065,7 @@ build_mpv() {
     ./bootstrap.py
     export DEST_OS=win32
     export TARGET=x86_64-w64-mingw32
-    do_configure "configure -pp --prefix=${mingw_w64_x86_64_prefix} --enable-win32-internal-pthreads --disable-x11 --disable-debug-build --enable-gpl3 --enable-sdl2 --enable-libmpv-shared --disable-libmpv-static --enable-gpl3 " "./waf"
+    do_configure "configure -pp --prefix=${mingw_w64_x86_64_prefix} --enable-win32-internal-pthreads --disable-x11 --disable-debug-build --enable-gpl3 --enable-sdl2 --enable-libmpv-shared --disable-libmpv-static --enable-gpl3 --disable-egl-angle" "./waf"
     # In this cross-compile for Windows, we keep the Python script up-to-date and therefore
     # must call it directly by its full name, because mpv can only explore for executables
     # with the .exe suffix.
@@ -2617,28 +2632,35 @@ build_libtiff() {
 }
 
 build_opencl() {
-# Method: get the headers, then create libOpenCL.a from the vendor-supplied OpenCL.dll
-# on the compilation system.
-# Get the headers from the source
+# Method: get the headers, then (in a later function) build OpenCL.dll from the github source
+# which does NOT contain the headers
   mkdir -p ${mingw_w64_x86_64_prefix}/include/CL && cd ${mingw_w64_x86_64_prefix}/include/CL
-    wget --no-clobber https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl12/cl_d3d10.h \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl12/cl_d3d11.h \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl12/cl_dx9_media_sharing.h \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl12/cl_ext.h \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl12/cl_gl_ext.h \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl12/cl_gl.h \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl12/cl.h \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl12/cl_platform.h \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl12/opencl.h \
+    wget --no-clobber https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl21/cl_d3d10.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl21/cl_d3d11.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl21/cl_dx9_media_sharing.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl21/cl_ext.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl21/cl_gl_ext.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl21/cl_gl.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl21/cl.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl21/cl_platform.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl21/opencl.h \
 https://www.khronos.org/registry/cl/api/2.1/cl.hpp \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl12/cl_egl.h
-  cd -
-  cd ${top_dir}
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl21/cl_egl.h
+#  cd -
+#  cd ${top_dir}
 # Use the installed OpenCL.dll to make libOpenCL.a
 # This is an insecure method. Write something better! FIXME
-  gendef ./OpenCL.dll
-  x86_64-w64-mingw32-dlltool -l libOpenCL.a -d OpenCL.def -k -A
-  mv libOpenCL.a ${mingw_w64_x86_64_prefix}/lib/libOpenCL.a
+#  gendef ./OpenCL.dll
+#  x86_64-w64-mingw32-dlltool -l libOpenCL.a -d OpenCL.def -k -A
+#  mv libOpenCL.a ${mingw_w64_x86_64_prefix}/lib/libOpenCL.a
+  cd -
+  mkdir -p ${mingw_w64_x86_64_prefix}/include/EGL && cd ${mingw_w64_x86_64_prefix}/include/EGL
+    wget --no-clobber https://www.khronos.org/registry/egl/api/EGL/egl.h \
+https://www.khronos.org/registry/egl/api/EGL/eglext.h \
+https://www.khronos.org/registry/egl/api/EGL/eglplatform.h
+  cd -
+  mkdir -p ${mingw_w64_x86_64_prefix}/include/KHR && cd ${mingw_w64_x86_64_prefix}/include/KHR
+    wget --no-clobber https://www.khronos.org/registry/egl/api/KHR/khrplatform.h
   cd -
 }
 
@@ -3448,6 +3470,8 @@ build_dependencies() {
   # build_gomp   # Not yet.
   build_gavl # Frei0r has this as an optional dependency
   build_libutvideo
+  build_opencl
+  build_OpenCL
   #build_libflite # too big for the ffmpeg distro...
   build_sdl # needed for ffplay to be created
   build_sdl2
@@ -3550,7 +3574,6 @@ build_dependencies() {
   build_libfribidi
   build_libass # needs freetype, needs fribidi, needs fontconfig
   build_intel_quicksync_mfx
-  build_opencl
   build_glew
 #  build_libopenjpeg
 #  build_libopenjpeg2
