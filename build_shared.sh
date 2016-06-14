@@ -68,8 +68,14 @@ if  [[ "$dump_archive" = [Yy] ]]; then
   cp -v install-zipfile.cmd sandbox/mingw-w64-x86_64/x86_64-w64-mingw32/bin/install-zipfile.cmd
   
   cd sandbox/mingw-w64-x86_64/x86_64-w64-mingw32
+  rm -v archive_list.files
   # Symbolic links are de-referenced because Windows doesn't understand these.
   zip -r -9 -v -db -dc ${dump_file}  ./bin/*exe ./bin/*com ./bin/*dll ./bin/*py ./bin/*pl ./bin/*cmd ./bin/*config ./bin/platforms/*dll ./bin/lib/* ./bin/share/* ./lib/frei0r-1/* ./plugins/* ./share/OpenCV/* ./share/tessdata ./share/terminfo ./share/misc/magic.mgc ./share/vim/* ./bin/install-zipfile.ps1 ./bin/install-zipfile.cmd || exit 1
+  # Starting to build the archive list for a proper Windows installer
+  archive_list=('./bin/*exe' './bin/*com' './bin/*dll' './bin/*py' './bin/*pl' './bin/*cmd' './bin/*config' './bin/platforms/*dll' './bin/lib/*' './bin/share/*' './lib/frei0r-1/*' './plugins/*' './share/OpenCV/*' './share/tessdata' './share/terminfo' './share/misc/magic.mgc' './share/vim/*' './bin/install-zipfile.ps1' './bin/install-zipfile.cmd')
+for item in "${archive_list[@]}"; do
+  find $item -name "*" >> archive_list.files
+done
   cd -
   mv -v  "sandbox/mingw-w64-x86_64/x86_64-w64-mingw32/${dump_file}" .
   echo "Archive made and stored in ${dump_file}"
