@@ -110,7 +110,7 @@ With these scripts, you can compile binaries, ready to run on 64-bit Windows. Ma
  * qdbus — interrogates a D-Bus server
  * qdbusviewer — QT5 application that interrogates a D-Bus server
 * DCP-o-matic
- * dcopmatic2 — a very flexible DCP creation package (my GUI broken, official build is OK)
+ * dcopmatic2 — a very flexible DCP creation package
  * dcpdiff — compares metadata and content, ignoring timestamps, of two DCPs
  * dcpdumpsub — extracts subtitles from DCP MXF
  * dcpinfo — outputs information about a DCP
@@ -418,6 +418,7 @@ With these scripts, you can compile binaries, ready to run on 64-bit Windows. Ma
  * pdftops — remakes PDF files as Postscript files
  * pdftotext — extracts text from PDF files, with control over layout and parsed areas
  * pdfunite — joins many PDF files into one
+ * poppler-qt5viewer — displays PDF file in graphical window: a simple PDF reader program
 * libpcre — Perl-compatible regular expression library
  * pcregrep — grep using the PCRE regular expression library, compatible with the regular expressions of Perl 5
  * pcretest — performs tests upon regular expressions using the PCRE library
@@ -542,6 +543,7 @@ With these scripts, you can compile binaries, ready to run on 64-bit Windows. Ma
 * libtwolame — library to encode MPEG Layer II audio (MP2)
  * twolame — encoder for MPEG Layer II audio (MP2)
 * Vim — Vi Improved, a version of the venerable vi screen editing program
+ * vim — the original editor running in a command shell window
  * gvim — Vim running in a Windows graphical window, with menus, etc.
 * libXML2 — library for handling XML
  * xmlcatalog — parses the catalog file and queries it for the entities
