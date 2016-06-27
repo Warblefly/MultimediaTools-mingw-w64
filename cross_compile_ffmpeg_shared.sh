@@ -979,7 +979,7 @@ build_libvpx() {
     download_and_unpack_file http://webm.googlecode.com/files/libvpx-v1.3.0.tar.bz2 libvpx-v1.3.0
     cd libvpx-v1.3.0
   else
-    do_git_checkout https://chromium.googlesource.com/webm/libvpx "libvpx_git"
+    do_git_checkout https://chromium.googlesource.com/webm/libvpx "libvpx_git" "nextgenv2"
     cd libvpx_git
     apply_patch file://${top_dir}/libvpx-vp8-common-threading-h-mingw.patch
   fi
@@ -1001,6 +1001,7 @@ build_libvpx() {
 }
 
 build_libutvideo() {
+# SUPERSEDED BY NATIVE CODE AND NO LONGER COMPILED
 #  download_and_unpack_file http://umezawa.dyndns.info/archive/utvideo/utvideo-12.2.1-src.zip utvideo-12.2.1
 #  cd utvideo-12.2.1
 #    apply_patch file://${top_dir}/utv.diff
@@ -2065,7 +2066,7 @@ build_mpv() {
     ./bootstrap.py
     export DEST_OS=win32
     export TARGET=x86_64-w64-mingw32
-    do_configure "configure -pp --prefix=${mingw_w64_x86_64_prefix} --enable-win32-internal-pthreads --disable-x11 --disable-debug-build --enable-gpl3 --enable-sdl2 --enable-libmpv-shared --disable-libmpv-static --enable-gpl3 --disable-egl-angle" "./waf"
+    do_configure "configure -pp --prefix=${mingw_w64_x86_64_prefix} --enable-win32-internal-pthreads --disable-x11 --disable-debug-build --enable-sdl2 --enable-libmpv-shared --disable-libmpv-static --disable-egl-angle" "./waf"
     # In this cross-compile for Windows, we keep the Python script up-to-date and therefore
     # must call it directly by its full name, because mpv can only explore for executables
     # with the .exe suffix.
@@ -3337,12 +3338,11 @@ build_get_iplayer() {
 }
 
 build_libdecklink() {
-  if [[ ! -f $mingw_w64_x86_64_prefix/include/DeckLinkAPI_i.c ]]; then
-    curl https://raw.githubusercontent.com/rdp/ffmpeg-windows-build-helpers/master/patches/DeckLinkAPI.h > $mingw_w64_x86_64_prefix/include/DeckLinkAPI.h  || exit 1
-    curl https://raw.githubusercontent.com/rdp/ffmpeg-windows-build-helpers/master/patches/DeckLinkAPI_i.c > $mingw_w64_x86_64_prefix/include/DeckLinkAPI_i.c.tmp  || exit 1
-    curl https://raw.githubusercontent.com/jp9000/obs-studio/master/plugins/decklink/mac/decklink-sdk/DeckLinkAPIVersion.h > $mingw_w64_x86_64_prefix/include/DeckLinkAPIVersion.h  || exit 1
-    mv $mingw_w64_x86_64_prefix/include/DeckLinkAPI_i.c.tmp $mingw_w64_x86_64_prefix/include/DeckLinkAPI_i.c
-  fi
+#  if [[ ! -f $mingw_w64_x86_64_prefix/include/DeckLinkAPI_i.c ]]; then
+  cp -v ${top_dir}/DeckLinkAPI.h $mingw_w64_x86_64_prefix/include/DeckLinkAPI.h  || exit 1
+  cp -v ${top_dir}/DeckLinkAPI_i.c $mingw_w64_x86_64_prefix/include/DeckLinkAPI_i.c  || exit 1
+  cp -v ${top_dir}/DeckLinkAPIVersion.h $mingw_w64_x86_64_prefix/include/DeckLinkAPIVersion.h  || exit 1
+#  fi
 }
 
 build_ffmpeg() {
@@ -3353,7 +3353,7 @@ build_ffmpeg() {
 
   # FFmpeg + libav compatible options
   # add libpsapi to enable libdlfcn for Windows to work, thereby enabling frei0r plugins
-  local extra_configure_opts="--enable-libsoxr --enable-fontconfig --enable-libass --enable-libutvideo --enable-libbluray --enable-iconv --enable-libtwolame --enable-libzvbi --enable-libcaca --enable-libmodplug --extra-libs=-lstdc++ --extra-libs=-lpsapi --enable-opengl --extra-libs=-lz --extra-libs=-lpng --enable-libvidstab --enable-libx265 --enable-decklink --extra-libs=-loleaut32 --enable-libcdio --enable-libzimg --enable-chromaprint --enable-libsnappy --enable-libebur128"
+  local extra_configure_opts="--enable-libsoxr --enable-fontconfig --enable-libass --enable-libbluray --enable-iconv --enable-libtwolame --enable-libzvbi --enable-libcaca --enable-libmodplug --extra-libs=-lstdc++ --extra-libs=-lpsapi --enable-opengl --extra-libs=-lz --extra-libs=-lpng --enable-libvidstab --enable-libx265 --enable-decklink --extra-libs=-loleaut32 --enable-libcdio --enable-libzimg --enable-chromaprint --enable-libsnappy --enable-libebur128"
 
   if [[ $type = "libav" ]]; then
     # libav [ffmpeg fork]  has a few missing options?
@@ -3469,7 +3469,7 @@ build_dependencies() {
   build_openssl
   # build_gomp   # Not yet.
   build_gavl # Frei0r has this as an optional dependency
-  build_libutvideo
+#  build_libutvideo
   build_opencl
   build_OpenCL
   #build_libflite # too big for the ffmpeg distro...
