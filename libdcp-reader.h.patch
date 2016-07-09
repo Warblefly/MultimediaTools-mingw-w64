@@ -1,0 +1,10 @@
+--- src/reader.h.orig	2016-06-28 16:09:32.289000000 +0000
++++ src/reader.h	2016-06-28 16:09:47.474000000 +0000
+@@ -21,6 +21,7 @@
+ #define LIBSUB_READER_H
+ 
+ #include "raw_subtitle.h"
++#include <iostream>
+ #include <list>
+ #include <map>
+ #include <string>

@@ -1,0 +1,10 @@
+--- src/sub_time.h.orig	2016-06-28 16:15:20.874000000 +0000
++++ src/sub_time.h	2016-06-28 16:15:33.721000000 +0000
+@@ -20,6 +20,7 @@
+ #ifndef LIBSUB_SUB_TIME_H
+ #define LIBSUB_SUB_TIME_H
+ 
++#include <iostream>
+ #include <boost/optional.hpp>
+ 
+ namespace sub {

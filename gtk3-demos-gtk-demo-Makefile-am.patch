@@ -1,0 +1,13 @@
+--- demos/gtk-demo/Makefile.am.orig	2016-07-06 19:51:34.261000000 +0000
++++ demos/gtk-demo/Makefile.am	2016-07-06 19:52:05.166000000 +0000
+@@ -172,8 +172,8 @@
+ 
+ update_icon_cache = $(top_builddir)/gtk/gtk-update-icon-cache$(EXEEXT) --ignore-theme-index --force
+ 
+-install-data-hook: install-update-icon-cache
+-uninstall-hook: uninstall-update-icon-cache
++install-data-hook: #install-update-icon-cache
++uninstall-hook: #uninstall-update-icon-cache
+ 
+ install-update-icon-cache:
+ 	$(AM_V_at)$(POST_INSTALL)

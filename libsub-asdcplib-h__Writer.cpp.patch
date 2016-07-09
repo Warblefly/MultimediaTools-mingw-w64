@@ -1,0 +1,10 @@
+--- asdcplib/src/h__Writer.cpp.orig	2016-06-28 16:32:08.476000000 +0000
++++ asdcplib/src/h__Writer.cpp	2016-06-28 16:32:32.083000000 +0000
+@@ -29,6 +29,7 @@
+     \brief   MXF file writer base class
+ */
+ 
++#include <iostream>
+ #include "AS_DCP_internal.h"
+ #include "KLV.h"
+ 

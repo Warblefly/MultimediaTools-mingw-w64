@@ -1,0 +1,17 @@
+--- build/cmake/CMakeLists.txt.orig	2016-06-28 13:16:42.614000000 +0000
++++ build/cmake/CMakeLists.txt	2016-06-28 13:17:07.214000000 +0000
+@@ -191,14 +191,6 @@
+         DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
+ )
+ 
+-if(WIN32 AND (NOT MSVC_VERSION LESS 1600) AND (NOT CMAKE_VERSION VERSION_LESS "3.1"))
+-    install(
+-        FILES $<TARGET_PDB_FILE:glew>
+-        DESTINATION ${CMAKE_INSTALL_LIBDIR}
+-        CONFIGURATIONS Debug RelWithDebInfo
+-    )
+-endif()
+-
+ install (FILES
+     ${GLEW_DIR}/include/GL/wglew.h
+     ${GLEW_DIR}/include/GL/glew.h

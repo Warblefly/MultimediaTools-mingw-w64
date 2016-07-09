@@ -38,7 +38,7 @@ yes_no_sel () {
 }
 
 check_missing_packages () {
-  local check_packages=('sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint' 'pxz' 'wget' 'zip' 'xmlto')
+  local check_packages=('sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint' 'pxz' 'wget' 'zip' 'xmlto' 'gtkdocize' 'python-config')
   for package in "${check_packages[@]}"; do
     type -P "$package" >/dev/null || missing_packages=("$package" "${missing_packages[@]}")
   done
@@ -165,7 +165,7 @@ install_cross_compiler() {
   sed -i.bak "s/isl_release_ver='0.12.2'/isl_release_ver='0.16.1'/" mingw-w64-build-3.6.6
   sed -i.bak "s/gmp_release_ver='6.0.0a'/gmp_release_ver='6.1.0'/" mingw-w64-build-3.6.6
   sed -i.bak "s/gmp-6\.0\.0/gmp-6.1.0/" mingw-w64-build-3.6.6
-  sed -i.bak "s!//gcc\.gnu\.org/svn/gcc/trunk!//gcc.gnu.org/svn/gcc/branches/gcc-5-branch!" mingw-w64-build-3.6.6
+  sed -i.bak "s!//gcc\.gnu\.org/svn/gcc/trunk!//gcc.gnu.org/svn/gcc/branches/gcc-6-branch!" mingw-w64-build-3.6.6
   apply_patch file://${top_dir}/mingw-w64-build-isl_fix.patch 
 #  sed -i.bak "s|ln -s '../include' './include'|mkdir include|" mingw-w64-build-3.6.6
 #  sed -i.bak "s|ln -s '../lib' './lib'|mkdir lib|" mingw-w64-build-3.6.6
@@ -724,11 +724,11 @@ build_librtmp() {
 }
 
 build_qt() {
-  export QT_VERSION="5.6.0"
+  export QT_VERSION="5.7.0"
   export QT_SOURCE="qt-source"
   export QT_BUILD="qt-build"
   if [ ! -f qt.built ]; then
-    download_and_unpack_file http://download.qt.io/official_releases/qt/5.6/${QT_VERSION}/single/qt-everywhere-opensource-src-${QT_VERSION}.tar.gz "qt-everywhere-opensource-src-${QT_VERSION}"
+    download_and_unpack_file http://download.qt.io/official_releases/qt/5.7/${QT_VERSION}/single/qt-everywhere-opensource-src-${QT_VERSION}.tar.gz "qt-everywhere-opensource-src-${QT_VERSION}"
     mkdir -p "${QT_BUILD}"
     ln -vs "qt-everywhere-opensource-src-${QT_VERSION}" "${QT_SOURCE}"
     cd "${QT_BUILD}"
@@ -736,11 +736,16 @@ build_qt() {
       do_make || exit 1
       do_make_install || exit 1
     cd ..
-      touch "qt.built"
+    touch "qt.built"
+    # QT's build tree takes up over 24GB of space. We don't need to see this again because
+    # we're not using a frequently-updated Git version
+    echo "Removing QT-${QT_VERSION} build tree..."
+    rm -rf ${QT_BUILD}
+    echo "QT-${QT_VERSION} build tree now removed."
   else
     echo "Skipping QT build... already completed."
     # Remove the debug versions of libQt5 libraries
-    rm -v ${mingw_w64_x86_64_prefix}/bin/Qt5*d.dll
+    # rm -v ${mingw_w64_x86_64_prefix}/bin/Qt5*d.dll
   fi
   unset QT_VERSION
   unset QT_SOURCE
@@ -814,21 +819,28 @@ build_DJV() {
     sed -i.bak 's/FLT_EPSILON/1.19209290e-07F/' lib/djvCore/djvMath.cpp
     sed -i.bak 's/DBL_EPSILON/2.2204460492503131e-16/' lib/djvCore/djvMath.cpp
     # FFmpeg's headers have changed. DJV hasn't caught up yet
-    sed -i.bak 's/PIX_FMT_RGBA/AV_PIX_FMT_RGBA/' plugins/djvFFmpegPlugin/djvFFmpegLoad.cpp
+    sed -i.bak 's/ PIX_FMT_RGBA/ AV_PIX_FMT_RGBA/' plugins/djvFFmpegPlugin/djvFFmpegLoad.cpp
     # Replace a MSVC function that isn't yet in Mingw-w64
     sed -i.bak 's/defined(DJV_WINDOWS)/defined(DJV_WINDOWS) \&\& defined(_MSC_VER)/' lib/djvCore/djvStringUtil.h
-    sed -i.bak 's/defined(DJV_WINDOWS)/defined(DJV_WINDOWS) \&\& defined(_MSC_CER)/' plugins/djvJpegPlugin/djvJpegLoad.cpp
-    sed -i.bak 's/defined(DJV_WINDOWS)/defined(DJV_WINDOWS) \&\& defined(_MSC_CER)/' plugins/djvJpegPlugin/djvJpegSave.cpp
-    sed -i.bak 's/defined(DJV_WINDOWS)/defined(DJV_WINDOWS) \&\& defined(_MSC_CER)/' plugins/djvPngPlugin/djvPngLoad.cpp
-    sed -i.bak 's/defined(DJV_WINDOWS)/defined(DJV_WINDOWS) \&\& defined(_MSC_CER)/' plugins/djvPngPlugin/djvPngSave.cpp
+    sed -i.bak 's/defined(DJV_WINDOWS)/defined(DJV_WINDOWS) \&\& defined(_MSC_VER)/' plugins/djvJpegPlugin/djvJpegLoad.cpp
+    sed -i.bak 's/defined(DJV_WINDOWS)/defined(DJV_WINDOWS) \&\& defined(_MSC_VER)/' plugins/djvJpegPlugin/djvJpegSave.cpp
+    sed -i.bak 's/defined(DJV_WINDOWS)/defined(DJV_WINDOWS) \&\& defined(_MSC_VER)/' plugins/djvPngPlugin/djvPngLoad.cpp
+    sed -i.bak 's/defined(DJV_WINDOWS)/defined(DJV_WINDOWS) \&\& defined(_MSC_VER)/' plugins/djvPngPlugin/djvPngSave.cpp
     # Don't make dvjFileBrowserTest or, indeed, any tests
     sed -i.bak 's/enable_testing()/#enable_testing()/' CMakeLists.txt
     sed -i.bak 's/add_subdirectory(djvFileBrowserTest)/#add_subdirectory(djvFileBrowserTest)/' tests/CMakeLists.txt
     # Change Windows' backslashes to forward slashes to allow MinGW compilation
     # Remember that . and \ need escaping with \, which makes this hard to read
     sed -i.bak 's!\.\.\\\\.\.\\\\etc\\\\Windows\\\\djv_view.ico!../../etc/Windows/djv_view.ico!' bin/djv_view/win.rc
-    do_cmake "-DENABLE_STATIC_RUNTIME=0 -DCMAKE_PREFIX_PATH=${mingw_w64_x86_64_prefix} -DCMAKE_C_FLAGS=-D__STDC_CONSTANT_MACROS -DCMAKE_CXX_FLAGS=-D__STDC_CONSTANT_MACROS"
-    do_make
+    do_cmake "-DCMAKE_VERBOSE_MAKEFILE=YES -DENABLE_STATIC_RUNTIME=0 -DCMAKE_PREFIX_PATH=${mingw_w64_x86_64_prefix} -DCMAKE_C_FLAGS=-D__STDC_CONSTANT_MACROS -DCMAKE_CXX_FLAGS=-D__STDC_CONSTANT_MACROS"
+    # GCC 6.1.1 has altered headers and QT5.7 triggers a bug when used with DJV. 
+    # We must instruct it to treat system include files as ordinary include files
+    find ./ -name 'includes_CXX.rsp' | while read fname; do
+      echo "Correcting headers in ${fname}..."
+      sed -i.bak 's/-isystem /-I/g' "${fname}"
+    done
+    echo "Headers now corrected."
+    do_make "V=1"
     # The whole DJV suite is now in two directories: build/bin and build/lib.
     # bin contains programs and their necessary DLLs, lib contains plugins and development libraries.
     # We need to copy the executables and their companion DLLs to our bin distribution directory
@@ -901,15 +913,15 @@ build_dcpomatic() {
   do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic
   cd dcpomatic
     apply_patch file://${top_dir}/dcpomatic-wscript.patch
-    apply_patch file://${top_dir}/dcpomatic-src-wx-wscript.patch
+#    apply_patch file://${top_dir}/dcpomatic-src-wx-wscript.patch
     apply_patch file://${top_dir}/dcpomatic-test-wscript.patch
      # M_PI is missing in mingw-w64
     sed -i.bak 's/M_PI/3.14159265358979323846/g' src/lib/audio_filter.cc
      # The RC file looks for wxWidgets 3.0 rc, but it's 3.1 in our build
-    sed -i.bak 's!wx-3\.0/wx/msw/wx\.rc!wx-3.1/wx/msw/wx.rc!' platform/windows/dcpomatic.rc
-    sed -i.bak 's!wx-3\.0/wx/msw/wx\.rc!wx-3.1/wx/msw/wx.rc!' platform/windows/dcpomatic_batch.rc
-    sed -i.bak 's!wx-3\.0/wx/msw/wx\.rc!wx-3.1/wx/msw/wx.rc!' platform/windows/dcpomatic_server.rc
-    sed -i.bak 's!wx-3\.0/wx/msw/wx\.rc!wx-3.1/wx/msw/wx.rc!' platform/windows/dcpomatic_kdm.rc
+#    sed -i.bak 's!wx-3\.0/wx/msw/wx\.rc!wx-3.1/wx/msw/wx.rc!' platform/windows/dcpomatic.rc
+#    sed -i.bak 's!wx-3\.0/wx/msw/wx\.rc!wx-3.1/wx/msw/wx.rc!' platform/windows/dcpomatic_batch.rc
+#    sed -i.bak 's!wx-3\.0/wx/msw/wx\.rc!wx-3.1/wx/msw/wx.rc!' platform/windows/dcpomatic_server.rc
+#    sed -i.bak 's!wx-3\.0/wx/msw/wx\.rc!wx-3.1/wx/msw/wx.rc!' platform/windows/dcpomatic_kdm.rc
     export cCFLAGS="-fpermissive"
     do_configure "configure WINRC=x86_64-w64-mingw32-windres CXX=x86_64-w64-mingw32-g++ -v -pp --prefix=${mingw_w64_x86_64_prefix} --target-windows --check-cxx-compiler=gxx --disable-tests --enable-debug" "./waf"
     ./waf build || exit 1
@@ -1142,7 +1154,7 @@ build_libdvdnav() {
 }
 
 build_libdvdcss() {
-  do_git_checkout git://git.videolan.org/libdvdcss libdvdcss
+  do_git_checkout http://code.videolan.org/videolan/libdvdcss.git libdvdcss
   cd libdvdcss/src
 #    apply_patch libdvdcss.c.patch
     cd ..
@@ -1748,8 +1760,13 @@ build_libdcp() {
 }
 
 build_libsub() {
-  do_git_checkout git://git.carlh.net/git/libsub.git libsub 1.0
-  cd libsub
+#  do_git_checkout https://github.com/cth103/libsub.git libsub 1.0
+  download_and_unpack_file http://carlh.net/downloads/libsub/libsub-1.1.13.tar.bz2 libsub-1.1.13
+  cd libsub-1.1.13
+    # include <iostream> is missing
+    apply_patch file://${top_dir}/libdcp-reader.h.patch
+#    apply_patch file://${top_dir}/libdcp-sub_time.h.patch
+#    apply_patch file://${top_dir}/libsub-asdcplib-h__Writer.cpp.patch
     # Our Boost libraries are multithreaded anyway
     sed -i.bak "s/boost_lib_suffix = '-mt'/boost_lib_suffix = ''/" wscript
     # The version in the development tree doesn't have an updated version number
@@ -1947,7 +1964,7 @@ build_libcddb() {
     apply_patch file://{$top_dir}/libcddb-bootstrap.patch
     apply_patch_p1 file://${top_dir}/0002-fix-header-conflict.mingw.patch
     apply_patch_p1 file://${top_dir}/0004-hack-around-dummy-alarm.mingw.patch
-    generic_configure_make_install "ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes"
+    generic_configure_make_install "ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes CFLAGS=-O0"
   cd ..
 }
 
@@ -2085,7 +2102,7 @@ build_faac() {
 }
 
 build_atomicparsley() {
-  git clone https://github.com/evolver56k/atomicparsley.git atomicparsley
+  do_git_checkout https://github.com/evolver56k/atomicparsley.git atomicparsley
   export ac_cv_func_malloc_0_nonnull=yes
   cd atomicparsley
     rm configure
@@ -2096,9 +2113,9 @@ build_atomicparsley() {
 }
 
 build_wx() {
-  git clone https://github.com/wxWidgets/wxWidgets.git WX_3_0_BRANCH
-  cd WX_3_0_BRANCH
-    generic_configure_make_install "--enable-monolithic --with-opengl"
+  do_git_checkout https://github.com/wxWidgets/wxWidgets.git wxWidgets WX_3_0_BRANCH
+  cd wxWidgets
+    generic_configure_make_install "--with-opengl"
     # wx-config needs to be visible to this script when compiling
     cp -v ${mingw_w64_x86_64_prefix}/bin/wx-config ${mingw_w64_x86_64_prefix}/../bin/wx-config
   cd ..
@@ -2144,6 +2161,7 @@ build_libdcadec() {
 build_glew() {
   do_git_checkout https://github.com/nigels-com/glew.git glew
   cd glew
+    apply_patch file:///${top_dir}/glew-CMakeLists-txt.patch
     cpu_count=1
     do_make extensions
     export cpu_count=$original_cpu_count
@@ -2259,7 +2277,7 @@ build_libiberty() {
 build_exiv2() {
   do_svn_checkout svn://dev.exiv2.org/svn/trunk exiv2
   cd exiv2
-    apply_patch file://${top_dir}/exiv2-makernote.patch
+#    apply_patch file://${top_dir}/exiv2-makernote.patch
      cpu_count=1 # svn_version.h gets written too early otherwise
     # export LIBS="-lws2_32 -lwldap32"
      make config
@@ -2398,8 +2416,8 @@ build_regex() {
 }
 
 build_boost() { 
-  download_and_unpack_file "http://sourceforge.net/projects/boost/files/boost/1.60.0/boost_1_60_0.tar.bz2/download" boost_1_60_0
-  cd boost_1_60_0 
+  download_and_unpack_file "http://sourceforge.net/projects/boost/files/boost/1.61.0/boost_1_61_0.tar.bz2/download" boost_1_61_0
+  cd boost_1_61_0 
     local touch_name=$(get_small_touchfile_name already_configured "$configure_options $configure_name $LDFLAGS $CFLAGS") 
     if [ ! -f  "$touch_name" ]; then 
 #      ./bootstrap.sh mingw target-os=windows address-model=64 link=shared threading=multi threadapi=win32 toolset=gcc-mingw --prefix=${mingw_w64_x86_64_prefix} || exit 1
@@ -2541,8 +2559,30 @@ build_frei0r() {
     # The next patch fixes a compilation problem due to curly brackets
     apply_patch file://${top_dir}/frei0r-facedetect.cpp-brackets.patch
     # These are ALWAYS compiled as DLLs... there is no static library model in frei0r
-    do_cmake "-DOpenCV_DIR=${OpenCV_DIR} -DOpenCV_INCLUDE_DIR=${OpenCV_INCLUDE_DIR} -DCMAKE_CXX_FLAGS=-std=c++14"
+    # The facedetect filters don't work because there's something wrong in the way frei0r calls into opencv.
+    # If you want to debug this, please add -DCMAKE_BUILD_TYPE=Debug, otherwise important parameters are optimized out
+    do_cmake "-DOpenCV_DIR=${OpenCV_DIR} -DOpenCV_INCLUDE_DIR=${OpenCV_INCLUDE_DIR} -DCMAKE_CXX_FLAGS=-std=c++14 -DCMAKE_VERBOSE_MAKEFILE=YES"
     do_make_install "-j1"
+  cd ..
+}
+
+build_gobject_introspection() {
+  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/gobject-introspection/1.48/gobject-introspection-1.48.0.tar.xz gobject-introspection-1.48.0
+  cd gobject-introspection-1.48.0
+    sed -i.bak 's/PYTHON_LIBS=`\$PYTHON-config --ldflags --libs/PYTHON_LIBS=`$PYTHON-config --ldflags/'  m4/python.m4
+    generic_configure_make_install
+  cd ..
+}
+
+build_gtk() {
+  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/gtk+/3.21/gtk+-3.21.3.tar.xz gtk+-3.21.3
+  cd gtk+-3.21.3
+    # Don't attempt to run the icon updater here. It's a Windows executable.
+    apply_patch file://${top_dir}/gtk3-demos-gtk-demo-Makefile-am.patch
+    apply_patch file://${top_dir}/gtk3-demos-widget-factory-Makefile-am.patch
+    # Now regenerate autoconf and automake files
+    rm -v ./configure ./autogen.sh
+    generic_configure_make_install "--enable-win32-backend"
   cd ..
 }
 
@@ -2915,6 +2955,7 @@ build_loudness-scanner() {
     apply_patch file://${top_dir}/ebur128-CMakeLists.txt-private.patch
     sed -i.bak 's/avcodec_alloc_frame/av_frame_alloc/' scanner/inputaudio/ffmpeg/input_ffmpeg.c 
     do_cmake "-DENABLE_INTERNAL_QUEUE_H=ON"
+    sed -i.bak 's/-isystem /-I/g' scanner/scanner-tag/CMakeFiles/scanner-tag.dir/includes_CXX.rsp
     do_make "VERBOSE=1"
     do_make_install "VERBOSE=1"
     # The executable doesn't get installed
@@ -3026,8 +3067,8 @@ build_pcre() {
 }
 
 build_glib() {
-  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/glib/2.48/glib-2.48.0.tar.xz glib-2.48.0
-  cd glib-2.48.0
+  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/glib/2.49/glib-2.49.2.tar.xz glib-2.49.2
+  cd glib-2.49.2
     export glib_cv_long_long_format=I64
     export glib_cv_stack_grows=no
     # Work around mingw-w64 lacking strerror_s()
@@ -3036,6 +3077,14 @@ build_glib() {
     unset glib_cv_long_long_format
     unset glib_cv_stack_grows
   cd ..
+}
+
+build_atk() {
+  generic_download_and_install http://ftp.gnome.org/pub/GNOME/sources/atk/2.20/atk-2.20.0.tar.xz atk-2.20.0
+}
+
+build_gdk_pixbuf() {
+  generic_download_and_install http://ftp.gnome.org/pub/GNOME/sources/gdk-pixbuf/2.35/gdk-pixbuf-2.35.2.tar.xz gdk-pixbuf-2.35.2 "--with-libjasper"
 }
 
 build_libsigc++() {
@@ -3199,6 +3248,13 @@ build_pangomm() {
   export PANGOMM_LIBS="-lgobject-2.0 -lgmodule-2.0 -lglib-2.0 -lglibmm-2.4 -lgio-2.0 -lboost_system -lsigc-2.0 -lboost_thread_win32 -lboost_system -lcairo -lcairomm-1.0 -lpango-1.0 -lpangocairo-1.0"
   generic_download_and_install http://ftp.gnome.org/pub/GNOME/sources/pangomm/2.40/pangomm-2.40.0.tar.xz pangomm-2.40.0
   unset PANGOMM_LIBS
+}
+
+build_libepoxy() {
+  do_git_checkout https://github.com/anholt/libepoxy.git libepoxy
+  cd libepoxy
+    generic_configure_make_install
+  cd ..
 }
 
 build_libMXF() {
@@ -3561,6 +3617,8 @@ build_dependencies() {
   build_libxml++
   build_libcxml
   build_jasper # JPEG2000 codec for GraphicsMagick among others
+  build_atk
+  build_gdk_pixbuf
   build_vamp-sdk
   build_libsamplerate # for librubberband
   build_libbs2b
@@ -3609,6 +3667,9 @@ build_dependencies() {
 #  build_hdf
   build_netcdf
   build_libiberty
+#  build_gobject_introspection
+  build_libepoxy
+  build_gtk
   build_graphicsmagick
   build_asdcplib-cth
   build_libdcp
@@ -3809,10 +3870,12 @@ fi
 # TODO: CHECK THIS LIST WHEN ADDING NEW PACKAGES
 
 echo "Copying runtime libraries that have gone to the wrong build directory."
-wrong_libs=('icudt57.dll' 'icutu57.dll' 'icuin57.dll' 'icuio57.dll' 'icule57.dll' 'iculx57.dll' 'icutest57.dll' 'icuuc57.dll' 'libatomic-1.dll' 'libboost_chrono.dll' 'libboost_date_time.dll' 'libboost_filesystem.dll' 'libboost_prg_exec_monitor.dll' 'libboost_regex.dll' 'libboost_system.dll' 'libboost_locale.dll' 'libboost_thread_win32.dll' 'libboost_unit_test_framework.dll' 'libboost_timer.dll' 'libdcadec.dll' 'libgcc_s_seh-1.dll' 'libopendcp-asdcp.dll' 'libopendcp-lib.dll' 'libpthread.dll' 'libquadmath-0.dll' 'libssp-0.dll' 'libstdc++-6.dll' 'libvtv-0.dll' 'libvtv_stubs-0.dll' 'pthreadGC2.dll' 'wxmsw311u_gl_gcc_custom.dll' 'wxmsw311u_gcc_custom.dll' 'libebur128.dll')
-for move in "${wrong_libs[@]}"; do
+wrong_libs=('icudt57.dll' 'icutu57.dll' 'icuin57.dll' 'icuio57.dll' 'icule57.dll' 'iculx57.dll' 'icutest57.dll' 'icuuc57.dll' 'libatomic-1.dll' 'libboost_chrono.dll' 'libboost_date_time.dll' 'libboost_filesystem.dll' 'libboost_prg_exec_monitor.dll' 'libboost_regex.dll' 'libboost_system.dll' 'libboost_locale.dll' 'libboost_thread_win32.dll' 'libboost_unit_test_framework.dll' 'libboost_timer.dll' 'libdcadec.dll' 'libgcc_s_seh-1.dll' 'libopendcp-asdcp.dll' 'libopendcp-lib.dll' 'libpthread.dll' 'libquadmath-0.dll' 'libssp-0.dll' 'libstdc++-6.dll' 'pthreadGC2.dll' 'libebur128.dll')
+for move in ${wrong_libs[@]}; do
   cp -Lv "${mingw_w64_x86_64_prefix}/lib/${move}" "${mingw_w64_x86_64_prefix}/bin/${move}" || exit 1
 done
+# Also copy WxWidgets
+cp -v ${mingw_w64_x86_64_prefix}/lib/wx*dll ${mingw_w64_x86_64_prefix}/bin/ || exit 1
 echo "Runtime libraries in wrong directory now copied."
 
 # Many DLLs are put in the compiler's directory. I don't know why, but the 
