@@ -795,7 +795,7 @@ build_mlt() {
     # libavformat.dll is linked against. These we obtain by reading libavformat.pc
     # from the pkgconfig directory
     avformat_ldextra=`pkg-config --static --libs-only-l libavformat`
-    generic_configure_make_install "--enable-gpl --enable-gpl3 --target-os=mingw --target-arch=x86_64 --libdir=${mingw_w64_x86_64_prefix}/bin/lib --datadir=${mingw_w64_x86_64_prefix}/bin/share --avformat-swscale --avformat-ldextra=${avformat_ldextrahttps// /\\ \\}"
+    generic_configure_make_install "--enable-gpl --enable-gpl3 --disable-gtk2 --target-os=mingw --target-arch=x86_64 --libdir=${mingw_w64_x86_64_prefix}/bin/lib --datadir=${mingw_w64_x86_64_prefix}/bin/share --avformat-swscale --avformat-ldextra=${avformat_ldextrahttps// /\\ \\}"
     unset CXX
     unset CROSS
     unset CC
@@ -1187,11 +1187,14 @@ build_readline() {
 }
 
 build_portaudio() {
-  download_and_unpack_file http://www.portaudio.com/archives/pa_stable_v19_20140130.tgz portaudio
+#  download_and_unpack_file http://www.portaudio.com/archives/pa_stable_v19_20140130.tgz portaudio
+  do_git_checkout https://git.assembla.com/portaudio.git portaudio
   cd portaudio
+    # Code doesn't recognize mingw-w64 as a Windows platform compiler
+    apply_patch file://${top_dir}/portaudio.patch
     rm configure
-    apply_patch file://${top_dir}/portaudio-1-fixes-crlf.patch
-    generic_configure_make_install "--with-host_os=mingw --with-winapi=wasapi ac_cv_path_AR=x86_64-w64-mingw32-ar"
+  #  apply_patch file://${top_dir}/portaudio-1-fixes-crlf.patch
+    generic_configure_make_install "--disable-dependency-tracking --with-host_os=mingw --disable-cxx --with-winapi=wmme,directx,wasapi --with-dxdir=${mingw_w64_x86_64_prefix}" # ac_cv_path_AR=x86_64-w64-mingw32-ar"
   cd ..
 }
 
@@ -1204,7 +1207,7 @@ build_jack() {
       export CC=x86_64-w64-mingw32-gcc 
       export CXX=x86_64-w64-mingw32-g++ 
 #      export cpu_count=1
-      do_configure "configure --prefix=${mingw_w64_x86_64_prefix} --dist-target=mingw" "./waf"
+      do_configure "configure --prefix=${mingw_w64_x86_64_prefix} --portaudio --winmme --dist-target=mingw" "./waf"
       ./waf build || exit 1
       ./waf install || exit 1
       # The Jack development libraries are, strangely, placed into a subdirectory of lib
@@ -2083,7 +2086,7 @@ build_mpv() {
     ./bootstrap.py
     export DEST_OS=win32
     export TARGET=x86_64-w64-mingw32
-    do_configure "configure -pp --prefix=${mingw_w64_x86_64_prefix} --enable-win32-internal-pthreads --disable-x11 --disable-debug-build --enable-sdl2 --enable-libmpv-shared --disable-libmpv-static --disable-egl-angle" "./waf"
+    do_configure "configure -pp --prefix=${mingw_w64_x86_64_prefix} --enable-win32-internal-pthreads --disable-x11 --disable-debug-build --enable-sdl2 --enable-libmpv-shared --disable-libmpv-static" "./waf"
     # In this cross-compile for Windows, we keep the Python script up-to-date and therefore
     # must call it directly by its full name, because mpv can only explore for executables
     # with the .exe suffix.
@@ -2696,12 +2699,12 @@ https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl21/cl_egl.h
 #  mv libOpenCL.a ${mingw_w64_x86_64_prefix}/lib/libOpenCL.a
   cd -
   mkdir -p ${mingw_w64_x86_64_prefix}/include/EGL && cd ${mingw_w64_x86_64_prefix}/include/EGL
-    wget --no-clobber https://www.khronos.org/registry/egl/api/EGL/egl.h \
-https://www.khronos.org/registry/egl/api/EGL/eglext.h \
-https://www.khronos.org/registry/egl/api/EGL/eglplatform.h
+    wget --no-clobber https://raw.githubusercontent.com/google/angle/master/include/EGL/egl.h \
+https://raw.githubusercontent.com/google/angle/master/include/EGL/eglext.h \
+https://raw.githubusercontent.com/google/angle/master/include/EGL/eglplatform.h
   cd -
   mkdir -p ${mingw_w64_x86_64_prefix}/include/KHR && cd ${mingw_w64_x86_64_prefix}/include/KHR
-    wget --no-clobber https://www.khronos.org/registry/egl/api/KHR/khrplatform.h
+    wget --no-clobber https://raw.githubusercontent.com/google/angle/master/include/KHR/khrplatform.h
   cd -
 }
 
@@ -2916,11 +2919,13 @@ build_file() {
   # where the mingw-w64 compilers are to be found. We must also modify
   # Makefile.am because it is not written for this kind of cross-compilation.
   cd file_native
+#    apply_patch file://${top_dir}/magic_psl.patch
     do_configure "--prefix=${mingw_w64_x86_64_prefix}/.. --disable-shared --enable-static"
     do_make_install
   cd ..
   cd file
     apply_patch file://${top_dir}/file-win32.patch
+#    apply_patch file://${top_dir}/magic_psl.patch
     generic_configure_make_install "--enable-fsect-man5"
   cd ..
 }
@@ -3250,6 +3255,16 @@ build_pangomm() {
   unset PANGOMM_LIBS
 }
 
+build_qjackctl() {
+  do_git_checkout http://git.code.sf.net/p/qjackctl/code qjackctl
+  cd qjackctl
+    apply_patch file://${top_dir}/qjackctl-MainForm.patch
+    generic_configure_make_install "LIBS=-lportaudio LDFLAGS=-shared --enable-xunique=no"
+    # make install doesn't work
+    cp -vf src/release/qjackctl.exe ${mingw_w64_x86_64_prefix}/bin
+  cd ..
+}
+
 build_libepoxy() {
   do_git_checkout https://github.com/anholt/libepoxy.git libepoxy
   cd libepoxy
@@ -3444,7 +3459,7 @@ build_ffmpeg() {
 
 # --extra-cflags=$CFLAGS, though redundant, just so that FFmpeg lists what it used in its "info" output
 
-  config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --disable-doc --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-netcdf --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libschroedinger --enable-libvpx --enable-libilbc --enable-libwavpack --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts --extra-cflags=$CFLAGS" # other possibilities: --enable-w32threads --enable-libflite
+  config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --disable-doc --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-netcdf --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libschroedinger --enable-libvpx --enable-libilbc --enable-libwavpack --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --enable-d3d11va --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts --extra-cflags=$CFLAGS" # other possibilities: --enable-w32threads --enable-libflite
   if [[ "$non_free" = "y" ]]; then
     config_options="$config_options --enable-nonfree --enable-libfdk-aac --disable-libfaac --enable-decoder=aac" # To use fdk-aac in VLC, we need to change FFMPEG's default (faac), but I haven't found how to do that... So I disabled it. This could be an new option for the script? -- faac deemed too poor quality and becomes the default -- add it in and uncomment the build_faac line to include it 
     # other possible options: --enable-openssl --enable-libaacplus
@@ -3731,6 +3746,7 @@ build_apps() {
   build_dvdauthor
   build_mlt # Framework, but relies on FFmpeg, Qt, and many other libraries we've built.
   build_DJV # Requires FFmpeg libraries
+  build_qjackctl
   build_get_iplayer
   build_dcpomatic
   build_loudness-scanner
