@@ -432,6 +432,7 @@ do_cmake() {
 apply_patch() {
  local url=$1
  local patch_name=$(basename $url)
+ local patch_reverted_name="$patch_name.reverted"
  local patch_done_name="$patch_name.done"
  if [[ ! -e $patch_done_name ]]; then
    if [[ -f $patch_name ]]; then
@@ -442,9 +443,31 @@ apply_patch() {
    cat $patch_name
    patch -p0 < "$patch_name" || exit 1
    touch $patch_done_name || exit 1
+   rm -v $patch_reverted_name
    rm already_ran* # if it's a new patch, reset everything too, in case it's really really really new
  else
    echo "patch $patch_name already applied"
+ fi
+}
+
+revert_patch() {
+ local url=$1
+ local patch_name=$(basename $url)
+ local patch_reverted_name="$patch_name.reverted"
+ local patch_done_name="$patch_name.done"
+ if [[ ! -e $patch_reverted_name ]]; then
+   if [[ -f $patch_name ]]; then
+    rm $patch_name || exit 1
+   fi
+   curl $url -O || exit 1
+   echo "reverting patch $patch_name"
+   cat $patch_name
+   patch -p0 -R < "$patch_name" || exit 1
+   touch $patch_reverted_name || exit 1
+   rm -v $patch_done_name || exit 1
+   rm already_ran* # if it's a new patch, reset everything too, in case it's really really really new
+ else
+   echo "patch $patch_name already reverted"
  fi
 }
 
@@ -3259,7 +3282,7 @@ build_qjackctl() {
   do_git_checkout http://git.code.sf.net/p/qjackctl/code qjackctl
   cd qjackctl
     apply_patch file://${top_dir}/qjackctl-MainForm.patch
-    generic_configure_make_install "LIBS=-lportaudio LDFLAGS=-shared --enable-xunique=no"
+    generic_configure_make_install "LIBS=-lportaudio --enable-xunique=no"
     # make install doesn't work
     cp -vf src/release/qjackctl.exe ${mingw_w64_x86_64_prefix}/bin
   cd ..
