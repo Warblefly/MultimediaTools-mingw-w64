@@ -6,7 +6,14 @@ Scripts and patches to cross-compile, for Windows 64-bit, many multimedia utilit
 A binary package is available for download from this address:
 <a href="http://gallery.johnwarburton.net/mingw-multimedia-executables-shared.zip">http://gallery.johnwarburton.net/mingw-multimedia-executables-shared.zip</a>
 
-These binaries are for Windows 64-bit editions only, and have been tested only on Windows 10. The .zip file can be opened, and its files extracted, using Windows Explorer.
+A pair of installer files, that must be downloaded together and run as Administrator (WARNING: that's a security no-no, but this is my system
+and you're welcome to modify it): <a href="http://gallery.johnwarburton.net/install-zipfile.cmd">install-zipfile.cmd</a> and <a href="http://gallery.johnwarburton.net/install.zipfile.ps1">install-zipfile.ps1</a> assist the process.
+
+These file MUST be installed to C:\Program Files\ffmpeg\bin
+
+I am slowly writing a proper installation script.
+
+These binaries are for Windows 64-bit editions only, and have been tested only on Windows 10.
 
 Your Windows installation needs to have certain packages installed:
 
@@ -17,9 +24,9 @@ Your Windows installation needs to have certain packages installed:
 
 * The Python m3u8 module (run "pip install m3u8" from an Administrator prompt)
 
-Unpack the archive in a convenient directory on your Windows box. You will need to allow Windows Explorer to overwrite certain files where names differ in case alone, because some terminal descriptions use the same letters but in different cases e.g. 'vt100' and 'VT100'. Windows cannot distinguish between these two names because its filesystem is case-insensitive. I am, of course, working on fixing the build process so these similarly-named files do not disturb your installation.
+Use the installation scripts, above, if you wish. Read through them to determine how safe they are for your system. Otherwise, using any program that reads .zip files (including Windows Explorer), unpack the archive in the advised directory on your Windows box. If you don't use my installation script, you will need to allow Windows Explorer to overwrite certain files where names differ in case alone, because some terminal descriptions use the same letters but in different cases e.g. 'vt100' and 'VT100'. Windows cannot distinguish between these two names because its filesystem is case-insensitive. I am, of course, working on fixing the build process so these similarly-named files do not disturb your installation.
 
-A sensible place to unpack everything is C:\Program Files\ffmpeg
+Everything must go into C:\Program Files\ffmpeg
 
 The result is that you have these directories:
 * C:\Program Files\ffmpeg\bin\
@@ -40,6 +47,7 @@ You must set certain environment variables for some facilities to work properly.
 
 
 # How To Compile
+0. Compiling is becoming increasingly difficult. Source packages are constantly being updated (for which we rejoice, of course), and I am keeping up with these changes quite well. However, some changes that might break compilation go un-noticed because I only accomplish a completely clean build about once a month. Otherwise, packages such as GCC and QT-5.7 remain old. This does not affect the latest and greatest versions of ffmpeg, mpv, vim/gvim, x264, x265 and their associated libraries that are all compiled from development sources.
 1. Ensure your development requirement is adequate. Spin up a Linux Fedora image on AWS if you don't already have a GNU/Linux development environment, and give it around 50GB of space. The Qt compile is massive, for example. The t2.micro machine type (which falls within the 'Free Tier' for new customers) is sufficient but very slow. I personally use the c4.xlarge for the few hours a full compilation takes.
 2. Update to the latest Fedora (or your favourite up-to-date distribution), so you have the latest compilers and other tools.
 3. Install the pre-requisites. On Debian Testing, you can execute this command:
