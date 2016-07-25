@@ -1,0 +1,11 @@
+--- wscript_build.py.orig	2016-07-24 20:13:31.216000000 +0000
++++ wscript_build.py	2016-07-24 20:13:46.341000000 +0000
+@@ -549,7 +549,7 @@
+         ctx.install_as(ctx.env.LIBDIR + '/pkgconfig/mpv.pc', 'libmpv/mpv.pc')
+ 
+     if ctx.dependency_satisfied("vf-dlopen-filters"):
+-        dlfilters = "telecine tile rectangle framestep ildetect".split()
++        dlfilters = "telecine tile framestep ildetect".split()
+         for dlfilter in dlfilters:
+             ctx(
+                 target       = dlfilter,

@@ -84,6 +84,10 @@ fi
 if [[ "${upload_archive}" = [Yy] ]]; then
   echo "Uploading archive to ${upload_location}..."
   sshpass -p "${upload_password}" scp -v "${dump_file}" "${upload_location}"
+  # We also upload the installation command files separately.
+  echo "Uploading installation scripts to ${upload_location}..."
+  sshpass -p "${upload_password}" scp -v "install-zipfile.ps1" "install-zipfile.cmd" "${upload_location}"
+  echo "SSH uploads complete."
 fi
 
 echo "Build script finished."

@@ -38,7 +38,7 @@ yes_no_sel () {
 }
 
 check_missing_packages () {
-  local check_packages=('sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint' 'pxz' 'wget' 'zip' 'xmlto' 'gtkdocize' 'python-config')
+  local check_packages=('sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint' 'pxz' 'wget' 'zip' 'xmlto' 'gtkdocize' 'python-config' 'ant')
   for package in "${check_packages[@]}"; do
     type -P "$package" >/dev/null || missing_packages=("$package" "${missing_packages[@]}")
   done
@@ -898,6 +898,9 @@ build_opencv() {
     do_make_install
   export OpenCV_DIR=`pwd`
   export OpenCV_INCLUDE_DIR="${OpenCV_DIR}/include"
+  # Undo this patch, which often prevents updating
+#  cp -v CMakeLists.txt.orig CMakeLists.txt
+#  rm -v opencv-boost-thread.patch.done
   cd ..
   # This helps frei0r find opencv
 }
@@ -1210,37 +1213,62 @@ build_readline() {
 }
 
 build_portaudio() {
+  with_jack="$1"
 #  download_and_unpack_file http://www.portaudio.com/archives/pa_stable_v19_20140130.tgz portaudio
   do_git_checkout https://git.assembla.com/portaudio.git portaudio
   cd portaudio
     # Code doesn't recognize mingw-w64 as a Windows platform compiler
+#    apply_patch file://${top_dir}/portaudio-pa_win_wasapi.c.patch
     apply_patch file://${top_dir}/portaudio.patch
+#    apply_patch file://${top_dir}/portaudio-1-fixes-crlf.patch
+#    apply_patch file://${top_dir}/portaudio.patch
     rm configure
-  #  apply_patch file://${top_dir}/portaudio-1-fixes-crlf.patch
-    generic_configure_make_install "--disable-dependency-tracking --with-host_os=mingw --disable-cxx --with-winapi=wmme,directx,wasapi --with-dxdir=${mingw_w64_x86_64_prefix}" # ac_cv_path_AR=x86_64-w64-mingw32-ar"
+    if [ $with_jack == "withJack" ] ; then
+      rm already_configured_*
+      generic_configure_make_install "--disable-dependency-tracking --with-jack --with-host_os=mingw --disable-cxx --with-winapi=wmme,directx,wasapi --with-dxdir=${mingw_w64_x86_64_prefix}" # "ac_cv_path_AR=x86_64-w64-mingw32-ar"
+      # Lots of useful test programs
+      cp -v bin/*exe ${mingw_w64_x86_64_prefix}/bin/
+    else
+      generic_configure_make_install "--disable-dependency-tracking --with-host_os=mingw --disable-cxx --with-winapi=wmme,directx,wasapi --with-dxdir=${mingw_w64_x86_64_prefix}" # "ac_cv_path_AR=x86_64-w64-mingw32-ar"
+    fi
+    # For some reason, libportaudio.dll.a doesn't get installed
+    cp -v libs/.libs/libportaudio.dll.a ${mingw_w64_x86_64_prefix}/lib/
   cd ..
 }
 
 build_jack() {
+#  do_git_checkout git://github.com/jackaudio/jack2.git jack2
+  with_pa="$1"
   download_and_unpack_file https://dl.dropboxusercontent.com/u/28869550/jack-1.9.10.tar.bz2 jack-1.9.10
   cd jack-1.9.10
+    if [ $with_pa == "withPortaudio" ] ; then
+      ./waf distclean || exit 1
+      rm -v already_configured_*
+    fi
     if [ ! -f "jack.built" ] ; then
       apply_patch file://${top_dir}/jack-1-fixes.patch
       export AR=x86_64-w64-mingw32-ar 
       export CC=x86_64-w64-mingw32-gcc 
       export CXX=x86_64-w64-mingw32-g++ 
 #      export cpu_count=1
-      do_configure "configure --prefix=${mingw_w64_x86_64_prefix} --portaudio --winmme --dist-target=mingw" "./waf"
+      do_configure "configure --prefix=${mingw_w64_x86_64_prefix} --dist-target=mingw -ppp" "./waf"
       ./waf build || exit 1
       ./waf install || exit 1
       # The Jack development libraries are, strangely, placed into a subdirectory of lib
       echo "Placing the Jack development libraries in the expected place..."
       cp -v ${mingw_w64_x86_64_prefix}/lib/jack/*dll.a ${mingw_w64_x86_64_prefix}/lib
+      # Copy Jack's own DLL that requires registration
+      cp -v windows/Setup/src/64bits/JackRouter.dll ${mingw_w64_x86_64_prefix}/bin || exit 1
+      cp -v windows/Setup/src/64bits/JackRouter.ini ${mingw_w64_x86_64_prefix}/bin || exit 1
 #      export cpu_count=$original_cpu_count
-    else
-      echo "Jack already built."
+      # Because of what we have just done, 
+      # bizarrely, jack installs ANOTHER libportaudio over the real libportaudio DLL export library
+      # So we must replae it now.
+#      cp -v ../portaudio/libs/.libs/libportaudio.dll.a ${mingw_w64_x86_64_prefix}/lib/i
     fi
-    touch "jack.built"
+    if [ $with_pa == "withPortaudio" ] ; then
+      touch jack.built
+    fi
   cd ..
 }
 
@@ -1508,7 +1536,7 @@ build_libbluray() {
     # Overcome invalid detection of MSVC when using MinGW
     apply_patch file://${top_dir}/libudfread-udfread-c.patch
     cd ../..
-    generic_configure_make_install "--disable-bdjava"
+    generic_configure_make_install #"--disable-bdjava"
   cd ..
   sed -i.bak 's/-lbluray.*$/-lbluray -lxml2 -lws2_32/' "$PKG_CONFIG_PATH/libbluray.pc" # This is for mpv not linking against the right libraries
 #  sed -i.bak 's/-lbluray.*$/-lbluray -lfreetype -lexpat -lz -lbz2/' "$PKG_CONFIG_PATH/libbluray.pc" # not sure...is this a blu-ray bug, or VLC's problem in not pulling freetype's .pc file? or our problem with not using pkg-config --static ...
@@ -2106,10 +2134,11 @@ build_vim() {
 build_mpv() {
   do_git_checkout https://github.com/mpv-player/mpv.git mpv
   cd mpv
+    apply_patch file://${top_dir}/mpv-disable-rectangle.patch
     ./bootstrap.py
     export DEST_OS=win32
     export TARGET=x86_64-w64-mingw32
-    do_configure "configure -pp --prefix=${mingw_w64_x86_64_prefix} --enable-win32-internal-pthreads --disable-x11 --disable-debug-build --enable-sdl2 --enable-libmpv-shared --disable-libmpv-static" "./waf"
+    do_configure "configure -pp --prefix=${mingw_w64_x86_64_prefix} --enable-vf-dlopen-filters --enable-win32-internal-pthreads --disable-x11 --disable-debug-build --enable-sdl2 --enable-libmpv-shared --disable-libmpv-static" "./waf"
     # In this cross-compile for Windows, we keep the Python script up-to-date and therefore
     # must call it directly by its full name, because mpv can only explore for executables
     # with the .exe suffix.
@@ -3120,8 +3149,9 @@ build_libsigc++() {
 }
 
 build_libcxml(){
-  do_git_checkout https://github.com/cth103/libcxml.git libcxml
-  cd libcxml
+#  do_git_checkout https://github.com/cth103/libcxml.git libcxml
+  download_and_unpack_file http://carlh.net/downloads/libcxml/libcxml-0.15.1.tar.bz2 libcxml-0.15.1
+  cd libcxml-0.15.1
     export ORIG_PKG_CONFIG_PATH=$PKG_CONFIG_PATH
     export PKG_CONFIG_PATH="${mingw_w64_x86_64_prefix}/lib/pkgconfig"
     # libdir must be set
@@ -3282,7 +3312,7 @@ build_qjackctl() {
   do_git_checkout http://git.code.sf.net/p/qjackctl/code qjackctl
   cd qjackctl
     apply_patch file://${top_dir}/qjackctl-MainForm.patch
-    generic_configure_make_install "LIBS=-lportaudio --enable-xunique=no"
+    generic_configure_make_install "LIBS=-lportaudio --enable-xunique=no --enable-jack-version=yes"
     # make install doesn't work
     cp -vf src/release/qjackctl.exe ${mingw_w64_x86_64_prefix}/bin
   cd ..
@@ -3637,7 +3667,6 @@ build_dependencies() {
   build_libilbc
 #  build_icu # Needed for Qt5 / QtWebKit
   build_libmms
-  build_portaudio # for JACK
   build_flac
   if [[ -d gsm-1.0-pl13 ]]; then # this is a TERRIBLE kludge because sox mustn't see libgsm
     cd gsm-1.0-pl13
@@ -3677,7 +3706,9 @@ build_dependencies() {
   build_filewalk
   build_poppler
   build_SWFTools
-  build_jack
+  build_portaudio
+  build_jack withPortAudio
+  build_portaudio withJack
   build_opencv
   build_frei0r
   build_liba52

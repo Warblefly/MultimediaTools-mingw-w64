@@ -30,3 +30,9 @@ echo "TERMINFO=$env:ProgramFiles\ffmpeg\share\terminfo";
 [Environment]::SetEnvironmentVariable("TERMINFO", "$env:ProgramFiles\ffmpeg\share\terminfo", "User");
 echo "VIMRUNTIME=$env:ProgramFiles\ffmpeg\share\vim";
 [Environment]::SetEnvironmentVariable("VIMRUNTIME", "$env:ProgramFiles\ffmpeg\share\vim", "User");
+
+# Register Jack audio server
+echo "About to register Jack audio server..."
+Invoke-Command -ScriptBlock {Regsvr32.exe JackRouter.dll}
+echo "JackRouter.dll installed."
+
