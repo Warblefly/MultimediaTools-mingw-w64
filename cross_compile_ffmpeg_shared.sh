@@ -937,6 +937,7 @@ build_opendcp() {
 
 build_dcpomatic() {
   do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic
+#  download_and_unpack_file http://dcpomatic.com/downloads/2.9.0/dcpomatic-2.9.0.tar.bz2 dcpomatic-2.9.0
   cd dcpomatic
     apply_patch file://${top_dir}/dcpomatic-wscript.patch
 #    apply_patch file://${top_dir}/dcpomatic-src-wx-wscript.patch
@@ -948,12 +949,16 @@ build_dcpomatic() {
 #    sed -i.bak 's!wx-3\.0/wx/msw/wx\.rc!wx-3.1/wx/msw/wx.rc!' platform/windows/dcpomatic_batch.rc
 #    sed -i.bak 's!wx-3\.0/wx/msw/wx\.rc!wx-3.1/wx/msw/wx.rc!' platform/windows/dcpomatic_server.rc
 #    sed -i.bak 's!wx-3\.0/wx/msw/wx\.rc!wx-3.1/wx/msw/wx.rc!' platform/windows/dcpomatic_kdm.rc
-    export cCFLAGS="-fpermissive"
+    export CFLAGS="-fpermissive"
     do_configure "configure WINRC=x86_64-w64-mingw32-windres CXX=x86_64-w64-mingw32-g++ -v -pp --prefix=${mingw_w64_x86_64_prefix} --target-windows --check-cxx-compiler=gxx --disable-tests --enable-debug" "./waf"
     ./waf build || exit 1
     ./waf install || exit 1
     export CFLAGS="${original_cflags}"
   cd ..
+}
+
+build_gcal() {
+  generic_download_and_install http://ftp.gnu.org/gnu/gcal/gcal-4.tar.xz gcal-4
 }
 
 build_libxavs() {
@@ -1017,7 +1022,7 @@ build_libvpx() {
     download_and_unpack_file http://webm.googlecode.com/files/libvpx-v1.3.0.tar.bz2 libvpx-v1.3.0
     cd libvpx-v1.3.0
   else
-    do_git_checkout https://chromium.googlesource.com/webm/libvpx "libvpx_git" "nextgenv2"
+    do_git_checkout https://chromium.googlesource.com/webm/libvpx "libvpx_git" # "nextgenv2"
     cd libvpx_git
     apply_patch file://${top_dir}/libvpx-vp8-common-threading-h-mingw.patch
   fi
@@ -1027,7 +1032,7 @@ build_libvpx() {
   else
 #    do_configure "--extra-cflags=-DPTW32_STATIC_LIB --target=x86_64-win64-gcc --prefix=$mingw_w64_x86_64_prefix --enable-static --disable-shared --disable-unit-tests --disable-encode-perf-tests --disable-decode-perf-tests --enable-vp10 --enable-vp10-encoder --enable-vp10-decoder --enable-vp9-highbitdepth --enable-vp9-temporal-denoising --enable-postproc --enable-vp9-postproc"
     # libvpx only supports static building on MinGW platform
-    do_configure "--target=x86_64-win64-gcc --prefix=$mingw_w64_x86_64_prefix --enable-static --disable-unit-tests --disable-encode-perf-tests --disable-decode-perf-tests --enable-vp10 --enable-vp10-encoder --enable-vp10-decoder --enable-vp9-temporal-denoising --enable-postproc --enable-vp9-postproc --enable-multithread"
+    do_configure "--target=x86_64-win64-gcc --prefix=$mingw_w64_x86_64_prefix --enable-static --disable-unit-tests --disable-encode-perf-tests --disable-decode-perf-tests --enable-vp9-temporal-denoising --enable-postproc --enable-vp9-postproc --enable-multithread" # --enable-vp10 --enable-vp10-encoder --enable-vp10-decoder
   fi
   do_make_install
   # Now create the shared library
@@ -1212,65 +1217,74 @@ build_readline() {
   cd ..
 }
 
-build_portaudio() {
-  with_jack="$1"
+build_portaudio_with_jack() {
 #  download_and_unpack_file http://www.portaudio.com/archives/pa_stable_v19_20140130.tgz portaudio
-  do_git_checkout https://git.assembla.com/portaudio.git portaudio
-  cd portaudio
+  do_git_checkout https://git.assembla.com/portaudio.git portaudio_with_jack
+  cd portaudio_with_jack
     # Code doesn't recognize mingw-w64 as a Windows platform compiler
 #    apply_patch file://${top_dir}/portaudio-pa_win_wasapi.c.patch
     apply_patch file://${top_dir}/portaudio.patch
 #    apply_patch file://${top_dir}/portaudio-1-fixes-crlf.patch
 #    apply_patch file://${top_dir}/portaudio.patch
     rm configure
-    if [ $with_jack == "withJack" ] ; then
-      rm already_configured_*
-      generic_configure_make_install "--disable-dependency-tracking --with-jack --with-host_os=mingw --disable-cxx --with-winapi=wmme,directx,wasapi --with-dxdir=${mingw_w64_x86_64_prefix}" # "ac_cv_path_AR=x86_64-w64-mingw32-ar"
+    generic_configure_make_install "--disable-dependency-tracking --with-jack --with-host_os=mingw --disable-cxx --with-winapi=wmme,directx,wasapi --with-dxdir=${mingw_w64_x86_64_prefix}" # "ac_cv_path_AR=x86_64-w64-mingw32-ar"
       # Lots of useful test programs
-      cp -v bin/*exe ${mingw_w64_x86_64_prefix}/bin/
-    else
-      generic_configure_make_install "--disable-dependency-tracking --with-host_os=mingw --disable-cxx --with-winapi=wmme,directx,wasapi --with-dxdir=${mingw_w64_x86_64_prefix}" # "ac_cv_path_AR=x86_64-w64-mingw32-ar"
-    fi
+    cp -v bin/*exe ${mingw_w64_x86_64_prefix}/bin/
+    # For some reason, libportaudio.dll.a doesn't get installed
+    cp -v libs/.libs/libportaudio.dll.a ${mingw_w64_x86_64_prefix}/lib/
+  cd ..
+}
+
+build_portaudio_without_jack() {
+#  download_and_unpack_file http://www.portaudio.com/archives/pa_stable_v19_20140130.tgz portaudio
+  do_git_checkout https://git.assembla.com/portaudio.git portaudio_without_jack
+  cd portaudio_without_jack
+    # Code doesn't recognize mingw-w64 as a Windows platform compiler
+#    apply_patch file://${top_dir}/portaudio-pa_win_wasapi.c.patch
+    apply_patch file://${top_dir}/portaudio.patch
+#    apply_patch file://${top_dir}/portaudio-1-fixes-crlf.patch
+#    apply_patch file://${top_dir}/portaudio.patch
+    rm configure
+    generic_configure_make_install "--disable-dependency-tracking --without-jack --with-host_os=mingw --disable-cxx --with-winapi=wmme,directx,wasapi --with-dxdir=${mingw_w64_x86_64_prefix}" # "ac_cv_path_AR=x86_64-w64-mingw32-ar"
+      # Lots of useful test programs
+    cp -v bin/*exe ${mingw_w64_x86_64_prefix}/bin/
     # For some reason, libportaudio.dll.a doesn't get installed
     cp -v libs/.libs/libportaudio.dll.a ${mingw_w64_x86_64_prefix}/lib/
   cd ..
 }
 
 build_jack() {
-#  do_git_checkout git://github.com/jackaudio/jack2.git jack2
-  with_pa="$1"
-  download_and_unpack_file https://dl.dropboxusercontent.com/u/28869550/jack-1.9.10.tar.bz2 jack-1.9.10
-  cd jack-1.9.10
-    if [ $with_pa == "withPortaudio" ] ; then
-      ./waf distclean || exit 1
-      rm -v already_configured_*
-    fi
+  do_git_checkout git://github.com/jackaudio/jack2.git jack2
+#  download_and_unpack_file https://dl.dropboxusercontent.com/u/28869550/jack-1.9.10.tar.bz2 jack-1.9.10
+  cd jack2
     if [ ! -f "jack.built" ] ; then
-      apply_patch file://${top_dir}/jack-1-fixes.patch
+#      apply_patch file://${top_dir}/jack-1-fixes.patch
+      apply_patch file://${top_dir}/jack2-win32.patch
       export AR=x86_64-w64-mingw32-ar 
       export CC=x86_64-w64-mingw32-gcc 
       export CXX=x86_64-w64-mingw32-g++ 
 #      export cpu_count=1
-      do_configure "configure --prefix=${mingw_w64_x86_64_prefix} --dist-target=mingw -ppp" "./waf"
+      do_configure "configure --prefix=${mingw_w64_x86_64_prefix} --platform=win32 -ppp" "./waf"
       ./waf build || exit 1
       ./waf install || exit 1
+      # The Jack development libraries are now in /bin. They should be in /lib
+      cp -v $mingw_w64_x86_64_prefix/bin/libjack*.dll.a $mingw_w64_x86_64_prefix/lib/
       # The Jack development libraries are, strangely, placed into a subdirectory of lib
-      echo "Placing the Jack development libraries in the expected place..."
-      cp -v ${mingw_w64_x86_64_prefix}/lib/jack/*dll.a ${mingw_w64_x86_64_prefix}/lib
+#      echo "Placing the Jack development libraries in the expected place..."
+#      cp -v ${mingw_w64_x86_64_prefix}/lib/jack/*dll.a ${mingw_w64_x86_64_prefix}/lib
       # Copy Jack's own DLL that requires registration
-      cp -v windows/Setup/src/64bits/JackRouter.dll ${mingw_w64_x86_64_prefix}/bin || exit 1
-      cp -v windows/Setup/src/64bits/JackRouter.ini ${mingw_w64_x86_64_prefix}/bin || exit 1
+#      cp -v windows/Setup/src/64bits/JackRouter.dll ${mingw_w64_x86_64_prefix}/bin || exit 1
+#      cp -v windows/Setup/src/64bits/JackRouter.ini ${mingw_w64_x86_64_prefix}/bin || exit 1
 #      export cpu_count=$original_cpu_count
       # Because of what we have just done, 
       # bizarrely, jack installs ANOTHER libportaudio over the real libportaudio DLL export library
       # So we must replae it now.
 #      cp -v ../portaudio/libs/.libs/libportaudio.dll.a ${mingw_w64_x86_64_prefix}/lib/i
-    fi
-    if [ $with_pa == "withPortaudio" ] ; then
       touch jack.built
     fi
   cd ..
 }
+
 
 build_leptonica() {
   generic_download_and_install http://www.leptonica.com/source/leptonica-1.73.tar.gz leptonica-1.73 "LIBS=-lopenjpeg --disable-silent-rules --without-libopenjpeg"
@@ -1795,7 +1809,7 @@ build_asdcplib-cth() {
 build_libdcp() {
   # Branches are slightly askew. 1.0 is where development takes place
   do_git_checkout https://github.com/cth103/libdcp.git libdcp 1.0
-#  download_and_unpack_file http://carlh.net/downloads/libdcp/libdcp-1.3.3.tar.bz2 libdcp-1.3.3
+#  download_and_unpack_file http://carlh.net/downloads/libdcp/libdcp-1.3.4.tar.bz2 libdcp-1.3.4
   cd libdcp
     # M_PI is required. This is a quick way of defining it
     sed -i.bak 's/M_PI/3.14159265358979323846/' examples/make_dcp.cc
@@ -1803,7 +1817,7 @@ build_libdcp() {
     sed -i.bak "s/boost_lib_suffix = '-mt'/boost_lib_suffix = ''/" wscript
     sed -i.bak "s/boost_lib_suffix = '-mt'/boost_lib_suffix = ''/" test/wscript
     export CXX=x86_64-w64-mingw32-g++
-    do_configure "configure -v -pp --prefix=${mingw_w64_x86_64_prefix} --target-windows --check-cxx-compiler=gxx --disable-tests --enable-debug" "./waf" # --disable-gcov
+    do_configure "configure -v -pp --prefix=${mingw_w64_x86_64_prefix} --target-windows --check-cxx-compiler=gxx --enable-debug --disable-tests" "./waf" # --disable-gcov
     ./waf build || exit 1
     ./waf install || exit 1
     unset CXX
@@ -1814,9 +1828,9 @@ build_libdcp() {
 }
 
 build_libsub() {
-#  do_git_checkout https://github.com/cth103/libsub.git libsub 1.0
-  download_and_unpack_file http://carlh.net/downloads/libsub/libsub-1.1.13.tar.bz2 libsub-1.1.13
-  cd libsub-1.1.13
+  do_git_checkout git://git.carlh.net/git/libsub.git libsub 1.0
+#  download_and_unpack_file http://carlh.net/downloads/libsub/libsub-1.1.13.tar.bz2 libsub-1.1.13
+  cd libsub
     # include <iostream> is missing
     apply_patch file://${top_dir}/libdcp-reader.h.patch
 #    apply_patch file://${top_dir}/libdcp-sub_time.h.patch
@@ -3148,10 +3162,19 @@ build_libsigc++() {
   generic_download_and_install http://ftp.gnome.org/pub/GNOME/sources/libsigc++/2.9/libsigc++-2.9.2.tar.xz libsigc++-2.9.2
 }
 
+build_locked_sstream() {
+  do_git_checkout git://git.carlh.net/git/locked_sstream.git locked_sstream
+  cd locked_sstream
+    do_configure "configure --prefix=${mingw_w64_x86_64_prefix}" "./waf"
+    ./waf build || exit 1
+    ./waf install || exit 1
+  cd ..
+}
+
 build_libcxml(){
-#  do_git_checkout https://github.com/cth103/libcxml.git libcxml
-  download_and_unpack_file http://carlh.net/downloads/libcxml/libcxml-0.15.1.tar.bz2 libcxml-0.15.1
-  cd libcxml-0.15.1
+  do_git_checkout https://github.com/cth103/libcxml.git libcxml
+#  download_and_unpack_file http://carlh.net/downloads/libcxml/libcxml-0.15.1.tar.bz2 libcxml-0.15.1
+  cd libcxml
     export ORIG_PKG_CONFIG_PATH=$PKG_CONFIG_PATH
     export PKG_CONFIG_PATH="${mingw_w64_x86_64_prefix}/lib/pkgconfig"
     # libdir must be set
@@ -3572,6 +3595,7 @@ build_dependencies() {
   build_pkg-config # because MPV likes to see a mingw version of pkg-config
   build_iconv # Because Cygwin's iconv is buggy, and loops on certain character set conversions
   build_libffi # for glib among others
+  build_locked_sstream # for dcp-o-matic dcpomatic
   build_doxygen
   build_libdlfcn # ffmpeg's frei0r implentation needs this <sigh>
   build_zlib # rtmp depends on it [as well as ffmpeg's optional but handy --enable-zlib]
@@ -3706,9 +3730,9 @@ build_dependencies() {
   build_filewalk
   build_poppler
   build_SWFTools
-  build_portaudio
-  build_jack withPortAudio
-  build_portaudio withJack
+  build_portaudio_without_jack
+  build_jack
+  build_portaudio_with_jack
   build_opencv
   build_frei0r
   build_liba52
@@ -3751,6 +3775,7 @@ build_apps() {
 #  build_coreutils
   build_file
   build_exif
+  build_gcal
   build_opustools
   build_curl # Needed for mediainfo to read Internet streams or file, also can get RTMP streamss
   build_gdb # Really useful, and the correct version for Windows executables

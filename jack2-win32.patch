@@ -1,0 +1,89 @@
+--- wscript.orig	2016-07-26 14:56:43.586000000 +0000
++++ wscript	2016-07-26 15:00:58.355000000 +0000
+@@ -845,27 +845,31 @@
+     create_driver_obj(
+         bld,
+         target = 'dummy',
++        use = ['serverlib'],
+         source = dummy_src)
+ 
+     create_driver_obj(
+         bld,
+         target = 'loopback',
++        use = ['serverlib'],
+         source = loopback_src)
+ 
+     create_driver_obj(
+         bld,
+         target = 'net',
++        use = ['serverlib'],
+         source = net_src)
+ 
+     create_driver_obj(
+         bld,
+         target = 'netone',
+         source = netone_src,
+-        use = ['SAMPLERATE', 'CELT'])
++        use = ['serverlib', 'SAMPLERATE', 'CELT'])
+ 
+     create_driver_obj(
+         bld,
+         target = 'proxy',
++        use = ['serverlib'],
+         source = proxy_src)
+ 
+     # Create hardware driver objects. Lexically sorted after the conditional,
+--- common/JackProxyDriver.cpp.orig	2016-07-26 15:03:27.664000000 +0000
++++ common/JackProxyDriver.cpp	2016-07-26 15:53:56.958000000 +0000
+@@ -24,6 +24,23 @@
+ #include "JackWaitCallbackDriver.h"
+ #include "JackProxyDriver.h"
+ 
++#if _WIN32
++inline int setenv(const char* name, const char* value, int) {
++    static const char* const kFakeZero = "0";
++    if (*value == '\0')
++        value = kFakeZero;
++    const size_t nameval_len = strlen(name) + 1 + strlen(value) + 1;
++    char* nameval = reinterpret_cast<char*>(malloc(nameval_len));
++//    snprintf(nameval, nameval_len, "%s=%s", name, value);
++    _putenv(nameval);
++    if (value == kFakeZero) {
++        nameval[nameval_len - 2] = '\0';   // works when putenv() makes no copy
++        if (*getenv(name) != '\0')
++            *getenv(name) = '\0';            // works when putenv() copies nameval
++    }
++}
++#endif
++
+ using namespace std;
+ 
+ namespace Jack
+@@ -174,7 +191,11 @@
+                     }
+                     free(old);
+                 } else {
++#if _WIN32
++                    setenv("JACK_PROMISCUOUS_SERVER", "", 1);
++#else
+                     unsetenv("JACK_PROMISCUOUS_SERVER");
++#endif
+                 }
+             }
+ 
+--- wscript.orig	2016-07-26 21:57:29.336000000 +0000
++++ wscript	2016-07-26 22:02:46.157000000 +0000
+@@ -816,6 +816,13 @@
+         'linux/firewire/JackFFADOMidiSendQueue.cpp'
+     ]
+ 
++    winmme_src = [
++        'windows/winmme/JackWinMMEDriver.cpp',
++        'windows/winmme/JackWinMMEInputPort.cpp',
++        'windows/winmme/JackWinMMEOutputPort.cpp',
++        'windows/winmme/JackWinMMEPort.cpp'
++    ]
++
+     freebob_src = [
+         'linux/freebob/JackFreebobDriver.cpp'
+     ]
