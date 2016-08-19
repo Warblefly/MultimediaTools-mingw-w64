@@ -1,0 +1,14 @@
+--- configure.in.orig	2009-10-17 19:35:03 +0200
++++ configure.in	2011-01-27 20:04:37 +0100
+@@ -2523,7 +2523,10 @@
+         SOURCES="$SOURCES $srcdir/src/main/win32/*.rc"
+         SDLMAIN_SOURCES="$srcdir/src/main/win32/*.c"
+         SDL_CFLAGS="$SDL_CFLAGS -Dmain=SDL_main"
+-        SDL_LIBS="-lmingw32 -lSDLmain $SDL_LIBS -mwindows"
++        SDL_LIBS="-lmingw32 -lSDLmain $SDL_LIBS -lgdi32 -lwinmm"
++        if test x$enable_stdio_redirect = xyes; then
++            SDL_LIBS="$SDL_LIBS -mwindows"
++        fi
+         ;;
+     *-wince*)
+         ARCH=win32

@@ -1,0 +1,84 @@
+--- libdv/Makefile.am.orig	2016-08-19 19:50:27.131000000 +0000
++++ libdv/Makefile.am	2016-08-19 19:50:54.443000000 +0000
+@@ -1,18 +1,18 @@
+ 
+ MAINTAINERCLEANFILES      = Makefile.in $(AUX_DIST)
+ 
+-CLEANFILES                = asmoff.h 
++CLEANFILES                = # asmoff.h 
+ 
+ LIBTOOL = $(SHELL) $(top_builddir)/libtool --silent
+ 
+ lib_LTLIBRARIES= libdv.la
+ 
+ if HOST_X86
+-GASMOFF=gasmoff
++GASMOFF=#gasmoff
+ endif # HOST_X86
+ 
+ if HOST_X86_64
+-GASMOFF=gasmoff
++GASMOFF=#gasmoff
+ endif # HOST_X86_64
+ 
+ 
+@@ -23,12 +23,12 @@
+ #
+ if HOST_X86
+ 
+-BUILT_SOURCES = asmoff.h
++#BUILT_SOURCES = asmoff.h
+ 
+ libdv_la_ASMS= vlc_x86.S quant_x86.S idct_block_mmx.S dct_block_mmx.S rgbtoyuv.S encode_x86.S transpose_x86.S
+ libdv_la_ASM_HS=asmoff.h  mmx.h 
+ 
+-gasmoff_SOURCES= gasmoff.c bitstream.h 
++#gasmoff_SOURCES= gasmoff.c bitstream.h 
+ 
+ endif # HOST_X86
+ 
+@@ -37,12 +37,12 @@
+ #
+ if HOST_X86_64
+ 
+-BUILT_SOURCES = asmoff.h
++#BUILT_SOURCES = asmoff.h
+ 
+ libdv_la_ASMS= vlc_x86_64.S quant_x86_64.S idct_block_mmx_x86_64.S dct_block_mmx_x86_64.S rgbtoyuv_x86_64.S encode_x86_64.S transpose_x86_64.S
+ libdv_la_ASM_HS=asmoff.h  mmx.h
+ 
+-gasmoff_SOURCES= gasmoff.c bitstream.h
++#gasmoff_SOURCES= gasmoff.c bitstream.h
+ 
+ endif # HOST_X86_64
+ 
+@@ -59,7 +59,7 @@
+         encode.c headers.c enc_input.c enc_audio_input.c enc_output.c \
+ 	$(libdv_la_ASMS)
+ 
+-libdv_la_LDFLAGS = -version-info 4:3:0
++libdv_la_LDFLAGS = -no-undefined -version-info 4:3:0
+ 
+ dovlc_SOURCES= dovlc.c 
+ dovlc_LDADD= libdv.la
+@@ -84,8 +84,8 @@
+ # Automake doesn't do dependency tracking for asm
+ quant_x86.lo vlc_x86.lo: asmoff.h
+ 
+-asmoff.h: gasmoff
+-	./gasmoff > asmoff.h
++#asmoff.h: gasmoff
++#	./gasmoff > asmoff.h
+ 
+ endif
+ 
+@@ -94,7 +94,7 @@
+ # Automake doesn't do dependency tracking for asm
+ quant_x86_64.lo vlc_x86_64.lo: asmoff.h
+ 
+-asmoff.h: gasmoff
+-	./gasmoff > asmoff.h
++#asmoff.h: gasmoff
++#	./gasmoff > asmoff.h
+ 
+ endif

@@ -1,0 +1,737 @@
+Index: y4mutils/y4mtoqt.c
+===================================================================
+--- y4mutils/y4mtoqt.c	(revision 1)
++++ y4mutils/y4mtoqt.c	(working copy)
+@@ -83,7 +83,7 @@
+ 
+ 	if	(audiofilename)
+ 		{
+-		afd = open(audiofilename, O_RDONLY);
++		afd = open(audiofilename, O_RDONLY|O_BINARY);
+ 		if	(afd < 0)
+ 			mjpeg_error_exit1("Can not open audio file '%s'", 
+ 						audiofilename);
+Index: y4mutils/qttoy4m.c
+===================================================================
+--- y4mutils/qttoy4m.c	(revision 1)
++++ y4mutils/qttoy4m.c	(working copy)
+@@ -136,7 +136,7 @@
+ 		{
+ 		if	(quicktime_audio_tracks(file) < atrack)
+ 			mjpeg_warn("No audio track %d in file\n", atrack);
+-		else if	((audio_fp = fopen(audiofile, "w")) == NULL)
++		else if	((audio_fp = fopen(audiofile, "wb")) == NULL)
+ 			mjpeg_warn("fopen(%s,w) failed\n", audiofile);
+ 		}
+ 
+Index: configure.ac
+===================================================================
+--- configure.ac	(revision 1)
++++ configure.ac	(working copy)
+@@ -198,6 +198,26 @@
+ AC_CHECK_FUNC(pthread_attr_getstacksize,
+               [AC_DEFINE(HAVE_PTHREADSTACKSIZE, 1,
+                          [pthread stack sizes accesible])])
++
++AC_MSG_CHECKING([whether pthreads work])
++AC_TRY_LINK(
++  [#include <pthread.h>],
++  [pthread_attr_init(0);],
++  [AC_MSG_RESULT([yes])],
++  [ AC_MSG_RESULT([no])
++    AC_MSG_CHECKING([whether pthreads work with -lpthread -lwsock32])
++    LIBS="$oldLIBS -lpthread -lwsock32"
++    oldCFLAGS="$CFLAGS"
++    CFLAGS="$CFLAGS -DPTW32_STATIC_LIB"
++    oldCXXFLAGS="$CXXFLAGS"
++    CXXFLAGS="$CXXFLAGS -DPTW32_STATIC_LIB"
++    AC_TRY_LINK(
++      [#include <pthread.h>],
++      [pthread_attr_init(0);],
++      [ AC_MSG_RESULT([yes])
++        PTHREAD_LIBS="-lpthread -lwsock32"],
++      [ AC_MSG_RESULT([no])
++        AC_MSG_ERROR([pthreads not working])])])
+ LIBS="$oldLIBS"
+ 
+ AC_CHECK_LIB(jpeg, jpeg_start_compress,
+@@ -310,6 +330,20 @@
+ AM_CONDITIONAL(HAVE_SDL, test x$have_sdl = xtrue)			  
+ 
+ dnl ********************************************************************
++dnl Check if SDL library needs X11
++dnl ********************************************************************
++sdl_needs_x11=false
++if test x$have_sdl = xtrue; then
++  sdl_needs_x11=false
++  case $host in
++    *-*-mingw*)
++      sdl_needs_x11=false
++      ;;
++  esac
++fi
++AM_CONDITIONAL(SDL_NEEDS_X11, test x$sdl_needs_x11 = xtrue)
++
++dnl ********************************************************************
+ dnl Check for SDL_gfx which is used by y4mhist to display a graphical 
+ dnl histogram.
+ dnl ********************************************************************
+@@ -459,27 +493,33 @@
+ dnl correctly is complex and lengthy (about as long as the entire configure.ac
+ dnl file).
+ 
+-if test x$have_x86cpu = xtrue -o x$have_ppccpu = xtrue; then
+-  if test x$host_alias != x; then
+-    dnl This is to allow cross compiling
+-    AC_MSG_CHECKING(sub-architecture settings)
+-    if test x$have_x86cpu = xtrue; then
+-       host_mod_cpu=`echo $host_cpu | tr _ -`
+-       ARCHFLAGS="-march=$host_mod_cpu -mcpu=$host_mod_cpu"
++AC_ARG_ENABLE(arch-detect,     
++              AC_HELP_STRING([--disable-arch-detect],
++                             [Do not detect architecture CPU]))
++
++if test "x$enable_arch_detect" != "xno" ; then
++  if test x$have_x86cpu = xtrue -o x$have_ppccpu = xtrue; then
++    if test x$host_alias != x; then
++      dnl This is to allow cross compiling
++      AC_MSG_CHECKING(sub-architecture settings)
++      if test x$have_x86cpu = xtrue; then
++         host_mod_cpu=`echo $host_cpu | tr _ -`
++         ARCHFLAGS="-march=$host_mod_cpu -mcpu=$host_mod_cpu"
++      fi
++    else
++      if test ! -r $srcdir/cpuinfo.sh; then
++         AC_MSG_ERROR([cpuinfo.sh script not found - do a cvs update])
++      fi
++      AC_MSG_CHECKING(sub-architecture settings)
++      chmod +x $srcdir/cpuinfo.sh
++      if test x$have_x86cpu = xtrue; then
++         ARCHFLAGS=`$srcdir/cpuinfo.sh x86`
++      elif test x$have_ppccpu = xtrue; then
++         ARCHFLAGS=`$srcdir/cpuinfo.sh ppc`
++      fi
+     fi
+-  else
+-    if test ! -r $srcdir/cpuinfo.sh; then
+-       AC_MSG_ERROR([cpuinfo.sh script not found - do a cvs update])
+-    fi
+-    AC_MSG_CHECKING(sub-architecture settings)
+-    chmod +x $srcdir/cpuinfo.sh
+-    if test x$have_x86cpu = xtrue; then
+-       ARCHFLAGS=`$srcdir/cpuinfo.sh x86`
+-    elif test x$have_ppccpu = xtrue; then
+-       ARCHFLAGS=`$srcdir/cpuinfo.sh ppc`
+-    fi
++    AC_MSG_RESULT($ARCHFLAGS)
+   fi
+-  AC_MSG_RESULT($ARCHFLAGS)
+ fi
+ 
+ dnl **********************************************************************
+Index: yuvcorrect/yuvcorrect_tune.c
+===================================================================
+--- yuvcorrect/yuvcorrect_tune.c	(revision 1)
++++ yuvcorrect/yuvcorrect_tune.c	(working copy)
+@@ -145,12 +145,12 @@
+ 	switch (c)
+ 	  {
+ 	   case 'I':
+-	     if ((overall->ImgFrame=open(optarg,O_RDONLY))==-1)
++	     if ((overall->ImgFrame=open(optarg,O_RDONLY|O_BINARY))==-1)
+ 	       mjpeg_error_exit1("Unable to open %s!!",optarg);
+ 	     break;
+ 
+ 	   case 'F':
+-	     if ((overall->RefFrame=open(optarg,O_RDONLY))==-1)
++	     if ((overall->RefFrame=open(optarg,O_RDONLY|O_BINARY))==-1)
+ 	       mjpeg_error_exit1("Unable to open %s!!",optarg);
+ 	     break;
+ 
+Index: cpuinfo.sh
+===================================================================
+--- cpuinfo.sh	(revision 1)
++++ cpuinfo.sh	(working copy)
+@@ -67,7 +67,7 @@
+ if test -r /proc/cpuinfo; then
+ 	_cpuinfo="cat /proc/cpuinfo"
+ else
+-	$CC $CFLAGS -o cpuinfo utils/cpuinfo.c
++	$CC $CFLAGS -o cpuinfo `expr "$0" : '\(^.*\/\)'`utils/cpuinfo.c
+ 	_cpuinfo="./cpuinfo"
+ fi
+ 
+Index: mpeg2enc/mpeg2enc.cc
+===================================================================
+--- mpeg2enc/mpeg2enc.cc	(revision 1)
++++ mpeg2enc/mpeg2enc.cc	(working copy)
+@@ -1013,7 +1013,7 @@
+ {
+     if( optind == argc-1 )
+     {
+-        istrm_fd = open( argv[optind], O_RDONLY );
++        istrm_fd = open( argv[optind], O_RDONLY|O_BINARY );
+         if( istrm_fd < 0 )
+         {
+             mjpeg_error( "Unable to open: %s: ",argv[optind] );
+Index: mpeg2enc/quantize_ref.c
+===================================================================
+--- mpeg2enc/quantize_ref.c	(revision 1)
++++ mpeg2enc/quantize_ref.c	(working copy)
+@@ -517,7 +517,7 @@
+ 
+ void shutdown_quantizer(struct QuantizerWorkSpace *workspace)
+ {
+-    free(workspace);
++    buffree(workspace);
+ }
+ 
+ /* 
+Index: lavtools/liblavplay.c
+===================================================================
+--- lavtools/liblavplay.c	(revision 1)
++++ lavtools/liblavplay.c	(working copy)
+@@ -37,11 +37,15 @@
+ #include <errno.h>
+ #include <sys/types.h>
+ #include <sys/stat.h>
++#ifndef __MINGW32__
+ #include <sys/ioctl.h>
+ #include <sys/mman.h>
++#endif
+ #include <sys/time.h>
++#ifndef __MINGW32__
+ #include <sys/resource.h>
+ #include <sys/wait.h>
++#endif
+ #ifdef HAVE_V4L
+ #include <sys/vfs.h>
+ #endif
+@@ -1669,6 +1673,7 @@
+       settings->audio_buffer_size = audio_get_buffer_size();
+    }
+ 
++#ifndef __MINGW32__
+    /* After we have fired up the audio and video threads system (which
+     * are assisted if we're installed setuid root, we want to set the
+     * effective user id to the real user id
+@@ -1679,6 +1684,7 @@
+          "Can't set effective user-id: %s", strerror(errno));
+       return 0;
+    }
++#endif
+ 
+    /* Fill all buffers first */
+    for(nqueue=0;nqueue<settings->br.count;nqueue++)
+Index: lavtools/y4mstabilizer.c
+===================================================================
+--- lavtools/y4mstabilizer.c	(revision 1)
++++ lavtools/y4mstabilizer.c	(working copy)
+@@ -58,6 +58,10 @@
+ #include "yuv4mpeg.h"
+ #include "subsample.h"
+ 
++#ifdef __MINGW32__
++#define bzero(a,b) memset((a),0,(b))
++#endif
++
+ struct
+     {
+     int		verbose;	/* Talkative flag */
+Index: lavtools/avilib.c
+===================================================================
+--- lavtools/avilib.c	(revision 1)
++++ lavtools/avilib.c	(working copy)
+@@ -2037,7 +2037,7 @@
+   
+   /* Open the file */
+   
+-  AVI->fdes = open(filename,O_RDONLY);
++  AVI->fdes = open(filename,O_RDONLY|O_BINARY);
+   if(AVI->fdes < 0)
+     {
+       AVI_errno = AVI_ERR_OPEN;
+@@ -2289,6 +2289,7 @@
+          if(AVI->idx==0) ERR_EXIT(AVI_ERR_NO_MEM)
+          if(avi_read(AVI->fdes, (char *) AVI->idx, n) != n ) {
+ 	     free ( AVI->idx); AVI->idx=NULL;
++	     AVI->max_idx = 0;
+ 	     AVI->n_idx = 0;
+ 	 }
+       }
+Index: lavtools/yuv2lav.c
+===================================================================
+--- lavtools/yuv2lav.c	(revision 1)
++++ lavtools/yuv2lav.c	(working copy)
+@@ -270,7 +270,7 @@
+ 
+    if (param_inputwav != NULL)
+    {
+-	   wav_fd = open(param_inputwav,O_RDONLY);
++	   wav_fd = open(param_inputwav,O_RDONLY|O_BINARY);
+ 	   if(wav_fd<0) { mjpeg_error_exit1("Open WAV file: %s", strerror(errno));}
+ 
+ 	   n = read(wav_fd,(char*)data,20);
+Index: lavtools/audiolib.c
+===================================================================
+--- lavtools/audiolib.c	(revision 1)
++++ lavtools/audiolib.c	(working copy)
+@@ -44,16 +44,22 @@
+ #endif
+ 
+ #include <sys/time.h>
++#ifndef __MINGW32__
+ #include <sys/resource.h>
+ #include <sys/mman.h>
++#endif
+ #include <sys/types.h>
++#ifndef __MINGW32__
+ #include <sys/wait.h>
+ #include <sys/ioctl.h>
++#endif
+ 
+ /* The shared memory things */
+ 
++#ifndef __MINGW32__
+ #include <sys/ipc.h>
+ #include <sys/shm.h>
++#endif
+ 
+ #ifndef FORK_NOT_THREAD
+ #include <pthread.h>
+Index: lavtools/lavplay.c
+===================================================================
+--- lavtools/lavplay.c	(revision 1)
++++ lavtools/lavplay.c	(working copy)
+@@ -151,6 +151,10 @@
+ #include <SDL.h>
+ #endif
+ 
++#ifdef __MINGW32__
++#define fcntl(a,b,c) ((void)0)
++#endif
++
+ #define LAVPLAY_VSTR "lavplay" VERSION  /* Expected version info */
+ 
+ static lavplay_t *info;
+Index: lavtools/editlist.c
+===================================================================
+--- lavtools/editlist.c	(revision 1)
++++ lavtools/editlist.c	(working copy)
+@@ -26,7 +26,18 @@
+ #include "editlist.h"
+ #include <math.h>
+ 
++#ifdef __MINGW32__
++#define realpath(a,b) \
++  ({ \
++   char *__orig_path = (a); \
++   char *__res_path = (b); \
++   if( __orig_path && __res_path ) strcpy( __res_path,__orig_path ); \
++   else __res_path = NULL; \
++   __res_path; \
++   })
++#endif
+ 
++
+ /* Since we use malloc often, here the error handling */
+ 
+ static void malloc_error(void)
+Index: lavtools/lavpipe.c
+===================================================================
+--- lavtools/lavpipe.c	(revision 1)
++++ lavtools/lavpipe.c	(working copy)
+@@ -38,6 +38,11 @@
+ #include "mjpeg_logging.h"
+ #include "pipelist.h"
+ #include "yuv4mpeg.h"
++ 
++#ifdef __MINGW32__
++#include <windows.h>
++#define kill(a,b) TerminateProcess((HANDLE)(a),3)
++#endif
+ 
+ static void usage(void)
+ {
+@@ -78,7 +83,7 @@
+   }
+ 
+  END_OF_LINE:
+-  argv = malloc(argc+1 * sizeof(argv[0]));
++  argv = malloc((argc+1) * sizeof(argv[0]));
+ 
+   for (p = cmdline, i=0; i < argc; i++) {
+     argv[i] = p;
+@@ -92,6 +97,7 @@
+   return argv;
+ }
+ 
++#ifndef __MINGW32__
+ static 
+ pid_t fork_child_sub(char *command, int *fd_in, int *fd_out)
+ {
+@@ -146,8 +152,63 @@
+     return pid;
+   }
+ }
++#else
++static
++pid_t fork_child_sub(char *command, int *fd_in, int *fd_out)
++{
++  int inPipes[2],fdInPipe=0;
++  int outPipes[2],fdOutPipe=0;
++  char **myargv,*dup;
++  pid_t pid;
+ 
++  if( fd_in )
++  {
++    if( _pipe(inPipes,512,_O_BINARY|_O_NOINHERIT)==-1 )
++      mjpeg_error_exit1( "Couldn't create input pipe from %s", command);
++    fdInPipe = _dup( _fileno(stdout) );
++    if( _dup2(inPipes[1],_fileno(stdout))!=0 ) exit( 1 );
++    close( inPipes[1] );
++  }
+ 
++  if( fd_out )
++  {
++    if( _pipe(outPipes,512,_O_BINARY|_O_NOINHERIT)==-1 )
++      mjpeg_error_exit1( "Couldn't create output pipe to %s", command);
++    fdOutPipe = _dup( _fileno(stdin) );
++    if( _dup2(outPipes[0],_fileno(stdin))!=0 ) exit( 1 );
++    close( outPipes[0] );
++  }
++
++  dup = strdup( command );
++  myargv = parse_spawn_command( dup );
++  pid = (pid_t)_spawnvp( P_NOWAIT,myargv[0],(const char **)myargv );
++  if( pid<=0 )
++  {
++    int i;
++    for( i=0; myargv[i]; i++ ) fprintf( stderr,"arg[%d]: '%s'\n",i,myargv[i] );
++    mjpeg_error_exit1("Couldn't fork %s", dup);
++  }
++  free( myargv );
++
++  if( fd_in )
++  {
++    if( _dup2(fdInPipe,_fileno(stdout))!=0 ) exit( 1 );
++    close( fdInPipe );
++    *fd_in = inPipes[0];
++  }
++
++  if( fd_out )
++  {
++    if( _dup2(fdOutPipe,_fileno(stdin))!=0 ) exit( 1 );
++    close( fdOutPipe );
++    *fd_out = outPipes[1];
++  }
++
++  return( pid );
++}
++#endif
++
++
+ static pid_t fork_child(const char *command,
+ 			int offset, int num,
+ 			int *fd_in, int *fd_out)
+Index: lavtools/lavaddwav.c
+===================================================================
+--- lavtools/lavaddwav.c	(revision 1)
++++ lavtools/lavaddwav.c	(working copy)
+@@ -792,7 +792,7 @@
+   off_t cur_off = 0;
+   off_t cur_end = 0;
+ 
+-  *wav_fd = open(chWavFile, O_RDONLY);
++  *wav_fd = open(chWavFile, O_RDONLY|O_BINARY);
+   if( *wav_fd < 0 )
+   {
+     mjpeg_error("Error opening WAV file %s :%s", chWavFile, strerror(errno));
+Index: lavtools/lav_io.c
+===================================================================
+--- lavtools/lav_io.c	(revision 1)
++++ lavtools/lav_io.c	(working copy)
+@@ -303,7 +303,7 @@
+         strcpy(tempfile, filename);
+         strcat(tempfile, TMP_EXTENSION);
+         lav_fd->jpeg_filename = strdup(filename);
+-        lav_fd->jpeg_fd = open(tempfile, O_CREAT | O_TRUNC | O_WRONLY, 0644);
++        lav_fd->jpeg_fd = open(tempfile, O_CREAT | O_TRUNC | O_WRONLY | O_BINARY, 0644);
+ 	free(tempfile);
+         return lav_fd;
+ 
+Index: lavtools/Makefile.am
+===================================================================
+--- lavtools/Makefile.am	(revision 1)
++++ lavtools/Makefile.am	(working copy)
+@@ -58,7 +58,7 @@
+ liblavplay_la_CPPFLAGS = $(AM_CPPFLAGS) $(LIBDV_CFLAGS) $(X_CFLAGS) $(SDL_CFLAGS)
+ liblavplay_la_LDFLAGS = $(LAV_ALL_LIB_OPTS)
+ liblavplay_la_LIBADD = liblavfile.la $(SDL_LIBS) liblavjpeg.la $(LIBDV_LIBS) $(LIBMJPEGUTILS)
+-if HAVE_SDL
++if SDL_NEEDS_X11
+    liblavplay_la_LIBADD += ${X_LIBS} -lX11
+ endif
+ liblavplay_la_DEPENDENCIES = liblavfile.la liblavjpeg.la
+@@ -174,7 +174,7 @@
+ 
+ yuvplay_SOURCES = yuvplay.c
+ yuvplay_CPPFLAGS = $(AM_CPPFLAGS) $(SDL_CFLAGS)
+-yuvplay_LDADD = $(SDL_LIBS) $(LIBMJPEGUTILS)
++yuvplay_LDADD = $(LIBMJPEGUTILS) $(SDL_LIBS)
+ 
+ ppmtoy4m_SOURCES = ppmtoy4m.c colorspace.c subsample.c
+ ppmtoy4m_LDADD = $(LIBMJPEGUTILS)
+Index: y4mdenoise/SearchBorder.hh
+===================================================================
+--- y4mdenoise/SearchBorder.hh	(revision 1)
++++ y4mdenoise/SearchBorder.hh	(working copy)
+@@ -21,8 +21,12 @@
+ // HACK: for development error messages.
+ #include <stdio.h>
+ 
++#ifdef __MINGW32__
++#include <malloc.h>
++#endif
+ 
+ 
++
+ // Define this to print region unions/subtractions.
+ #ifdef DEBUG_REGION2D
+ //	#define PRINTREGIONMATH
+Index: y4mdenoise/BitmapRegion2D.hh
+===================================================================
+--- y4mdenoise/BitmapRegion2D.hh	(revision 1)
++++ y4mdenoise/BitmapRegion2D.hh	(working copy)
+@@ -1294,7 +1294,7 @@
+ 
+ 	// Look for the next set bit in the current word.
+ 	assert (nWord != 0U);
+-	#if 0
++	#if 1
+ 	tnBitIndex = FindFirstSetBit (nWord, tnBitIndex);
+ 	#else
+ 	tnBitIndex = ffs (nWord) - 1;
+@@ -1340,7 +1340,7 @@
+ 
+ 	// Look for the next clear bit in the current word.
+ 	assert (nWord != (~0U));
+-	#if 0
++	#if 1
+ 	tnBitIndex = FindFirstClearBit (nWord, tnBitIndex);
+ 	#else
+ 	nWord |= ~((~0U) << tnBitIndex);
+Index: y4mdenoise/main.c
+===================================================================
+--- y4mdenoise/main.c	(revision 1)
++++ y4mdenoise/main.c	(working copy)
+@@ -40,6 +40,8 @@
+  *                                                         *
+  ***********************************************************/
+ 
++#define errno errno_int
++
+ int main(int argc, char *argv[])
+ {
+   int fd_in  = 0;
+Index: y4mdenoise/Makefile.am
+===================================================================
+--- y4mdenoise/Makefile.am	(revision 1)
++++ y4mdenoise/Makefile.am	(working copy)
+@@ -41,4 +41,4 @@
+ regiontest_SOURCES = regiontest.cc
+ 
+ y4mdenoise_SOURCES = main.c newdenoise.cc
+-y4mdenoise_LDADD = $(LIBMJPEGUTILS)
++y4mdenoise_LDADD = $(LIBMJPEGUTILS) @PTHREAD_LIBS@
+Index: yuvdeinterlace/yuvdeinterlace.cc
+===================================================================
+--- yuvdeinterlace/yuvdeinterlace.cc	(revision 1)
++++ yuvdeinterlace/yuvdeinterlace.cc	(working copy)
+@@ -914,6 +914,8 @@
+ 
+ }
+ 
++#define errno errno_int
++
+ int
+ main (int argc, char *argv[])
+ {
+Index: utils/cpu_accel.c
+===================================================================
+--- utils/cpu_accel.c	(revision 1)
++++ utils/cpu_accel.c	(working copy)
+@@ -83,6 +83,7 @@
+    illegal instruction errors.
+ */
+ 
++#ifndef __MINGW32__
+ static sigjmp_buf sigill_recover;
+ 
+ static RETSIGTYPE sigillhandler(int sig )
+@@ -91,11 +92,12 @@
+ }
+ 
+ typedef RETSIGTYPE (*__sig_t)(int);
++#endif
+ 
+ static int testsseill()
+ {
+ 	int illegal;
+-#if defined(__CYGWIN__)
++#if defined(__CYGWIN__) || defined(__MINGW32__)
+ 	/* SSE causes a crash on CYGWIN, apparently.
+ 	   Perhaps the wrong signal is being caught or something along
+ 	   those line ;-) or maybe SSE itself won't work...
+@@ -124,7 +126,7 @@
+ 	/* Slightly weirdified cpuid that preserves the ebx and edi required
+ 	   by gcc for PIC offset table and frame pointer */
+ 
+-#if defined(__LP64__) || defined(_LP64)
++#if defined(__LP64__) || defined(_LP64) || defined(WIN64)
+ #  define REG_b "rbx"
+ #  define REG_S "rsi"
+ #else
+@@ -144,6 +146,7 @@
+ 	 : "a" (op)			\
+ 	 : "cc", "edi")
+ 
++#ifndef WIN64
+     asm ("pushf\n\t"
+ 	 "pop %0\n\t"
+ 	 "mov %0,%1\n\t"
+@@ -160,6 +163,7 @@
+ 
+     if (eax == ecx)		// no cpuid
+ 	return 0;
++#endif
+ 
+     cpuid (0x00000000, eax, ebx, ecx, edx);
+     if (!eax)			// vendor string only
+@@ -351,20 +355,23 @@
+ {
+ 	static size_t simd_alignment = 16;
+ 	static int bufalloc_init = 0;
++#ifndef __MINGW32__
+ 	int  pgsize;
++#endif
+ 	void *buf = NULL;
+ 
++#ifdef HAVE_X86CPU
+ 	if( !bufalloc_init )
+ 	{
+-#ifdef HAVE_X86CPU 
+ 		if( (cpu_accel() &  (ACCEL_X86_SSE|ACCEL_X86_3DNOW)) != 0 )
+ 		{
+ 			simd_alignment = 64;
+-			bufalloc_init = 1;
+ 		}
+-#endif		
++		bufalloc_init = 1;
+ 	}
+-		
++#endif
++
++#ifndef __MINGW32__
+ 	pgsize = sysconf(_SC_PAGESIZE);
+ /*
+  * If posix_memalign fails it could be a broken glibc that caused the error,
+@@ -377,6 +384,9 @@
+ 		free(buf);
+ 		buf = memalign(pgsize, size);
+ 	}
++#else
++	buf = __mingw_aligned_malloc( size,simd_alignment );
++#endif
+ 	if (buf == NULL)
+ 		mjpeg_error_exit1("malloc of %d bytes failed", (int)size);
+ 	if ((size_t)buf & (simd_alignment - 1))
+@@ -384,6 +394,15 @@
+ 	return buf;
+ }
+ 
++void buffree( void *ptr )
++{
++#ifndef __MINGW32__
++  free( ptr );
++#else
++  __mingw_aligned_free( ptr );
++#endif
++}
++
+ int
+ disable_simd(char *name)
+ 	{
+Index: utils/cpu_accel.h
+===================================================================
+--- utils/cpu_accel.h	(revision 1)
++++ utils/cpu_accel.h	(working copy)
+@@ -37,6 +37,7 @@
+ 
+ 	int32_t cpu_accel (void);
+ 	void *bufalloc( size_t size );
++	void buffree( void *ptr );
+ #if	!defined(HAVE_POSIX_MEMALIGN)
+ 	int posix_memalign(void **, size_t, size_t);
+ #endif
+Index: utils/mjpeg_logging.c
+===================================================================
+--- utils/mjpeg_logging.c	(revision 1)
++++ utils/mjpeg_logging.c	(working copy)
+@@ -81,6 +81,10 @@
+   } else {
+ #ifdef HAVE___PROGNAME
+     ids = __progname;
++#elif defined(__MINGW32__)
++    ids = __argv[0];
++    if( strrchr(ids,'/')>=ids ) ids = strrchr(ids,'/') + 1;
++    if( strrchr(ids,'\\')>=ids ) ids = strrchr(ids,'\\') + 1;
+ #else
+     ids = "???";
+ #endif
+Index: utils/mjpeg_logging.h
+===================================================================
+--- utils/mjpeg_logging.h	(revision 1)
++++ utils/mjpeg_logging.h	(working copy)
+@@ -70,6 +70,18 @@
+ log_level_t
+ mjpeg_loglev_t(const char *str);
+ 
++#ifdef __MINGW32__
++#ifndef WINBASEAPI
++#define WINBASEAPI __declspec(dllimport)
++#endif
++#ifndef WINAPI
++#define WINAPI __stdcall
++#endif
++WINBASEAPI void WINAPI Sleep( unsigned long );
++#define nanosleep(a,b) Sleep((a)->tv_sec*1000+(a)->tv_nsec/1000000)
++#define sync _flushall
++#endif
++
+ #ifdef __cplusplus
+ }
+ #endif
+Index: utils/yuv4mpeg.h
+===================================================================
+--- utils/yuv4mpeg.h	(revision 1)
++++ utils/yuv4mpeg.h	(working copy)
+@@ -32,7 +32,18 @@
+ #endif
+ #include <mjpeg_logging.h>
+ 
++#ifdef __MINGW32__
++#include <getopt.h>
+ 
++#define bcopy(a,b,c) memmove((b),(a),(c))
++
++#ifndef __u_char_defined
++typedef unsigned char u_char;
++#define __u_char_defined
++#endif
++#endif
++
++
+ /************************************************************************
+  *  error codes returned by y4m_* functions
+  ************************************************************************/

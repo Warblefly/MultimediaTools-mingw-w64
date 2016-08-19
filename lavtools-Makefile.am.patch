@@ -1,0 +1,12 @@
+--- lavtools/Makefile.am.orig	2016-08-19 21:09:06.846000000 +0000
++++ lavtools/Makefile.am	2016-08-19 21:09:33.717000000 +0000
+@@ -58,9 +58,6 @@
+ liblavplay_la_CPPFLAGS = $(AM_CPPFLAGS) $(LIBDV_CFLAGS) $(X_CFLAGS) $(SDL_CFLAGS)
+ liblavplay_la_LDFLAGS = $(LAV_ALL_LIB_OPTS)
+ liblavplay_la_LIBADD = liblavfile.la $(SDL_LIBS) liblavjpeg.la $(LIBDV_LIBS) $(LIBMJPEGUTILS)
+-if SDL_NEEDS_X11
+-   liblavplay_la_LIBADD += ${X_LIBS} -lX11
+-endif
+ liblavplay_la_DEPENDENCIES = liblavfile.la liblavjpeg.la
+ 
+ # *********************************************************************

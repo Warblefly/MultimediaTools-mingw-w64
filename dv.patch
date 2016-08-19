@@ -1,0 +1,23 @@
+--- libdv/headers.c	2004-07-14 03:50:31 +0200
++++ libdv/headers.c	2013-09-23 17:42:29 +0200
+@@ -267,6 +267,20 @@
+ }
+ 
+ 
++#ifdef _WIN32
++struct tm *localtime_r(const time_t *timep, struct tm *result)
++{
++	struct tm *tm_r = localtime(timep);
++	if (tm_r == NULL) {
++		return NULL;
++	}
++
++	*result = *tm_r;
++
++	return result;
++}
++#endif
++
+ /** @brief Write the recording datetime and timecode into a frame of DV video.
+  *
+  * @param target A pointer to a buffer containing one DV frame,

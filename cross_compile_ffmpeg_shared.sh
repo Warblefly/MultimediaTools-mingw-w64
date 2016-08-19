@@ -38,7 +38,7 @@ yes_no_sel () {
 }
 
 check_missing_packages () {
-  local check_packages=('sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint' 'pxz' 'wget' 'zip' 'xmlto' 'gtkdocize' 'python-config' 'ant')
+  local check_packages=('sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint' 'pxz' 'wget' 'zip' 'xmlto' 'gtkdocize' 'python-config' 'ant' 'sdl-config')
   for package in "${check_packages[@]}"; do
     type -P "$package" >/dev/null || missing_packages=("$package" "${missing_packages[@]}")
   done
@@ -1032,7 +1032,7 @@ build_libvpx() {
   else
 #    do_configure "--extra-cflags=-DPTW32_STATIC_LIB --target=x86_64-win64-gcc --prefix=$mingw_w64_x86_64_prefix --enable-static --disable-shared --disable-unit-tests --disable-encode-perf-tests --disable-decode-perf-tests --enable-vp10 --enable-vp10-encoder --enable-vp10-decoder --enable-vp9-highbitdepth --enable-vp9-temporal-denoising --enable-postproc --enable-vp9-postproc"
     # libvpx only supports static building on MinGW platform
-    do_configure "--target=x86_64-win64-gcc --prefix=$mingw_w64_x86_64_prefix --enable-static --disable-unit-tests --disable-encode-perf-tests --disable-decode-perf-tests --enable-vp9-temporal-denoising --enable-postproc --enable-vp9-postproc --enable-multithread" # --enable-vp10 --enable-vp10-encoder --enable-vp10-decoder
+    do_configure "--target=x86_64-win64-gcc --prefix=$mingw_w64_x86_64_prefix --enable-static --disable-unit-tests --disable-encode-perf-tests --disable-decode-perf-tests --enable-vp9-temporal-denoising --enable-postproc --enable-vp9-postproc --enable-multithread" # --enable-vp10 --enable-vp10-encoder --enable-vp10-decoder"
   fi
   do_make_install
   # Now create the shared library
@@ -2081,17 +2081,17 @@ build_sdl2() {
 #  mkdir build
   do_git_checkout https://github.com/spurious/SDL-mirror.git SDL
   cd SDL
-    mkdir -v build
+#    mkdir -v build
 
 #  local new_hg_version=`hg --debug id -i`
 #  if [[ "$old_hg_version" != "$new_hg_version" ]]; then
 #    echo "got upstream hg changes, forcing rebuild...SDL2"
 ##    apply_patch file://${top_dir}/SDL2-prevent-duplicate-d3d11-declarations.patch
-    cd build
+#    cd build
 #      rm already*
-      do_configure "--host=x86_64-w64-mingw32 --target=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-shared --enable-static --disable-render-d3d" "../configure" #3d3 disabled with --disable-render-d3d due to mingw-w64-4.0.0 and SDL disagreements
+      do_configure "--host=x86_64-w64-mingw32 --target=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-shared --enable-static --disable-render-d3d" # "../configure" #3d3 disabled with --disable-render-d3d due to mingw-w64-4.0.0 and SDL disagreements
       do_make_install "V=1" 
-   cd ..
+#   cd ..
 # else
 #    echo "still at hg $new_hg_version SDL2"
 #  fi
@@ -2141,7 +2141,7 @@ build_vim() {
       WINVER=0x0A00 CROSS_COMPILE=${cross_prefix} do_make "-f Make_cyg_ming.mak GUI=no vim.exe " # gvim.exe
       echo "Vim is built, but not installed."
       cp -fv vim.exe "${mingw_w64_x86_64_prefix}/bin"
-  cd ../.. 
+  cd ../..
 }
 
 
@@ -2727,6 +2727,23 @@ build_curl() {
 #  export cpu_count=$original_cpu_count
 #}
 
+build_libdv() {
+  download_and_unpack_file http://heanet.dl.sourceforge.net/project/libdv/libdv/1.0.0/libdv-1.0.0.tar.gz libdv-1.0.0
+  cd libdv-1.0.0
+    # We need to regenerate the autoconf scripts because we patch Makefile.am
+    # Makefile.am commands building a native binary to produce a header.
+    # I have produced this header myself (it is quite simple) and included it
+    # in this distribution.
+    rm -v configure
+    apply_patch file://${top_dir}/dv.patch
+    apply_patch file://${top_dir}/libdv-gasmoff.patch
+    apply_patch file://${top_dir}/libdv-enctest.c.patch
+    apply_patch file://${top_dir}/libdv-encodedv-Makefile.am.patch
+    cp -v ${top_dir}/asmoff.h libdv/asmoff.h || exit 1
+    generic_configure_make_install "LIBS=-lpthread --enable-sdl --disable-xv --disable-asm"
+  cd ..
+}
+
 build_asdcplib() {
   export CXXFLAGS=-DKM_WIN32
   export CFLAGS=-DKM_WIN32
@@ -2971,6 +2988,17 @@ build_libburn() {
   do_svn_checkout http://svn.libburnia-project.org/libburn/trunk libburn
   cd libburn
     generic_configure_make_install
+  cd ..
+}
+
+build_mjpegtools() {
+  download_and_unpack_file http://downloads.sourceforge.net/project/mjpeg/mjpegtools/2.1.0/mjpegtools-2.1.0.tar.gz mjpegtools-2.1.0
+  cd mjpegtools-2.1.0
+    apply_patch file://${top_dir}/mjpegtools-2.1.0-mingw.patch
+    apply_patch file://${top_dir}/lavtools-Makefile.am.patch
+    rm -v lavtools/Makefile.in
+    rm -v configure
+    generic_configure_make_install "LIBS=-lpthread --without-x"
   cd ..
 }
 
@@ -3764,6 +3792,7 @@ build_dependencies() {
   build_libepoxy
   build_gtk
   build_graphicsmagick
+  build_libdv
   build_asdcplib-cth
   build_libdcp
   build_libsub
@@ -3797,6 +3826,7 @@ build_apps() {
 #  build_cdrecord
   build_qt
   build_youtube-dl
+  build_mjpegtools
 # build_qt5
   build_mkvtoolnix
   build_opendcp

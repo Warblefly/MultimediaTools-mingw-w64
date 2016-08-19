@@ -1,0 +1,22 @@
+--- encodedv/Makefile.am.orig	2016-08-19 20:21:30.300000000 +0000
++++ encodedv/Makefile.am	2016-08-19 20:22:48.725000000 +0000
+@@ -9,9 +9,7 @@
+ 
+ CLEANFILES                = 
+ 
+-bin_PROGRAMS= encodedv dvconnect dubdv
+-
+-noinst_PROGRAMS= fix_headers scan_packet_headers steal_header ppmqscale dvavi
++bin_PROGRAMS= encodedv dubdv fix_headers scan_packet_headers steal_header
+ 
+ encodedv_SOURCES= encodedv.c 
+ encodedv_LDADD= ../libdv/libdv.la $(POPT_LIB)
+@@ -28,8 +26,5 @@
+ 
+ ppmqscale_SOURCES = ppmqscale.c
+ 
+-dvconnect_SOURCES = dvconnect.c
+-dvconnect_LDADD = $(PTHREAD_LIBS) $(POPT_LIB)
+-
+ dvavi_SOURCES = dvavi.c
+ dvavi_LDADD= ../libdv/libdv.la
