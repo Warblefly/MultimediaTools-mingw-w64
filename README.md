@@ -87,6 +87,10 @@ With these scripts, you can compile binaries, ready to run on 64-bit Windows. Ma
  * soxi — gives information about audio files
  * play — plays and optionally processes audio data using the capabilities of sox
  * rec — records audio data using the capabilities of sox
+* mjpegtools — many tools for motion JPEG files and DVD creation
+ * Full list of these tools to follow. mplex perhaps the most usedful
+* libdv — processing library and some utilities for DV digital video streams
+ * Full list of these tools to follow.
 * Swftools
   * as3compile — a stand-alone ActionScript 3.0 compiler to SWF
   * font2swf — converts a freetype-supported font to SWF
@@ -533,6 +537,8 @@ With these scripts, you can compile binaries, ready to run on 64-bit Windows. Ma
   * fc-validate — validate font files and print results
 * libiconv — handle text encoding and conversions between encodings
  * iconv — convert text from one encoding to another encoding
+* Gcal — the very flexible GNU calendar program
+ * gcal — phenomenally powerful calendar printing and calculation program
 * libFLAC
  * flac — very comprehensive FLAC encoder and decoder
  * metaflac — very comprehensive parser and editor for FLAC metadata
