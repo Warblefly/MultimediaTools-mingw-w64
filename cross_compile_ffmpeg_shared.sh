@@ -1868,6 +1868,21 @@ build_intel_quicksync_mfx() { # qsv
   cd ..
 }
 
+build_libnvenc() {
+  if [[ ! -f $mingw_w64_x86_64_prefix/include/nvEncodeAPI.h ]]; then
+    rm -rf nvenc # just in case :)
+    mkdir nvenc
+    cd nvenc
+      echo "installing nvenc [nvidia gpu assisted encoder]"
+      curl --retry 5 -4 http://developer.download.nvidia.com/assets/cuda/files/nvidia_video_sdk_6.0.1.zip -O -L --fail || exit 1
+      unzip nvidia_video_sdk_6.0.1.zip
+      cp nvidia_video_sdk_6.0.1/Samples/common/inc/* $mingw_w64_x86_64_prefix/include
+    cd ..
+  else
+    echo "already installed nvenc"
+  fi
+}
+
 build_fdk_aac() {
   #generic_download_and_install http://sourceforge.net/projects/opencore-amr/files/fdk-aac/fdk-aac-0.1.0.tar.gz/download fdk-aac-0.1.0
   do_git_checkout https://github.com/mstorsjo/fdk-aac.git fdk-aac_git
@@ -2557,7 +2572,8 @@ build_gomp() {
 }
 
 build_fdkaac-commandline() {
-  do_git_checkout https://github.com/nu774/fdkaac.git fdkaac
+  # do_git_checkout https://github.com/nu774/fdkaac.git fdkaac
+  do_git_checkout http://git.ieval.ro/git/fdkaac.git fdkaac
   cd fdkaac
     if [[ ! -f "configure" ]]; then
     autoreconf -fiv || exit 1 
@@ -2567,13 +2583,13 @@ build_fdkaac-commandline() {
 }
 
 build_poppler() {
-  do_git_checkout git://git.freedesktop.org/git/poppler/poppler poppler 4d799cdf9b9039b003de7d3baf05d858bc507a5a
+  do_git_checkout git://git.freedesktop.org/git/poppler/poppler poppler # 4d799cdf9b9039b003de7d3baf05d858bc507a5a
   cd poppler
     sed -i.bak 's!string\.h!sec_api/string_s.h!' test/perf-test.cc
     sed -i.bak 's/noinst_PROGRAMS += perf-test/noinst_PROGRAMS += /' test/Makefile.am
     # Allow installation of QT5 PDF viewer
     sed -i.bak 's/noinst_PROGRAMS = poppler_qt5viewer/bin_PROGRAMS = poppler_qt5viewer/' qt5/demos/Makefile.am
-    generic_configure_make_install "CFLAGS=-DMINGW_HAS_SECURE_API LIBOPENJPEG_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/openjpeg-1.5/ --enable-xpdf-headers" # "--enable-libcurl"
+    generic_configure_make_install "CFLAGS=-DMINGW_HAS_SECURE_API CXXFLAGS=-fpermissive LIBOPENJPEG_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/openjpeg-1.5/ --enable-xpdf-headers --enable-cmyk --enable-libtiff --enable-libjpeg" # "--enable-libcurl"
   cd ..
 }
 
@@ -3031,7 +3047,7 @@ build_cdrkit() {
     apply_patch_p1 file://${top_dir}/cdrkit-1.1.11-cross-compile.patch
     do_cmake
     do_make
-    do_make_install
+#    do_make_install
   cd ..
 }
 
@@ -3563,7 +3579,7 @@ build_ffmpeg() {
 
 # --extra-cflags=$CFLAGS, though redundant, just so that FFmpeg lists what it used in its "info" output
 
-  config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --disable-doc --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-netcdf --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libschroedinger --enable-libvpx --enable-libilbc --enable-libwavpack --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --enable-d3d11va --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts --extra-cflags=$CFLAGS" # other possibilities: --enable-w32threads --enable-libflite
+  config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --disable-doc --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-netcdf --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libschroedinger --enable-libvpx --enable-libilbc --enable-libwavpack --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --enable-d3d11va --enable-nvenc --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts --extra-cflags=$CFLAGS" # other possibilities: --enable-w32threads --enable-libflite
   if [[ "$non_free" = "y" ]]; then
     config_options="$config_options --enable-nonfree --enable-libfdk-aac --disable-libfaac --enable-decoder=aac" # To use fdk-aac in VLC, we need to change FFMPEG's default (faac), but I haven't found how to do that... So I disabled it. This could be an new option for the script? -- faac deemed too poor quality and becomes the default -- add it in and uncomment the build_faac line to include it 
     # other possible options: --enable-openssl --enable-libaacplus
@@ -3730,6 +3746,7 @@ build_dependencies() {
   build_libfftw
   build_libchromaprint
   build_libsndfile
+  # build_libnvenc
   build_glib
   build_libsigc++
   build_glibmm
@@ -3820,7 +3837,7 @@ build_apps() {
   fi
   build_exiv2
 #  build_cdrecord # NOTE: just now, cdrecord doesn't work on 64-bit mingw. It scans the emulated SCSI bus but no more.
-#  build_cdrkit
+#  build_cdrkit # No. Still not compiled in MinGW
   build_lsdvd
   build_fdkaac-commandline
 #  build_cdrecord
