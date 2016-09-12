@@ -161,7 +161,7 @@ install_cross_compiler() {
   sed -i.bak "s/mingw_w64_release_ver='3.3.0'/mingw_w64_release_ver='4.0.4'/" mingw-w64-build-3.6.6
   sed -i.bak "s/gcc_release_ver='4.9.2'/gcc_release_ver='6.1.0'/" mingw-w64-build-3.6.6
   sed -i.bak "s/mpfr_release_ver='3.1.2'/mpfr_release_ver='3.1.4'/" mingw-w64-build-3.6.6
-  sed -i.bak "s/binutils_release_ver='2.25'/binutils_release_ver='2.26'/" mingw-w64-build-3.6.6
+  sed -i.bak "s/binutils_release_ver='2.25'/binutils_release_ver='2.27'/" mingw-w64-build-3.6.6
   sed -i.bak "s/isl_release_ver='0.12.2'/isl_release_ver='0.16.1'/" mingw-w64-build-3.6.6
   sed -i.bak "s/gmp_release_ver='6.0.0a'/gmp_release_ver='6.1.0'/" mingw-w64-build-3.6.6
   sed -i.bak "s/gmp-6\.0\.0/gmp-6.1.0/" mingw-w64-build-3.6.6
@@ -172,7 +172,7 @@ install_cross_compiler() {
 #  sed -i.bak "s/--enable-threads=win32/--enable-threads=posix/" mingw-w64-build-3.6.6
 # Gendef compilation throws a char-as-array-index error when invoked with "--target=" : "--host" avoids this.
 #  sed -i.bak 's#gendef/configure" --build="$system_type" --prefix="$mingw_w64_prefix" --target#gendef/configure" --build="$system_type" --prefix="$mingw_w64_prefix" --host#' mingw-w64-build-3.6.6
-  ./mingw-w64-build-3.6.6 --default-configure --mingw-w64-ver=git --gcc-ver=svn --pthreads-w32-ver=2-9-1 --cpu-count=$gcc_cpu_count --build-type=$build_choice --enable-gendef --enable-widl --binutils-ver=2.26 --verbose || exit 1 # --disable-shared allows c++ to be distributed at all...which seemed necessary for some random dependency...
+  ./mingw-w64-build-3.6.6 --default-configure --mingw-w64-ver=git --gcc-ver=svn --pthreads-w32-ver=2-9-1 --cpu-count=$gcc_cpu_count --build-type=$build_choice --enable-gendef --enable-widl --binutils-ver=2.27 --verbose || exit 1 # --disable-shared allows c++ to be distributed at all...which seemed necessary for some random dependency...
   export CFLAGS=$original_cflags # reset it
 # We need to move the plain cross-compiling versions of bintools out of the way
 # because exactly the same binaries exist with the host triplet prefix
@@ -609,65 +609,6 @@ do_cmake_and_install() {
 }
 
 build_libx265() {
-#  if [[ $prefer_stable = "n" ]]; then
-#    local old_hg_version
-#    if [[ -d x265 ]]; then
-#      cd x265
-#      if [[ $git_get_latest = "y" ]]; then
-#        echo "doing hg pull -u x265"
-#        old_hg_version=`hg --debug id -i`
-#        hg pull -u || exit 1
-#        hg update || exit 1 # guess you need this too if no new changes are brought down [what the...]
-#      else
-#        echo "not doing hg pull x265"
-#        old_hg_version=`hg --debug id -i`
-#      fi
-#    else
-#      hg clone https://bitbucket.org/multicoreware/x265 || exit 1
-#      cd x265
-#      old_hg_version=none-yet
-#    fi
-#    cd source
-#
-#    # hg checkout 9b0c9b # no longer needed, but once was...
-#
-#    local new_hg_version=`hg --debug id -i`  
-#    if [[ "$old_hg_version" != "$new_hg_version" ]]; then
-#      echo "got upstream hg changes, forcing rebuild...x265"
-#      rm already*
-#    else
-#      echo "still at hg $new_hg_version x265"
-#    fi
-#  else
-#    local old_hg_version
-#    if [[ -d x265 ]]; then
-#      cd x265
-#      if [[ $git_get_latest = "y" ]]; then
-#        echo "doing hg pull -u x265"
-#        old_hg_version=`hg --debug id -i`
-#        hg pull -u || exit 1
-#        hg update || exit 1 # guess you need this too if no new changes are brought down [what the...]
-#      else
-#        echo "not doing hg pull x265"
-#        old_hg_version=`hg --debug id -i`
-#      fi
-#    else
-#      hg clone https://bitbucket.org/multicoreware/x265 -r stable || exit 1
-#      cd x265
-#      old_hg_version=none-yet
-#    fi
-#    cd source
-#
-#    # hg checkout 9b0c9b # no longer needed, but once was...
-#
-#    local new_hg_version=`hg --debug id -i`  
-#    if [[ "$old_hg_version" != "$new_hg_version" ]]; then
-#      echo "got upstream hg changes, forcing rebuild...x265"
-#      rm already*
-#    else
-#      echo "still at hg $new_hg_version x265"
-#    fi
-#  fi
   do_git_checkout https://github.com/videolan/x265.git x265
   cd x265/source
     local cmake_params="-DENABLE_SHARED=ON -DENABLE_STATIC=OFF"
@@ -689,6 +630,8 @@ build_libx265() {
     do_make_install 
     export cpu_count=$original_cpu_count
   cd ../..
+  # We must remove the x265.exe executable because FFmpeg gets linked against it. I do not understand this.
+  mv -v $mingw_w64_x86_64_prefix/bin/x265.exe $mingw_w64_x86_64_prefix/bin/MOVEDx265.MOVEDexe
 }
 
 #x264_profile_guided=y
@@ -752,6 +695,9 @@ build_qt() {
   export QT_BUILD="qt-build"
   if [ ! -f qt.built ]; then
     download_and_unpack_file http://download.qt.io/official_releases/qt/5.7/${QT_VERSION}/single/qt-everywhere-opensource-src-${QT_VERSION}.tar.gz "qt-everywhere-opensource-src-${QT_VERSION}"
+    cd "qt-everywhere-opensource-src-${QT_VERSION}"
+      apply_patch file://${top_dir}/qt-permissive.patch
+    cd ..
     mkdir -p "${QT_BUILD}"
     ln -vs "qt-everywhere-opensource-src-${QT_VERSION}" "${QT_SOURCE}"
     cd "${QT_BUILD}"
@@ -1985,14 +1931,16 @@ build_tesseract() {
     export LIBS="-ltiff -ljpeg -lpng -lwebp -lz"
     sed -i.bak 's/Windows.h/windows.h/' opencl/openclwrapper.cpp
     sed -i.bak 's/-ltesseract/-ltesseract -llept -ltiff -ljpeg -lpng -lwebp -lz/' tesseract.pc.in
-    # Unpack English language tessdata into data directory:
-    tar xvvf ${top_dir}/tessdata-snapshot-20150411.tar.xz
+    # Unpack English language tessdata into data directory
+    # tar xvvf ${top_dir}/tessdata-snapshot-20150411.tar.xz
     generic_configure_make_install
-    cd tessdata
-      do_make_install "install-langs LANGS=eng"
-    cd ..
     unset LIBLEPT_HEADERSDIR
     unset LIBS
+  cd ..
+    # Fetch the training data
+  do_git_checkout https://github.com/tesseract-ocr/tessdata.git tessdata
+  cd tessdata
+    cp -v eng* osd* ${mingw_w64_x86_64_prefix}/share/tessdata
   cd ..
 }
 
@@ -2578,6 +2526,7 @@ build_fdkaac-commandline() {
     if [[ ! -f "configure" ]]; then
     autoreconf -fiv || exit 1 
     fi
+    apply_patch file://${top_dir}/fdkaac-aacenc.patch
     generic_configure_make_install
   cd ..
 }
@@ -2771,7 +2720,7 @@ build_asdcplib() {
 
 
 build_libtiff() {
-  generic_download_and_install ftp://ftp.remotesensing.org/pub/libtiff/tiff-4.0.6.tar.gz tiff-4.0.6
+  generic_download_and_install http://download.osgeo.org/libtiff/tiff-4.0.6.tar.gz tiff-4.0.6
 }
 
 build_opencl() {
@@ -3544,7 +3493,7 @@ build_ffmpeg() {
 
   # FFmpeg + libav compatible options
   # add libpsapi to enable libdlfcn for Windows to work, thereby enabling frei0r plugins
-  local extra_configure_opts="--enable-libsoxr --enable-fontconfig --enable-libass --enable-libbluray --enable-iconv --enable-libtwolame --enable-libzvbi --enable-libcaca --enable-libmodplug --extra-libs=-lstdc++ --extra-libs=-lpsapi --enable-opengl --extra-libs=-lz --extra-libs=-lpng --enable-libvidstab --enable-libx265 --enable-decklink --extra-libs=-loleaut32 --enable-libcdio --enable-libzimg --enable-chromaprint --enable-libsnappy --enable-libebur128"
+  local extra_configure_opts="--enable-libsoxr --enable-fontconfig --enable-libass --enable-libbluray --enable-iconv --enable-libtwolame --enable-libzvbi --enable-libcaca --enable-libmodplug --extra-libs=-lstdc++ --extra-libs=-lpsapi --enable-opengl --extra-libs=-lz --extra-libs=-lpng --enable-libvidstab --enable-decklink --extra-libs=-loleaut32 --enable-libcdio --enable-libzimg --enable-chromaprint --enable-libsnappy --enable-libebur128 --enable-libx265"
 
   if [[ $type = "libav" ]]; then
     # libav [ffmpeg fork]  has a few missing options?

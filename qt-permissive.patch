@@ -1,0 +1,11 @@
+--- qtbase/mkspecs/win32-g++/qmake.conf.orig	2016-09-11 10:16:09.143000000 +0000
++++ qtbase/mkspecs/win32-g++/qmake.conf	2016-09-11 10:16:41.886000000 +0000
+@@ -26,7 +26,7 @@
+ QMAKE_LEXFLAGS          =
+ QMAKE_YACC              = bison -y
+ QMAKE_YACCFLAGS         = -d
+-QMAKE_CFLAGS            = -pipe -fno-keep-inline-dllexport
++QMAKE_CFLAGS            = -pipe -fno-keep-inline-dllexport -fpermissive
+ QMAKE_CFLAGS_DEPS       = -M
+ QMAKE_CFLAGS_WARN_ON    = -Wall -Wextra
+ QMAKE_CFLAGS_WARN_OFF   = -w
