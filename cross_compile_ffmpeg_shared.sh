@@ -631,7 +631,8 @@ build_libx265() {
     export cpu_count=$original_cpu_count
   cd ../..
   # We must remove the x265.exe executable because FFmpeg gets linked against it. I do not understand this.
-  mv -v $mingw_w64_x86_64_prefix/bin/x265.exe $mingw_w64_x86_64_prefix/bin/MOVEDx265.MOVEDexe
+  # Furthermore, this makes x265.exe as an executable completely unuseable.
+  cp -v ${mingw_w64_x86_64_prefix}/bin/libx265.dll ${mingw_w64_x86_64_prefix}/bin/x265.exe
 }
 
 #x264_profile_guided=y
@@ -3341,6 +3342,13 @@ build_libepoxy() {
   cd ..
 }
 
+build_cuetools() {
+  do_git_checkout https://github.com/svend/cuetools.git cuetools
+  cd cuetools
+    generic_configure_make_install
+  cd ..
+}
+
 build_libMXF() {
   #download_and_unpack_file http://sourceforge.net/projects/ingex/files/1.0.0/libMXF/libMXF-src-1.0.0.tgz "libMXF-src-1.0.0"
   #cd libMXF-src-1.0.0
@@ -3561,6 +3569,10 @@ build_ffmpeg() {
   sed -i.bak 's/-lswresample -lm.*/-lswresample -lm -lsoxr/' "$PKG_CONFIG_PATH/libswresample.pc" # XXX patch ffmpeg
   echo "FFmpeg binaries are built."
   cd ..
+  # Put back the x265.exe executable we hid earlier. I do not know why FFmpeg becomes linked against it otherwise!
+  # NO don't put it back. Windows still finds x265.exe even though the compiler didn't see that binary at link time.
+  # NO idea what is going on.
+  # mv -v $mingw_w64_x86_64_prefix/bin/MOVEDx265.MOVEDexe $mingw_w64_x86_64_prefix/bin/x265.exe
 }
 
 build_dvdstyler() {
@@ -3814,6 +3826,7 @@ build_apps() {
   if [[ $build_vlc = "y" ]]; then
     build_vlc # NB requires ffmpeg static as well, at least once...so put this last :)
   fi
+  build_cuetools
   build_graphicsmagick
   build_wx
   build_wxsvg
