@@ -646,6 +646,7 @@ THANKS
 
 * Zeranoe and associated developers. http://zeranoe.com/
 * Roger D Pack, https://github.com/rdp/ffmpeg-windows-build-helpers
+* Carl, the creator and maintainer of DCP-o-Matic 
 * The GPAC project http://www.gpac-licensing.com/
 * The FFmpeg developers. http://ffmpeg.org
 * The whole GNU project, creators of the Gnu Compiler Collection and other utilities
