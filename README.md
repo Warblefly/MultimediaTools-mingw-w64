@@ -170,7 +170,7 @@ With these scripts, you can compile binaries, ready to run on 64-bit Windows. Ma
  * qdbus — interrogates a D-Bus server
  * qdbusviewer — QT5 application that interrogates a D-Bus server
 * DCP-o-matic
- * dcopmatic2 — a very flexible DCP creation package
+ * dcpomatic2 — a very flexible DCP creation package
  * dcpdiff — compares metadata and content, ignoring timestamps, of two DCPs
  * dcpdumpsub — extracts subtitles from DCP MXF
  * dcpinfo — outputs information about a DCP
