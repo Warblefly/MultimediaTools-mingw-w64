@@ -9,7 +9,7 @@ A binary package is available for download from this address:
 A pair of installer files, that must be downloaded together and run as Administrator (WARNING: that's a security no-no, but this is my system
 and you're welcome to modify it): <a href="https://raw.githubusercontent.com/Warblefly/MultimediaTools-mingw-w64/master/install-zipfile.cmd">install-zipfile.cmd</a> and <a href="https://raw.githubusercontent.com/Warblefly/MultimediaTools-mingw-w64/master/install-zipfile.ps1">install-zipfile.ps1</a> assist the process.
 
-These file MUST be installed to C:\Program Files\ffmpeg\bin
+These files MUST be installed to C:\Program Files\ffmpeg\bin
 
 I am slowly writing a proper installation script.
 
@@ -271,6 +271,7 @@ With these scripts, you can compile binaries, ready to run on 64-bit Windows. Ma
  * jack_wait — check for Jack existence, or wait, until it either quits or gets started
  * jack_zombie — close down Jack server
  * jackd — Jack audio server daemon
+* qjackctl — visual control utility for the Jack Audio Daemon
 * libGLEW — the GNU OpenGL Extension Wrangler library
  * glewinfo — write OpenGL information to glewinfo.txt
  * visualinfo — comprehensively lists local machine's OpenGL capabilities
@@ -549,7 +550,7 @@ With these scripts, you can compile binaries, ready to run on 64-bit Windows. Ma
  * ngettext — displays native language translation of a textual message whose grammatical form depends on a number
  * recode-sr-latin — recodes Serbian text from Cyrillic to Latin script, STDIN->STDOUT
  * xgettext — extracts translatable strings from input files
-* DJV
+* DJV — versatile and accurate professional image sequence decoder and viewer
   * djv_convert — batch processing and conversion of images and video files
   * djv_info — report basic information on all video and image files within a directory
   * djv_ls — directory listing
@@ -559,6 +560,7 @@ With these scripts, you can compile binaries, ready to run on 64-bit Windows. Ma
   * djvImageViewTest — test rendering capability
   * djvTest
   * djvWidgetTest — test many different widget types
+* GTK+-3 The GIMP Toolkit widget set, version 3
 * doxygen — generate and update in-code documentation
 * liba52 — decode and separate A52 audio (Dolby AC-3)
  * a52dec — decodes and outputs audio from AC-3 encoded streams
