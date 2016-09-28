@@ -7,7 +7,7 @@ A binary package is available for download from this address:
 <a href="http://gallery.johnwarburton.net/mingw-multimedia-executables-shared.zip">http://gallery.johnwarburton.net/mingw-multimedia-executables-shared.zip</a>
 
 A pair of installer files, that must be downloaded together and run as Administrator (WARNING: that's a security no-no, but this is my system
-and you're welcome to modify it): <a href="http://gallery.johnwarburton.net/install-zipfile.cmd">install-zipfile.cmd</a> and <a href="http://gallery.johnwarburton.net/install.zipfile.ps1">install-zipfile.ps1</a> assist the process.
+and you're welcome to modify it): <a href="https://raw.githubusercontent.com/Warblefly/MultimediaTools-mingw-w64/master/install-zipfile.cmd">install-zipfile.cmd</a> and <a href="https://raw.githubusercontent.com/Warblefly/MultimediaTools-mingw-w64/master/install-zipfile.ps1">install-zipfile.ps1</a> assist the process.
 
 These file MUST be installed to C:\Program Files\ffmpeg\bin
 
