@@ -1,5 +1,5 @@
 # MultimediaTools-mingw-w64
-Scripts and patches to cross-compile, for Windows 64-bit, many multimedia utilities, including FFmpeg, Dcp-o-matic, SoX, the mpv player, and all the BBC Avid-compatible MXF utilities. Also includes all Qt5 (version 5.6) libraries that will compile on mingw-w64, GraphicMagick, Poppler-utils (for PDF files) and many, many more.
+Scripts and patches to cross-compile, for Windows 64-bit, many multimedia utilities, including FFmpeg, Dcp-o-matic, SoX, the mpv player, and all the BBC Avid-compatible MXF utilities. Also includes all Qt5 (version 5.7) libraries that will compile on mingw-w64, GraphicMagick, Poppler-utils (for PDF files) and many, many more.
 
 # How To Install
 
@@ -88,9 +88,57 @@ With these scripts, you can compile binaries, ready to run on 64-bit Windows. Ma
  * play — plays and optionally processes audio data using the capabilities of sox
  * rec — records audio data using the capabilities of sox
 * mjpegtools — many tools for motion JPEG files and DVD creation
- * Full list of these tools to follow. mplex perhaps the most usedful
+ * mpeg2enc — flexible program to encode MPEG2 video streams
+ * mplex — multiplexes many types of MPEG streams
+ * jpeg2yuv — pipes a sequence of JPEG files to stdout, converted to YUV
+ * lav2wav — extracts audio from lav-readable files
+ * lav2yuv — converts MJPEG video sequence to raw YUV data
+ * lavaddwav — adds a WAV file as a soundtrak to an AVI file
+ * lavpipe — creates raw YUV streams from pipe list scripts
+ * lavplay — plays and edits MJPEG video, including certain hardware acceleration
+ * lavtrans — converts MJPEG videos to other MJPEG video formats
+ * matteblend.flt — unknown - takes 3 parameters
+ * mjpeg_simd_helper — returns list of possible values for environment variable MJPEGTOOLS_SIMD_DISABLE
+ * multiblend.flt — blends two MJPEG streams by selectable mask
+ * png2yuv — pipes a sequence of PNG files to stdout as YUV4MPEG data stream
+ * pnmtoy4m — reads raw PNM/PAM images and produces YUV4MPEG2 stream on stdout. Converts colourspace
+ * ppmtoy4m — reads raw PPM images and produes YUV4MPEG2 stream out stdout. Converts colourspace
+ * transist.flt — reads two frame-interlaced YUV4MPEG streams from stdin and writes out translation from one to the other
+ * y4mcolorpars — generates standard SMPTE test pattern
+ * y4mstabilizer — stabilizes video stream
+ * y4mtopnm — reads YUV4MPEG2 stream on stdin, produces PPM, PGM or PAM images on stdout. Converts colourspace
+ * y4mtoppm — reads YUV4MPEG2 stream on stdin, produces PPM, PGM or PAM images on stdout. Converts colourspace
+ * ypipe — interlaces output of two YUV4MPEG-emitting programs into one output stream
+ * yuv2lav — converts raw YUV data to MJPEG video sequence
+ * yuvfps — resamples yuv video stream to dfferent frame rate
+ * yuvinactive — sets part of incoming image to be blank or filled with colour
+ * yuvplay — plays back an MJPEG file with various alterations if requested
+ * y4mdenoise — denoises video according to several user-selectable methods
+ * y4mscaler — scales incoming video in a flexible way
+ * y4munsharp — applies unsharp filter to video, optionally legalizes output
+ * pgmtoy4m — converts the PGM output of "mpeg2dec -o pgmpipe" to YUV4MPEG2
+ * y4mblack — creates black video
+ * y4mhist — creates text-mode histogram/vectorscope from incoming video
+ * y4minterlace — creates interlaced output from double-frame-rate progressive input
+ * y4mivtc — removes 2:3 pulldown correctly
+ * y4mshift — shifts picture data within the frame
+ * y4mspatialfilter — FIR filter for noise/bandwidth reduction without scaling
+ * y4mtoyuv — converts YUV4MPEG2 to EYUV format
+ * yuv4mpeg — converts EYUV to YUV4MPEG2
+ * yuvmedianfilter — looks around the current point for a radius and averages values within threshold
+ * yuyvtoy4m — relacks YUYV and UYVY into YUV4MPEG2
+ * yuvcorrect — applies many colour and interlacing corrections
+ * yuvdeinterlae — deinterlaces applying motion compensation
+ * yuvdenoise — reduces noise temporally or specially, with fine-tuning
+ * yuvkineco — automatically try to remove pulldown patterns
+ * yuvycsnoise — denoiser especially for NTSC Y/C separation noise
+ * yuvscaler — scales incoming video to many pre-set sizes
 * libdv — processing library and some utilities for DV digital video streams
- * Full list of these tools to follow.
+ * dubdv — inserts audio into a DV stream, discarding existing audio if any
+ * encodedv — encodes incoming uncompressed video or image sequence into DV format
+ * fix_headers — might fix DV headers. Documentation and code comments non-existent
+ * scan_packet_headers — appears to perform basic packet detection on DV stream into stdin
+ * steal_header — appears to write header from one stream onto data of another
 * Swftools
   * as3compile — a stand-alone ActionScript 3.0 compiler to SWF
   * font2swf — converts a freetype-supported font to SWF
@@ -123,7 +171,7 @@ With these scripts, you can compile binaries, ready to run on 64-bit Windows. Ma
  * qdbusviewer — QT5 application that interrogates a D-Bus server
 * DCP-o-matic
  * dcopmatic2 — a very flexible DCP creation package
- * dcpdiff — compares metadata and content, ignoring timestamps, of two DCPs
+ * b— compares metadata and content, ignoring timestamps, of two DCPs
  * dcpdumpsub — extracts subtitles from DCP MXF
  * dcpinfo — outputs information about a DCP
  * dcpomatic2_batch — dcpomatic batch worker
@@ -431,6 +479,11 @@ With these scripts, you can compile binaries, ready to run on 64-bit Windows. Ma
  * pdftotext — extracts text from PDF files, with control over layout and parsed areas
  * pdfunite — joins many PDF files into one
  * poppler-qt5viewer — displays PDF file in graphical window: a simple PDF reader program
+* cuetools — manipulates CUE and BIN files associated with audio CD mastering or ripping
+ * cueconvert — converts between CUE and TOC formats
+ * cuebreakpoints —  prints the breakpoints from a CUE or TOC file
+ * cueprint — prints disc and track information for a CUE or TOC file
+ * cuetag — tags files based on CUE or TOC information
 * libpcre — Perl-compatible regular expression library
  * pcregrep — grep using the PCRE regular expression library, compatible with the regular expressions of Perl 5
  * pcretest — performs tests upon regular expressions using the PCRE library
@@ -507,6 +560,9 @@ With these scripts, you can compile binaries, ready to run on 64-bit Windows. Ma
   * djvTest
   * djvWidgetTest — test many different widget types
 * doxygen — generate and update in-code documentation
+* liba52 — decode and separate A52 audio (Dolby AC-3)
+ * a52dec — decodes and outputs audio from AC-3 encoded streams
+ * extract_a52 — demultiplexes AC-3 audio from transport stream
 * librubberband — pitch and tempo shifting
  * rubberband — manipulates pitch and tempo of audio files. Inferior to facility in SoX
 * libgcrypt
