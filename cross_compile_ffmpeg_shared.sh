@@ -38,7 +38,7 @@ yes_no_sel () {
 }
 
 check_missing_packages () {
-  local check_packages=('sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint' 'pxz' 'wget' 'zip' 'xmlto' 'gtkdocize' 'python-config' 'ant' 'sdl-config')
+  local check_packages=('sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint' 'pxz' 'wget' 'zip' 'xmlto' 'gtkdocize' 'python-config' 'ant' 'sdl-config' 'gyp')
   for package in "${check_packages[@]}"; do
     type -P "$package" >/dev/null || missing_packages=("$package" "${missing_packages[@]}")
   done
@@ -611,7 +611,7 @@ do_cmake_and_install() {
 build_libx265() {
   do_git_checkout https://github.com/videolan/x265.git x265
   cd x265/source
-    local cmake_params="-DENABLE_SHARED=ON -DENABLE_STATIC=OFF"
+    local cmake_params="-DENABLE_SHARED=ON -DENABLE_STATIC=OFF "
     if [[ $high_bitdepth == "y" ]]; then
       cmake_params="$cmake_params -DHIGH_BIT_DEPTH=ON -DMAIN12=ON" # Enable 10 bits (main10) and 12 bits (???) per pixels profiles.
       if grep "DHIGH_BIT_DEPTH=0" CMakeFiles/cli.dir/flags.make; then
@@ -3335,6 +3335,44 @@ build_qjackctl() {
   cd ..
 }
 
+build_angle() {
+  do_git_checkout https://chromium.googlesource.com/angle/angle angle
+  cd angle
+    # remove .git directory to prevent: No rule to make target '../build-x86_64/.git/index', needed by 'out/Debug/obj/gen/angle/id/commit.h'.
+    rm -rvf .git || exit 1
+    apply_patch file://${top_dir}/angle-string_utils-cpp.patch
+    apply_patch file://${top_dir}/angle-RendererD3D-cpp.patch
+    # make sure an import library is created, the correct .def file is used during the build
+    # and entry_points_shader.cpp is compiled
+    apply_patch file://${top_dir}/angle-include-import-library-and-use-def-file.patch
+    # executing .bat scripts on Linux is a no-go so make this a no-op
+    echo "" > src/copy_compiler_dll.bat
+    chmod +x src/copy_compiler_dll.bat
+    # provide a file to export symbols declared in ShaderLang.h as part of libGLESv2.dll
+    # (required to build Qt WebKit which uses shader interface)
+    cp ${top_dir}/angle-entry_points_shader.cpp src/libGLESv2/entry_points_shader.cpp
+    mkdir build-x86_64
+    cd build-x86_64
+      export CXX=x86_64-w64-mingw32-g++
+      export AR=x86_64-w64-mingw32-ar
+      old_cxxflags=${CXXFLAGS}
+      export CXXFLAGS="-O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions --param=ssp-buffer-size=4 -std=c++11 -msse2 -DUNICODE -D_UNICODE -I./../src -I./../include -I./../src/common/third_party/numerics"
+      # Prepare the Makefile
+      gyp -D use_ozone=0 -D OS=win -D TARGET=win64 --format make -DMSVS_VERSION="" --depth . -I ../build/common.gypi ../src/angle.gyp
+      make V=1 LIBS="-lmingw32 -lm -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -lwinmm -limm32 -lole32 -loleaut32 -lshell32 -lversion -luuid -ld3d9" || exit 1
+      # The libraries are built but have the wrong suffix
+      # There is no make install target
+      cp out/Debug/src/libGLESv2.so "${mingw_w64_x86_64_prefix}/bin/libGLESv2.dll"
+      cp out/Debug/src/libEGL.so "${mingw_w64_x86_64_prefix}/bin/libEGL.dll"
+      cp libGLESv2.dll.a libEGL.dll.a out/Debug/src/lib*.a "${mingw_w64_x86_64_prefix}/lib/"
+      cp -Rv ../include/* "${mingw_w64_x86_64_prefix}/include/"
+      unset CXX
+      unset AR
+      export CXXFLAGS=${old_cxxflags}
+    cd ..
+  cd ..
+}
+
 build_libepoxy() {
   do_git_checkout https://github.com/anholt/libepoxy.git libepoxy
   cd libepoxy
@@ -3524,7 +3562,7 @@ build_ffmpeg() {
     extra_configure_opts="$extra_configure_opts --prefix=$final_install_dir"
   else
     do_git_checkout $git_url $output_dir
-    extra_configure_opts="--enable-shared --disable-static --disable-debug $extra_configure_opts" # --pkg-config-flags=--static
+    extra_configure_opts="--enable-shared --disable-static --disable-debug --disable-stripping $extra_configure_opts" # --pkg-config-flags=--static
   fi
   cd $output_dir
   
@@ -3568,6 +3606,7 @@ build_ffmpeg() {
   sed -i.bak 's/-lavutil -lm.*/-lavutil -lm -lpthread/' "$PKG_CONFIG_PATH/libavutil.pc" # XXX patch ffmpeg itself
   sed -i.bak 's/-lswresample -lm.*/-lswresample -lm -lsoxr/' "$PKG_CONFIG_PATH/libswresample.pc" # XXX patch ffmpeg
   echo "FFmpeg binaries are built."
+  CFLAGS=${orig_cflags}
   cd ..
   # Put back the x265.exe executable we hid earlier. I do not know why FFmpeg becomes linked against it otherwise!
   # NO don't put it back. Windows still finds x265.exe even though the compiler didn't see that binary at link time.
@@ -3774,6 +3813,7 @@ build_dependencies() {
   build_asdcplib-cth
   build_libdcp
   build_libsub
+  build_angle
 }
 
 build_apps() {

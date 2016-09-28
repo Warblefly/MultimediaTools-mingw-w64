@@ -1,0 +1,11 @@
+--- src/libANGLE/renderer/d3d/RendererD3D.orig	2016-09-27 17:20:59.743000000 +0000
++++ src/libANGLE/renderer/d3d/RendererD3D.cpp	2016-09-27 17:21:40.959000000 +0000
+@@ -308,7 +308,7 @@
+     if (getLUID(&adapterLuid))
+     {
+         char adapterLuidString[64];
+-        sprintf_s(adapterLuidString, sizeof(adapterLuidString), "(adapter LUID: %08x%08x)", adapterLuid.HighPart, adapterLuid.LowPart);
++        sprintf(adapterLuidString, "(adapter LUID: %08x%08x)", adapterLuid.HighPart, adapterLuid.LowPart);
+         return std::string(adapterLuidString);
+     }
+ 
