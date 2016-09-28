@@ -171,16 +171,16 @@ With these scripts, you can compile binaries, ready to run on 64-bit Windows. Ma
  * qdbusviewer — QT5 application that interrogates a D-Bus server
 * DCP-o-matic
  * dcopmatic2 — a very flexible DCP creation package
- * b— compares metadata and content, ignoring timestamps, of two DCPs
+ * dcpdiff — compares metadata and content, ignoring timestamps, of two DCPs
  * dcpdumpsub — extracts subtitles from DCP MXF
  * dcpinfo — outputs information about a DCP
  * dcpomatic2_batch — dcpomatic batch worker
  * dcpomatic2_cli — CLI to DCP-o-matic server
- * dcpomatic2_create — create DCP (my binary broken, official build is OK)
+ * dcpomatic2_create — create DCP
  * dcpomatic2_kdm — DCP-o-matic KDM creator with GUI
  * dcpomatic2_kdm_cli — CLI DCP-o-matic KDM creator
- * dcpomatic2_server — DCP-o-matic server (my binary broken, official build is OK)
- * dcpomatic_server_cli — CLI to DCP-o-matic server (my binary broken, official build is OK)
+ * dcpomatic2_server — DCP-o-matic server 
+ * dcpomatic_server_cli — CLI to DCP-o-matic server 
 * OpenDCP — create SMTPE and Interop DCP packages
  * opendcp_j2k — creates OpenDCP compliant JPEG2000 images in XYZ colourspace from TIFF files
  * opendcp_largefile — tests for large-file support
