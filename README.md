@@ -4,14 +4,9 @@ Scripts and patches to cross-compile, for Windows 64-bit, many multimedia utilit
 # How To Install
 
 A binary package is available for download from this address:
-<a href="http://gallery.johnwarburton.net/mingw-multimedia-executables-shared.zip">http://gallery.johnwarburton.net/mingw-multimedia-executables-shared.zip</a>
+<a href="http://gallery.johnwarburton.net/MultimediaTools-mingw-w64-Open-source.exe">http://gallery.johnwarburton.net/MultimediaTools-mingw-w64-Open-source.exe</a>
 
-A pair of installer files, that must be downloaded together and run as Administrator (WARNING: that's a security no-no, but this is my system
-and you're welcome to modify it): <a href="https://raw.githubusercontent.com/Warblefly/MultimediaTools-mingw-w64/master/install-zipfile.cmd">install-zipfile.cmd</a> and <a href="https://raw.githubusercontent.com/Warblefly/MultimediaTools-mingw-w64/master/install-zipfile.ps1">install-zipfile.ps1</a> assist the process.
-
-These files MUST be installed to C:\Program Files\ffmpeg\bin
-
-I am slowly writing a proper installation script.
+These files are tested here when installed to C:\Program Files\ffmpeg. Other locations may work, but have not been tested.
 
 These binaries are for Windows 64-bit editions only, and have been tested only on Windows 10.
 
@@ -24,19 +19,7 @@ Your Windows installation needs to have certain packages installed:
 
 * The Python m3u8 module (run "pip install m3u8" from an Administrator prompt)
 
-Use the installation scripts, above, if you wish. Read through them to determine how safe they are for your system. Otherwise, using any program that reads .zip files (including Windows Explorer), unpack the archive in the advised directory on your Windows box. If you don't use my installation script, you will need to allow Windows Explorer to overwrite certain files where names differ in case alone, because some terminal descriptions use the same letters but in different cases e.g. 'vt100' and 'VT100'. Windows cannot distinguish between these two names because its filesystem is case-insensitive. I am, of course, working on fixing the build process so these similarly-named files do not disturb your installation.
-
-Everything must go into C:\Program Files\ffmpeg
-
-The result is that you have these directories:
-* C:\Program Files\ffmpeg\bin\
-* C:\Program Files\ffmpeg\lib\
-* C:\Program Files\ffmpeg\share\
-* C:\Program Files\ffmpeg\etc\
-
-Within lib\ and share\, there are subdirectories whose purpose is indicated by their names.
-
-You must set certain environment variables for some facilities to work properly. These are examples from my own system, but I cannot guarantee they are all correct, because they may reference facilities that I personally don't test (yet).
+The installer sets certain environment variables for some facilities to work properly. 
 
 * FONTCONFIG_FILE=fonts.conf
 * FONTCONFIG_PATH=C:\Users\\---YOUR-USER-NAME---\AppData\Local\fontconfig
@@ -627,8 +610,8 @@ With these scripts, you can compile binaries, ready to run on 64-bit Windows. Ma
 BINARY DISTRIBUTION
 ===================
 
-I keep a binary tarball on my website.
-<a href="http://gallery.johnwarburton.net/mingw-multimedia-executables-shared.zip">http://gallery.johnwarburton.net/mingw-multimedia-executables-shared.zip</a>
+I keep a binary installer on my website.
+<a href="http://gallery.johnwarburton.net/MultimediaTools-mingw-w64-Open-source.exe">http://gallery.johnwarburton.net/MultimediaTools-mingw-w64-Open-source.exe</a>
 
 Some of the binaries use shared libraries, ending in .dll. Like the executable programs, they're in the /bin/ directory of the distribution. Please keep them together with the .exe programs.
 
