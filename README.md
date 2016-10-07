@@ -31,17 +31,17 @@ The installer sets certain environment variables for some facilities to work pro
 
 # How To Compile
 0. Compiling is becoming increasingly difficult. Source packages are constantly being updated (for which we rejoice, of course), and I am keeping up with these changes quite well. However, some changes that might break compilation go un-noticed because I only accomplish a completely clean build about once a month. Otherwise, packages such as GCC and QT-5.7 remain old. This does not affect the latest and greatest versions of ffmpeg, mpv, vim/gvim, x264, x265 and their associated libraries that are all compiled from development sources.
-1. Ensure your development requirement is adequate. Spin up a Linux Fedora image on AWS if you don't already have a GNU/Linux development environment, and give it around 50GB of space. The Qt compile is massive, for example. The t2.micro machine type (which falls within the 'Free Tier' for new customers) is sufficient but very slow. I personally use the c4.xlarge for the few hours a full compilation takes.
-2. Update to the latest Fedora (or your favourite up-to-date distribution), so you have the latest compilers and other tools.
-3. Install the pre-requisites. On Debian Testing, you can execute this command:
-apt-get install gcc cmake libtool libtool-bin git  autopoint rake autogen xsltproc asciidoc doxygen ruby gperf bzr pax ed g++ bison flex cvs yasm gettext automake autoconf subversion mercurial texinfo pkg-config curl pxz. Similar applies to Fedora, using dnf
-4. Then install the 'drake' make system that runs under Ruby: gem install drake
-5. Clone my package from git (see the address at the top of this page).
-6. cd into the top directory of the git tree.
-7. Read the top of ./build_script, and edit the location to which scp should copy your binary archive.
-8. Execute ./build_script, and give it the password for your scp when prompted.
-9. Wait for about two days on a t2.micro instance.
-10. The archive you can copy and unpack has been placed in the root of your build tree and has been sent by scp to the webserver of your choice.
+1. Ensure your development requirement is adequate. I now develop on Windows 10 Anniversary Edition "Bash on Ubuntu for Windows". It reports its distribution version as Ubuntu 16.04.1 
+2. Update everything.
+3. Install the pre-requisites. On Ubuntu, you can execute this command, and you will need all of these packages:
+sudo apt-get install gcc g++ vim subversion make automake texinfo gyp bison flex libsdl1.2-dev ant python-dev python3-dev gtk-doc-tools xmlto pxz autogen asciidoc libtool-bin gperf pax mercurial cvs yasm cmake sshpass help2man jdk xutils-dev gobject-introspection libgdk-pixbuf2.0-dev nsis
+4. Clone my package from git (see the address at the top of this page).
+5. cd into the top directory of the git tree.
+6. Read the top of ./build_script, and edit the location to which scp should copy your binary archive.
+7. Execute ./build_script, and give it the password for your scp when prompted.
+8. Wait for a long, long time. On an eight-core i7 at 4.5GHz with 16GB RAM and solid states drives, the compile takes about two days.
+9. The archive you can copy and unpack has been placed in the root of your build tree and has been sent by scp to the webserver of your choice.
+10. To recompile only the packages that have been updated, simply run the script again. You may need manually to clear out mpv, vim and vim_console
 
 
 # Tools Included
