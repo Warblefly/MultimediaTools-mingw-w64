@@ -162,7 +162,7 @@ install_cross_compiler() {
   sed -i.bak "s/gcc_release_ver='4.9.2'/gcc_release_ver='6.1.0'/" mingw-w64-build-3.6.6
   sed -i.bak "s/mpfr_release_ver='3.1.2'/mpfr_release_ver='3.1.4'/" mingw-w64-build-3.6.6
   sed -i.bak "s/binutils_release_ver='2.25'/binutils_release_ver='2.27'/" mingw-w64-build-3.6.6
-  sed -i.bak "s/isl_release_ver='0.12.2'/isl_release_ver='0.16.1'/" mingw-w64-build-3.6.6
+  sed -i.bak "s/isl_release_ver='0.12.2'/isl_release_ver='0.17.1'/" mingw-w64-build-3.6.6
   sed -i.bak "s/gmp_release_ver='6.0.0a'/gmp_release_ver='6.1.0'/" mingw-w64-build-3.6.6
   sed -i.bak "s/gmp-6\.0\.0/gmp-6.1.0/" mingw-w64-build-3.6.6
   sed -i.bak "s!//gcc\.gnu\.org/svn/gcc/trunk!//gcc.gnu.org/svn/gcc/branches/gcc-6-branch!" mingw-w64-build-3.6.6
@@ -626,9 +626,9 @@ build_libx265() {
   # Fixed by x265 developers now
     do_cmake "$cmake_params" 
   # x265 seems to fail on parallel builds
-    export cpu_count=1
+#    export cpu_count=1
     do_make_install 
-    export cpu_count=$original_cpu_count
+#    export cpu_count=$original_cpu_count
   cd ../..
   # We must remove the x265.exe executable because FFmpeg gets linked against it. I do not understand this.
   # Furthermore, this makes x265.exe as an executable completely unuseable.
@@ -709,9 +709,9 @@ build_qt() {
     touch "qt.built"
     # QT's build tree takes up over 24GB of space. We don't need to see this again because
     # we're not using a frequently-updated Git version
-    echo "Removing QT-${QT_VERSION} build tree..."
-    rm -rf ${QT_BUILD}
-    echo "QT-${QT_VERSION} build tree now removed."
+#    echo "Removing QT-${QT_VERSION} build tree..."
+#    rm -rf ${QT_BUILD}
+#    echo "QT-${QT_VERSION} build tree now removed."
   else
     echo "Skipping QT build... already completed."
     # Remove the debug versions of libQt5 libraries
@@ -802,7 +802,7 @@ build_DJV() {
     # Change Windows' backslashes to forward slashes to allow MinGW compilation
     # Remember that . and \ need escaping with \, which makes this hard to read
     sed -i.bak 's!\.\.\\\\.\.\\\\etc\\\\Windows\\\\djv_view.ico!../../etc/Windows/djv_view.ico!' bin/djv_view/win.rc
-    do_cmake "-DCMAKE_VERBOSE_MAKEFILE=YES -DENABLE_STATIC_RUNTIME=0 -DCMAKE_PREFIX_PATH=${mingw_w64_x86_64_prefix} -DCMAKE_C_FLAGS=-D__STDC_CONSTANT_MACROS -DCMAKE_CXX_FLAGS=-D__STDC_CONSTANT_MACROS"
+    do_cmake "-DBUILD_SHARED_LIBS=true -DCMAKE_VERBOSE_MAKEFILE=YES -DENABLE_STATIC_RUNTIME=0 -DCMAKE_PREFIX_PATH=${mingw_w64_x86_64_prefix} -DCMAKE_C_FLAGS=-D__STDC_CONSTANT_MACROS -DCMAKE_CXX_FLAGS=-D__STDC_CONSTANT_MACROS"
     # GCC 6.1.1 has altered headers and QT5.7 triggers a bug when used with DJV. 
     # We must instruct it to treat system include files as ordinary include files
     find ./ -name 'includes_CXX.rsp' | while read fname; do
@@ -810,7 +810,10 @@ build_DJV() {
       sed -i.bak 's/-isystem /-I/g' "${fname}"
     done
     echo "Headers now corrected."
+#    orig_cpu_count=$cpu_count
+#    export cpu_count=1
     do_make "V=1"
+#    export cpu_count=$orig_cpu_count
     # The whole DJV suite is now in two directories: build/bin and build/lib.
     # bin contains programs and their necessary DLLs, lib contains plugins and development libraries.
     # We need to copy the executables and their companion DLLs to our bin distribution directory
@@ -1270,9 +1273,9 @@ build_ncurses() {
     wget http://invisible-island.net/datafiles/current/terminfo.src.gz
     gunzip terminfo.src.gz
   fi
- download_and_unpack_file ftp://invisible-island.net/ncurses/current/ncurses-6.0-20160507.tgz ncurses-6.0-20160507
+ download_and_unpack_file ftp://invisible-island.net/ncurses/current/ncurses-6.0-20161001.tgz ncurses-6.0-20161001
  # generic_configure "--build=x86_64-pc-linux --host=x86_64-w64-mingw32 --with-libtool --disable-termcap --enable-widec --enable-term-driver --enable-sp-funcs --without-ada --with-debug=no --with-shared=yes --with-normal=no --enable-database --with-progs --enable-interop --with-pkg-config-libdir=${mingw_w64_x86_64_prefix}/lib/pkgconfig --enable-pc-files"
-  cd ncurses-6.0-20160507
+  cd ncurses-6.0-20161001
     generic_configure "--build=x86_64-pc-linux --host=x86_64-w64-mingw32 --disable-termcap --enable-widec --enable-term-driver --enable-sp-funcs --without-ada --without-cxx-binding --with-debug=no --with-shared=yes --with-normal=no --enable-database --with-probs --enable-interop --with-pkg-config-libdir=${mingw_w64_x86_64_prefix}/lib/pkgconfig --enable-pc-files --disable-static --enable-shared" 
     do_make
 #    do_make "dlls"
@@ -1354,7 +1357,11 @@ build_libjpeg_turbo() {
 }
 
 build_libogg() {
-  generic_download_and_install http://downloads.xiph.org/releases/ogg/libogg-1.3.2.tar.gz libogg-1.3.2
+  do_git_checkout https://git.xiph.org/ogg.git ogg
+  cd ogg
+    generic_configure_make_install
+  cd ..
+#  generic_download_and_install http://downloads.xiph.org/releases/ogg/libogg-1.3.2.tar.gz libogg-1.3.2
 }
 
 build_libvorbis() {
@@ -1362,11 +1369,19 @@ build_libvorbis() {
 }
 
 build_libspeex() {
-  generic_download_and_install http://downloads.xiph.org/releases/speex/speex-1.2rc2.tar.gz speex-1.2rc2 "LIBS=-lwinmm --enable-binaries"
+  do_git_checkout https://git.xiph.org/speex.git speex
+  cd speex
+    generic_configure_make_install "LIBS=-lwinmm --enable-binaries"
+  cd ..
+#  generic_download_and_install http://downloads.xiph.org/releases/speex/speex-1.2rc2.tar.gz speex-1.2rc2 "LIBS=-lwinmm --enable-binaries"
 }  
 
 build_libspeexdsp() {
-  generic_download_and_install http://downloads.xiph.org/releases/speex/speexdsp-1.2rc3.tar.gz speexdsp-1.2rc3
+  do_git_checkout https://git.xiph.org/speexdsp.git speexdsp
+  cd speexdsp
+    generic_configure_make_install
+  cd ..
+#  generic_download_and_install http://downloads.xiph.org/releases/speex/speexdsp-1.2rc3.tar.gz speexdsp-1.2rc3
 }
 
 build_libtheora() {
@@ -1665,8 +1680,8 @@ build_libxvid() {
 }
 
 build_fontconfig() {
-  download_and_unpack_file http://www.freedesktop.org/software/fontconfig/release/fontconfig-2.11.1.tar.gz fontconfig-2.11.1
-  cd fontconfig-2.11.1
+  download_and_unpack_file https://www.freedesktop.org/software/fontconfig/release/fontconfig-2.12.1.tar.bz2 fontconfig-2.12.1
+  cd fontconfig-2.12.1
     generic_configure "--disable-docs"
     do_make_install
   cd .. 
@@ -1684,8 +1699,8 @@ build_libaacplus() {
 }
 
 build_openssl() {
-  download_and_unpack_file ftp://ftp.openssl.org/source/openssl-1.0.2h.tar.gz openssl-1.0.2h
-  cd openssl-1.0.2h
+  download_and_unpack_file ftp://ftp.openssl.org/source/openssl-1.0.2j.tar.gz openssl-1.0.2j
+  cd openssl-1.0.2j
 #  export cross="$cross_prefix"
   export CROSS_COMPILE="${cross_prefix}"
 #  export CC="${cross}gcc"
@@ -1904,6 +1919,15 @@ build_iconv() {
     apply_patch file://${top_dir}/libiconv-1.14-iconv-fix-inline.patch
     # We also need an empty langinfo.h to compile this
 #    touch $cur_dir/include/langinfo.h
+    generic_configure_make_install
+  cd ..
+}
+
+build_iconvgettext() {
+  do_git_checkout git://git.savannah.gnu.org/libiconv.git libiconv
+  cd libiconv
+    apply_patch file://${top_dir}/libiconv-1.14-iconv-fix-inline.patch
+    ./autogen.sh --skip-gnulib
     generic_configure_make_install
   cd ..
 }
@@ -2192,18 +2216,34 @@ build_libdcadec() {
 }
 
 build_glew() {
-  do_git_checkout https://github.com/nigels-com/glew.git glew
-  cd glew
-    apply_patch file:///${top_dir}/glew-CMakeLists-txt.patch
-    cpu_count=1
-    do_make extensions
-    export cpu_count=$original_cpu_count
-    cd build/cmake
-      do_cmake "-DBUILD_SHARED_LIBS=ON -DBUILD_STATIC_LIBS=OFF"
-      do_make_install
-    cd ../..
+#  do_git_checkout https://github.com/nigels-com/glew.git glew
+#  cd glew
+#    export cpu_count=1
+#    do_make "SYSTEM=linux-mingw64"
+#    export cpu_count=$original_cpu_count
+#    apply_patch file:///${top_dir}/glew-CMakeLists-txt.patch
+#    cpu_count=1
+#    do_make extensions
+#   export cpu_count=$original_cpu_count
+#   cd build/cmake
+#      do_cmake "-DBUILD_SHARED_LIBS=ON -DBUILD_STATIC_LIBS=OFF"
+#      do_make_install
+#    cd ../..
 #    generic_configure_make_install
+#  cd ..
+  download_and_unpack_file http://downloads.sourceforge.net/project/glew/glew/snapshots/glew-20160708.tgz glew-2.0.0
+  cd glew-2.0.0
+    sed -i.bak 's/i686-w64-mingw32-/x86_64-w64-mingw32-/g' config/Makefile.linux-mingw-w64
+    sed -i.bak "s!LDFLAGS.GL = -lopengl32!LDFLAGS.GL = -L${mingw_w64_x86_64_prefix}/lib -lmsvcrt -lopengl32!" config/Makefile.linux-mingw-w64
+    sed -i.bak 's/LDFLAGS.EXTRA += -nostdlib/LDFLAGS.EXTRA +=/' config/Makefile.linux-mingw-w64
+    do_make "SYSTEM=linux-mingw-w64 GLEW_DEST=${mingw_w64_x86_64_prefix}"
+    do_make_install "SYSTEM=linux-mingw-w64 GLEW_DEST=${mingw_w64_x86_64_prefix}"
+    # For unclear reasons, the Glew distribution does not install the shared libraries.
+    # We do this manually.
+    cp -v lib/glew32.dll ${mingw_w64_x86_64_prefix}/bin/glew32.dll
+    cp -v lib/libglew32.dll.a ${mingw_w64_x86_64_prefix}/lib/libglew32.dll.a
   cd ..
+
 }
 
 build_libwebp() {
@@ -2439,7 +2479,10 @@ build_regex() {
     generic_configure
 #    apply_patch_p1 file://${top_dir}/libgnurx-1-build-static-lib.patch
 #    do_make "-f Makefile.mingw-cross-env libgnurx.a"
+    orig_cpu_count=$cpu_count
+    cpu_count=1  # Parallel builds are broken
     do_make
+    export cpu_count=$orig_cpu_count
     x86_64-w64-mingw32-ranlib libregex.a || exit 1 
 #    do_make "-f Makefile.mingw-cross-env install-static"
     do_make "install"
@@ -2449,8 +2492,8 @@ build_regex() {
 }
 
 build_boost() { 
-  download_and_unpack_file "http://sourceforge.net/projects/boost/files/boost/1.61.0/boost_1_61_0.tar.bz2/download" boost_1_61_0
-  cd boost_1_61_0 
+  download_and_unpack_file "http://sourceforge.net/projects/boost/files/boost/1.62.0/boost_1_62_0.tar.bz2/download" boost_1_62_0
+  cd boost_1_62_0 
     local touch_name=$(get_small_touchfile_name already_configured "$configure_options $configure_name $LDFLAGS $CFLAGS") 
     if [ ! -f  "$touch_name" ]; then 
 #      ./bootstrap.sh mingw target-os=windows address-model=64 link=shared threading=multi threadapi=win32 toolset=gcc-mingw --prefix=${mingw_w64_x86_64_prefix} || exit 1
@@ -2610,14 +2653,19 @@ build_gobject_introspection() {
 }
 
 build_gtk() {
-  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/gtk+/3.21/gtk+-3.21.3.tar.xz gtk+-3.21.3
-  cd gtk+-3.21.3
+  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/gtk+/3.22/gtk+-3.22.1.tar.xz gtk+-3.22.1
+#  do_git_checkout https://github.com/GNOME/gtk.git gtk
+  cd gtk+-3.22.1
+#    orig_cpu_count=$cpu_count
+#    export cpu_count=1
     # Don't attempt to run the icon updater here. It's a Windows executable.
     apply_patch file://${top_dir}/gtk3-demos-gtk-demo-Makefile-am.patch
     apply_patch file://${top_dir}/gtk3-demos-widget-factory-Makefile-am.patch
+    apply_patch file://${top_dir}/gtk3-modules-input-Makefile.am.patch
     # Now regenerate autoconf and automake files
     rm -v ./configure ./autogen.sh
-    generic_configure_make_install "--enable-win32-backend"
+    generic_configure_make_install "--disable-silent-rules --enable-win32-backend --disable-cups"
+#    export cpu_count=$orig_cpu_count
   cd ..
 }
 
@@ -2713,7 +2761,12 @@ build_libdv() {
 build_asdcplib() {
   export CXXFLAGS=-DKM_WIN32
   export CFLAGS=-DKM_WIN32
-  generic_download_and_install http://download.cinecert.com/asdcplib/asdcplib-2.5.12.tar.gz asdcplib-2.5.12 "--with-openssl=${mingw_w64_x86_64_prefix} --with-expat=${mingw_w64_x86_64_prefix}"
+  download_and_unpack_file http://download.cinecert.com/asdcplib/asdcplib-2.5.14.tar.gz asdcplib-2.5.14
+  cd asdcplib-2.5.14
+    rm configure
+    apply_patch file://${top_dir}/asdcplib-shared.patch
+    generic_configure_make_install "--with-openssl=${mingw_w64_x86_64_prefix} --with-expat=${mingw_w64_x86_64_prefix}"
+  cd ..
   unset CXXFLAGS
   unset CFLAGS
 }
@@ -3134,8 +3187,8 @@ build_pcre() {
 }
 
 build_glib() {
-  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/glib/2.49/glib-2.49.2.tar.xz glib-2.49.2
-  cd glib-2.49.2
+  download_and_unpack_file http://ftp.heanet.ie/mirrors/ftp.gnome.org/sources/glib/2.50/glib-2.50.0.tar.xz glib-2.50.0
+  cd glib-2.50.0
     export glib_cv_long_long_format=I64
     export glib_cv_stack_grows=no
     # Work around mingw-w64 lacking strerror_s()
@@ -3143,19 +3196,22 @@ build_glib() {
     generic_configure_make_install "--disable-compile-warnings --disable-silent-rules CFLAGS=-DMINGW_HAS_SECURE_API"
     unset glib_cv_long_long_format
     unset glib_cv_stack_grows
+    # To ensure gtk uses the latest gdbus-codegen, we must ensure that the glib Python utility by this name
+    # appears in our PATH
+    cp -v ${mingw_w64_x86_64_prefix}/bin/gdbus-codegen ${mingw_w64_x86_64_prefix}/../bin/gdbus-codegen
   cd ..
 }
 
 build_atk() {
-  generic_download_and_install http://ftp.gnome.org/pub/GNOME/sources/atk/2.20/atk-2.20.0.tar.xz atk-2.20.0
+  generic_download_and_install http://ftp.gnome.org/pub/GNOME/sources/atk/2.22/atk-2.22.0.tar.xz atk-2.22.0
 }
 
 build_gdk_pixbuf() {
-  generic_download_and_install http://ftp.gnome.org/pub/GNOME/sources/gdk-pixbuf/2.35/gdk-pixbuf-2.35.2.tar.xz gdk-pixbuf-2.35.2 "--with-libjasper"
+  generic_download_and_install http://ftp.gnome.org/pub/GNOME/sources/gdk-pixbuf/2.36/gdk-pixbuf-2.36.0.tar.xz gdk-pixbuf-2.36.0 "--with-libjasper"
 }
 
 build_libsigc++() {
-  generic_download_and_install http://ftp.gnome.org/pub/GNOME/sources/libsigc++/2.9/libsigc++-2.9.2.tar.xz libsigc++-2.9.2
+  generic_download_and_install https://www.mirrorservice.org/sites/ftp.gnome.org/pub/GNOME/sources/libsigc++/2.10/libsigc++-2.10.0.tar.xz libsigc++-2.10.0
 }
 
 build_locked_sstream() {
@@ -3189,8 +3245,8 @@ build_glibmm() {
   # the Boost libraries. These provide an (almost) drop-in replacement.
   export GLIBMM_LIBS="-lgobject-2.0 -lgmodule-2.0 -lglib-2.0 -lboost_system -lsigc-2.0 -lboost_thread_win32"
   export GIOMM_LIBS="-lgio-2.0 -lgobject-2.0 -lgmodule-2.0 -lglib-2.0 -lboost_system -lsigc-2.0"
-  download_and_unpack_file http://ftp.acc.umu.se/pub/GNOME/sources/glibmm/2.48/glibmm-2.48.1.tar.xz glibmm-2.48.1
-  cd glibmm-2.48.1
+  download_and_unpack_file http://ftp.heanet.ie/mirrors/ftp.gnome.org/sources/glibmm/2.50/glibmm-2.50.0.tar.xz glibmm-2.50.0
+  cd glibmm-2.50.0
     apply_patch file://${top_dir}/glibmm-mutex.patch
     generic_configure_make_install 
   cd ..
@@ -3318,7 +3374,7 @@ build_mp4box() { # like build_gpac
 }
 
 build_pango() {
-  generic_download_and_install http://ftp.gnome.org/pub/gnome/sources/pango/1.40/pango-1.40.1.tar.xz pango-1.40.1
+  generic_download_and_install http://ftp.gnome.org/pub/gnome/sources/pango/1.40/pango-1.40.3.tar.xz pango-1.40.3
 }
 
 build_pangomm() {
@@ -3686,6 +3742,7 @@ build_dependencies() {
   build_ncurses
   build_readline
   build_gettext
+  #build_iconvgettext # Because of circular dependency libiconv->gettext
   build_libpopt
   build_libzip
   build_freetype # uses bz2/zlib seemingly
@@ -3899,7 +3956,8 @@ if [ -z "$cpu_count" ]; then
 fi
 echo "Processors found: ${cpu_count}"
 original_cpu_count=$cpu_count # save it away for some that revert it temporarily
-gcc_cpu_count=1 # allow them to specify more than 1, but default to the one that's most compatible...
+#gcc_cpu_count=1 # allow them to specify more than 1, but default to the one that's most compatible...
+gcc_cpu_count=$cpu_count
 build_ffmpeg_static=y
 build_ffmpeg_shared=n
 build_libav=n

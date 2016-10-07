@@ -1,0 +1,16 @@
+--- modules/input/Makefile.am.orig	2016-10-05 22:16:30.474399200 +0100
++++ modules/input/Makefile.am	2016-10-05 22:17:16.303218900 +0100
+@@ -13,10 +13,12 @@
+ 	$(INCLUDED_IMMODULE_DEFINE)
+ 
+ DEPS = \
+-	$(top_builddir)/gtk/libgtk-3.la
++	$(top_builddir)/gtk/libgtk-3.la \
++	$(top_builddir)/gdk/libgdk-3.la
+ 
+ LDADDS = \
+ 	$(top_builddir)/gtk/libgtk-3.la	\
++	$(top_builddir)/gdk/libgdk-3.la \
+ 	$(GTK_DEP_LIBS)
+ 
+ moduledir = $(libdir)/gtk-3.0/$(GTK_BINARY_VERSION)/immodules

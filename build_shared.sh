@@ -58,7 +58,10 @@ echo "Archive will be uploaded to ${upload_location}"
 # A few shared libraries necessary for runtime have been stored in ./lib.
 # These must now be moved somewhere more useful.
 
+# Ensure the LICENSE.rtf file goes where the installer will find it
+# and don't proceed if there isn't a licence
 
+cp -v LICENSE.rtf sandbox/mingw-w64-x86_64/x86_64-w64-mingw32/LICENSE.rtf || exit 1
 
 # Make archive of executables
 if  [[ "$dump_archive" = [Yy] ]]; then
@@ -416,7 +419,7 @@ BrandingText "Windows 64-bit only"
 Name "Open Source Multimedia Tools"
 CompletedText "Installation is complete."
 InstallDir "$PROGRAMFILES64\ffmpeg\"
-LicenseData LICENSE
+LicenseData LICENSE.rtf
 LicenseForceSelection radiobuttons "Accept" "Decline"
 ShowInstDetails show
 ShowUninstDetails show

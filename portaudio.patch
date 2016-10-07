@@ -32,7 +32,7 @@
  	#define INITGUID // Avoid additional linkage of static libs, excessive code will be optimized out by the compiler
  	#include <mmdeviceapi.h>
 -	#include <functiondiscoverykeys.h>
-+	#include "mingw-include/FunctionDiscoveryKeys_devpkey.h"
++	#include "functiondiscoverykeys_devpkey.h"
      #include <devicetopology.h>	// Used to get IKsJackDescription interface
  	#undef INITGUID
  #endif
