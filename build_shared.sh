@@ -75,7 +75,7 @@ if  [[ "$dump_archive" = [Yy] ]]; then
   # Symbolic links are de-referenced because Windows doesn't understand these.
 #  zip -r -9 -v -db -dc ${dump_file}  ./bin/*exe ./bin/*com ./bin/*dll ./bin/*py ./bin/*pl ./bin/*cmd ./bin/*config ./bin/platforms/*dll ./bin/lib/* ./bin/share/* ./bin/jack/* ./lib/frei0r-1/* ./plugins/* ./share/OpenCV/* ./share/tessdata ./share/terminfo ./share/misc/magic.mgc ./share/vim/* ./bin/install-zipfile.ps1 ./bin/install-zipfile.cmd || exit 1
   # Starting to build the archive list for a proper Windows installer
-  archive_list=('./bin/*exe' './bin/*com' './bin/*dll' './bin/*py' './bin/*pl' './bin/*cmd' './bin/*config' './bin/platforms/*dll' './bin/lib/*' './bin/share/*' './bin/jack/*' './lib/frei0r-1/*' './plugins/*' './share/OpenCV/*' './share/tessdata' './share/terminfo' './share/misc/magic.mgc' './share/vim/*' './bin/install-zipfile.ps1' './bin/install-zipfile.cmd')
+  archive_list=('./bin/*exe' './bin/*com' './bin/*dll' './bin/*py' './bin/*pl' './bin/*cmd' './bin/*config' './bin/platforms/*dll' './bin/lib/*' './bin/share/*' './bin/jack/*' './lib/frei0r-1/*' './lib/gdk-pixbuf-2.0/2.10.0/loaders/*dll' './plugins/*' './share/OpenCV/*' './share/tessdata' './share/terminfo' './share/misc/magic.mgc' './share/vim/*' './share/themes' './bin/install-zipfile.ps1' './bin/install-zipfile.cmd')
   for item in "${archive_list[@]}"; do
     find $item -name "*" -printf "File /nonfatal \"%p\"\n" >> archive_list.files
   done
@@ -425,6 +425,8 @@ ShowInstDetails show
 ShowUninstDetails show
 SetCompressor lzma
 SetCompressorDictSize 16
+XPStyle on
+
 
 Page license
 Page directory
@@ -460,6 +462,12 @@ File /nonfatal /r "./bin/jack/*.*"
 setOutPath "$INSTDIR\lib\frei0r-1"
 File /nonfatal /r "./lib/frei0r-1/*.*"
 
+setOutPath "$INSTDIR\lib\gdk-pixbuf-2.0\2.10.0\loaders"
+File /nonfatal /r "./lib/gdk-pixbuf-2.0/2.10.0/loaders/*.dll"
+
+setOutPath "$INSTDIR\lib\gtk-3.0\3.0.0\immodules"
+File /nonfatal /r "./lib/gtk-3.0\3.0.0\immodules\*.dll"
+
 setOutPath "$INSTDIR\plugins"
 File /nonfatal /r "./plugins/*.*"
 
@@ -478,6 +486,12 @@ File /nonfatal /r "./share/misc/magic.mgc"
 setOutPath "$INSTDIR\share\vim"
 File /nonfatal /r "./share/vim/*.*"
 
+setOutPath "$INSTDIR\share\themes"
+File /nonfatal /r "./share/themes/*.*"
+
+setOutPath "$INSTDIR\share\icons"
+File /nonfatal /r "./share/icons/*.*"
+
 setOutPath "$INSTDIR\doc"
 File /nonfatal /r *./doc/*.*"
 
@@ -491,7 +505,12 @@ ${EnvVarUpdate} $0 FREI0R_PATH "A" "HKCU" "$INSTDIR\lib\frei0r-1"
 ${EnvVarUpdate} $0 TESSDATA_PREFIX "A" "HKCU" "$INSTDIR\share\"
 ${EnvVarUpdate} $0 TERMINFO "A" "HKCU" "$INSTDIR\share\terminfo"
 ${EnvVarUpdate} $0 VIMRUNTIME "A" "HKCU" "$INSTDIR\share\vim"
+${EnvVarUpdate} $0 GDK_PIXBUF_MODULE_FILE "A" "HKCU" "$INSTDIR\lib\gdk-pixbuf-2.0\2.10.0\loaders\loaders.cache"
 
+; Set up the GTK loader cache
+
+ExecWait '"$INSTDIR\bin\gdk-pixbuf-query-loaders.exe" "> lib\gdk-pixbuf-2.0\2.10.0\loaders\loaders.cache' $0
+DetailPrint "The pixbuf loader ran as $INSTDIR\bin\gdk-pixbuf-query-loaders.exe returned value $0"
 
 SectionEnd
 

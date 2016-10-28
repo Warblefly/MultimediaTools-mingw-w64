@@ -755,7 +755,7 @@ build_libsoxr() {
 }
 
 build_mlt() {
-  do_git_checkout http://github.com/mltframework/mlt.git mlt
+  do_git_checkout http://github.com/mltframework/mlt.git mlt 18b8609
   cd mlt
     apply_patch file://${top_dir}/mlt-mingw-sandbox.patch
     export CXX=x86_64-w64-mingw32-g++
@@ -1343,7 +1343,7 @@ build_rsync() {
 build_libjpeg_turbo() {
   do_git_checkout https://github.com/libjpeg-turbo/libjpeg-turbo libjpeg-turbo
   cd libjpeg-turbo
-    apply_patch file://${top_dir}/libjpeg-turbo-simd-yasm.patch
+#    apply_patch file://${top_dir}/libjpeg-turbo-simd-yasm.patch
     do_cmake "-DENABLE_STATIC=FALSE -DENABLE_SHARED=TRUE"
     do_make_install
   # Change to CMAKE
@@ -1362,6 +1362,14 @@ build_libogg() {
     generic_configure_make_install
   cd ..
 #  generic_download_and_install http://downloads.xiph.org/releases/ogg/libogg-1.3.2.tar.gz libogg-1.3.2
+}
+
+build_jackmix() {
+  do_git_checkout https://github.com/kampfschlaefer/jackmix.git jackmix
+  cd jackmix
+    apply_patch file://${top_dir}/jackmix-qt5.patch
+    scons
+  cd ..
 }
 
 build_libvorbis() {
@@ -2667,6 +2675,11 @@ build_gtk() {
     generic_configure_make_install "--disable-silent-rules --enable-win32-backend --disable-cups"
 #    export cpu_count=$orig_cpu_count
   cd ..
+  # Now to get to work on a default theme
+  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/adwaita-icon-theme/3.22/adwaita-icon-theme-3.22.0.tar.xz adwaita-icon-theme-3.22.0
+  cd adwaita-icon-theme-3.22.0
+    generic_configure_make_install "--enable-w32-cursors"
+  cd ..
 }
 
 build_snappy () {
@@ -3387,7 +3400,7 @@ build_qjackctl() {
   do_git_checkout http://git.code.sf.net/p/qjackctl/code qjackctl
   cd qjackctl
     apply_patch file://${top_dir}/qjackctl-MainForm.patch
-    generic_configure_make_install "LIBS=-lportaudio --enable-xunique=no --enable-jack-version=yes"
+    generic_configure_make_install "LIBS=-lportaudio --enable-xunique=no" # enable-jack-version=yes
     # make install doesn't work
     cp -vf src/release/qjackctl.exe ${mingw_w64_x86_64_prefix}/bin
   cd ..
@@ -3655,8 +3668,8 @@ build_ffmpeg() {
   rm -f */*.a */*.dll *.exe # just in case some dependency library has changed, force it to re-link even if the ffmpeg source hasn't changed...
   rm already_ran_make*
   echo "doing ffmpeg make $(pwd)"
-  do_make "V=1"
-  do_make_install "V=1" # install ffmpeg to get libavcodec libraries to be used as dependencies for other things, like vlc [XXX make this a parameter?] or install shared to a local dir
+  do_make "V=0"
+  do_make_install "V=0" # install ffmpeg to get libavcodec libraries to be used as dependencies for other things, like vlc [XXX make this a parameter?] or install shared to a local dir
 
   # build ismindex.exe, too, just for fun 
   make tools/ismindex.exe
@@ -3935,6 +3948,7 @@ build_apps() {
   build_mlt # Framework, but relies on FFmpeg, Qt, and many other libraries we've built.
   build_DJV # Requires FFmpeg libraries
   build_qjackctl
+  build_jackmix
   build_get_iplayer
   build_dcpomatic
   build_loudness-scanner
@@ -4116,6 +4130,7 @@ ${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/plugins/platforms/*.dl
 ${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/plugins/printsupport/*.dll
 ${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/plugins/sqldrivers/*.dll
 ${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/lib/frei0r-1/*.dll
+${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/lib/gdk-pixbuf-2.0/2.10.0/loaders/*.dll
 echo "Binaries are stripped. Debugging versions of FFmpeg programs ending _g"
 echo "are in build directory."
 #echo "searching for some local exes..."
