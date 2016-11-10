@@ -1,0 +1,21 @@
+--- admin/qt4muc.py.orig	2016-10-19 09:04:32.850073000 +0100
++++ admin/qt4muc.py	2016-10-19 09:05:13.635198500 +0100
+@@ -101,15 +101,15 @@
+ 					ret = command
+ 		return ret
+ 
+-	moc = CommandFromList( ( "moc", "moc4", "moc-qt4" ), "Qt 4." )
++	moc = CommandFromList( ( "moc", "moc4", "moc-qt4" ), "moc 5." )
+ 	if len( moc ) < 3:
+ 		env.Exit( 1 )
+ 
+-	uic = CommandFromList( ( "uic", "uic4", "uic-qt4" ), "4." )
++	uic = CommandFromList( ( "uic", "uic4", "uic-qt4" ), "5." )
+ 	if len( uic ) < 3:
+ 		env.Exit( 1 )
+ 
+-	rcc = CommandFromList( ( "rcc", "rcc4", "rcc-qt4" ), "4." )
++	rcc = CommandFromList( ( "rcc", "rcc4", "rcc-qt4" ), "5." )
+ 	if len( rcc ) < 3:
+ 		env.Exit( 1 )
+ 

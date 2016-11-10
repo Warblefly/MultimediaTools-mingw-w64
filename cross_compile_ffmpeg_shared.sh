@@ -1734,7 +1734,7 @@ build_libssh() {
   do_git_checkout git://git.libssh.org/projects/libssh.git libssh 
   mkdir libssh_build
   cd libssh
-    apply_patch file://${top_dir}/libssh-win32.patch
+#    apply_patch file://${top_dir}/libssh-win32.patch
   cd ..
   cd libssh_build
     local touch_name=$(get_small_touchfile_name already_ran_cmake "$extra_args")
@@ -2142,7 +2142,7 @@ build_vim() {
 
 
 build_mpv() {
-  do_git_checkout https://github.com/mpv-player/mpv.git mpv
+  do_git_checkout https://github.com/mpv-player/mpv.git mpv # eedda59a6941f1b9d1968ccf75d5578718b0b08c
   cd mpv
     apply_patch file://${top_dir}/mpv-disable-rectangle.patch
     ./bootstrap.py
@@ -3447,7 +3447,7 @@ build_angle() {
 build_libepoxy() {
   do_git_checkout https://github.com/anholt/libepoxy.git libepoxy
   cd libepoxy
-    generic_configure_make_install
+    do_cmake_and_install "-DEPOXY_BUILD_SHARED=ON -DEPOXY_BUILD_STATIC=OFF" 
   cd ..
 }
 
