@@ -1237,7 +1237,11 @@ build_jack() {
 
 
 build_leptonica() {
-  generic_download_and_install http://www.leptonica.com/source/leptonica-1.73.tar.gz leptonica-1.73 "LIBS=-lopenjpeg --disable-silent-rules --without-libopenjpeg"
+  do_git_checkout https://github.com/DanBloomberg/leptonica.git leptonica
+  cd leptonica
+    generic_configure_make_install "LIBS=-lopenjpeg --disable-silent-rules --without-libopenjpeg"
+  cd ..
+#  generic_download_and_install http://www.leptonica.com/source/leptonica-1.73.tar.gz leptonica-1.73 "LIBS=-lopenjpeg --disable-silent-rules --without-libopenjpeg"
 }
 
 build_libpopt() {
@@ -1963,13 +1967,16 @@ build_tesseract() {
   cd tesseract
     export LIBLEPT_HEADERSDIR="${mingw_w64_x86_64_prefix}/include/leptonica"
     export LIBS="-ltiff -ljpeg -lpng -lwebp -lz"
+    old_cxxflags="${CXXFLAGS}"
+    export CXXFLAGS="-fpermissive"
     sed -i.bak 's/Windows.h/windows.h/' opencl/openclwrapper.cpp
     sed -i.bak 's/-ltesseract/-ltesseract -llept -ltiff -ljpeg -lpng -lwebp -lz/' tesseract.pc.in
     # Unpack English language tessdata into data directory
     # tar xvvf ${top_dir}/tessdata-snapshot-20150411.tar.xz
-    generic_configure_make_install
+    generic_configure_make_install 
     unset LIBLEPT_HEADERSDIR
     unset LIBS
+    export CXXFLAGS="${old_cxxflags}"
   cd ..
     # Fetch the training data
   do_git_checkout https://github.com/tesseract-ocr/tessdata.git tessdata
@@ -3584,15 +3591,11 @@ build_graphicsmagick() {
 }
 
 build_get_iplayer() {
-  # This isn't really "building" - just downloading the latest Perl script from Github, and bundling
-  # it with a simple command to call it.
-  # Note that these are both development versions, that closely track the developers' work on changes
-  # to the BBC website
+  # This isn't really "building" - just downloading the latest Perl script from Github
+  # Don't forget - you MUST have a working Perl interpreter to run this program.
+  # Note that this is the development version, that closely tracks the developers' work on changes
+  # to the BBC website. It is NOT supported, but may have fixes before the release version.
   curl -o ${mingw_w64_x86_64_prefix}/bin/get_iplayer.pl https://raw.githubusercontent.com/get-iplayer/get_iplayer/develop/get_iplayer
-  curl -o ${mingw_w64_x86_64_prefix}/bin/get_iplayer.cmd https://raw.githubusercontent.com/get-iplayer/get_iplayer/master/windows/get_iplayer/get_iplayer.cmd
-  # Change the Perl path to include the full path to my default location for this suite
-  # otherwise the Perl script isn't found by the command interpreter on Windows
-  sed -i.bak 's/get_iplayer.pl/"C:\\Program Files\\ffmpeg\\bin\\get_iplayer.pl"/' ${mingw_w64_x86_64_prefix}/bin/get_iplayer.cmd
 }
 
 build_libdecklink() {
@@ -3731,7 +3734,7 @@ build_dependencies() {
 #  build_iconv # mplayer I think needs it for freetype [just it though], vlc also wants it.  looks like ffmpeg can use it too...not sure what for :)
   build_gnutls # needs libnettle, can use iconv it appears
   build_openssl
-  # build_gomp   # Not yet.
+#  build_gomp   # Not yet.
   build_gavl # Frei0r has this as an optional dependency
 #  build_libutvideo
   build_opencl
