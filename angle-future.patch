@@ -1,0 +1,14 @@
+--- src/libANGLE/WorkerThread.h.orig	2017-01-05 10:31:33.229871800 +0000
++++ src/libANGLE/WorkerThread.h	2017-01-05 10:32:11.827710200 +0000
+@@ -17,9 +17,9 @@
+ #include "common/debug.h"
+ #include "libANGLE/features.h"
+ 
+-#if (ANGLE_STD_ASYNC_WORKERS == ANGLE_ENABLED)
++// #if (ANGLE_STD_ASYNC_WORKERS == ANGLE_ENABLED)
+ #include <future>
+-#endif  // (ANGLE_STD_ASYNC_WORKERS == ANGLE_ENABLED)
++//#endif  // (ANGLE_STD_ASYNC_WORKERS == ANGLE_ENABLED)
+ 
+ namespace angle
+ {

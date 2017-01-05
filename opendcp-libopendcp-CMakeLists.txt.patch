@@ -12,7 +12,7 @@
 @@ -60,7 +60,7 @@
  ENDIF()
  IF(BUILD_STATIC)
-     ADD_LIBRARY(opendcp-lib STATIC ${OPENDCP_SRC_FILES})
+     ADD_LIBRARY(opendcp-lib STATIC ${OPENDCP_SRC_FILES} $<TARGET_OBJECTS:${ASDCP_LIBRARIES}> $<TARGET_OBJECTS:${LIB_CRYPTO}>)
 -    SET_TARGET_PROPERTIES(opendcp-lib PROPERTIES OUTPUT_NAME "opendcp")
 +    SET_TARGET_PROPERTIES(opendcp-lib PROPERTIES OUTPUT_NAME "opendcp-lib")
      SET_TARGET_PROPERTIES(opendcp-lib PROPERTIES PREFIX "lib")
@@ -28,3 +28,14 @@
 +    INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/codecs/opendcp_decoder.h DESTINATION include)
  ENDIF()
  #-------------------------------------------------------------------------------
+--- libopendcp/CMakeLists.txt.orig	2017-01-03 16:55:08.344079000 +0000
++++ libopendcp/CMakeLists.txt	2017-01-03 16:55:40.255882900 +0000
+@@ -50,7 +50,7 @@
+ SET(OPENDCP_LIB opendcp-lib PARENT_SCOPE)
+ 
+ IF(BUILD_SHARED)
+-    ADD_LIBRARY(opendcp-lib-shared SHARED ${OPENDCP_SRC_FILES})
++    ADD_LIBRARY(opendcp-lib-shared SHARED ${OPENDCP_SRC_FILES} $<TARGET_OBJECTS:${ASDCP_LIBRARIES}> $<TARGET_OBJECTS:${LIB_CRYPTO}>)
+     SET_TARGET_PROPERTIES(opendcp-lib-shared PROPERTIES OUTPUT_NAME "opendcp-lib")
+     SET_TARGET_PROPERTIES(opendcp-lib-shared PROPERTIES PREFIX "lib")
+     TARGET_LINK_LIBRARIES(opendcp-lib-shared ${ASDCP_SHARED_LIBRARIES} ${LIBS} ${LIB_RAGNAROK})

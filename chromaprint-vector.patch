@@ -1,0 +1,64 @@
+--- src/audio_processor.cpp.orig	2016-11-29 16:48:53.032087700 +0000
++++ src/audio_processor.cpp	2016-11-29 16:49:22.003130600 +0000
+@@ -3,6 +3,7 @@
+ 
+ #include <assert.h>
+ #include <algorithm>
++#include <vector>
+ #include <stdio.h>
+ extern "C" {
+ #include "avresample/avcodec.h"
+--- src/chromaprint.cpp.orig	2016-11-29 16:53:19.591521700 +0000
++++ src/chromaprint.cpp	2016-11-29 16:53:36.191811200 +0000
+@@ -6,6 +6,7 @@
+ #include <algorithm>
+ #include <memory>
+ #include <cstring>
++#include <cmath>
+ #include <chromaprint.h>
+ #include "fingerprinter.h"
+ #include "fingerprint_compressor.h"
+--- src/utils/rolling_integral_image.h.orig	2016-11-29 16:54:29.381453400 +0000
++++ src/utils/rolling_integral_image.h	2016-11-29 16:55:13.548454300 +0000
+@@ -7,6 +7,7 @@
+ #include <cstddef>
+ #include <cassert>
+ #include <algorithm>
++#include <numeric>
+ #include "debug.h"
+ 
+ namespace chromaprint {
+--- src/fingerprint_matcher.cpp.orig	2016-11-29 17:01:05.508468300 +0000
++++ src/fingerprint_matcher.cpp	2016-11-29 17:01:25.220532200 +0000
+@@ -2,6 +2,7 @@
+ // Distributed under the MIT license, see the LICENSE file for details.
+ 
+ #include <algorithm>
++#include <cmath>
+ #include "fingerprint_matcher.h"
+ #include "fingerprinter_configuration.h"
+ #include "utils.h"
+--- src/fingerprint_matcher.cpp.orig	2016-11-29 17:04:27.684435800 +0000
++++ src/fingerprint_matcher.cpp	2016-11-29 17:04:58.184093100 +0000
+@@ -2,6 +2,7 @@
+ // Distributed under the MIT license, see the LICENSE file for details.
+ 
+ #include <algorithm>
++#include <numeric>
+ #include <cmath>
+ #include "fingerprint_matcher.h"
+ #include "fingerprinter_configuration.h"
+--- src/CMakeLists.txt.orig	2016-11-29 17:15:38.709204900 +0000
++++ src/CMakeLists.txt	2016-11-29 17:15:57.038674200 +0000
+@@ -100,11 +100,3 @@
+ 	ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
+ 	PUBLIC_HEADER DESTINATION ${INCLUDE_INSTALL_DIR}
+ )
+-
+-add_executable(fpcmp cmd/fpcmp.cpp)
+-target_link_libraries(fpcmp chromaprint ${chromaprint_LINK_LIBS})
+-install(TARGETS fpcmp RUNTIME DESTINATION ${BIN_INSTALL_DIR})
+-
+-add_executable(fpcalc cmd/fpcalc.cpp)
+-target_link_libraries(fpcalc chromaprint ${chromaprint_LINK_LIBS})
+-install(TARGETS fpcalc RUNTIME DESTINATION ${BIN_INSTALL_DIR})

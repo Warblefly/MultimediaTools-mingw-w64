@@ -1,0 +1,30 @@
+--- libcxml.pc.in.orig	2016-11-28 19:58:33.927771400 +0000
++++ libcxml.pc.in	2016-11-28 19:58:54.957375100 +0000
+@@ -5,6 +5,6 @@
+ Name: libcxml
+ Description: Library to simplify XML parsing with libxml++
+ Version: @version@
+-Requires: libxml++-2.6 glibmm-2.4 locked_sstream
++Requires: libxml++-3.0 glibmm-2.4 locked_sstream
+ Libs: @libs@
+ Cflags: -I${includedir}
+--- wscript.orig	2016-11-28 19:58:39.330266000 +0000
++++ wscript	2016-11-28 19:59:39.739957400 +0000
+@@ -44,7 +44,7 @@
+     else:
+         boost_lib_suffix = ''
+ 
+-    conf.check_cfg(package='libxml++-2.6', args='--cflags --libs', uselib_store='LIBXML++', mandatory=True)
++    conf.check_cfg(package='libxml++-3.0', args='--cflags --libs', uselib_store='LIBXML++', mandatory=True)
+     conf.check_cfg(package='locked_sstream', args='--cflags --libs', uselib_store='LOCKED_SSTREAM', mandatory=True)
+ 
+     conf.check_cxx(fragment="""
+@@ -69,7 +69,7 @@
+         conf.recurse('test')
+ 
+     # libxml++ 2.39.1 and later must be built with -std=c++11
+-    libxmlpp_version = conf.cmd_and_log(['pkg-config', '--modversion', 'libxml++-2.6'], output=Context.STDOUT, quiet=Context.BOTH)
++    libxmlpp_version = conf.cmd_and_log(['pkg-config', '--modversion', 'libxml++-3.0'], output=Context.STDOUT, quiet=Context.BOTH)
+     s = libxmlpp_version.split('.')
+     v = (int(s[0]) << 16) | (int(s[1]) << 8) | int(s[2])
+     if v >= 0x022701:

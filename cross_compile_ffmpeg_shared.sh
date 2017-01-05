@@ -152,19 +152,20 @@ install_cross_compiler() {
   if [[ -f mingw-w64-build-3.6.6 ]]; then
     rm mingw-w64-build-3.6.6 || exit 1
   fi 
-  curl http://zeranoe.com/scripts/mingw_w64_build/mingw-w64-build-3.6.6 -O || exit 1
+  curl https://zeranoe.com/scripts/mingw_w64_build/mingw-w64-build-3.6.6 -O || exit 1
   chmod u+x mingw-w64-build-3.6.6
   unset CFLAGS # don't want these for the compiler itself since it creates executables to run on the local box
   # pthreads version to avoid having to use cvs for it
   echo "building cross compile gcc [requires internet access]"
 # Quick patch to update mingw to 4.0.4
   sed -i.bak "s/mingw_w64_release_ver='3.3.0'/mingw_w64_release_ver='4.0.4'/" mingw-w64-build-3.6.6
-  sed -i.bak "s/gcc_release_ver='4.9.2'/gcc_release_ver='6.1.0'/" mingw-w64-build-3.6.6
-  sed -i.bak "s/mpfr_release_ver='3.1.2'/mpfr_release_ver='3.1.4'/" mingw-w64-build-3.6.6
+  sed -i.bak "s/gcc_release_ver='4.9.2'/gcc_release_ver='6.2.0'/" mingw-w64-build-3.6.6
+  sed -i.bak "s/mpfr_release_ver='3.1.2'/mpfr_release_ver='3.1.5'/" mingw-w64-build-3.6.6
   sed -i.bak "s/binutils_release_ver='2.25'/binutils_release_ver='2.27'/" mingw-w64-build-3.6.6
   sed -i.bak "s/isl_release_ver='0.12.2'/isl_release_ver='0.17.1'/" mingw-w64-build-3.6.6
-  sed -i.bak "s/gmp_release_ver='6.0.0a'/gmp_release_ver='6.1.0'/" mingw-w64-build-3.6.6
-  sed -i.bak "s/gmp-6\.0\.0/gmp-6.1.0/" mingw-w64-build-3.6.6
+  sed -i.bak "s/gmp_release_ver='6.0.0a'/gmp_release_ver='6.1.2'/" mingw-w64-build-3.6.6
+  sed -i.bak "s/gmp-6\.0\.0/gmp-6.1.2/" mingw-w64-build-3.6.6
+#  sed -i.bak "s/--enable-lto/--enable-lto --enable-libgomp/" mingw-w64-build-3.6.6
   sed -i.bak "s!//gcc\.gnu\.org/svn/gcc/trunk!//gcc.gnu.org/svn/gcc/branches/gcc-6-branch!" mingw-w64-build-3.6.6
   apply_patch file://${top_dir}/mingw-w64-build-isl_fix.patch 
 #  sed -i.bak "s|ln -s '../include' './include'|mkdir include|" mingw-w64-build-3.6.6
@@ -712,11 +713,15 @@ build_qt() {
 #    echo "Removing QT-${QT_VERSION} build tree..."
 #    rm -rf ${QT_BUILD}
 #    echo "QT-${QT_VERSION} build tree now removed."
+      # The Qt libraries are sometimes searched for in the wrong place. So let's copythem
+      # to where they're sometimes expected
   else
     echo "Skipping QT build... already completed."
     # Remove the debug versions of libQt5 libraries
     # rm -v ${mingw_w64_x86_64_prefix}/bin/Qt5*d.dll
   fi
+  ln -sv ${mingw_w64_x86_64_prefix}/bin/Qt*.dll ${mingw_w64_x86_64_prefix}/../bin
+  ln -sv ${mingw_w64_x86_64_prefix}/plugins ${mingw_w64_x86_64_prefix}/../plugins
   unset QT_VERSION
   unset QT_SOURCE
   unset QT_BUILD
@@ -831,6 +836,14 @@ build_DJV() {
   cd ..
 }
 
+build_openblas() {
+  do_git_checkout https://github.com/xianyi/OpenBLAS.git OpenBLAS
+  cd OpenBLAS
+    apply_patch file://${top_dir}/OpenBLAS-makefile.patch
+    do_make
+  cd ..
+}
+
 build_opencv() {
   do_git_checkout https://github.com/Itseez/opencv.git "opencv"
   cd opencv
@@ -858,7 +871,7 @@ build_opencv() {
 build_opendcp() {
 # There are quite a few patches because I prefer to build this as a static program,
 # whereas the author, understandably, created it as a dynamically-linked program.
-  do_git_checkout https://github.com/tmeiczin/opendcp.git opendcp 0.31.0b
+  do_git_checkout https://github.com/tmeiczin/opendcp.git opendcp qt5-port
   cd opendcp
     export CMAKE_LIBRARY_PATH="${mingw_w64_x86_64_prefix}/lib"
     export CMAKE_INCLUDE_PATH="${mingw_w64_x86_64_prefix}/include:${mingw_w64_x86_64_prefix}/include/openjpeg-2.1"
@@ -868,6 +881,8 @@ build_opendcp() {
     apply_patch file://${top_dir}/opendcp-win32.cmake.patch
     apply_patch file://${top_dir}/opendcp-libopendcp-CMakeLists.txt.patch
     apply_patch file://${top_dir}/opendcp-CMakeLists.txt.patch
+#    apply_patch file://${top_dir}/opendcp-libav.patch
+#    apply_patch file://${top_dir}/opendcp-brackets.patch
 #    apply_patch file://${top_dir}/opendcp-CMakeLists.txt-static.patch
 #    apply_patch file://${top_dir}/opendcp-libasdcp-KM_prng.cpp.patch
     #apply_patch file://${top_dir}/opendcp-toolchains-win32.cmake.patch
@@ -875,7 +890,10 @@ build_opendcp() {
     #apply_patch file://${top_dir}/opendcp-toolchains-win32.cmake.libs.patch
     #apply_patch file://${top_dir}/opendcp-toolchains-win32.cmake.windres.patch
 #    apply_patch file://${top_dir}/opendcp-packages-CMakeLists.txt-static.patch
-    do_cmake "-DINSTALL_LIB=ON -DLIB_INSTALL_PATH=${mingw_w64_x86_64_prefix}/lib -DENABLE_XMLSEC=ON -DENABLE_GUI=OFF -DBUILD_SHARED=ON -DBUILD_STATIC=OFF -DCMAKE_VERBOSE_MAKEFILE=ON -DENABLE_OPENMP=OFF"
+    # I don't know why, but dirent_win.h from asdcplib is referenced but does not appear.
+    cp -v ../asdcplib-2.7.19/src/dirent_win.h libasdcp
+    do_cmake "-DINSTALL_LIB=ON -DLIB_INSTALL_PATH=${mingw_w64_x86_64_prefix}/lib -DENABLE_XMLSEC=ON -DENABLE_GUI=ON -DBUILD_SHARED=ON -DBUILD_STATIC=OFF -DCMAKE_VERBOSE_MAKEFILE=ON -DENABLE_OPENMP=OFF -DBUILD_SHARED_LIBS=ON -DBUILD_STATIC_LIBS=OFF"
+    sed -i.bak 's/-isystem /-I/g' gui/CMakeFiles/opendcp.dir/includes_CXX.rsp 
     do_make_install
     unset CMAKE_C_FLAGS
     unset CMAKE_CXX_FLAGS
@@ -922,8 +940,8 @@ build_libxavs() {
 }
 
 build_libpng() {
-  download_and_unpack_file http://download.sourceforge.net/libpng/libpng-1.6.18.tar.xz libpng-1.6.18
-  cd libpng-1.6.18
+  download_and_unpack_file http://download.sourceforge.net/libpng/libpng-1.6.27.tar.xz libpng-1.6.27
+  cd libpng-1.6.27
     # DBL_EPSILON 21 Feb 2015 starts to come back "undefined". I have NO IDEA why.
     grep -lr DBL_EPSILON contrib | xargs sed -i "s| DBL_EPSILON| 2.2204460492503131E-16|g"
     generic_configure_make_install "--enable-shared"
@@ -950,7 +968,7 @@ build_libopenjpeg() {
 }
 
 build_lcms2() {
-  do_git_checkout https://github.com/mm2/Little-CMS.git lcms2
+  do_git_checkout https://github.com/mm2/Little-CMS.git lcms2 # 5d91cf48902068b5049a7f9961fa23a267d0c93e
   cd lcms2
     generic_configure_make_install
   cd ..
@@ -1100,10 +1118,10 @@ build_libgsm() {
 }
 
 build_libopus() {
-  download_and_unpack_file http://downloads.xiph.org/releases/opus/opus-1.1.2.tar.gz opus-1.1.2
-  cd opus-1.1.2
-    apply_patch file://${top_dir}/opus11.patch # allow it to work with shared builds
-    generic_configure_make_install "--enable-custom-modes --enable-asm" 
+  download_and_unpack_file http://downloads.xiph.org/releases/opus/opus-1.1.3.tar.gz opus-1.1.3
+  cd opus-1.1.3
+#    apply_patch file://${top_dir}/opus11.patch # allow it to work with shared builds
+    generic_configure_make_install "--enable-custom-modes --enable-asm --enable-ambisonics" 
   cd ..
 }
 
@@ -1148,8 +1166,8 @@ build_libdvdcss() {
 
 build_gdb() {
   export LIBS="-lpsapi -ldl"
-  download_and_unpack_file ftp://sourceware.org/pub/gdb/releases/gdb-7.11.tar.xz gdb-7.11
-  cd gdb-7.11
+  download_and_unpack_file ftp://sourceware.org/pub/gdb/releases/gdb-7.12.tar.xz gdb-7.12
+  cd gdb-7.12
 #    cd readline
 #    generic_configure_make_install
 #   cd ..
@@ -1277,9 +1295,9 @@ build_ncurses() {
     wget http://invisible-island.net/datafiles/current/terminfo.src.gz
     gunzip terminfo.src.gz
   fi
- download_and_unpack_file ftp://invisible-island.net/ncurses/current/ncurses-6.0-20161001.tgz ncurses-6.0-20161001
+ download_and_unpack_file ftp://invisible-island.net/ncurses/current/ncurses-6.0-20161231.tgz ncurses-6.0-20161231
  # generic_configure "--build=x86_64-pc-linux --host=x86_64-w64-mingw32 --with-libtool --disable-termcap --enable-widec --enable-term-driver --enable-sp-funcs --without-ada --with-debug=no --with-shared=yes --with-normal=no --enable-database --with-progs --enable-interop --with-pkg-config-libdir=${mingw_w64_x86_64_prefix}/lib/pkgconfig --enable-pc-files"
-  cd ncurses-6.0-20161001
+  cd ncurses-6.0-20161231
     generic_configure "--build=x86_64-pc-linux --host=x86_64-w64-mingw32 --disable-termcap --enable-widec --enable-term-driver --enable-sp-funcs --without-ada --without-cxx-binding --with-debug=no --with-shared=yes --with-normal=no --enable-database --with-probs --enable-interop --with-pkg-config-libdir=${mingw_w64_x86_64_prefix}/lib/pkgconfig --enable-pc-files --disable-static --enable-shared" 
     do_make
 #    do_make "dlls"
@@ -1312,7 +1330,7 @@ build_dvdbackup() {
 
 build_libopencore() {
   generic_download_and_install http://sourceforge.net/projects/opencore-amr/files/opencore-amr/opencore-amr-0.1.3.tar.gz/download opencore-amr-0.1.3
-  generic_download_and_install http://sourceforge.net/projects/opencore-amr/files/vo-amrwbenc/vo-amrwbenc-0.1.2.tar.gz/download vo-amrwbenc-0.1.2
+  generic_download_and_install http://sourceforge.net/projects/opencore-amr/files/vo-amrwbenc/vo-amrwbenc-0.1.3.tar.gz/download vo-amrwbenc-0.1.3
 }
 
 # NB this is kind of worse than just using the one that comes from the zeranoe script, since this one requires the -DPTHREAD_STATIC everywhere...
@@ -1438,14 +1456,14 @@ build_libfribidi() {
 }
 
 build_libass() {
-  generic_download_and_install https://github.com/libass/libass/releases/download/0.13.2/libass-0.13.2.tar.gz libass-0.13.2
+  generic_download_and_install https://github.com/libass/libass/releases/download/0.13.6/libass-0.13.6.tar.gz libass-0.13.6
   # fribidi, fontconfig, freetype throw them all in there for good measure, trying to help mplayer once though it didn't help [FFmpeg needed a change for fribidi here though I believe]
   sed -i.bak 's/-lass -lm/-lass -lfribidi -lfontconfig -lfreetype -lexpat -lpng -lm/' "$PKG_CONFIG_PATH/libass.pc"
 }
 
 build_gmp() {
-  download_and_unpack_file https://gmplib.org/download/gmp/gmp-6.1.0.tar.bz2 gmp-6.1.0
-  cd gmp-6.1.0
+  download_and_unpack_file https://gmplib.org/download/gmp/gmp-6.1.2.tar.bz2 gmp-6.1.2
+  cd gmp-6.1.2
 #    export CC_FOR_BUILD=/usr/bin/gcc
 #    export CPP_FOR_BUILD=usr/bin/cpp
     generic_configure "ABI=$bits_target --disable-static --enable-shared"
@@ -1461,12 +1479,14 @@ build_orc() {
 
 build_libxml2() {
   do_git_checkout git://git.gnome.org/libxml2 libxml2
+  #download_and_unpack_file ftp://xmlsoft.org/libxml2/libxml2-2.9.4.tar.gz libxml2-2.9.4
   cd libxml2
     # Remove libxml2 autogen because it sets variables that interfere with our cross-compile
     rm -v autogen.sh
     generic_configure_make_install "LIBS=-lws2_32 --without-python"
     sed -i.bak 's/-lxml2.*$/-lxml2 -lws2_32/' "$PKG_CONFIG_PATH/libxml-2.0.pc" # Shared applications need Winsock
-  cd ..
+#    cp -v ${mingw_w64_x86_64_prefix}/bin/xml2-config ${mingw_w64_x86_64_prefix}/bin/x86_64-w64-mingw32-xml2-config
+  cd .. 
 #  generic_download_and_install ftp://xmlsoft.org/libxml2/libxml2-2.9.2.tar.gz libxml2-2.9.2 "--without-python"
 }
 
@@ -1490,8 +1510,8 @@ build_libxslt() {
 }
 
 build_libxmlsec() {
-  download_and_unpack_file http://www.aleksey.com/xmlsec/download/xmlsec1-1.2.22.tar.gz xmlsec1-1.2.22
-  cd xmlsec1-1.2.22
+  download_and_unpack_file http://www.aleksey.com/xmlsec/download/xmlsec1-1.2.23.tar.gz xmlsec1-1.2.23
+  cd xmlsec1-1.2.23
     apply_patch file://${top_dir}/xsltsec-Makefile.in.patch
     export GCRYPT_LIBS=-lgcrypt
     export LIBS=-lgcrypt
@@ -1511,7 +1531,7 @@ build_libaacs() {
 build_libbdplus() {
   do_git_checkout http://git.videolan.org/git/libbdplus.git libbdplus
   cd libbdplus
-    generic_configure_make_install "--with-libgcrypt-prefix=${mingw_w64_x86_64_prefix} --with-gpg-error-prefix=${mingw_w64_x86_64_prefix}"
+    generic_configure_make_install "--with-libaacs --with-libgcrypt-prefix=${mingw_w64_x86_64_prefix} --with-gpg-error-prefix=${mingw_w64_x86_64_prefix}"
   cd ..
 }
 
@@ -1712,6 +1732,10 @@ build_libaacplus() {
 
 build_openssl() {
   download_and_unpack_file ftp://ftp.openssl.org/source/openssl-1.0.2j.tar.gz openssl-1.0.2j
+  # When the manpages are written, they need somewhere to go otherwise there is an error.
+  mkdir -pv ${mingw_w64_x86_64_prefix}/include/openssl
+  mkdir -pv ${mingw_w64_x86_64_prefix}/lib/engines
+  mkdir -pv ${mingw_w64_x86_64_prefix}/ssl/misc
   cd openssl-1.0.2j
 #  export cross="$cross_prefix"
   export CROSS_COMPILE="${cross_prefix}"
@@ -1725,7 +1749,8 @@ build_openssl() {
     do_configure "--prefix=$mingw_w64_x86_64_prefix shared no-asm mingw64" ./Configure
   fi
   cpu_count=1
-  do_make_install
+  do_make
+  do_make "install_sw"
   cpu_count=$original_cpu_count
   unset cross
   unset CC
@@ -1790,6 +1815,7 @@ build_libdcp() {
     # Don't look for boost libraries ending in -mt -- all our libraries are multithreaded anyway
     sed -i.bak "s/boost_lib_suffix = '-mt'/boost_lib_suffix = ''/" wscript
     sed -i.bak "s/boost_lib_suffix = '-mt'/boost_lib_suffix = ''/" test/wscript
+#    apply_patch file://${top_dir}/libdcp-libxml.patch
     export CXX=x86_64-w64-mingw32-g++
     do_configure "configure -v -pp --prefix=${mingw_w64_x86_64_prefix} --target-windows --check-cxx-compiler=gxx --enable-debug --disable-tests" "./waf" # --disable-gcov
     ./waf build || exit 1
@@ -1870,7 +1896,7 @@ build_fdk_aac() {
 
 
 build_libexpat() {
-  generic_download_and_install http://downloads.sourceforge.net/project/expat/expat/2.1.1/expat-2.1.1.tar.bz2 expat-2.1.1
+  generic_download_and_install http://downloads.sourceforge.net/project/expat/expat/2.2.0/expat-2.2.0.tar.bz2 expat-2.2.0
 }
 
 build_ladspa() {
@@ -1964,16 +1990,19 @@ build_libgcrypt() {
 
 build_tesseract() {
   do_git_checkout https://github.com/tesseract-ocr/tesseract tesseract
+  download_and_unpack_file https://github.com/tesseract-ocr/tesseract/archive/3.05.00dev.tar.gz tesseract-3.05.00dev 
   cd tesseract
+#    apply_patch file://${top_dir}/tesseract-thread.patch
+#    apply_patch file://${top_dir}/tesseract-libgomp.patch
     export LIBLEPT_HEADERSDIR="${mingw_w64_x86_64_prefix}/include/leptonica"
-    export LIBS="-ltiff -ljpeg -lpng -lwebp -lz"
+    export LIBS="-ltiff -ljpeg -lpng -lwebp -lz" # -lboost_thread_win32 -lboost_chrono"
     old_cxxflags="${CXXFLAGS}"
     export CXXFLAGS="-fpermissive"
     sed -i.bak 's/Windows.h/windows.h/' opencl/openclwrapper.cpp
     sed -i.bak 's/-ltesseract/-ltesseract -llept -ltiff -ljpeg -lpng -lwebp -lz/' tesseract.pc.in
     # Unpack English language tessdata into data directory
     # tar xvvf ${top_dir}/tessdata-snapshot-20150411.tar.xz
-    generic_configure_make_install 
+    generic_configure_make_install #"--disable-openmp"
     unset LIBLEPT_HEADERSDIR
     unset LIBS
     export CXXFLAGS="${old_cxxflags}"
@@ -2187,10 +2216,18 @@ build_atomicparsley() {
 
 build_wx() {
   do_git_checkout https://github.com/wxWidgets/wxWidgets.git wxWidgets WX_3_0_BRANCH
+#  download_and_unpack_file https://github.com/wxWidgets/wxWidgets/archive/v3.0.2.tar.gz wxWidgets-3.0.2
   cd wxWidgets
-    generic_configure_make_install "--with-opengl"
+#    apply_patch_p1 https://github.com/wxWidgets/wxWidgets/commit/73e9e18ea09ffffcaac50237def0d9728a213c02.patch
+#    rm -v configure
+    generic_configure_make_install "--with-opengl --with-msw --with-libpng=sys --with-libjpeg=sys --with-libtiff=sys --with-regex=yes --with-zlib=yes --enable-graphics_ctx --enable-webview --enable-mediactrl --disable-official_build"
     # wx-config needs to be visible to this script when compiling
     cp -v ${mingw_w64_x86_64_prefix}/bin/wx-config ${mingw_w64_x86_64_prefix}/../bin/wx-config
+    # wxWidgets doesn't include the DLL run-time libraries in the right place.
+    cd ${mingw_w64_x86_64_prefix}/lib
+      for filename in ./libwx*dll.a; do cp -v "./$filename" "./$(echo $filename | sed -e 's/-x86_64-w64-mingw32//g')";  done
+    cd -
+    cp -v ${mingw_w64_x86_64_prefix}/lib/wx*dll ${mingw_w64_x86_64_prefix}/bin
   cd ..
 }
 
@@ -2277,7 +2314,8 @@ build_lame() {
   cd lame
   # For some reason, the definition of DBL_EPSILON has vanished
   grep -lr DBL_EPSILON libmp3lame | xargs sed -i "s|xmin, DBL_EPSILON|xmin, rh2|g"
-  generic_configure_make_install
+  apply_patch file://${top_dir}/lame-obsolete-code.patch
+  generic_configure_make_install "--enable-dynamic-frontends --enable-nasm --disable-rpath"
   cd ..
 }
 
@@ -2454,15 +2492,16 @@ build_libmodplug() {
 build_libcaca() {
   local cur_dir2=$(pwd)/libcaca
 #  do_git_checkout git://github.com/cacalabs/libcaca libcaca
-  download_and_unpack_file http://caca.zoy.org/files/libcaca/libcaca-0.99.beta18.tar.gz libcaca-0.99.beta18
-  cd libcaca-0.99.beta18
+  download_and_unpack_file http://pkgs.fedoraproject.org/repo/pkgs/libcaca/libcaca-0.99.beta19.tar.gz/a3d4441cdef488099f4a92f4c6c1da00/libcaca-0.99.beta19.tar.gz libcaca-0.99.beta19
+  cd libcaca-0.99.beta19
   # vsnprintf is defined both in libcaca and by mingw-w64-4.0.1 so we'll keep the system definition
-  #apply_patch_p1 file://${top_dir}/libcaca-vsnprintf.patch
+  apply_patch_p1 file://${top_dir}/libcaca-vsnprintf.patch
   #apply_patch_p1 file://${top_dir}/libcaca-signals.patch
   cd caca
     sed -i.bak "s/__declspec(dllexport)//g" *.h # get rid of the declspec lines otherwise the build will fail for undefined symbols
     sed -i.bak "s/__declspec(dllimport)//g" *.h 
   cd ..
+  rm -v configure Makefile autogen autogen.sh bootstrap bootstrap.sh
   generic_configure_make_install "--libdir=$mingw_w64_x86_64_prefix/lib --disable-cxx --disable-csharp --disable-java --disable-python --disable-ruby --disable-imlib2 --disable-doc --disable-gl --disable-ncurses"
   cd ..
 }
@@ -2581,12 +2620,12 @@ build_gomp() {
 
 build_fdkaac-commandline() {
   # do_git_checkout https://github.com/nu774/fdkaac.git fdkaac
-  do_git_checkout http://git.ieval.ro/git/fdkaac.git fdkaac
+  do_git_checkout https://github.com/nu774/fdkaac.git fdkaac
   cd fdkaac
     if [[ ! -f "configure" ]]; then
     autoreconf -fiv || exit 1 
     fi
-    apply_patch file://${top_dir}/fdkaac-aacenc.patch
+#    apply_patch file://${top_dir}/fdkaac-aacenc.patch
     generic_configure_make_install
   cd ..
 }
@@ -2598,7 +2637,7 @@ build_poppler() {
     sed -i.bak 's/noinst_PROGRAMS += perf-test/noinst_PROGRAMS += /' test/Makefile.am
     # Allow installation of QT5 PDF viewer
     sed -i.bak 's/noinst_PROGRAMS = poppler_qt5viewer/bin_PROGRAMS = poppler_qt5viewer/' qt5/demos/Makefile.am
-    generic_configure_make_install "CFLAGS=-DMINGW_HAS_SECURE_API CXXFLAGS=-fpermissive LIBOPENJPEG_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/openjpeg-1.5/ --enable-xpdf-headers --enable-cmyk --enable-libtiff --enable-libjpeg" # "--enable-libcurl"
+    generic_configure_make_install "CFLAGS=-DMINGW_HAS_SECURE_API CXXFLAGS=-fpermissive LIBOPENJPEG_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/openjpeg-1.5/ --enable-xpdf-headers --enable-cmyk --enable-libtiff --enable-libjpeg --enable-libopenjpeg=openjpeg1" # "--enable-libcurl"
   cd ..
 }
 
@@ -2669,9 +2708,9 @@ build_gobject_introspection() {
 }
 
 build_gtk() {
-  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/gtk+/3.22/gtk+-3.22.1.tar.xz gtk+-3.22.1
+  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/gtk+/3.22/gtk+-3.22.4.tar.xz gtk+-3.22.4
 #  do_git_checkout https://github.com/GNOME/gtk.git gtk
-  cd gtk+-3.22.1
+  cd gtk+-3.22.4
 #    orig_cpu_count=$cpu_count
 #    export cpu_count=1
     # Don't attempt to run the icon updater here. It's a Windows executable.
@@ -2680,7 +2719,7 @@ build_gtk() {
     apply_patch file://${top_dir}/gtk3-modules-input-Makefile.am.patch
     # Now regenerate autoconf and automake files
     rm -v ./configure ./autogen.sh
-    generic_configure_make_install "--disable-silent-rules --enable-win32-backend --disable-cups"
+    generic_configure_make_install "--disable-silent-rules --enable-win32-backend --disable-cups --disable-glibtest"
 #    export cpu_count=$orig_cpu_count
   cd ..
   # Now to get to work on a default theme
@@ -2708,8 +2747,9 @@ build_vidstab() {
 }
 
 build_libchromaprint() {
-  do_git_checkout https://bitbucket.org/acoustid/chromaprint.git chromaprint
+  do_git_checkout https://github.com/acoustid/chromaprint.git chromaprint 29ace183de7fb4f83a44afb29b3d5c6a641fb917
   cd chromaprint
+#    apply_patch file://${top_dir}/chromaprint-vector.patch
     do_cmake "-DWITH_FFTW3=ON -DBUILD_EXAMPLES=OFF -DBUILD_SHARED_LIBS=ON"
     do_make_install
   cd ..
@@ -2737,7 +2777,11 @@ build_libmms() {
 }
 
 build_curl() {
-  generic_download_and_install http://curl.haxx.se/download/curl-7.48.0.tar.bz2 curl-7.48.0 "--enable-ipv6 --with-librtmp"
+#  generic_download_and_install http://curl.haxx.se/download/curl-7.51.0.tar.bz2 curl-7.51.0 "--enable-ipv6 --with-librtmp --with-ca-fallback"
+  do_git_checkout https://github.com/curl/curl.git curl
+  cd curl
+    generic_configure_make_install "--enable-ipv6 --with-librtmp --with-ca-fallback"
+  cd ..
 }
 
 #build_asdcplib() {
@@ -2782,8 +2826,8 @@ build_libdv() {
 build_asdcplib() {
   export CXXFLAGS=-DKM_WIN32
   export CFLAGS=-DKM_WIN32
-  download_and_unpack_file http://download.cinecert.com/asdcplib/asdcplib-2.5.14.tar.gz asdcplib-2.5.14
-  cd asdcplib-2.5.14
+  download_and_unpack_file http://download.cinecert.com/asdcplib/asdcplib-2.7.19.tar.gz asdcplib-2.7.19
+  cd asdcplib-2.7.19
     rm configure
     apply_patch file://${top_dir}/asdcplib-shared.patch
     generic_configure_make_install "--with-openssl=${mingw_w64_x86_64_prefix} --with-expat=${mingw_w64_x86_64_prefix}"
@@ -2887,7 +2931,7 @@ build_sox() {
 }
 
 build_wxsvg() {
-  generic_download_and_install http://downloads.sourceforge.net/project/wxsvg/wxsvg/1.5.6/wxsvg-1.5.6.tar.bz2 wxsvg-1.5.6 "--with-wx-config=${mingw_w64_x86_64_prefix}/bin/wx-config"
+  generic_download_and_install http://downloads.sourceforge.net/project/wxsvg/wxsvg/1.5.10/wxsvg-1.5.10.tar.bz2 wxsvg-1.5.10 "--with-wx-config=${mingw_w64_x86_64_prefix}/bin/wx-config"
 }
 
 build_pixman() {
@@ -2961,7 +3005,7 @@ build_libffi() {
 }
 
 build_ilmbase() {
-  do_git_checkout https://github.com/openexr/openexr.git openexr
+  do_git_checkout https://github.com/openexr/openexr.git openexr develop
   cd openexr/IlmBase
     # IlmBase is written expecting that some of its binaries will be run during compilation.
     # In a cross-compiling environment, this more difficult to do than I know how.
@@ -3000,7 +3044,7 @@ build_flac() {
     # microbench target hasn't been tested on many platforms yet
     sed -i.bak 's/microbench//' Makefile.am
     # Distributions subsituting doocbook2man need this
-    sed -i.bak 's/docbook-to-man/docbook2man/' man/Makefile.am
+#    sed -i.bak 's/docbook-to-man/docbook2man/' man/Makefile.am
     if [[ ! -f "configure" ]]; then
       ./autogen.sh
     fi
@@ -3093,14 +3137,16 @@ build_loudness-scanner() {
     git submodule update
     # Rename internal copy of libebur128 because of slight differences
     # update some code for latest FFmpeg
-    apply_patch file://${top_dir}/ebur128-CMakeLists.txt-private.patch
+#    apply_patch file://${top_dir}/ebur128-CMakeLists.txt-private.patch
     sed -i.bak 's/avcodec_alloc_frame/av_frame_alloc/' scanner/inputaudio/ffmpeg/input_ffmpeg.c 
     do_cmake "-DENABLE_INTERNAL_QUEUE_H=ON"
     sed -i.bak 's/-isystem /-I/g' scanner/scanner-tag/CMakeFiles/scanner-tag.dir/includes_CXX.rsp
+    sed -i.bak 's/-isystem /-I/g' scanner/scanner-drop-qt/CMakeFiles/loudness-drop-qt5.dir/includes_CXX.rsp
     do_make "VERBOSE=1"
     do_make_install "VERBOSE=1"
     # The executable doesn't get installed
     cp -v loudness.exe ${mingw_w64_x86_64_prefix}/bin/loudness.exe
+    cp -v loudness-drop-qt5.exe ${mingw_w64_x86_64_prefix}/bin/loudness-drop-qt5.exe
     cp -v libebur128-ls.dll ${mingw_w64_x86_64_prefix}/bin/libebur128-ls.dll
     cp -v libinput_ffmpeg.dll ${mingw_w64_x86_64_prefix}/bin/libinput_ffmpeg.dll
     cp -v libinput_sndfile.dll ${mingw_w64_x86_64_prefix}/bin/libinput_sndfile.dll
@@ -3208,31 +3254,36 @@ build_pcre() {
 }
 
 build_glib() {
-  download_and_unpack_file http://ftp.heanet.ie/mirrors/ftp.gnome.org/sources/glib/2.50/glib-2.50.0.tar.xz glib-2.50.0
-  cd glib-2.50.0
+  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/glib/2.51/glib-2.51.0.tar.xz glib-2.51.0
+  export orig_cpu=$cpu_count
+  export cpu_count=1
+  cd glib-2.51.0
     export glib_cv_long_long_format=I64
     export glib_cv_stack_grows=no
+    apply_patch file://${top_dir}/glib-no-tests.patch
     # Work around mingw-w64 lacking strerror_s()
 #    sed -i.bak 's/strerror_s (buf, sizeof (buf), errnum);/strerror_r (errno, buf, sizeof (buf);/' glib/gstrfuncs.c
-    generic_configure_make_install "--disable-compile-warnings --disable-silent-rules CFLAGS=-DMINGW_HAS_SECURE_API"
+    generic_configure_make_install "--disable-compile-warnings --disable-silent-rules CFLAGS=-DMINGW_HAS_SECURE_API --enable-debug=no --enable-installed-tests=no --enable-always-build-tests=no"
     unset glib_cv_long_long_format
     unset glib_cv_stack_grows
     # To ensure gtk uses the latest gdbus-codegen, we must ensure that the glib Python utility by this name
     # appears in our PATH
     cp -v ${mingw_w64_x86_64_prefix}/bin/gdbus-codegen ${mingw_w64_x86_64_prefix}/../bin/gdbus-codegen
   cd ..
+  export cpu_count=$orig_cpu
 }
 
 build_atk() {
-  generic_download_and_install http://ftp.gnome.org/pub/GNOME/sources/atk/2.22/atk-2.22.0.tar.xz atk-2.22.0
+  generic_download_and_install http://ftp.gnome.org/pub/GNOME/sources/atk/2.22/atk-2.22.0.tar.xz atk-2.22.0 "--disable-glibtest"
 }
 
 build_gdk_pixbuf() {
-  generic_download_and_install http://ftp.gnome.org/pub/GNOME/sources/gdk-pixbuf/2.36/gdk-pixbuf-2.36.0.tar.xz gdk-pixbuf-2.36.0 "--with-libjasper"
+  generic_download_and_install http://ftp.gnome.org/pub/GNOME/sources/gdk-pixbuf/2.36/gdk-pixbuf-2.36.0.tar.xz gdk-pixbuf-2.36.0 "--with-libjasper --disable-glibtest"
 }
 
 build_libsigc++() {
-  generic_download_and_install https://www.mirrorservice.org/sites/ftp.gnome.org/pub/GNOME/sources/libsigc++/2.10/libsigc++-2.10.0.tar.xz libsigc++-2.10.0
+  generic_download_and_install https://download.gnome.org/sources/libsigc++/2.10/libsigc++-2.10.0.tar.xz libsigc++-2.10.0
+  generic_download_and_install https://download.gnome.org/sources/libsigc++/2.99/libsigc++-2.99.7.tar.xz libsigc++-2.99.7
 }
 
 build_locked_sstream() {
@@ -3248,8 +3299,10 @@ build_libcxml(){
   do_git_checkout https://github.com/cth103/libcxml.git libcxml
 #  download_and_unpack_file http://carlh.net/downloads/libcxml/libcxml-0.15.1.tar.bz2 libcxml-0.15.1
   cd libcxml
+#    apply_patch file://${top_dir}/libcxml-libxml++3-check.patch
     export ORIG_PKG_CONFIG_PATH=$PKG_CONFIG_PATH
     export PKG_CONFIG_PATH="${mingw_w64_x86_64_prefix}/lib/pkgconfig"
+    export CXXFLAGS=-fpermissive
     # libdir must be set
     do_configure "configure WINRC=x86_64-w64-mingw32-windres CXX=x86_64-w64-mingw32-g++ -vv -pp --prefix=${mingw_w64_x86_64_prefix} --libdir=${mingw_w64_x86_64_prefix}/lib --check-cxx-compiler=gxx" "./waf"
     ./waf build || exit 1
@@ -3258,6 +3311,7 @@ build_libcxml(){
     cp -v build/libcxml.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig
     cp -v build/src/libcxml.dll.a ${mingw_w64_x86_64_prefix}/lib
     export PKG_CONFIG_PATH=$ORIG_PKG_CONFIG_PATH
+    unset CXXFLAGS
   cd ..
 }
 
@@ -3266,8 +3320,8 @@ build_glibmm() {
   # the Boost libraries. These provide an (almost) drop-in replacement.
   export GLIBMM_LIBS="-lgobject-2.0 -lgmodule-2.0 -lglib-2.0 -lboost_system -lsigc-2.0 -lboost_thread_win32"
   export GIOMM_LIBS="-lgio-2.0 -lgobject-2.0 -lgmodule-2.0 -lglib-2.0 -lboost_system -lsigc-2.0"
-  download_and_unpack_file http://ftp.heanet.ie/mirrors/ftp.gnome.org/sources/glibmm/2.50/glibmm-2.50.0.tar.xz glibmm-2.50.0
-  cd glibmm-2.50.0
+  download_and_unpack_file http://ftp.heanet.ie/mirrors/ftp.gnome.org/sources/glibmm/2.49/glibmm-2.49.7.tar.xz glibmm-2.49.7
+  cd glibmm-2.49.7
     apply_patch file://${top_dir}/glibmm-mutex.patch
     generic_configure_make_install 
   cd ..
@@ -3415,21 +3469,27 @@ build_qjackctl() {
 }
 
 build_angle() {
-  do_git_checkout https://chromium.googlesource.com/angle/angle angle
+  do_git_checkout https://chromium.googlesource.com/angle/angle angle 57ce9ea23e54e7beb0526502bdf9094d1ddfde68 # 9f09037b073a7481bc5d94984a26b7c9d3427b16 # 57ce9ea23e54e7beb0526502bdf9094d1ddfde68
   cd angle
     # remove .git directory to prevent: No rule to make target '../build-x86_64/.git/index', needed by 'out/Debug/obj/gen/angle/id/commit.h'.
     rm -rvf .git || exit 1
+    # These patches from the AUR linux project
+    apply_patch_p1 file://${top_dir}/angle-Fix-dynamic-libraries.patch
+    apply_patch_p1 file://${top_dir}/angle-Link-against-dxguid-d3d9-and-gdi32.patch
+    apply_patch_p1 file://${top_dir}/angle-Export-shader-API-via-libGLESv2.dll.patch
+    apply_patch_p1 file://${top_dir}/angle-Make-GLintptr-and-GLsizeiptr-match-those-from-Qt-5.patch
+    apply_patch_p1 file://${top_dir}/angle-Remove-copy_scripts-target.patch
+    apply_patch_p1 file://${top_dir}/angle-Fix-generation-of-commit_id.h.patch
+    # These are my patches to work around VC-only functions
     apply_patch file://${top_dir}/angle-string_utils-cpp.patch
     apply_patch file://${top_dir}/angle-RendererD3D-cpp.patch
-    # make sure an import library is created, the correct .def file is used during the build
-    # and entry_points_shader.cpp is compiled
-    apply_patch file://${top_dir}/angle-include-import-library-and-use-def-file.patch
+#    apply_patch file://${top_dir}/angle-future.patch
     # executing .bat scripts on Linux is a no-go so make this a no-op
     echo "" > src/copy_compiler_dll.bat
     chmod +x src/copy_compiler_dll.bat
     # provide a file to export symbols declared in ShaderLang.h as part of libGLESv2.dll
     # (required to build Qt WebKit which uses shader interface)
-    cp ${top_dir}/angle-entry_points_shader.cpp src/libGLESv2/entry_points_shader.cpp
+#    cp ${top_dir}/angle-entry_points_shader.cpp src/libGLESv2/entry_points_shader.cpp
     mkdir build-x86_64
     cd build-x86_64
       export CXX=x86_64-w64-mingw32-g++
@@ -3437,13 +3497,13 @@ build_angle() {
       old_cxxflags=${CXXFLAGS}
       export CXXFLAGS="-O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions --param=ssp-buffer-size=4 -std=c++11 -msse2 -DUNICODE -D_UNICODE -I./../src -I./../include -I./../src/common/third_party/numerics"
       # Prepare the Makefile
-      gyp -D use_ozone=0 -D OS=win -D TARGET=win64 --format make -DMSVS_VERSION="" --depth . -I ../build/common.gypi ../src/angle.gyp
-      make V=1 LIBS="-lmingw32 -lm -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -lwinmm -limm32 -lole32 -loleaut32 -lshell32 -lversion -luuid -ld3d9" || exit 1
+      gyp -D use_ozone=0 -D OS=win -D TARGET=win64 --format make -DMSVS_VERSION="" --depth . -I ../gyp/common.gypi ../src/angle.gyp
+      make V=1 LIBS="-lmingw32 -lm -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -lwinmm -limm32 -lole32 -loleaut32 -lshell32 -lversion -luuid -ld3d9" -j $cpu_count || exit 1
       # The libraries are built but have the wrong suffix
       # There is no make install target
-      cp out/Debug/src/libGLESv2.so "${mingw_w64_x86_64_prefix}/bin/libGLESv2.dll"
-      cp out/Debug/src/libEGL.so "${mingw_w64_x86_64_prefix}/bin/libEGL.dll"
-      cp libGLESv2.dll.a libEGL.dll.a out/Debug/src/lib*.a "${mingw_w64_x86_64_prefix}/lib/"
+      cp -v out/Debug/src/libGLESv2.so "${mingw_w64_x86_64_prefix}/bin/libGLESv2.dll"
+      cp -v out/Debug/src/libEGL.so "${mingw_w64_x86_64_prefix}/bin/libEGL.dll"
+      cp -v libGLESv2.dll.a libEGL.dll.a out/Debug/src/lib*.a "${mingw_w64_x86_64_prefix}/lib/"
       cp -Rv ../include/* "${mingw_w64_x86_64_prefix}/include/"
       unset CXX
       unset AR
@@ -3453,10 +3513,12 @@ build_angle() {
 }
 
 build_libepoxy() {
-  do_git_checkout https://github.com/anholt/libepoxy.git libepoxy
-  cd libepoxy
-    do_cmake_and_install "-DEPOXY_BUILD_SHARED=ON -DEPOXY_BUILD_STATIC=OFF" 
-  cd ..
+  generic_download_and_install https://github.com/anholt/libepoxy/releases/download/v1.3.1/libepoxy-1.3.1.tar.bz2 libepoxy-1.3.1
+#  do_git_checkout https://github.com/anholt/libepoxy.git libepoxy
+#  cd libepoxy
+#    generic_configure_make_install
+#    do_cmake_and_install "-DEPOXY_BUILD_SHARED=ON -DEPOXY_BUILD_STATIC=OFF" 
+#  cd ..
 }
 
 build_cuetools() {
@@ -3854,6 +3916,7 @@ build_dependencies() {
   build_portaudio_without_jack
   build_jack
   build_portaudio_with_jack
+  # build_openblas Not until we make a Fortran compiler
   build_opencv
   build_frei0r
   build_liba52
@@ -3890,7 +3953,6 @@ build_dependencies() {
   build_asdcplib-cth
   build_libdcp
   build_libsub
-  build_angle
 }
 
 build_apps() {
@@ -3924,7 +3986,6 @@ build_apps() {
   build_mjpegtools
 # build_qt5
   build_mkvtoolnix
-  build_opendcp
 #  build_openssh
 #  build_rsync
   build_dvdbackup
@@ -3939,6 +4000,7 @@ build_apps() {
   fi
   build_ffms2
   build_mpv
+  build_opendcp # Difficult at the moment. Development tree doesn't compile under its own procedures
   # build_opencv # We place it here because opencv has an interface to FFmpeg
   if [[ $build_vlc = "y" ]]; then
     build_vlc # NB requires ffmpeg static as well, at least once...so put this last :)
@@ -4093,7 +4155,7 @@ fi
 # TODO: CHECK THIS LIST WHEN ADDING NEW PACKAGES
 
 echo "Copying runtime libraries that have gone to the wrong build directory."
-wrong_libs=('icudt57.dll' 'icutu57.dll' 'icuin57.dll' 'icuio57.dll' 'icule57.dll' 'iculx57.dll' 'icutest57.dll' 'icuuc57.dll' 'libatomic-1.dll' 'libboost_chrono.dll' 'libboost_date_time.dll' 'libboost_filesystem.dll' 'libboost_prg_exec_monitor.dll' 'libboost_regex.dll' 'libboost_system.dll' 'libboost_locale.dll' 'libboost_thread_win32.dll' 'libboost_unit_test_framework.dll' 'libboost_timer.dll' 'libdcadec.dll' 'libgcc_s_seh-1.dll' 'libopendcp-asdcp.dll' 'libopendcp-lib.dll' 'libpthread.dll' 'libquadmath-0.dll' 'libssp-0.dll' 'libstdc++-6.dll' 'pthreadGC2.dll' 'libebur128.dll')
+wrong_libs=('icudt57.dll' 'icutu57.dll' 'icuin57.dll' 'icuio57.dll' 'icule57.dll' 'iculx57.dll' 'icutest57.dll' 'icuuc57.dll' 'libatomic-1.dll' 'libboost_chrono.dll' 'libboost_date_time.dll' 'libboost_filesystem.dll' 'libboost_prg_exec_monitor.dll' 'libboost_regex.dll' 'libboost_system.dll' 'libboost_locale.dll' 'libboost_thread_win32.dll' 'libboost_unit_test_framework.dll' 'libboost_timer.dll' 'libdcadec.dll' 'libgcc_s_seh-1.dll' 'libopendcp-lib.dll' 'libpthread.dll' 'libquadmath-0.dll' 'libssp-0.dll' 'libstdc++-6.dll' 'pthreadGC2.dll' 'libebur128.dll')
 for move in ${wrong_libs[@]}; do
   cp -Lv "${mingw_w64_x86_64_prefix}/lib/${move}" "${mingw_w64_x86_64_prefix}/bin/${move}" || exit 1
 done
@@ -4106,6 +4168,16 @@ echo "Runtime libraries in wrong directory now copied."
 # These libraries, too, need linking into the object binary directory
 
 echo "Symbolic linking runtime libraries in compiler directory to executables directory."
+# Remove QT libraries -- they are in the compile-time bin directory to get around
+# a hack in the compilation of loudness_scanner
+echo "First removing Qt lib symlinks from loudness_scanner hack..."
+rm -fv ${mingw_w64_x86_64_prefix}/../bin/Qt*dll
+rm -fv ${mingw_w64_x86_64_prefix}/../plugins
+# while we're at it, a stray link to plugins sometimes appears.
+# This must be removed
+echo "Removing stray link to plugins directory..."
+rm -fv ${mingw_w64_x86_64_prefix}/plugins/plugins
+
 for library in ${mingw_w64_x86_64_prefix}/../bin/*dll; do
   linkname=$(basename $library)
 #  echo "Linking ${library} to ${mingw_w64_x86_64_prefix}/bin/${linkname}"

@@ -1,5 +1,61 @@
---- toolchains/win32.cmake.orig	2016-05-16 09:14:06.761000000 +0000
-+++ toolchains/win32.cmake	2016-05-16 09:20:08.931000000 +0000
+--- toolchains/win32.cmake.orig	2017-01-03 09:54:04.878590500 +0000
++++ toolchains/win32.cmake	2017-01-03 09:55:29.929665000 +0000
+@@ -13,15 +13,15 @@
+ IF(TARGET_ARCH STREQUAL "i686")
+     SET(CMAKE_RC_COMPILER /usr/bin/i686-w64-mingw32-windres) 
+ ELSE()
+-    SET(CMAKE_RC_COMPILER /usr/bin/x86_64-w64-mingw32-windres) 
++    SET(CMAKE_RC_COMPILER x86_64-w64-mingw32-windres) 
+ ENDIF()
+ 
+ INCLUDE_DIRECTORIES(${SYSROOT_PATH}/include/libxml2)
+ 
+ IF(ENABLE_XMLSEC)
+     INCLUDE_DIRECTORIES(${SYSROOT_PATH}/include/xmlsec1)
+-    SET(COMPILE_XMLSEC 1)
+-    SET(LIBS ${LIBS} ${LIB_DIR_SYS}/libxmlsec1-openssl.a ${LIB_DIR_SYS}/libxmlsec1.a)
++    SET(COMPILE_XMLSEC 0)
++    SET(LIBS ${LIBS} -lxmlsec1-openssl -lxmlsec1)
+     SET(LIBS ${LIBS} -L${LIB_DIR_SYS})
+ ENDIF(ENABLE_XMLSEC)
+ 
+@@ -31,10 +31,10 @@
+ SET(COMPILE_EXPAT 0)
+ SET(LIBS ${LIBS} -L${LIB_DIR_SYS} -lexpat)
+ 
+-SET(COMPILE_OPENJPEG 1)
+-SET(LIBS ${LIBS} ${LIB_DIR}/libopenjp2.a)
++SET(COMPILE_OPENJPEG 0)
++SET(LIBS ${LIBS} -lopenjp2)
+ 
+-SET(LIBS ${LIBS} ${LIB_DIR_SYS}/libtiff.a ${LIB_DIR_SYS}/libjpeg.a)
++SET(LIBS ${LIBS} -ltiff -ljpeg)
+ SET(LIBS ${LIBS} -L${LIB_DIR_SYS} -lcrypto -lssl)
+ SET(LIBS ${LIBS} -L${LIB_DIR_SYS} -lz -lws2_32)
+ #-------------------------------------------------------------------------------
+@@ -45,7 +45,7 @@
+     SET(MING mingw32)
+ ENDIF()
+ 
+-SET(CONFIGURE ${MING}-configure)
+-SET(CMAKE ${MING}-cmake)
+-SET(MAKE ${MING}-make)
++SET(CONFIGURE ./configure)
++SET(CMAKE cmake)
++SET(MAKE make)
+ SET(INSTALL sudo make)
+--- toolchains/win32.cmake.orig	2017-01-03 10:19:59.117476600 +0000
++++ toolchains/win32.cmake	2017-01-03 10:20:59.980403900 +0000
+@@ -32,6 +32,7 @@
+ SET(LIBS ${LIBS} -L${LIB_DIR_SYS} -lexpat)
+ 
+ SET(COMPILE_OPENJPEG 0)
++INCLUDE_DIRECTORIES(${SYSROOT_PATH}/include/openjpeg-2.2)
+ SET(LIBS ${LIBS} -lopenjp2)
+ 
+ SET(LIBS ${LIBS} -ltiff -ljpeg)
+--- toolchains/win32.cmake.orig	2017-01-03 10:56:10.559630300 +0000
++++ toolchains/win32.cmake	2017-01-03 10:56:39.878726400 +0000
 @@ -1,7 +1,7 @@
  #--set OS Specific Compiler Flags-----------------------------------------------
 -SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DOPJ_STATIC -DKM_WIN32 -static")
@@ -10,51 +66,70 @@
  #-------------------------------------------------------------------------------
  
  #--set os specifc linking mode-------------------------------------------------
-@@ -13,7 +13,7 @@
- IF(TARGET_ARCH STREQUAL "i686")
-     SET(CMAKE_RC_COMPILER /usr/bin/i686-w64-mingw32-windres) 
- ELSE()
--    SET(CMAKE_RC_COMPILER /usr/bin/x86_64-w64-mingw32-windres) 
-+    SET(CMAKE_RC_COMPILER x86_64-w64-mingw32-windres) 
- ENDIF()
+--- toolchains/win32.cmake.orig	2017-01-03 11:09:34.303432200 +0000
++++ toolchains/win32.cmake	2017-01-03 11:10:19.224425800 +0000
+@@ -38,6 +38,7 @@
+ SET(LIBS ${LIBS} -ltiff -ljpeg)
+ SET(LIBS ${LIBS} -L${LIB_DIR_SYS} -lcrypto -lssl)
+ SET(LIBS ${LIBS} -L${LIB_DIR_SYS} -lz -lws2_32)
++SET(LIBS ${LIBS} -L${LIB_DIR_SYS} -lltdl -liconv -lcrypt32)
+ #-------------------------------------------------------------------------------
  
- INCLUDE_DIRECTORIES(${SYSROOT_PATH}/include/libxml2)
-@@ -21,8 +21,8 @@
- IF(ENABLE_XMLSEC)
-     INCLUDE_DIRECTORIES(${SYSROOT_PATH}/include/libxslt)
-     INCLUDE_DIRECTORIES(${SYSROOT_PATH}/include/xmlsec1)
--    SET(COMPILE_XMLSEC 1)
--    SET(LIBS ${LIBS} ${LIB_DIR_SYS}/libxmlsec1-openssl.a ${LIB_DIR_SYS}/libxmlsec1.a)
-+    SET(COMPILE_XMLSEC 0)
-+    SET(LIBS ${LIBS} -lxmlsec1-openssl -lxmlsec1)
-     SET(LIBS ${LIBS} -L${LIB_DIR_SYS} -lxslt)
- ENDIF(ENABLE_XMLSEC)
+ IF(TARGET_ARCH STREQUAL x86_64)
+--- toolchains/win32.cmake.orig	2017-01-03 11:28:56.085911900 +0000
++++ toolchains/win32.cmake	2017-01-03 11:30:28.745765500 +0000
+@@ -35,7 +35,7 @@
+ INCLUDE_DIRECTORIES(${SYSROOT_PATH}/include/openjpeg-2.2)
+ SET(LIBS ${LIBS} -lopenjp2)
  
-@@ -32,10 +32,12 @@
- SET(COMPILE_EXPAT 0)
- SET(LIBS ${LIBS} -L${LIB_DIR_SYS} -lexpat)
- 
--SET(COMPILE_OPENJPEG 1)
--SET(LIBS ${LIBS} ${LIB_DIR}/libopenjp2.a)
-+SET(COMPILE_OPENJPEG 0)
-+INCLUDE_DIRECTORIES(${SYSROOT_PATH}/include/openjpeg-2.2)
-+SET(LIBS ${LIBS} -lopenjp2)
- 
--SET(LIBS ${LIBS} ${LIB_DIR_SYS}/libtiff.a ${LIB_DIR_SYS}/libjpeg.a)
-+SET(COMPILE_TIFF 0)
+-SET(LIBS ${LIBS} -ltiff -ljpeg)
 +SET(LIBS ${LIBS} -L${PROJECT_SOURCE_DIR}/libopendcp -L${PROJECT_SOURCE_DIR}/libasdcp -ltiff -ljpeg)
  SET(LIBS ${LIBS} -L${LIB_DIR_SYS} -lcrypto -lssl)
  SET(LIBS ${LIBS} -L${LIB_DIR_SYS} -lz -lws2_32)
- #-------------------------------------------------------------------------------
-@@ -46,7 +48,7 @@
-     SET(MING mingw32)
+ SET(LIBS ${LIBS} -L${LIB_DIR_SYS} -lltdl -liconv -lcrypt32)
+--- CMakeLists.txt.orig	2017-01-03 11:41:54.871757400 +0000
++++ CMakeLists.txt	2017-01-03 11:43:40.103168700 +0000
+@@ -24,7 +24,8 @@
+ OPTION(ENABLE_GUI      "Enable GUI compiling" ON)
+ OPTION(ENABLE_CLANG    "Enable CLANG compiling (OSX)" ON)
+ OPTION(ENABLE_DEBUG    "Enable debug symbols" OFF)
+-OPTION(BUILD_STATIC    "Enable debug symbols" ON)
++OPTION(BUILD_STATIC    "Enable static build" OFF)
++OPTION(BUILD_SHARED    "Enable shared build" ON)
+ OPTION(GENERATE_LANGUAGE_FILES "Generate Translation files" OFF)
+ OPTION(RPM             "Create RPM package" OFF)
+ OPTION(DEB             "Create DEB package" OFF)
+@@ -42,9 +43,9 @@
+ #--set optional packages--------------------------------------------------------
+ IF(ENABLE_XMLSEC)
+     ADD_DEFINITIONS(-DXMLSEC)
+-    ADD_DEFINITIONS(-DLIBXML_STATIC)
+-    ADD_DEFINITIONS(-DLIBXSLT_STATIC)
+-    ADD_DEFINITIONS(-DXMLSEC_STATIC)
++    ADD_DEFINITIONS(-DLIBXML_SHARED)
++    ADD_DEFINITIONS(-DLIBXSLT_SHARED)
++    ADD_DEFINITIONS(-DXMLSEC_SHARED)
  ENDIF()
  
--SET(CONFIGURE ${MING}-configure)
--SET(CMAKE ${MING}-cmake)
--SET(MAKE ${MING}-make)
--SET(INSTALL sudo make)
-+SET(CONFIGURE ./configure)
-+SET(CMAKE cmake)
-+SET(MAKE make)
-+SET(INSTALL make)
+ IF(ENABLE_RAGNAROK)
+--- cli/CMakeLists.txt.orig	2017-01-03 17:40:19.746528900 +0000
++++ cli/CMakeLists.txt	2017-01-03 18:03:15.864771800 +0000
+@@ -36,7 +36,7 @@
+ TARGET_LINK_LIBRARIES(opendcp_xml ${OPENDCP_LIB} ${LIBS})
+ 
+ ADD_EXECUTABLE(opendcp_j2k opendcp_j2k_cmd.c opendcp_cli.c)
+-TARGET_LINK_LIBRARIES(opendcp_j2k ${OPENDCP_LIB})
++TARGET_LINK_LIBRARIES(opendcp_j2k ${OPENDCP_LIB} -L../libopendcp)
+ 
+ ADD_EXECUTABLE(opendcp_mxf opendcp_mxf_cmd.c opendcp_cli.c)
+ TARGET_LINK_LIBRARIES(opendcp_mxf ${OPENDCP_LIB} ${LIBS})
+--- gui/translator.cpp.orig	2017-01-03 19:35:54.084257100 +0000
++++ gui/translator.cpp	2017-01-03 19:36:19.064727000 +0000
+@@ -16,6 +16,7 @@
+      along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+ 
++#include <QApplication>
+ #include <QDir>
+ #include <QtGui>
+ #include "translator.h"
