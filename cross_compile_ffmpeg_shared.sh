@@ -1575,6 +1575,10 @@ build_icu() {
     cd ../..
     export PATH=$holding_path
     download_and_unpack_file http://download.icu-project.org/files/icu4c/57.1/icu4c-57_1-src.tgz icu
+    cd icu
+      # ICU 58.2 uses a pair of locale-related functiont that don't occur in mingw yet
+     # apply_patch file://${top_dir}/icu-mingw-locale.patch
+    cd ..
     cd icu/source
       generic_configure_make_install "--host=x86_64-w64-mingw32 --with-cross-build=${top_dir}/sandbox/x86_64/icu_native/source"
     cd ../..
@@ -3469,47 +3473,55 @@ build_qjackctl() {
 }
 
 build_angle() {
-  do_git_checkout https://chromium.googlesource.com/angle/angle angle 57ce9ea23e54e7beb0526502bdf9094d1ddfde68 # 9f09037b073a7481bc5d94984a26b7c9d3427b16 # 57ce9ea23e54e7beb0526502bdf9094d1ddfde68
-  cd angle
-    # remove .git directory to prevent: No rule to make target '../build-x86_64/.git/index', needed by 'out/Debug/obj/gen/angle/id/commit.h'.
-    rm -rvf .git || exit 1
-    # These patches from the AUR linux project
-    apply_patch_p1 file://${top_dir}/angle-Fix-dynamic-libraries.patch
-    apply_patch_p1 file://${top_dir}/angle-Link-against-dxguid-d3d9-and-gdi32.patch
-    apply_patch_p1 file://${top_dir}/angle-Export-shader-API-via-libGLESv2.dll.patch
-    apply_patch_p1 file://${top_dir}/angle-Make-GLintptr-and-GLsizeiptr-match-those-from-Qt-5.patch
-    apply_patch_p1 file://${top_dir}/angle-Remove-copy_scripts-target.patch
-    apply_patch_p1 file://${top_dir}/angle-Fix-generation-of-commit_id.h.patch
-    # These are my patches to work around VC-only functions
-    apply_patch file://${top_dir}/angle-string_utils-cpp.patch
-    apply_patch file://${top_dir}/angle-RendererD3D-cpp.patch
-#    apply_patch file://${top_dir}/angle-future.patch
-    # executing .bat scripts on Linux is a no-go so make this a no-op
-    echo "" > src/copy_compiler_dll.bat
-    chmod +x src/copy_compiler_dll.bat
-    # provide a file to export symbols declared in ShaderLang.h as part of libGLESv2.dll
-    # (required to build Qt WebKit which uses shader interface)
-#    cp ${top_dir}/angle-entry_points_shader.cpp src/libGLESv2/entry_points_shader.cpp
-    mkdir build-x86_64
-    cd build-x86_64
-      export CXX=x86_64-w64-mingw32-g++
-      export AR=x86_64-w64-mingw32-ar
-      old_cxxflags=${CXXFLAGS}
-      export CXXFLAGS="-O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions --param=ssp-buffer-size=4 -std=c++11 -msse2 -DUNICODE -D_UNICODE -I./../src -I./../include -I./../src/common/third_party/numerics"
-      # Prepare the Makefile
-      gyp -D use_ozone=0 -D OS=win -D TARGET=win64 --format make -DMSVS_VERSION="" --depth . -I ../gyp/common.gypi ../src/angle.gyp
-      make V=1 LIBS="-lmingw32 -lm -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -lwinmm -limm32 -lole32 -loleaut32 -lshell32 -lversion -luuid -ld3d9" -j $cpu_count || exit 1
-      # The libraries are built but have the wrong suffix
-      # There is no make install target
-      cp -v out/Debug/src/libGLESv2.so "${mingw_w64_x86_64_prefix}/bin/libGLESv2.dll"
-      cp -v out/Debug/src/libEGL.so "${mingw_w64_x86_64_prefix}/bin/libEGL.dll"
-      cp -v libGLESv2.dll.a libEGL.dll.a out/Debug/src/lib*.a "${mingw_w64_x86_64_prefix}/lib/"
-      cp -Rv ../include/* "${mingw_w64_x86_64_prefix}/include/"
-      unset CXX
-      unset AR
-      export CXXFLAGS=${old_cxxflags}
-    cd ..
-  cd ..
+#  do_git_checkout https://chromium.googlesource.com/angle/angle angle dd1b0c485561e0ce825a9426d7e223b4e158a358 # 57ce9ea23e54e7beb0526502bdf9094d1ddfde68 # 9f09037b073a7481bc5d94984a26b7c9d3427b16 
+    # If Angle has been build, then skip the whole process because Git barfs
+    if [[ ! -f "angle/already_built_angle" ]]; then 
+      echo "Angle not built: building from scratch."
+      do_git_checkout https://github.com/google/angle.git angle 57ce9ea23e
+      cd angle
+        # remove .git directory to prevent: No rule to make target '../build-x86_64/.git/index', needed by 'out/Debug/obj/gen/angle/id/commit.h'.
+        rm -rvf .git || exit 1
+        # These patches from the AUR linux project
+        apply_patch_p1 file://${top_dir}/angle-Fix-dynamic-libraries.patch
+        apply_patch_p1 file://${top_dir}/angle-Link-against-dxguid-d3d9-and-gdi32.patch
+        apply_patch_p1 file://${top_dir}/angle-Export-shader-API-via-libGLESv2.dll.patch
+        apply_patch_p1 file://${top_dir}/angle-Make-GLintptr-and-GLsizeiptr-match-those-from-Qt-5.patch
+        apply_patch_p1 file://${top_dir}/angle-Remove-copy_scripts-target.patch
+        apply_patch_p1 file://${top_dir}/angle-Fix-generation-of-commit_id.h.patch
+        # These are my patches to work around VC-only functions
+        apply_patch file://${top_dir}/angle-string_utils-cpp.patch
+        apply_patch file://${top_dir}/angle-RendererD3D-cpp.patch
+    #    apply_patch file://${top_dir}/angle-future.patch
+        # executing .bat scripts on Linux is a no-go so make this a no-op
+        echo "" > src/copy_compiler_dll.bat
+        chmod +x src/copy_compiler_dll.bat
+        # provide a file to export symbols declared in ShaderLang.h as part of libGLESv2.dll
+        # (required to build Qt WebKit which uses shader interface)
+    #    cp ${top_dir}/angle-entry_points_shader.cpp src/libGLESv2/entry_points_shader.cpp
+        mkdir build-x86_64
+        cd build-x86_64
+          export CXX=x86_64-w64-mingw32-g++
+          export AR=x86_64-w64-mingw32-ar
+          old_cxxflags=${CXXFLAGS}
+          export CXXFLAGS="-O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions --param=ssp-buffer-size=4 -std=c++11 -msse2 -DUNICODE -D_UNICODE -I./../src -I./../include -I./../src/common/third_party/numerics"
+          # Prepare the Makefile
+          gyp -D use_ozone=0 -D OS=win -D TARGET=win64 --format make -DMSVS_VERSION="" --depth . -I ../gyp/common.gypi ../src/angle.gyp
+          make V=1 LIBS="-lmingw32 -lm -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -lwinmm -limm32 -lole32 -loleaut32 -lshell32 -lversion -luuid -ld3d9" -j $cpu_count || exit 1
+          # The libraries are built but have the wrong suffix
+          # There is no make install target
+          cp -v out/Debug/src/libGLESv2.so "${mingw_w64_x86_64_prefix}/bin/libGLESv2.dll"
+          cp -v out/Debug/src/libEGL.so "${mingw_w64_x86_64_prefix}/bin/libEGL.dll"
+          cp -v libGLESv2.dll.a libEGL.dll.a out/Debug/src/lib*.a "${mingw_w64_x86_64_prefix}/lib/"
+          cp -Rv ../include/* "${mingw_w64_x86_64_prefix}/include/"
+          unset CXX
+          unset AR
+          export CXXFLAGS=${old_cxxflags}
+        cd ..
+      touch already_built_angle
+      cd ..
+    else
+      echo "Angle already built. Not making it again."
+    fi
 }
 
 build_libepoxy() {

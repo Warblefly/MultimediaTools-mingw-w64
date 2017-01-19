@@ -1,0 +1,17 @@
+--- source/i18n/digitlst.cpp.orig	2017-01-05 21:29:58.490060200 +0000
++++ source/i18n/digitlst.cpp	2017-01-05 21:37:27.110600300 +0000
+@@ -60,13 +60,7 @@
+ # endif
+ #endif
+ 
+-#if U_USE_STRTOD_L
+-# if U_PLATFORM_USES_ONLY_WIN32_API || U_PLATFORM == U_PF_CYGWIN
+-#   include <locale.h>
+-# else
+-#   include <xlocale.h>
+-# endif
+-#endif
++#include <locale.h>
+ 
+ // ***************************************************************************
+ // class DigitList

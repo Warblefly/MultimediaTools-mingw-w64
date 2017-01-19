@@ -1,5 +1,5 @@
-# MultimediaTools-mingw-w64
-Scripts and patches to cross-compile, for Windows 64-bit, many multimedia utilities, including FFmpeg, Dcp-o-matic, SoX, the mpv player, and all the BBC Avid-compatible MXF utilities. Also includes all Qt5 (version 5.7) libraries that will compile on mingw-w64, GraphicMagick, Poppler-utils (for PDF files) and many, many more.
+# MultimediaTools W64
+Scripts and patches to cross-compile, for Windows 64-bit, many multimedia utilities, including FFmpeg, Dcp-o-matic, SoX, the mpv player, and all the BBC Avid-compatible MXF utilities. Also includes all Qt5 (version 5.7) libraries that will compile on mingw-w64, GraphicMagick, Poppler-utils (for PDF files) and many, many more. 
 
 # How To Install
 
