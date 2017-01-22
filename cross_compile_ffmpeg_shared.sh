@@ -38,7 +38,7 @@ yes_no_sel () {
 }
 
 check_missing_packages () {
-  local check_packages=('sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint' 'pxz' 'wget' 'zip' 'xmlto' 'gtkdocize' 'python-config' 'ant' 'sdl-config' 'gyp')
+  local check_packages=('sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint' 'pxz' 'wget' 'zip' 'xmlto' 'gtkdocize' 'python-config' 'ant' 'sdl-config' 'sdl2-config' 'gyp')
   for package in "${check_packages[@]}"; do
     type -P "$package" >/dev/null || missing_packages=("$package" "${missing_packages[@]}")
   done
@@ -755,6 +755,14 @@ build_libsoxr() {
   do_git_checkout git://git.code.sf.net/p/soxr/code "soxr-code"
   cd soxr-code
     do_cmake "-DHAVE_WORDS_BIGENDIAN_EXITCODE=0  -DBUILD_SHARED_LIBS:bool=on -DBUILD_STATIC_LIBS:bool=off -DBUILD_TESTS:BOOL=OFF"
+    do_make_install
+  cd ..
+}
+
+build_googletest() {
+  do_git_checkout https://github.com/google/googletest.git googletest
+  cd googletest
+    do_cmake "-DBUILD_SHARED_LIBS=ON"
     do_make_install
   cd ..
 }
@@ -2138,6 +2146,15 @@ build_sdl2() {
 
 }
 
+build_sdl2_image() {
+  do_git_checkout https://github.com/SDL-mirror/SDL_image.git SDL_image
+  cd SDL_image
+    rm -v aclocal.m4 Makefile.in configure
+    do_configure "--host=x86_64-w64-mingw32 --target=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-shared --enable-static"
+    do_make_install "V=1"
+  cd ..
+}
+
 build_OpenCL() {
   do_git_checkout https://github.com/KhronosGroup/OpenCL-ICD-Loader.git OpenCL-ICD-Loader
   cd OpenCL-ICD-Loader
@@ -2551,8 +2568,8 @@ build_regex() {
 }
 
 build_boost() { 
-  download_and_unpack_file "http://sourceforge.net/projects/boost/files/boost/1.62.0/boost_1_62_0.tar.bz2/download" boost_1_62_0
-  cd boost_1_62_0 
+  download_and_unpack_file "http://sourceforge.net/projects/boost/files/boost/1.63.0/boost_1_63_0.tar.bz2/download" boost_1_63_0
+  cd boost_1_63_0 
     local touch_name=$(get_small_touchfile_name already_configured "$configure_options $configure_name $LDFLAGS $CFLAGS") 
     if [ ! -f  "$touch_name" ]; then 
 #      ./bootstrap.sh mingw target-os=windows address-model=64 link=shared threading=multi threadapi=win32 toolset=gcc-mingw --prefix=${mingw_w64_x86_64_prefix} || exit 1
@@ -3540,6 +3557,39 @@ build_cuetools() {
   cd ..
 }
 
+build_eigen() {
+  download_and_unpack_file http://bitbucket.org/eigen/eigen/get/3.3.2.tar.bz2 eigen-eigen-da9b4e14c255
+  cd eigen-eigen-da9b4e14c255
+    mkdir -v -p ${mingw_w64_x86_64_prefix}/include/Eigen || exit 1
+    cp -Rvf Eigen/* ${mingw_w64_x86_64_prefix}/include/Eigen || exit 1
+    # But we must install eigen3.pc manually
+    sed -i.bak "s!@CMAKE_INSTALL_PREFIX@!${mingw_w64_x86_64_prefix}!" eigen3.pc.in
+    sed -i.bak "s/@EIGEN_VERSION_NUMBER@/3.3.2/" eigen3.pc.in
+    sed -i.bak "s!@INCLUDE_INSTALL_DIR@!include!" eigen3.pc.in
+    cp -v eigen3.pc.in ${mingw_w64_x86_64_prefix}/lib/pkgconfig/eigen3.pc
+  cd ..
+}
+
+build_movit() {
+  do_git_checkout https://git.sesse.net/movit movit
+  cd movit
+    apply_patch file://${top_dir}/movit-ffs.patch
+    export GTEST_DIR=../googletest/googletest
+    generic_configure_make_install "CFLAGS=-fpermissive CXXFLAGS=-fpermissive"
+    unset GTEST_DIR
+  cd ..
+}
+
+build_synaesthesia() {
+  do_git_checkout https://github.com/dreamlayers/synaesthesia.git synaesthesia
+  cd synaesthesia
+    apply_patch file://${top_dir}/synaesthesia-case.patch
+    export LIBS="-lmingw32 -lSDL2main"
+    generic_configure_make_install "CXXFLAGS=-fpermissive --with-sdl2=yes" 
+    unset LIBS
+  cd ..
+}
+
 build_libMXF() {
   #download_and_unpack_file http://sourceforge.net/projects/ingex/files/1.0.0/libMXF/libMXF-src-1.0.0.tgz "libMXF-src-1.0.0"
   #cd libMXF-src-1.0.0
@@ -3897,6 +3947,7 @@ build_dependencies() {
   build_libchromaprint
   build_libsndfile
   # build_libnvenc
+  build_googletest
   build_glib
   build_libsigc++
   build_glibmm
@@ -3935,6 +3986,7 @@ build_dependencies() {
   build_leptonica
   build_pixman
   build_libssh
+  build_sdl2_image
   build_mmcommon
   build_angle
   build_cairo
@@ -3961,6 +4013,7 @@ build_dependencies() {
   build_libepoxy
   build_gtk
   build_graphicsmagick
+  build_eigen
   build_libdv
   build_asdcplib-cth
   build_libdcp
@@ -4024,12 +4077,14 @@ build_apps() {
   build_mediainfo  
   build_dvdauthor
   build_mlt # Framework, but relies on FFmpeg, Qt, and many other libraries we've built.
+  build_movit
   build_DJV # Requires FFmpeg libraries
   build_qjackctl
   build_jackmix
   build_get_iplayer
   build_dcpomatic
   build_loudness-scanner
+  build_synaesthesia
   # Because loudness scanner installs its own out-of-date libebur128, we must re-install our own.
 #  build_dvdstyler
 #  build_vlc # REquires many static libraries, for good reason: but not my remit just now

@@ -116,6 +116,10 @@ With these scripts, you can compile binaries, ready to run on 64-bit Windows. Ma
  * yuvkineco — automatically try to remove pulldown patterns
  * yuvycsnoise — denoiser especially for NTSC Y/C separation noise
  * yuvscaler — scales incoming video to many pre-set sizes
+* Synaesthesia
+ * synaesthesia - the original sound-to-light program
+* Movit
+ * libmovit - for image processing in certain applications
 * libdv — processing library and some utilities for DV digital video streams
  * dubdv — inserts audio into a DV stream, discarding existing audio if any
  * encodedv — encodes incoming uncompressed video or image sequence into DV format

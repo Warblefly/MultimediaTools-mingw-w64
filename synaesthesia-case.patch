@@ -1,0 +1,13 @@
+--- main.cc.orig	2017-01-21 09:43:29.717625500 +0000
++++ main.cc	2017-01-21 09:43:40.787630600 +0000
+@@ -36,8 +36,8 @@
+ #define WIN32_LEAN_AND_MEAN
+ #define __W32API_USE_DLLIMPORT__
+ #include <windows.h>
+-#include <Shlobj.h>
+-#include <Shlwapi.h>
++#include <shlobj.h>
++#include <shlwapi.h>
+ #endif
+ #include <string.h>
+ #if HAVE_SDL
