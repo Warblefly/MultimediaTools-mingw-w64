@@ -865,7 +865,28 @@ build_opencv() {
     apply_patch file://${top_dir}/opencv-boost-thread.patch
     apply_patch file://${top_dir}/opencv-wrong-slash.patch
     do_cmake "-DWITH_IPP=OFF -DWITH_DSHOW=OFF -DBUILD_SHARED_LIBS=ON -DBUILD_opencv_apps=ON -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DWITH_WEBP=OFF -DBUILD_EXAMPLES=ON -DINSTALL_C_EXAMPLES=ON -DWITH_OPENGL=ON -DINSTALL_PYTHON_EXAMPLES=ON -DCMAKE_CXX_FLAGS=-DMINGW_HAS_SECURE_API=1 -DCMAKE_C_FLAGS=-DMINGW_HAS_SECURE_API=1 -DOPENCV_LINKER_LIBS=boost_thread_win32;boost_system"
-    sed -i.bak "s|DBL_EPSILON|2.2204460492503131E-16|g" modules/imgproc/include/opencv2/imgproc/types_c.h
+    sed -i.bak "s|DBL_EPSILON|2.2204460492503131E-16|g" modules/imgproc/include/opencv2/imgproc/types_c.hi
+    sed -i.bak 's/-isystem /-I/g' `find ./ -name "includes_CXX.rsp"`
+    # CMake and mingw-64 stdlib.h conflict here. The #includes order gets mangled
+#    sed -i.bak 's/-isystem /-I/g' modules/core/CMakeFiles/opencv_core.dir/includes_CXX.rsp
+#    sed -i.bak 's/-isystem /-I/g' modules/imgproc/CMakeFiles/opencv_imgproc.dir/includes_CXX.rsp
+#    sed -i.bak 's/-isystem /-I/g' modules/ml/CMakeFiles/opencv_ml.dir/includes_CXX.rsp
+#    sed -i.bak 's/-isystem /-I/g' modules/flann/CMakeFiles/opencv_flann.dir/includes_CXX.rsp
+#    sed -i.bak 's/-isystem /-I/g' modules/imgcodecs/CMakeFiles/opencv_imgcodecs.dir/includes_CXX.rsp
+#    sed -i.bak 's/-isystem /-I/g' modules/photo/CMakeFiles/opencv_photo.dir/includes_CXX.rsp
+#    sed -i.bak 's/-isystem /-I/g' modules/video/CMakeFiles/opencv_video.dir/includes_CXX.rsp
+#    sed -i.bak 's/-isystem /-I/g' modules/shape/CMakeFiles/opencv_shape.dir/includes_CXX.rsp
+#    sed -i.bak 's/-isystem /-I/g' modules/videoio/CMakeFiles/opencv_videoio.dir/includes_CXX.rsp
+#    sed -i.bak 's/-isystem /-I/g' modules/superres/CMakeFiles/opencv_superres.dir/includes_CXX.rsp
+#    sed -i.bak 's/-isystem /-I/g' modules/highgui/CMakeFiles/opencv_highgui.dir/includes_CXX.rsp
+#    sed -i.bak 's/-isystem /-I/g' modules/objdetect/CMakeFiles/opencv_objdetect.dir/includes_CXX.rsp
+#    sed -i.bak 's/-isystem /-I/g' modules/features2d/CMakeFiles/opencv_features2d.dir/includes_CXX.rsp
+#    sed -i.bak 's/-isystem /-I/g' apps/annotation/CMakeFiles/opencv_annotation.dir/includes_CXX.rsp
+#    sed -i.bak 's/-isystem /-I/g' apps/visualisation/CMakeFiles/opencv_visualisation.dir/includes_CXX.rsp
+#    sed -i.bak 's/-isystem /-I/g' apps/version/CMakeFiles/opencv_version.dir/includes_CXX.rsp
+#    sed -i.bak 's/-isystem /-I/g' samples/opengl/CMakeFiles/opencv_opengl.dir/includes_CXX.rsp
+#    sed -i.bak 's/-isystem /-I/g' samples/opengl/CMakeFiles/example_opengl_opengl_interop.dir/includes_CXX.rsp
+#    sed -i.bak 's/-isystem /-I/g' modules/calib3d/CMakeFiles/opencv_calib3d.dir/includes_CXX.rsp
     do_make_install
   export OpenCV_DIR=`pwd`
   export OpenCV_INCLUDE_DIR="${OpenCV_DIR}/include"
@@ -2748,6 +2769,11 @@ build_gtk() {
   cd adwaita-icon-theme-3.22.0
     generic_configure_make_install "--enable-w32-cursors"
   cd ..
+  download_and_unpack_file https://icon-theme.freedesktop.org/releases/hicolor-icon-theme-0.15.tar.xz hicolor-icon-theme-0.15
+  cd hicolor-icon-theme-0.15
+    rm -v aclocal.m4 Makefile.in configure
+    generic_configure_make_install
+  cd ..
 }
 
 build_snappy () {
@@ -3479,6 +3505,15 @@ build_pangomm() {
   unset PANGOMM_LIBS
 }
 
+build_mimedb() {
+  export orig_cpu_count=$cpu_count
+  export cpu_count=1
+  # The installer barfs if this directory doesn't exist.
+#  mkdir -v -p ${mingw_w64_x86_64_prefix}/share/mime/packages
+  generic_download_and_install http://freedesktop.org/~hadess/shared-mime-info-1.7.tar.xz shared-mime-info-1.7 "--disable-update-mimedb"
+  export cpu_count=$orig_cpu_count
+}
+
 build_qjackctl() {
   do_git_checkout http://git.code.sf.net/p/qjackctl/code qjackctl
   cd qjackctl
@@ -3956,6 +3991,7 @@ build_dependencies() {
   build_jasper # JPEG2000 codec for GraphicsMagick among others
   build_atk
   build_gdk_pixbuf
+  build_mimedb
   build_vamp-sdk
   build_libsamplerate # for librubberband
   build_libbs2b
