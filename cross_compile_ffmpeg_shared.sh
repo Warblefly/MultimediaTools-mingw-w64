@@ -320,7 +320,7 @@ do_configure() {
     fi
     rm -f already_* # reset
     echo "configuring $english_name ($PWD) as $ PATH=$PATH $configure_name $configure_options"
-    nice "$configure_name" $configure_options || exit 1
+    "$configure_name" $configure_options || exit 1
     touch -- "$touch_name"
     make clean # just in case
   else
@@ -337,7 +337,7 @@ do_make() {
     echo
     echo "making $cur_dir2 as $ PATH=$PATH make $extra_make_options"
     echo
-    nice make $extra_make_options || exit 1
+    make $extra_make_options || exit 1
     touch $touch_name || exit 1 # only touch if the build was OK
   else
     echo "already did make $(basename "$cur_dir2")"
@@ -353,7 +353,7 @@ do_rake() {
     echo
     echo "raking $cur_dir2 as $ PATH=$PATH rake $extra_make_options"
     echo
-    nice rake $extra_make_options || exit 1
+    rake $extra_make_options || exit 1
     touch $touch_name || exit 1 # only touch if the build was OK
   else
     echo "already did make $(basename "$cur_dir2")"
@@ -369,7 +369,7 @@ do_drake() {
     echo
     echo "draking $cur_dir2 as $ PATH=$PATH drake $extra_make_options"
     echo
-    nice drake $extra_make_options || exit 1
+    drake $extra_make_options || exit 1
     touch $touch_name || exit 1 # only touch if the build was OK
   else
     echo "already did drake $(basename "$cur_dir2")"
@@ -386,7 +386,7 @@ do_smake() {
     echo
     echo "smaking $cur_dir2 as $ PATH=$PATH smake $extra_make_options"
     echo
-    nice ${mingw_w64_x86_64_prefix}/../bin/smake $extra_make_options || exit 1
+    ${mingw_w64_x86_64_prefix}/../bin/smake $extra_make_options || exit 1
     touch $touch_name || exit 1 # only touch if the build was OK
   else
     echo "already did smake $(basename "$cur_dir2")"
@@ -400,7 +400,7 @@ do_make_install() {
   local touch_name=$(get_small_touchfile_name already_ran_make_install "$extra_make_options")
   if [ ! -f $touch_name ]; then
     echo "make installing $cur_dir2 as $ PATH=$PATH make install $extra_make_options"
-    nice make install $extra_make_options || exit 1
+    make install $extra_make_options || exit 1
     touch $touch_name || exit 1
   fi
 }
@@ -411,7 +411,7 @@ do_smake_install() {
   local touch_name=$(get_small_touchfile_name already_ran_make_install "$extra_make_options")
   if [ ! -f $touch_name ]; then
     echo "smake installing $cur_dir2 as $ PATH=$PATH smake install $extra_make_options"
-    nice ${mingw_w64_x86_64_prefix}/../bin/smake install $extra_make_options || exit 1
+    ${mingw_w64_x86_64_prefix}/../bin/smake install $extra_make_options || exit 1
     touch $touch_name || exit 1
   fi
 }
@@ -566,7 +566,7 @@ do_make_and_make_install() {
   local touch_name=$(get_small_touchfile_name already_ran_make_install "$extra_make_options")
   if [ ! -f $touch_name ]; then
     echo "make installing $(pwd) as $ PATH=$PATH make install $extra_make_options"
-    nice make install $extra_make_options || exit 1
+    make install $extra_make_options || exit 1
     touch $touch_name || exit 1
   fi
 }
@@ -577,7 +577,7 @@ do_rake_and_rake_install() {
   local touch_name=$(get_small_touchfile_name already_ran_make_install "$extra_make_options")
   if [ ! -f $touch_name ]; then
     echo "rake installing $(pwd) as $ PATH=$PATH rake install $extra_make_options"
-    nice rake install $extra_make_options || exit 1
+    rake install $extra_make_options || exit 1
     touch $touch_name || exit 1
   fi
 }
@@ -588,7 +588,7 @@ do_drake_and_drake_install() {
   local touch_name=$(get_small_touchfile_name already_ran_drake_install "$extra_make_options")
   if [ ! -f $touch_name ]; then
     echo "drake installing $(pwd) as $ PATH=$PATH drake install $extra_make_options"
-    nice drake install $extra_make_options || exit 1
+    drake install $extra_make_options || exit 1
     touch $touch_name || exit 1
   fi
 }
@@ -3592,6 +3592,15 @@ build_cuetools() {
   cd ..
 }
 
+build_pngcrush() {
+  do_git_checkout https://git.code.sf.net/p/pmt/code pngcrush pngcrush
+  cd pngcrush
+    apply_patch file://{$top_dir}/pngcrush.patch
+    do_make
+    cp -v pngcrush.exe ${mingw_w64_x86_64_prefix}/bin/pngcrush.exe
+  cd ..
+}
+
 build_eigen() {
   download_and_unpack_file http://bitbucket.org/eigen/eigen/get/3.3.2.tar.bz2 eigen-eigen-da9b4e14c255
   cd eigen-eigen-da9b4e14c255
@@ -4061,6 +4070,7 @@ build_apps() {
 #  build_less
 #  build_coreutils
   build_file
+  #build_pngcrush
   build_exif
   build_gcal
   build_opustools
