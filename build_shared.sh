@@ -69,7 +69,7 @@ if  [[ "$dump_archive" = [Yy] ]]; then
   # Put the unzip scripts where we can find them.
   cp -v install-zipfile.ps1 sandbox/mingw-w64-x86_64/x86_64-w64-mingw32/bin/install-zipfile.ps1
   cp -v install-zipfile.cmd sandbox/mingw-w64-x86_64/x86_64-w64-mingw32/bin/install-zipfile.cmd
-  
+  cp -v fonts.conf sandbox/mingw-w64-x86_64/x86_64-w64-mingw32/
   cd sandbox/mingw-w64-x86_64/x86_64-w64-mingw32
   rm -v archive_list.files
   # Symbolic links are de-referenced because Windows doesn't understand these.
@@ -477,6 +477,9 @@ File /nonfatal /r "./share/*.*"
 setOutPath "$INSTDIR\doc"
 File /nonfatal /r *./doc/*.*"
 
+setOutPath "$LOCALAPPDATA\fontconfig"
+File /nonfatal fonts.conf
+
 setOutPath "$INSTDIR"
 writeUninstaller "$INSTDIR\uninstall.exe"
 
@@ -491,7 +494,7 @@ ${EnvVarUpdate} $0 GDK_PIXBUF_MODULE_FILE "A" "HKCU" "$INSTDIR\lib\gdk-pixbuf-2.
 
 ; Set up the GTK loader cache
 
-ExecWait '"$INSTDIR\bin\gdk-pixbuf-query-loaders.exe" "> lib\gdk-pixbuf-2.0\2.10.0\loaders.cache' $0
+ExecWait '"$INSTDIR\bin\gdk-pixbuf-query-loaders.exe" > lib\gdk-pixbuf-2.0\2.10.0\loaders.cache' $0
 DetailPrint "The pixbuf loader ran as $INSTDIR\bin\gdk-pixbuf-query-loaders.exe returned value $0"
 
 SectionEnd

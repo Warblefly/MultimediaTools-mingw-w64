@@ -1,0 +1,23 @@
+--- Makefile.orig	2017-02-03 14:06:10.503161200 +0000
++++ Makefile	2017-02-03 14:07:24.332382700 +0000
+@@ -12,7 +12,7 @@
+ 
+ # macros --------------------------------------------------------------------
+ 
+-CC = gcc
++CC = x86_64-w64-mingw32-gcc
+ LD = $(CC)
+ RM = rm -f
+ 
+@@ -37,9 +37,9 @@
+ # Cannot use this with libpng15 and later.
+ # CPPFLAGS += -DINFLATE_ALLOW_INVALID_DISTANCE_TOOFAR_ARRR
+ 
+-LDFLAGS =
++LDFLAGS = -shared
+ O = .o
+-E =
++E = .exe
+ 
+ PNGCRUSH  = pngcrush
+ 
