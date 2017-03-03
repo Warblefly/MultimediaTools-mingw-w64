@@ -692,18 +692,20 @@ build_librtmp() {
 }
 
 build_qt() {
-  export QT_VERSION="5.7.0"
+  export QT_VERSION="5.8.0"
   export QT_SOURCE="qt-source"
   export QT_BUILD="qt-build"
+#  orig_cpu_count=$cpu_count
+#  export cpu_count=1
   if [ ! -f qt.built ]; then
-    download_and_unpack_file http://download.qt.io/official_releases/qt/5.7/${QT_VERSION}/single/qt-everywhere-opensource-src-${QT_VERSION}.tar.gz "qt-everywhere-opensource-src-${QT_VERSION}"
+    download_and_unpack_file ftp://ftp.mirrorservice.org/sites/download.qt-project.org/official_releases/qt/5.8/${QT_VERSION}/single/qt-everywhere-opensource-src-${QT_VERSION}.tar.gz "qt-everywhere-opensource-src-${QT_VERSION}"
     cd "qt-everywhere-opensource-src-${QT_VERSION}"
       apply_patch file://${top_dir}/qt-permissive.patch
     cd ..
     mkdir -p "${QT_BUILD}"
     ln -vs "qt-everywhere-opensource-src-${QT_VERSION}" "${QT_SOURCE}"
     cd "${QT_BUILD}"
-      do_configure "-xplatform win32-g++ -prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -opensource -skip qtactiveqt -qt-freetype -fontconfig -glib -confirm-license -accessibility -nomake examples -nomake tests -debug -debug-and-release -strip -openssl -opengl desktop -device-option CROSS_COMPILE=$cross_prefix -device-option PKG_CONFIG=${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config -no-use-gold-linker -I ${mingw_w64_x86_64_prefix}/include/glib-2.0 -I ${mingw_w64_x86_64_prefix}/lib/glib-2.0/include -l glib-2.0 -v" "../${QT_SOURCE}/configure" # "noclean"
+      do_configure "-xplatform win32-g++ -prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -opensource -skip qtactiveqt -qt-freetype -confirm-license -accessibility -nomake examples -nomake tests -debug -debug-and-release -strip -openssl -opengl desktop -device-option CROSS_COMPILE=$cross_prefix -device-option PKG_CONFIG=${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config -no-use-gold-linker -D MINGW_HAS_SECURE_API -D _WIN32_IE=0x0A00 -v" "../${QT_SOURCE}/configure" # "noclean"
       do_make || exit 1
       do_make_install || exit 1
     cd ..
@@ -725,6 +727,7 @@ build_qt() {
   unset QT_VERSION
   unset QT_SOURCE
   unset QT_BUILD
+#  export cpu_count=$orig_cpu_count
 }
 
 
@@ -815,7 +818,7 @@ build_DJV() {
     # Change Windows' backslashes to forward slashes to allow MinGW compilation
     # Remember that . and \ need escaping with \, which makes this hard to read
     sed -i.bak 's!\.\.\\\\.\.\\\\etc\\\\Windows\\\\djv_view.ico!../../etc/Windows/djv_view.ico!' bin/djv_view/win.rc
-    do_cmake "-DBUILD_SHARED_LIBS=true -DCMAKE_VERBOSE_MAKEFILE=YES -DENABLE_STATIC_RUNTIME=0 -DCMAKE_PREFIX_PATH=${mingw_w64_x86_64_prefix} -DCMAKE_C_FLAGS=-D__STDC_CONSTANT_MACROS -DCMAKE_CXX_FLAGS=-D__STDC_CONSTANT_MACROS"
+    do_cmake "-DBUILD_SHARED_LIBS=true -DCMAKE_VERBOSE_MAKEFILE=YES -DENABLE_STATIC_RUNTIME=0 -DCMAKE_PREFIX_PATH=${mingw_w64_x86_64_prefix} -DCMAKE_C_FLAGS=-D__STDC_CONSTANT_MACROS -DCMAKE_CXX_FLAGS=-D__STDC_CONSTANT_MACROS -DCMAKE_SUPPRESS_REGENERATION=TRUE"
     # GCC 6.1.1 has altered headers and QT5.7 triggers a bug when used with DJV. 
     # We must instruct it to treat system include files as ordinary include files
     find ./ -name 'includes_CXX.rsp' | while read fname; do
@@ -823,10 +826,10 @@ build_DJV() {
       sed -i.bak 's/-isystem /-I/g' "${fname}"
     done
     echo "Headers now corrected."
-#    orig_cpu_count=$cpu_count
-#    export cpu_count=1
+    orig_cpu_count=$cpu_count
+    export cpu_count=1
     do_make "V=1"
-#    export cpu_count=$orig_cpu_count
+    export cpu_count=$orig_cpu_count
     # The whole DJV suite is now in two directories: build/bin and build/lib.
     # bin contains programs and their necessary DLLs, lib contains plugins and development libraries.
     # We need to copy the executables and their companion DLLs to our bin distribution directory
@@ -1151,10 +1154,10 @@ build_libgsm() {
 }
 
 build_libopus() {
-  download_and_unpack_file http://downloads.xiph.org/releases/opus/opus-1.1.3.tar.gz opus-1.1.3
-  cd opus-1.1.3
+  download_and_unpack_file http://downloads.xiph.org/releases/opus/opus-1.2-alpha.tar.gz opus-1.2-alpha
+  cd opus-1.2-alpha
 #    apply_patch file://${top_dir}/opus11.patch # allow it to work with shared builds
-    generic_configure_make_install "--enable-custom-modes --enable-asm --enable-ambisonics" 
+    generic_configure_make_install "--enable-custom-modes --enable-asm --enable-ambisonics --enable-update-draft" 
   cd ..
 }
 
@@ -1199,8 +1202,8 @@ build_libdvdcss() {
 
 build_gdb() {
   export LIBS="-lpsapi -ldl"
-  download_and_unpack_file ftp://sourceware.org/pub/gdb/releases/gdb-7.12.tar.xz gdb-7.12
-  cd gdb-7.12
+  download_and_unpack_file ftp://sourceware.org/pub/gdb/releases/gdb-7.12.1.tar.xz gdb-7.12.1
+  cd gdb-7.12.1
 #    cd readline
 #    generic_configure_make_install
 #   cd ..
@@ -1372,9 +1375,14 @@ build_win32_pthreads() {
   cd pthreads-w32-2-9-1-release
 #    do_make "clean GC-static CROSS=$cross_prefix" # NB no make install
      do_make "clean GC-inlined CROSS=$cross_prefix"
-    cp libpthreadGC2.a $mingw_w64_x86_64_prefix/lib/libpthread.a || exit 1
-    cp pthreadGC2.dll $mingw_w64_x86_64_prefix/bin/pthread.dll || exit 1
-    cp pthread.def $mingw_w64_x86_64_prefix/lib/pthread.def || exit 1
+    cp -v libpthreadGC2.a $mingw_w64_x86_64_prefix/lib/libpthread.a || exit 1
+    cp -v pthreadGC2.dll $mingw_w64_x86_64_prefix/bin/pthread.dll || exit 1
+    cp -v pthreadGC2.dll $mingw_w64_x86_64_prefix/lib/libpthread.dll || exit 1
+    cp -v pthreadGC2.dll $mingw_w64_x86_64_prefix/lib/libpthreadGC2.dll || exit 1
+    cp -v pthreadGC2.dll $mingw_w64_x86_64_prefix/lib/pthreadGC2.dll || exit 1
+    cp -v pthread.def $mingw_w64_x86_64_prefix/lib/pthread.def || exit 1
+#   Just in case anyone tries to link to the wrong library name
+    cp -v pthreadGC2.dll $mingw_w64_x86_64_prefix/bin/pthreadGC2.dll || exit 1
 #    cp libpthreadGC2.a $mingw_w64_x86_64_prefix/lib/libpthreads.a || exit 1
     cp pthread.h sched.h semaphore.h $mingw_w64_x86_64_prefix/include || exit 1
   cd ..
@@ -1653,9 +1661,9 @@ build_liba52() {
 }
 
 build_gnutls() {
-  download_and_unpack_file ftp://ftp.gnutls.org/gcrypt/gnutls/v3.3/gnutls-3.3.22.tar.xz gnutls-3.3.22
+  download_and_unpack_file https://www.gnupg.org/ftp/gcrypt/gnutls/v3.3/gnutls-3.3.26.tar.xz gnutls-3.3.26
 #  do_git_checkout https://gitlab.com/gnutls/gnutls.git gnutls
-  cd gnutls-3.3.22
+  cd gnutls-3.3.26
 #    git submodule init
 #    git submodule update
 #    make autoreconf
@@ -1710,8 +1718,8 @@ build_bzlib2() {
 }
 
 build_zlib() {
-  download_and_unpack_file http://zlib.net/zlib-1.2.8.tar.gz zlib-1.2.8
-  cd zlib-1.2.8
+  download_and_unpack_file http://zlib.net/zlib-1.2.11.tar.gz zlib-1.2.11
+  cd zlib-1.2.11
     export mingw_w64_x86_64_prefix=${mingw_w64_x86_64_prefix}
     echo "PKG_CONFIG_PATH at this point is ${PKG_CONFIG_PATH}"
     apply_patch file://${top_dir}/zlib-Makefile-gcc.patch
@@ -1768,12 +1776,12 @@ build_libaacplus() {
 }
 
 build_openssl() {
-  download_and_unpack_file ftp://ftp.openssl.org/source/openssl-1.0.2j.tar.gz openssl-1.0.2j
+  download_and_unpack_file ftp://ftp.openssl.org/source/openssl-1.0.2k.tar.gz openssl-1.0.2k
   # When the manpages are written, they need somewhere to go otherwise there is an error.
   mkdir -pv ${mingw_w64_x86_64_prefix}/include/openssl
   mkdir -pv ${mingw_w64_x86_64_prefix}/lib/engines
   mkdir -pv ${mingw_w64_x86_64_prefix}/ssl/misc
-  cd openssl-1.0.2j
+  cd openssl-1.0.2k
 #  export cross="$cross_prefix"
   export CROSS_COMPILE="${cross_prefix}"
 #  export CC="${cross}gcc"
@@ -2151,6 +2159,7 @@ build_sdl2() {
 #  mkdir build
   do_git_checkout https://github.com/spurious/SDL-mirror.git SDL
   cd SDL
+    apply_patch file://${top_dir}/sdl2.xinput.patch
 #    mkdir -v build
 
 #  local new_hg_version=`hg --debug id -i`
@@ -2858,7 +2867,7 @@ build_curl() {
 #}
 
 build_libdv() {
-  download_and_unpack_file http://heanet.dl.sourceforge.net/project/libdv/libdv/1.0.0/libdv-1.0.0.tar.gz libdv-1.0.0
+  download_and_unpack_file https://downloads.sourceforge.net/project/libdv/libdv/1.0.0/libdv-1.0.0.tar.gz libdv-1.0.0
   cd libdv-1.0.0
     # We need to regenerate the autoconf scripts because we patch Makefile.am
     # Makefile.am commands building a native binary to produce a header.
@@ -3301,7 +3310,7 @@ build_gettext() {
 }
 
 build_pcre() {
-  generic_download_and_install ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.38.tar.bz2 pcre-8.38 "--enable-pcre16 --enable-pcre32 --enable-newline-is-any --enable-jit --enable-utf --enable-pcregrep-libz --enable-pcregrep-libbz2 --enable-pcregrep-libreadline --enable-unicode-properties"
+  generic_download_and_install ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.40.tar.bz2 pcre-8.40 "--enable-pcre16 --enable-pcre32 --enable-newline-is-any --enable-jit --enable-utf --enable-pcregrep-libz --enable-pcregrep-libbz2 --enable-pcregrep-libreadline --enable-unicode-properties"
 }
 
 build_glib() {
@@ -3398,7 +3407,7 @@ build_libzip() {
 }
 
 build_exif() {
-  download_and_unpack_file http://heanet.dl.sourceforge.net/project/libexif/exif/0.6.21/exif-0.6.21.tar.bz2 exif-0.6.21
+  download_and_unpack_file https://downloads.sourceforge.net/project/libexif/exif/0.6.21/exif-0.6.21.tar.bz2 exif-0.6.21
   cd exif-0.6.21
     rm configure
     # Inclusion of langinfo.h is not needed, and doesn't exist in MinGW-w64
@@ -4229,6 +4238,13 @@ install_cross_compiler
 # the header Windows.h needs to appear
 cd ${cur_dir}/mingw-w64-x86_64/include
   ln -s windows.h Windows.h
+  ln -s uiviewsettingsinterop.h UIViewSettingsInterop.h
+cd -
+cd ${cur_dir}/mingw-w64-x86_64/lib
+  ln -s libversion.a libVersion.a
+cd -
+cd ${cur_dir}/mingw-w64-x86_64/lib32
+  ln -s libversion.a libVersion.a
 cd -
 export PKG_CONFIG_LIBDIR= # disable pkg-config from reverting back to and finding system installed packages [yikes]
 
