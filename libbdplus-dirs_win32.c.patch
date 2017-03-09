@@ -1,0 +1,10 @@
+--- src/file/dirs_win32.c.orig	2017-03-04 09:37:35.630606100 +0000
++++ src/file/dirs_win32.c	2017-03-04 09:38:02.849607400 +0000
+@@ -31,6 +31,7 @@
+ #include <windows.h>
+ #include <shlobj.h>
+ #include <limits.h>
++#include <direct.h>
+ 
+ 
+ int win32_mkdir(const char *dir)

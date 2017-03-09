@@ -1,0 +1,11 @@
+--- Makefile.am.orig	2017-03-04 23:10:51.678416000 +0000
++++ Makefile.am	2017-03-04 23:11:15.264688900 +0000
+@@ -9,7 +9,7 @@
+ test_uuid_CFLAGS = -I$(top_srcdir)/include
+ 
+ lib_LTLIBRARIES = libuuid_mingw.la
+-libuuid_mingw_la_LDFLAGS = -version-number 1:0:1
++libuuid_mingw_la_LDFLAGS = -no-undefined -version-number 1:0:1
+ 
+ libuuid_mingw_la_SOURCES=\
+ 	src/clear.c \

@@ -1,0 +1,51 @@
+--- coders/msl.c.orig	2017-03-04 21:24:10.110541900 +0000
++++ coders/msl.c	2017-03-04 21:25:30.393829900 +0000
+@@ -60,13 +60,7 @@
+ #include "magick/texture.h"
+ #include "magick/transform.h"
+ #include "magick/utility.h"
+-#if defined(MSWINDOWS)
+-#  if defined(__MINGW32__)
+-#    define _MSC_VER
+-#  else
+-#    include <win32config.h>
+-#  endif
+-#endif
++#define _MSC_VER 1900
+ #include <libxml/parser.h>
+ #include <libxml/xmlmemory.h>
+ #include <libxml/parserInternals.h>
+--- coders/svg.c.orig	2017-03-04 21:42:19.063663000 +0000
++++ coders/svg.c	2017-03-04 21:43:05.440828900 +0000
+@@ -47,13 +47,7 @@
+ #include "magick/tempfile.h"
+ #include "magick/utility.h"
+ #if defined(HasXML)
+-#  if defined(MSWINDOWS)
+-#    if defined(__MINGW32__)
+-#      define _MSC_VER
+-#    else
+-#      include <win32config.h>
+-#    endif
+-#  endif
++#  define _MSC_VER 1900
+ #  include <libxml/parser.h>
+ #  include <libxml/xmlmemory.h>
+ #  include <libxml/parserInternals.h>
+--- coders/url.c.orig	2017-03-04 21:56:55.614848600 +0000
++++ coders/url.c	2017-03-04 21:58:22.986172700 +0000
+@@ -43,13 +43,7 @@
+ #include "magick/magick.h"
+ #include "magick/tempfile.h"
+ #include "magick/utility.h"
+-#if defined(MSWINDOWS)
+-#  if defined(__MINGW32__)
+-#    define _MSC_VER
+-#  else
+-#    include <win32config.h>
+-#  endif
+-#endif
++#define _MSC_VER 1900
+ #include <libxml/parser.h>
+ #include <libxml/xmlmemory.h>
+ #include <libxml/nanoftp.h>

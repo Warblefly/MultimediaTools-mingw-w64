@@ -1221,6 +1221,10 @@ build_readline() {
   cd ..
 }
 
+build_ASIOSDK() {
+  download_and_unpack_file http://www.steinberg.net/sdk_downloads/asiosdk2.3.zip ASIOSDK2.3
+}
+
 build_portaudio_with_jack() {
 #  download_and_unpack_file http://www.portaudio.com/archives/pa_stable_v19_20140130.tgz portaudio
   do_git_checkout https://git.assembla.com/portaudio.git portaudio_with_jack
@@ -1231,7 +1235,7 @@ build_portaudio_with_jack() {
 #    apply_patch file://${top_dir}/portaudio-1-fixes-crlf.patch
 #    apply_patch file://${top_dir}/portaudio.patch
     rm configure
-    generic_configure_make_install "--disable-dependency-tracking --with-jack --with-host_os=mingw --disable-cxx --with-winapi=wmme,directx,wasapi --with-dxdir=${mingw_w64_x86_64_prefix}" # "ac_cv_path_AR=x86_64-w64-mingw32-ar"
+    generic_configure_make_install "--disable-dependency-tracking --with-jack --with-host_os=mingw --disable-cxx --with-winapi=asio,wmme,directx,wasapi --with-asiodir=../ASIOSDK2.3  --with-dxdir=${mingw_w64_x86_64_prefix}" # "ac_cv_path_AR=x86_64-w64-mingw32-ar"
       # Lots of useful test programs
     cp -v bin/*exe ${mingw_w64_x86_64_prefix}/bin/
     # For some reason, libportaudio.dll.a doesn't get installed
@@ -1249,7 +1253,7 @@ build_portaudio_without_jack() {
 #    apply_patch file://${top_dir}/portaudio-1-fixes-crlf.patch
 #    apply_patch file://${top_dir}/portaudio.patch
     rm configure
-    generic_configure_make_install "--disable-dependency-tracking --without-jack --with-host_os=mingw --disable-cxx --with-winapi=wmme,directx,wasapi --with-dxdir=${mingw_w64_x86_64_prefix}" # "ac_cv_path_AR=x86_64-w64-mingw32-ar"
+    generic_configure_make_install "--disable-dependency-tracking --without-jack --with-host_os=mingw --disable-cxx --with-winapi=asio,wmme,directx,wasapi --with-asiodir=../ASIOSDK2.3 --with-dxdir=${mingw_w64_x86_64_prefix}" # "ac_cv_path_AR=x86_64-w64-mingw32-ar"
       # Lots of useful test programs
     cp -v bin/*exe ${mingw_w64_x86_64_prefix}/bin/
     # For some reason, libportaudio.dll.a doesn't get installed
@@ -1272,13 +1276,15 @@ build_jack() {
       ./waf build || exit 1
       ./waf install || exit 1
       # The Jack development libraries are now in /bin. They should be in /lib
-      cp -v $mingw_w64_x86_64_prefix/bin/libjack*.dll.a $mingw_w64_x86_64_prefix/lib/
+      cp -v ${mingw_w64_x86_64_prefix}/bin/libjack*.dll.a ${mingw_w64_x86_64_prefix}/lib/
       # The Jack development libraries are, strangely, placed into a subdirectory of lib
 #      echo "Placing the Jack development libraries in the expected place..."
 #      cp -v ${mingw_w64_x86_64_prefix}/lib/jack/*dll.a ${mingw_w64_x86_64_prefix}/lib
       # Copy Jack's own DLL that requires registration
-#      cp -v windows/Setup/src/64bits/JackRouter.dll ${mingw_w64_x86_64_prefix}/bin || exit 1
-#      cp -v windows/Setup/src/64bits/JackRouter.ini ${mingw_w64_x86_64_prefix}/bin || exit 1
+      cp -v windows/Setup/src/64bits/JackRouter.dll ${mingw_w64_x86_64_prefix}/bin || exit 1
+      cp -v windows/Setup/src/32bits/JackRouter.dll ${mingw_w64_x86_64_prefix}/bin/JackRouter32.dll || exit 1
+      cp -v windows/Setup/src/64bits/JackRouter.ini ${mingw_w64_x86_64_prefix}/bin || exit 1
+      cp -v ${mingw_w64_x86_64_prefix}/bin/jack-0.dll ${mingw_w64_x86_64_prefix}/bin/libjack64.dll || exit 1
 #      export cpu_count=$original_cpu_count
       # Because of what we have just done, 
       # bizarrely, jack installs ANOTHER libportaudio over the real libportaudio DLL export library
@@ -1428,10 +1434,11 @@ build_libogg() {
 }
 
 build_jackmix() {
-  do_git_checkout https://github.com/kampfschlaefer/jackmix.git jackmix
+  do_git_checkout https://github.com/kampfschlaefer/jackmix.git jackmix qt5
   cd jackmix
-    apply_patch file://${top_dir}/jackmix-qt5.patch
+#    apply_patch file://${top_dir}/jackmix-qt5.patch
     scons
+    do_make
   cd ..
 }
 
@@ -1572,6 +1579,7 @@ build_libaacs() {
 build_libbdplus() {
   do_git_checkout http://git.videolan.org/git/libbdplus.git libbdplus
   cd libbdplus
+    apply_patch file://${top_dir}/libbdplus-dirs_win32.c.patch
     generic_configure_make_install "--with-libaacs --with-libgcrypt-prefix=${mingw_w64_x86_64_prefix} --with-gpg-error-prefix=${mingw_w64_x86_64_prefix}"
   cd ..
 }
@@ -2762,6 +2770,22 @@ build_gobject_introspection() {
   cd ..
 }
 
+build_gtk2() {
+  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/gtk+/2.24/gtk+-2.24.31.tar.xz gtk+-2.24.31
+  cd gtk+-2.24.31
+    # apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-gtk2/0012-embed-manifest.all.patch
+    rm -v configure Makefile.in
+    export GTK_UPDATE_ICON_CACHE=/usr/bin/gtk-update-icon-cache
+    export ac_cv_path_GTK_UPDATE_ICON_CACHE=/usr/bin/gtk-update-icon-cache
+    generic_configure "--build=x86_64-pc-linux-gnu --host=x86_64-w64-mingw32 --disable-gdiplus --enable-explicit-deps=no --with-gdktarget=win32 --disable-modules --disable-cups --disable-papi --disable-glibtest --with-included-immodules=ime"
+    rm -fv gtk/gtk.def
+    do_make
+    do_make_install
+    unset GTK_UPDATE_ICON_CACHE
+    unset ac_cv_path_GTK_UPDATE_ICON_CACHE
+  cd ..
+}
+
 build_gtk() {
   download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/gtk+/3.22/gtk+-3.22.4.tar.xz gtk+-3.22.4
 #  do_git_checkout https://github.com/GNOME/gtk.git gtk
@@ -2793,6 +2817,8 @@ build_snappy () {
   do_git_checkout https://github.com/google/snappy.git snappy
   cd snappy
     apply_patch file://${top_dir}/snappy-shared-dll.patch
+    cp README.md README
+    # Distribution got its documentation wrong
     generic_configure_make_install
   cd ..
 }
@@ -2987,6 +3013,15 @@ build_sox() {
     autoreconf -fiv
   fi
   generic_configure_make_install
+  cd ..
+}
+
+build_libuuid() {
+  do_git_checkout https://github.com/h0tw1r3/libuuid-mingw.git libuuid
+  cd libuuid
+    rm -v autogen Makefile.in configure
+    apply_patch file://${top_dir}/libuuid-mingw.patch
+    generic_configure_make_install
   cd ..
 }
 
@@ -3605,6 +3640,17 @@ build_cuetools() {
   cd ..
 }
 
+build_dbus() {
+  generic_download_and_install https://dbus.freedesktop.org/releases/dbus/dbus-1.11.10.tar.gz dbus-1.11.10
+}
+
+build_lash() {
+  do_git_checkout https://git.savannah.gnu.org/git/lash.git lash
+  cd lash
+    generic_configure_make_install --with-python=no --with-alsa=no --with-jack-dbus=no
+  cd ..
+} 
+
 build_pngcrush() {
   do_git_checkout https://git.code.sf.net/p/pmt/code pngcrush pngcrush
   cd pngcrush
@@ -3754,6 +3800,7 @@ build_graphicsmagick() {
   local new_hg_version=`hg --debug id -i`
   if [[ "$old_hg_version" != "$new_hg_version" ]]; then
     echo "got upstream hg changes, forcing rebuild...GraphicsMagick"
+    apply_patch file://${top_dir}/graphicmagick-mingw64.patch
     cd build
       rm already*
 #      generic_download_and_install ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020150919.tar.xz GraphicsMagick-1.4.020150919 "--host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-magick-compat --disable-shared --enable-static --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix}/include CPPFLAGS=-I${mingw_w64_x86_64_prefix}" 
@@ -3762,7 +3809,7 @@ build_graphicsmagick() {
       sed -i.bak 's/Libs: -L\${libdir} -lGraphicsMagick/Libs: -L${libdir} -lGraphicsMagick -lfreetype -lbz2 -lz -llcms2 -lpthread -lpng16 -ltiff -lgdi32 -lgdiplus -ljpeg -lwebp -ljasper/' ../magick/GraphicsMagick.pc.in
       # References to a libcorelib are not needed. The library doesn't exist on my platform
       sed -i.bak 's/-lcorelib//' ../magick/GraphicsMagick.pc.in
-      do_configure "--disable-static --enable-shared --host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-magick-compat --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix}/include CPPFLAGS=-I${mingw_w64_x86_64_prefix}" "../configure"
+      do_configure "--disable-static --enable-shared --host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-magick-compat --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix} CPPFLAGS=-I${mingw_w64_x86_64_prefix}" "../configure"
       do_make_install || exit 1
     cd ..
   else
@@ -4010,6 +4057,7 @@ build_dependencies() {
   build_glibmm
   build_libxml++
   build_libcxml
+  build_dbus
   build_jasper # JPEG2000 codec for GraphicsMagick among others
   build_atk
   build_gdk_pixbuf
@@ -4025,6 +4073,7 @@ build_dependencies() {
   build_twolame
   build_fontconfig # needs expat, needs freetype (at least uses it if available), can use iconv, but I believe doesn't currently
   build_libfribidi
+  build_libuuid
   build_libass # needs freetype, needs fribidi, needs fontconfig
   build_intel_quicksync_mfx
   build_glew
@@ -4034,6 +4083,7 @@ build_dependencies() {
   build_filewalk
   build_poppler
   build_SWFTools
+  build_ASIOSDK
   build_portaudio_without_jack
   build_jack
   build_portaudio_with_jack
@@ -4051,6 +4101,7 @@ build_dependencies() {
   build_cairomm
   build_pango
   build_pangomm
+  # build_lash
   build_tesseract
   if [[ "$non_free" = "y" ]]; then
     build_fdk_aac
@@ -4069,6 +4120,7 @@ build_dependencies() {
   build_libiberty
 #  build_gobject_introspection
   build_libepoxy
+  build_gtk2
   build_gtk
   build_graphicsmagick
   build_eigen
@@ -4139,7 +4191,7 @@ build_apps() {
   build_movit
   build_DJV # Requires FFmpeg libraries
   build_qjackctl
-  build_jackmix
+#  build_jackmix
   build_get_iplayer
   build_dcpomatic
   build_loudness-scanner

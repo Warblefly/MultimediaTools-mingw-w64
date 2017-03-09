@@ -494,7 +494,8 @@ ${EnvVarUpdate} $0 GDK_PIXBUF_MODULE_FILE "A" "HKCU" "$INSTDIR\lib\gdk-pixbuf-2.
 
 ; Set up the GTK loader cache
 
-ExecWait '"$INSTDIR\bin\gdk-pixbuf-query-loaders.exe" > lib\gdk-pixbuf-2.0\2.10.0\loaders.cache' $0
+ExecWait '"$INSTDIR\bin\gdk-pixbuf-query-loaders.exe" > "$INSTDIR\lib\gdk-pixbuf-2.0\2.10.0\loaders.cache"' $0
+ExecWait '"$INSTDIR\bin\update-mime-database.exe" > "$INSTDIR\share\mime"' $0
 DetailPrint "The pixbuf loader ran as $INSTDIR\bin\gdk-pixbuf-query-loaders.exe returned value $0"
 
 SectionEnd
