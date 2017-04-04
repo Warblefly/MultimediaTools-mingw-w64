@@ -162,7 +162,7 @@ install_cross_compiler() {
   sed -i.bak "s/gcc_release_ver='4.9.2'/gcc_release_ver='6.2.0'/" mingw-w64-build-3.6.6
   sed -i.bak "s/mpfr_release_ver='3.1.2'/mpfr_release_ver='3.1.5'/" mingw-w64-build-3.6.6
   sed -i.bak "s/binutils_release_ver='2.25'/binutils_release_ver='2.27'/" mingw-w64-build-3.6.6
-  sed -i.bak "s/isl_release_ver='0.12.2'/isl_release_ver='0.17.1'/" mingw-w64-build-3.6.6
+  sed -i.bak "s/isl_release_ver='0.12.2'/isl_release_ver='0.18'/" mingw-w64-build-3.6.6
   sed -i.bak "s/gmp_release_ver='6.0.0a'/gmp_release_ver='6.1.2'/" mingw-w64-build-3.6.6
   sed -i.bak "s/gmp-6\.0\.0/gmp-6.1.2/" mingw-w64-build-3.6.6
 #  sed -i.bak "s/--enable-lto/--enable-lto --enable-libgomp/" mingw-w64-build-3.6.6
@@ -173,7 +173,7 @@ install_cross_compiler() {
 #  sed -i.bak "s/--enable-threads=win32/--enable-threads=posix/" mingw-w64-build-3.6.6
 # Gendef compilation throws a char-as-array-index error when invoked with "--target=" : "--host" avoids this.
 #  sed -i.bak 's#gendef/configure" --build="$system_type" --prefix="$mingw_w64_prefix" --target#gendef/configure" --build="$system_type" --prefix="$mingw_w64_prefix" --host#' mingw-w64-build-3.6.6
-  ./mingw-w64-build-3.6.6 --default-configure --mingw-w64-ver=git --gcc-ver=svn --pthreads-w32-ver=2-9-1 --cpu-count=$gcc_cpu_count --build-type=$build_choice --enable-gendef --enable-widl --binutils-ver=2.27 --verbose || exit 1 # --disable-shared allows c++ to be distributed at all...which seemed necessary for some random dependency...
+  ./mingw-w64-build-3.6.6 --gcc-langs=c,c++,fortran --default-configure --mingw-w64-ver=git --gcc-ver=svn --pthreads-w32-ver=2-9-1 --cpu-count=$gcc_cpu_count --build-type=$build_choice --enable-gendef --enable-widl --binutils-ver=2.27 --verbose || exit 1 # --disable-shared allows c++ to be distributed at all...which seemed necessary for some random dependency...
   export CFLAGS=$original_cflags # reset it
 # We need to move the plain cross-compiling versions of bintools out of the way
 # because exactly the same binaries exist with the host triplet prefix
@@ -424,7 +424,7 @@ do_cmake() {
   if [ ! -f $touch_name ]; then
     local cur_dir2=$(pwd)
     echo doing cmake in $cur_dir2 with PATH=$PATH  with extra_args=$extra_args like this:
-    echo cmake . -DENABLE_STATIC_RUNTIME=0 -DENABLE_SHARED_RUNTIME=1 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_RANLIB=${cross_prefix}ranlib -DCMAKE_C_COMPILER=${cross_prefix}gcc -DCMAKE_CXX_COMPILER=${cross_prefix}g++ -DCMAKE_RC_COMPILER=${cross_prefix}windres -DCMAKE_INSTALL_PREFIX=$mingw_w64_x86_64_prefix $extra_args || exit 1
+    echo cmake . -DENABLE_STATIC_RUNTIME=0 -DENABLE_SHARED_RUNTIME=1 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_RANLIB=${cross_prefix}ranlib -DCMAKE_C_COMPILER=${cross_prefix}gcc -DCMAKE_CXX_COMPILER=${cross_prefix}g++ -DCMAKE_Fortran_COMPILER:FILEPATH=${cross_prefix}gfortran -DCMAKE_RC_COMPILER=${cross_prefix}windres -DCMAKE_INSTALL_PREFIX=$mingw_w64_x86_64_prefix $extra_args || exit 1
     cmake . -DENABLE_STATIC_RUNTIME=0 -DENABLE_SHARED_RUNTIME=1 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_RANLIB=${cross_prefix}ranlib -DCMAKE_C_COMPILER=${cross_prefix}gcc -DCMAKE_CXX_COMPILER=${cross_prefix}g++ -DCMAKE_RC_COMPILER=${cross_prefix}windres -DCMAKE_INSTALL_PREFIX=$mingw_w64_x86_64_prefix $extra_args || exit 1
     touch $touch_name || exit 1
   fi
@@ -826,10 +826,10 @@ build_DJV() {
       sed -i.bak 's/-isystem /-I/g' "${fname}"
     done
     echo "Headers now corrected."
-    orig_cpu_count=$cpu_count
-    export cpu_count=1
+#    orig_cpu_count=$cpu_count
+#    export cpu_count=1
     do_make "V=1"
-    export cpu_count=$orig_cpu_count
+#    export cpu_count=$orig_cpu_count
     # The whole DJV suite is now in two directories: build/bin and build/lib.
     # bin contains programs and their necessary DLLs, lib contains plugins and development libraries.
     # We need to copy the executables and their companion DLLs to our bin distribution directory
@@ -856,7 +856,7 @@ build_openblas() {
 }
 
 build_opencv() {
-  do_git_checkout https://github.com/Itseez/opencv.git "opencv"
+  do_git_checkout https://github.com/opencv/opencv.git "opencv" 2.4
   cd opencv
   # This is only used for a couple of frei0r filters. Surely we can switch off more options than this?
   # WEBP is switched off because it triggers a Cmake bug that removes #define-s of EPSILON and variants
@@ -864,40 +864,34 @@ build_opencv() {
   # NOT YET: CMAKE_LIBRARY_PATH needs to find the installed Qt5 libraries
   # Because MinGW has no native Posix threads, we use the Boost emulation and must link the Boost libraries
   
-    apply_patch file://${top_dir}/opencv-mutex-boost.patch
+#    apply_patch file://${top_dir}/opencv-mutex-boost.patch
     apply_patch file://${top_dir}/opencv-boost-thread.patch
-#    apply_patch file://${top_dir}/opencv-wrong-slash.patch
-    do_cmake "-DWITH_IPP=OFF -DWITH_DSHOW=OFF -DOPENCV_ENABLE_NONFREE=ON -DWITH_GTK=ON -DWITH_WIN32UI=ON -DWITH_DIRECTX=ON -DBUILD_SHARED_LIBS=ON -DBUILD_opencv_apps=ON -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DWITH_WEBP=OFF -DBUILD_EXAMPLES=ON -DINSTALL_C_EXAMPLES=ON -DWITH_OPENGL=ON -DINSTALL_PYTHON_EXAMPLES=ON -DCMAKE_CXX_FLAGS=-DMINGW_HAS_SECURE_API=1 -DCMAKE_C_FLAGS=-DMINGW_HAS_SECURE_API=1 -DOPENCV_LINKER_LIBS=boost_thread_win32;boost_system"
-    sed -i.bak "s|DBL_EPSILON|2.2204460492503131E-16|g" modules/imgproc/include/opencv2/imgproc/types_c.h
-    sed -i.bak 's/-isystem /-I/g' `find ./ -name "includes_CXX.rsp"`
-    # CMake and mingw-64 stdlib.h conflict here. The #includes order gets mangled
-#    sed -i.bak 's/-isystem /-I/g' modules/core/CMakeFiles/opencv_core.dir/includes_CXX.rsp
-#    sed -i.bak 's/-isystem /-I/g' modules/imgproc/CMakeFiles/opencv_imgproc.dir/includes_CXX.rsp
-#    sed -i.bak 's/-isystem /-I/g' modules/ml/CMakeFiles/opencv_ml.dir/includes_CXX.rsp
-#    sed -i.bak 's/-isystem /-I/g' modules/flann/CMakeFiles/opencv_flann.dir/includes_CXX.rsp
-#    sed -i.bak 's/-isystem /-I/g' modules/imgcodecs/CMakeFiles/opencv_imgcodecs.dir/includes_CXX.rsp
-#    sed -i.bak 's/-isystem /-I/g' modules/photo/CMakeFiles/opencv_photo.dir/includes_CXX.rsp
-#    sed -i.bak 's/-isystem /-I/g' modules/video/CMakeFiles/opencv_video.dir/includes_CXX.rsp
-#    sed -i.bak 's/-isystem /-I/g' modules/shape/CMakeFiles/opencv_shape.dir/includes_CXX.rsp
-#    sed -i.bak 's/-isystem /-I/g' modules/videoio/CMakeFiles/opencv_videoio.dir/includes_CXX.rsp
-#    sed -i.bak 's/-isystem /-I/g' modules/superres/CMakeFiles/opencv_superres.dir/includes_CXX.rsp
-#    sed -i.bak 's/-isystem /-I/g' modules/highgui/CMakeFiles/opencv_highgui.dir/includes_CXX.rsp
-#    sed -i.bak 's/-isystem /-I/g' modules/objdetect/CMakeFiles/opencv_objdetect.dir/includes_CXX.rsp
-#    sed -i.bak 's/-isystem /-I/g' modules/features2d/CMakeFiles/opencv_features2d.dir/includes_CXX.rsp
-#    sed -i.bak 's/-isystem /-I/g' apps/annotation/CMakeFiles/opencv_annotation.dir/includes_CXX.rsp
-#    sed -i.bak 's/-isystem /-I/g' apps/visualisation/CMakeFiles/opencv_visualisation.dir/includes_CXX.rsp
-#    sed -i.bak 's/-isystem /-I/g' apps/version/CMakeFiles/opencv_version.dir/includes_CXX.rsp
-#    sed -i.bak 's/-isystem /-I/g' samples/opengl/CMakeFiles/opencv_opengl.dir/includes_CXX.rsp
-#    sed -i.bak 's/-isystem /-I/g' samples/opengl/CMakeFiles/example_opengl_opengl_interop.dir/includes_CXX.rsp
-#    sed -i.bak 's/-isystem /-I/g' modules/calib3d/CMakeFiles/opencv_calib3d.dir/includes_CXX.rsp
-    do_make_install
-    cp -v ${mingw_w64_x86_64_prefix}/lib/libopencv_core320.dll.a ${mingw_w64_x86_64_prefix}/lib/libopencv_core.dll.a
-    cp -v ${mingw_w64_x86_64_prefix}/lib/libopencv_imgproc320.dll.a ${mingw_w64_x86_64_prefix}/lib/libopencv_imgproc.dll.a
-  export OpenCV_DIR=`pwd`
-  export OpenCV_INCLUDE_DIR="${OpenCV_DIR}/include"
-  # Undo this patch, which often prevents updating
-#  cp -v CMakeLists.txt.orig CMakeLists.txt
-#  rm -v opencv-boost-thread.patch.done
+    apply_patch file://${top_dir}/opencv-wrong-slash.patch
+    apply_patch file://${top_dir}/opencv-location.patch
+    mkdir -v build
+    cd build
+      do_cmake ".. -DWITH_IPP=OFF -DWITH_EIGEN=ON -DWITH_VFW=ON -DWITH_DSHOW=ON -DOPENCV_ENABLE_NONFREE=ON -DWITH_GTK=ON -DWITH_WIN32UI=ON -DWITH_DIRECTX=ON -DBUILD_SHARED_LIBS=ON -DBUILD_opencv_apps=ON -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_JASPER=OFF -DBUILD_JPEG=OFF -DBUILD_OPENEXR=OFF -DBUILD_PNG=OFF -DBUILD_TIFF=OFF -DBUILD_ZLIB=OFF -DENABLE_SSE41=ON -DENABLE_SSE42=ON -DWITH_WEBP=OFF -DBUILD_EXAMPLES=ON -DINSTALL_C_EXAMPLES=ON -DWITH_OPENGL=ON -DINSTALL_PYTHON_EXAMPLES=ON -DCMAKE_CXX_FLAGS=-DMINGW_HAS_SECURE_API=1 -DCMAKE_C_FLAGS=-DMINGW_HAS_SECURE_API=1 -DOPENCV_LINKER_LIBS=boost_thread_win32;boost_system -DCMAKE_VERBOSE=ON -DINSTALL_TO_MANGLED_PATHS=OFF"
+      sed -i.bak "s|DBL_EPSILON|2.2204460492503131E-16|g" modules/imgproc/include/opencv2/imgproc/types_c.h
+      # CMake and mingw-64 stdlib.h conflict here. The #includes order gets mangled
+      find ./ -name '*rsp' -o -name '*make' | while read fname; do
+        echo "Correcting headers in ${fname}..."
+        sed -i.bak 's/-isystem/-I/g' "${fname}" && touch -t 196403030530 ${fname}
+      done
+      echo "Headers now corrected."
+      do_make_install
+#      cp -v ${mingw_w64_x86_64_prefix}/lib/libopencv_core320.dll.a ${mingw_w64_x86_64_prefix}/lib/libopencv_core.dll.a
+#      cp -v ${mingw_w64_x86_64_prefix}/lib/libopencv_imgproc320.dll.a ${mingw_w64_x86_64_prefix}/lib/libopencv_imgproc.dll.a
+#      cp -v ${mingw_w64_x86_64_prefix}/lib/libopencv_objdetect320.dll.a ${mingw_w64_x86_64_prefix}/lib/libopencv_objdetect320.dll.a 
+#      cp -v ${mingw_w64_x86_64_prefix}/lib/libopencv_highgui320.dll.a ${mingw_w64_x86_64_prefix}/lib/libopencv_highgui320.dll.ai
+# OpenCV puts its binaries in a particular place which we need to modify.
+    export OpenCV_DIR=`pwd`
+    export OpenCV_INCLUDE_DIR="${OpenCV_DIR}/include"
+# Not sure why the pkgconfig file doesn't get installed...
+    cp -v unix-install/opencv.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig
+    # Undo this patch, which often prevents updating
+  #  cp -v CMakeLists.txt.orig CMakeLists.txt
+  #  rm -v opencv-boost-thread.patch.done
+    cd ..
   cd ..
   # This helps frei0r find opencv
 }
@@ -929,8 +923,8 @@ build_opendcp() {
     do_cmake "-DINSTALL_LIB=ON -DLIB_INSTALL_PATH=${mingw_w64_x86_64_prefix}/lib -DENABLE_XMLSEC=ON -DENABLE_GUI=ON -DBUILD_SHARED=ON -DBUILD_STATIC=OFF -DCMAKE_VERBOSE_MAKEFILE=ON -DENABLE_OPENMP=OFF -DBUILD_SHARED_LIBS=ON -DBUILD_STATIC_LIBS=OFF"
     sed -i.bak 's/-isystem /-I/g' gui/CMakeFiles/opendcp.dir/includes_CXX.rsp 
     do_make_install
-    cp -v ${mingw_w64_x86_64_prefix}/lib/libopencv_core320.dll.a ${mingw_w64_x86_64_prefix}/lib/libopencv_core.dll.a
-    cp -v ${mingw_w64_x86_64_prefix}/lib/libopencv_imgproc320.dll.a ${mingw_w64_x86_64_prefix}/lib/libopencv_imgproc.dll.a
+    cp -v ${mingw_w64_x86_64_prefix}/lib/libopencv_core2413.dll.a ${mingw_w64_x86_64_prefix}/lib/libopencv_core.dll.a
+    cp -v ${mingw_w64_x86_64_prefix}/lib/libopencv_imgproc2413.dll.a ${mingw_w64_x86_64_prefix}/lib/libopencv_imgproc.dll.a
     unset CMAKE_C_FLAGS
     unset CMAKE_CXX_FLAGS
     unset CMAKE_LIBRARY_PATH
@@ -1527,7 +1521,7 @@ build_orc() {
 
 build_libxml2() {
   do_git_checkout git://git.gnome.org/libxml2 libxml2
-  #download_and_unpack_file ftp://xmlsoft.org/libxml2/libxml2-2.9.4.tar.gz libxml2-2.9.4
+#  download_and_unpack_file ftp://xmlsoft.org/libxml2/libxml2-2.9.4.tar.gz libxml2-2.9.4
   cd libxml2
     # Remove libxml2 autogen because it sets variables that interfere with our cross-compile
     rm -v autogen.sh
@@ -3179,7 +3173,7 @@ build_mjpegtools() {
     apply_patch file://${top_dir}/lavtools-Makefile.am.patch
     rm -v lavtools/Makefile.in
     rm -v configure
-    generic_configure_make_install "LIBS=-lpthread --without-x"
+    generic_configure_make_install "LIBS=-lpthread --without-x --without-gtk"
   cd ..
 }
 
@@ -3296,10 +3290,9 @@ build_zimg() {
 }
 
 build_libcdio() {
-  download_and_unpack_file file://${top_dir}/libcdio-4b5eda30.tar.gz libcdio-cdtext-testing-4b5eda3
-#  do_git_checkout git://git.sv.gnu.org/libcdio.git libcdio cdtext-testing
-#  cd libcdio
-  cd libcdio-cdtext-testing-4b5eda3
+#  download_and_unpack_file file://${top_dir}/libcdio-4b5eda30.tar.gz libcdio-cdtext-testing-4b5eda3
+  do_git_checkout git://git.sv.gnu.org/libcdio.git libcdio #  cd libcdio
+  cd libcdio
     if [[ ! -f "configure" ]]; then
       autoreconf -fvi
     fi
@@ -3661,15 +3654,24 @@ build_pngcrush() {
 }
 
 build_eigen() {
-  download_and_unpack_file http://bitbucket.org/eigen/eigen/get/3.3.2.tar.bz2 eigen-eigen-da9b4e14c255
-  cd eigen-eigen-da9b4e14c255
-    mkdir -v -p ${mingw_w64_x86_64_prefix}/include/Eigen || exit 1
-    cp -Rvf Eigen/* ${mingw_w64_x86_64_prefix}/include/Eigen || exit 1
-    # But we must install eigen3.pc manually
-    sed -i.bak "s!@CMAKE_INSTALL_PREFIX@!${mingw_w64_x86_64_prefix}!" eigen3.pc.in
-    sed -i.bak "s/@EIGEN_VERSION_NUMBER@/3.3.2/" eigen3.pc.in
-    sed -i.bak "s!@INCLUDE_INSTALL_DIR@!include!" eigen3.pc.in
-    cp -v eigen3.pc.in ${mingw_w64_x86_64_prefix}/lib/pkgconfig/eigen3.pc
+  download_and_unpack_file http://bitbucket.org/eigen/eigen/get/3.3.3.tar.bz2 eigen-eigen-67e894c6cd8f
+  cd eigen-eigen-67e894c6cd8f
+    mkdir -v build
+    cd build ..
+      export FC=${cross_prefix}gfortran
+      do_cmake ..
+      do_make_install
+# Need to put the pkgconfig file in the right place
+      cp -v eigen3.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig
+      unset FC
+    cd ..
+#    mkdir -v -p ${mingw_w64_x86_64_prefix}/include/Eigen || exit 1
+#    cp -Rvf Eigen/* ${mingw_w64_x86_64_prefix}/include/Eigen || exit 1
+#    # But we must install eigen3.pc manually
+#    sed -i.bak "s!@CMAKE_INSTALL_PREFIX@!${mingw_w64_x86_64_prefix}!" eigen3.pc.in
+#    sed -i.bak "s/@EIGEN_VERSION_NUMBER@/3.3.2/" eigen3.pc.in
+#    sed -i.bak "s!@INCLUDE_INSTALL_DIR@!include!" eigen3.pc.in
+#    cp -v eigen3.pc.in ${mingw_w64_x86_64_prefix}/lib/pkgconfig/eigen3.pc
   cd ..
 }
 
@@ -3809,7 +3811,7 @@ build_graphicsmagick() {
       sed -i.bak 's/Libs: -L\${libdir} -lGraphicsMagick/Libs: -L${libdir} -lGraphicsMagick -lfreetype -lbz2 -lz -llcms2 -lpthread -lpng16 -ltiff -lgdi32 -lgdiplus -ljpeg -lwebp -ljasper/' ../magick/GraphicsMagick.pc.in
       # References to a libcorelib are not needed. The library doesn't exist on my platform
       sed -i.bak 's/-lcorelib//' ../magick/GraphicsMagick.pc.in
-      do_configure "--disable-static --enable-shared --host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-magick-compat --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix} CPPFLAGS=-I${mingw_w64_x86_64_prefix}" "../configure"
+      do_configure "--disable-static --enable-shared --host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-magick-compat --enable-broken-coders --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix} CPPFLAGS=-I${mingw_w64_x86_64_prefix}" "../configure"
       do_make_install || exit 1
     cd ..
   else
@@ -4088,6 +4090,7 @@ build_dependencies() {
   build_jack
   build_portaudio_with_jack
   # build_openblas Not until we make a Fortran compiler
+  build_eigen
   build_opencv
   build_frei0r
   build_liba52
@@ -4123,7 +4126,7 @@ build_dependencies() {
   build_gtk2
   build_gtk
   build_graphicsmagick
-  build_eigen
+#  build_eigen
   build_libdv
   build_asdcplib-cth
   build_libdcp
