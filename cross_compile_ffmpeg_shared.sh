@@ -818,14 +818,7 @@ build_DJV() {
     # Change Windows' backslashes to forward slashes to allow MinGW compilation
     # Remember that . and \ need escaping with \, which makes this hard to read
     sed -i.bak 's!\.\.\\\\.\.\\\\etc\\\\Windows\\\\djv_view.ico!../../etc/Windows/djv_view.ico!' bin/djv_view/win.rc
-    do_cmake "-DBUILD_SHARED_LIBS=true -DCMAKE_VERBOSE_MAKEFILE=YES -DENABLE_STATIC_RUNTIME=0 -DCMAKE_PREFIX_PATH=${mingw_w64_x86_64_prefix} -DCMAKE_C_FLAGS=-D__STDC_CONSTANT_MACROS -DCMAKE_CXX_FLAGS=-D__STDC_CONSTANT_MACROS -DCMAKE_SUPPRESS_REGENERATION=TRUE"
-    # GCC 6.1.1 has altered headers and QT5.7 triggers a bug when used with DJV. 
-    # We must instruct it to treat system include files as ordinary include files
-    find ./ -name 'includes_CXX.rsp' | while read fname; do
-      echo "Correcting headers in ${fname}..."
-      sed -i.bak 's/-isystem /-I/g' "${fname}"
-    done
-    echo "Headers now corrected."
+    do_cmake "-DBUILD_SHARED_LIBS=true -DCMAKE_VERBOSE_MAKEFILE=YES -DENABLE_STATIC_RUNTIME=0 -DCMAKE_PREFIX_PATH=${mingw_w64_x86_64_prefix} -DCMAKE_C_FLAGS=-D__STDC_CONSTANT_MACROS -DCMAKE_CXX_FLAGS=-D__STDC_CONSTANT_MACROS -DCMAKE_SUPPRESS_REGENERATION=TRUE" && ${top_dir}/correct_headers.sh
 #    orig_cpu_count=$cpu_count
 #    export cpu_count=1
     do_make "V=1"
@@ -870,14 +863,8 @@ build_opencv() {
     apply_patch file://${top_dir}/opencv-location.patch
     mkdir -v build
     cd build
-      do_cmake ".. -DWITH_IPP=OFF -DWITH_EIGEN=ON -DWITH_VFW=ON -DWITH_DSHOW=ON -DOPENCV_ENABLE_NONFREE=ON -DWITH_GTK=ON -DWITH_WIN32UI=ON -DWITH_DIRECTX=ON -DBUILD_SHARED_LIBS=ON -DBUILD_opencv_apps=ON -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_JASPER=OFF -DBUILD_JPEG=OFF -DBUILD_OPENEXR=OFF -DBUILD_PNG=OFF -DBUILD_TIFF=OFF -DBUILD_ZLIB=OFF -DENABLE_SSE41=ON -DENABLE_SSE42=ON -DWITH_WEBP=OFF -DBUILD_EXAMPLES=ON -DINSTALL_C_EXAMPLES=ON -DWITH_OPENGL=ON -DINSTALL_PYTHON_EXAMPLES=ON -DCMAKE_CXX_FLAGS=-DMINGW_HAS_SECURE_API=1 -DCMAKE_C_FLAGS=-DMINGW_HAS_SECURE_API=1 -DOPENCV_LINKER_LIBS=boost_thread_win32;boost_system -DCMAKE_VERBOSE=ON -DINSTALL_TO_MANGLED_PATHS=OFF"
+      do_cmake ".. -DWITH_IPP=OFF -DWITH_EIGEN=ON -DWITH_VFW=ON -DWITH_DSHOW=ON -DOPENCV_ENABLE_NONFREE=ON -DWITH_GTK=ON -DWITH_WIN32UI=ON -DWITH_DIRECTX=ON -DBUILD_SHARED_LIBS=ON -DBUILD_opencv_apps=ON -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_JASPER=OFF -DBUILD_JPEG=OFF -DBUILD_OPENEXR=OFF -DBUILD_PNG=OFF -DBUILD_TIFF=OFF -DBUILD_ZLIB=OFF -DENABLE_SSE41=ON -DENABLE_SSE42=ON -DWITH_WEBP=OFF -DBUILD_EXAMPLES=ON -DINSTALL_C_EXAMPLES=ON -DWITH_OPENGL=ON -DINSTALL_PYTHON_EXAMPLES=ON -DCMAKE_CXX_FLAGS=-DMINGW_HAS_SECURE_API=1 -DCMAKE_C_FLAGS=-DMINGW_HAS_SECURE_API=1 -DOPENCV_LINKER_LIBS=boost_thread_win32;boost_system -DCMAKE_VERBOSE=ON -DINSTALL_TO_MANGLED_PATHS=OFF" && ${top_dir}/correct_headers.sh
       sed -i.bak "s|DBL_EPSILON|2.2204460492503131E-16|g" modules/imgproc/include/opencv2/imgproc/types_c.h
-      # CMake and mingw-64 stdlib.h conflict here. The #includes order gets mangled
-      find ./ -name '*rsp' -o -name '*make' | while read fname; do
-        echo "Correcting headers in ${fname}..."
-        sed -i.bak 's/-isystem/-I/g' "${fname}" && touch -t 196403030530 ${fname}
-      done
-      echo "Headers now corrected."
       do_make_install
 #      cp -v ${mingw_w64_x86_64_prefix}/lib/libopencv_core320.dll.a ${mingw_w64_x86_64_prefix}/lib/libopencv_core.dll.a
 #      cp -v ${mingw_w64_x86_64_prefix}/lib/libopencv_imgproc320.dll.a ${mingw_w64_x86_64_prefix}/lib/libopencv_imgproc.dll.a
@@ -2236,7 +2223,7 @@ build_vim() {
 
 
 build_mpv() {
-  do_git_checkout https://github.com/mpv-player/mpv.git mpv # eedda59a6941f1b9d1968ccf75d5578718b0b08c
+  do_git_checkout https://github.com/mpv-player/mpv.git mpv # 4c516a064a8246c9067eee32578a7a78feb371dc
   cd mpv
     apply_patch file://${top_dir}/mpv-disable-rectangle.patch
     ./bootstrap.py
@@ -3498,21 +3485,24 @@ build_mp4box() { # like build_gpac
   # specify revision until this works: https://sourceforge.net/p/gpac/discussion/287546/thread/72cf332a/
   do_svn_checkout https://svn.code.sf.net/p/gpac/code/trunk/gpac mp4box_gpac
   cd mp4box_gpac
+    apply_patch file://${top_dir}/mp4box-dashcast.patch
   # are these tweaks needed? If so then complain to the mp4box people about it?
   # sed -i "s/has_dvb4linux=\"yes\"/has_dvb4linux=\"no\"/g" configure
   # sed -i "s/`uname -s`/MINGW32/g" configure
   # XXX do I want to disable more things here?
-  sed -i.bak 's#bin/gcc/MP4Box #bin/gcc/MP4Box.exe #' Makefile
-  sed -i.bak 's#bin/gcc/MP42TS #bin/gcc/MP42TS.exe #' Makefile
-  sed -i.bak 's#bin/gcc/MP4Client #bin/gcc/MP4Client.exe #' Makefile
+    sed -i.bak 's#bin/gcc/MP4Box #bin/gcc/MP4Box.exe #' Makefile
+    sed -i.bak 's#bin/gcc/MP42TS #bin/gcc/MP42TS.exe #' Makefile
+    sed -i.bak 's#bin/gcc/MP4Client #bin/gcc/MP4Client.exe #' Makefile
   # The Makefile for the jack module has a hard-coded library search path. This is bad.
-  sed -i.bak 's#/bin/gcc -lgpac -L/usr/lib#/bin/gcc -lgpac -L${mingw_w64_x86_64_prefix}/lib#' modules/jack/Makefile
+    sed -i.bak 's#/bin/gcc -lgpac -L/usr/lib#/bin/gcc -lgpac -L${mingw_w64_x86_64_prefix}/lib#' modules/jack/Makefile
   # The object dll seems to have the wrong link
-  sed -i.bak 's#FLAGS) -m 755 bin/gcc/libgpac\.dll\.a \$(DESTDIR)\$(prefix)/\$(libdir)#FLAGS) -m 755 bin/gcc/libgpac.dll $(DESTDIR)$(prefix)/$(libdir)/libgpac.dll.a#' Makefile
+    sed -i.bak 's#FLAGS) -m 755 bin/gcc/libgpac\.dll\.a \$(DESTDIR)\$(prefix)/\$(libdir)#FLAGS) -m 755 bin/gcc/libgpac.dll $(DESTDIR)$(prefix)/$(libdir)/libgpac.dll.a#' Makefile
 #  sed -i.bak 's/	$(MAKE) installdylib/#	$(MAKE) installdylib/' Makefile
 #  sed -i.bak 's/-DDIRECTSOUND_VERSION=0x0500/-DDIRECTSOUND_VERSION=0x0800/' src/Makefile
 #  generic_configure_make_install "--verbose --static-mp4box --enable-static-bin --target-os=MINGW32 --cross-prefix=x86_64-w64-mingw32- --prefix=${mingw_w64_x86_64_prefix} --static-mp4box --extra-libs=-lz --enable-all --enable-ffmpeg" 
-  generic_configure_make_install "--enable-ipv6 --verbose --target-os=MINGW32 --cross-prefix=x86_64-w64-mingw32- --prefix=${mingw_w64_x86_64_prefix} --extra-libs=-lz --enable-all --enable-ffmpeg"
+    generic_configure_make_install "--enable-ipv6 --verbose --target-os=MINGW32 --cross-prefix=x86_64-w64-mingw32- --prefix=${mingw_w64_x86_64_prefix} --extra-libs=-lz --enable-all --enable-ffmpeg"
+  # All the modules need moving into the main binary directory for GPAC's default configuration file to be correct.
+    mv -fv ${mingw_w64_x86_64_prefix}/lib/gpac/* ${mingw_w64_x86_64_prefix}/bin
 
 #  do_make
   # I seem unable to pass 3 libs into the same config line so do it with sed...
@@ -3685,6 +3675,27 @@ build_movit() {
   cd ..
 }
 
+build_libdash() {
+  do_git_checkout https://github.com/bitmovin/libdash.git libdash
+  cd libdash
+    apply_patch file://${top_dir}/libdash-case-fix.patch
+    cd libdash
+      do_cmake "-DCMAKE_CXX_FLAGS=-D_WIN32_WINNT=0x0A00"
+      # Winsock is missed out. I don't know why.
+      sed -i.bak 's/ -lxml2 -lkernel32/ -lxml2 -lws2_32 -lkernel32/' libdash_networkpart_test/CMakeFiles/libdash_networkpart_test.dir/linklibs.rsp
+      do_make
+      # We need to install manually
+      cp -vf bin/libdash.dll ${mingw_w64_x86_64_prefix}/bin/libdash.dll
+      cp -vf bin/libdash.dll.a ${mingw_w64_x86_64_prefix}/lib/libdash.dll.a
+      mkdir -v  ${mingw_w64_x86_64_prefix}/include/libdash
+      cp -vf libdash/include/*h  ${mingw_w64_x86_64_prefix}/include/libdash/
+      cd qtsampleplayer
+        do_cmake && ${top_dir}/correct_headers.sh
+        do_make "VERBOSE=1"
+        cp -vf qtsampleplayer.exe ${mingw_w64_x86_64_prefix}/bin/qtsampleplayer.exe
+  cd ../../..
+}
+
 build_synaesthesia() {
   do_git_checkout https://github.com/dreamlayers/synaesthesia.git synaesthesia
   cd synaesthesia
@@ -3802,7 +3813,7 @@ build_graphicsmagick() {
   local new_hg_version=`hg --debug id -i`
   if [[ "$old_hg_version" != "$new_hg_version" ]]; then
     echo "got upstream hg changes, forcing rebuild...GraphicsMagick"
-    apply_patch file://${top_dir}/graphicmagick-mingw64.patch
+    #apply_patch file://${top_dir}/graphicmagick-mingw64.patch
     cd build
       rm already*
 #      generic_download_and_install ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020150919.tar.xz GraphicsMagick-1.4.020150919 "--host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-magick-compat --disable-shared --enable-static --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix}/include CPPFLAGS=-I${mingw_w64_x86_64_prefix}" 
@@ -3877,6 +3888,7 @@ build_ffmpeg() {
    local arch=x86_64
   fi
 
+#  apply_patch file://${top_dir}/ffmpeg-amix.patch
 # --extra-cflags=$CFLAGS, though redundant, just so that FFmpeg lists what it used in its "info" output
 
   config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --disable-doc --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-netcdf --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libschroedinger --enable-libvpx --enable-libilbc --enable-libwavpack --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --enable-d3d11va --enable-nvenc --enable-libopencv --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts --extra-cflags=$CFLAGS" # other possibilities: --enable-w32threads --enable-libflite
@@ -4151,9 +4163,9 @@ build_apps() {
     build_bmx
   #  build_makemkv
   fi
-  if [[ $build_mp4box = "y" ]]; then
-    build_mp4box
-  fi
+#  if [[ $build_mp4box = "y" ]]; then
+#    build_mp4box
+#  fi
   build_exiv2
 #  build_cdrecord # NOTE: just now, cdrecord doesn't work on 64-bit mingw. It scans the emulated SCSI bus but no more.
 #  build_cdrkit # No. Still not compiled in MinGW
@@ -4178,6 +4190,8 @@ build_apps() {
     build_ffmpeg libav
   fi
   build_ffms2
+  build_mp4box
+  build_libdash
   build_mpv
   build_opendcp # Difficult at the moment. Development tree doesn't compile under its own procedures
   # build_opencv # We place it here because opencv has an interface to FFmpeg

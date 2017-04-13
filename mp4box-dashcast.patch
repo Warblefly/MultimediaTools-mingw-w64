@@ -1,0 +1,39 @@
+--- configure.orig	2017-04-07 12:41:44.002879900 +0100
++++ configure	2017-04-07 12:42:01.549180400 +0100
+@@ -3188,7 +3188,7 @@
+     echo "Creating compilation tree image"
+     SRC_DIRS="src src/utils src/isomedia src/ietf src/odf src/bifs src/scenegraph src/terminal src/mcrypt src/media_tools src/scene_manager src/compositor src/laser" 
+ 
+-    APP_DIRS="applications/mp4box applications/mp4client applications/osmozilla applications/osmo4_wx applications/mp42ts applications/dashcast"
++    APP_DIRS="applications/mp4box applications/mp4client applications/osmozilla applications/osmo4_wx applications/mp42ts" # applications/dashcast"
+ 
+     for dir in $SRC_DIRS ; do
+         mkdir -p "$dir"
+--- applications/Makefile.orig	2017-04-07 13:01:47.235686700 +0100
++++ applications/Makefile	2017-04-07 13:01:58.705677700 +0100
+@@ -15,7 +15,7 @@
+ ifneq ($(CONFIG_FFMPEG), no)
+ ifneq ($(DISABLE_CORE_TOOLS), yes)
+ ifneq ($(DISABLE_AV_PARSERS), yes)
+-APPDIRS+=dashcast
++#APPDIRS+=dashcast
+ endif
+ endif
+ endif
+--- configure.orig	2017-04-07 21:50:15.232358900 +0100
++++ configure	2017-04-07 21:50:40.311957500 +0100
+@@ -1303,13 +1303,12 @@
+ ffmpeg_cflags=""
+ ffmpeg_lflags="-lz -lavcodec -lavformat -lavutil -lswscale -lavdevice $ffmpeg_extra_ldflags"
+ 
+-if test "$cross_prefix" = "" -a "$pkg_config" != "no"; then
+   if $pkg_config --exists libavcodec libavformat libswscale libavdevice libavutil 2> /dev/null  ; then
+     ffmpeg_cflags=`$pkg_config --cflags libavcodec libavformat libswscale libavutil libavdevice`
+     ffmpeg_lflags=`$pkg_config --libs libavcodec libavformat libswscale libavutil libavdevice`
+     has_ffmpeg="system"
+   fi
+-fi
++
+ 
+ cat > $TMPC << EOF
+ #include <libavcodec/avcodec.h>

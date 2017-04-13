@@ -468,6 +468,9 @@ File /nonfatal /r "./lib/gdk-pixbuf-2.0/2.10.0/loaders/*.dll"
 setOutPath "$INSTDIR\lib\gtk-3.0\3.0.0\immodules"
 File /nonfatal /r "./lib/gtk-3.0\3.0.0\immodules\*.dll"
 
+setOutPath "$INSTDIR\lib\gpac"
+File /nonfatal /r "./lib/gpac/*.*"
+
 setOutPath "$INSTDIR\plugins"
 File /nonfatal /r "./plugins/*.*"
 

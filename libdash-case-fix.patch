@@ -1,0 +1,119 @@
+--- libdash/libdash/source/targetver.h.orig	2017-04-08 19:43:48.338749900 +0100
++++ libdash/libdash/source/targetver.h	2017-04-08 19:44:07.441483600 +0100
+@@ -13,6 +13,6 @@
+ 
+ #if defined _WIN32 || defined _WIN64
+ 
+-#include <SDKDDKVer.h>
++#include <sdkddkver.h>
+ 
+-#endif
+\ No newline at end of file
++#endif
+--- libdash/libdash/source/portable/Networking.h.orig	2017-04-08 21:28:18.682930500 +0100
++++ libdash/libdash/source/portable/Networking.h	2017-04-08 21:28:39.485036800 +0100
+@@ -3,8 +3,8 @@
+ 
+ #if defined _WIN32 || defined _WIN64
+ 
+-#include <WinSock2.h>
+-#include <WS2tcpip.h>
++#include <winsock2.h>
++#include <ws2tcpip.h>
+ 
+ #else
+ 
+--- libdash/qtsampleplayer/libdashframework/Portable/MultiThreading.h.orig	2017-04-11 09:07:23.676963100 +0100
++++ libdash/qtsampleplayer/libdashframework/Portable/MultiThreading.h	2017-04-11 09:07:55.029989900 +0100
+@@ -16,6 +16,7 @@
+ 
+     #define _WINSOCKAPI_
+     #include <Windows.h>
++    #include <synchapi.h>
+     #define DeleteConditionVariable(cond_p) {}
+ 
+     #define PortableSleep(seconds)      Sleep(seconds * 1000)
+--- libdash/qtsampleplayer/CMakeLists.txt.orig	2017-04-11 20:31:50.565150300 +0100
++++ libdash/qtsampleplayer/CMakeLists.txt	2017-04-11 20:32:33.430118300 +0100
+@@ -8,7 +8,7 @@
+ cmake_minimum_required(VERSION 2.8.8)
+ 
+ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_MODULE_PATH})
+-set(CMAKE_CXX_FLAGS "-D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS")  # Second macro definition is required to fix the error: ‘UINT32_MAX’ was not declared in this scope
++set(CMAKE_CXX_FLAGS "-D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -D_WIN32_WINNT=0x0600")  # Second macro definition is required to fix the error: ‘UINT32_MAX’ was not declared in this scope
+ 
+ # Find includes in corresponding build directories
+ set(CMAKE_INCLUDE_CURRENT_DIR ON)
+--- libdash/qtsampleplayer/Decoder/LibavDecoder.cpp.orig	2017-04-11 20:50:52.703153900 +0100
++++ libdash/qtsampleplayer/Decoder/LibavDecoder.cpp	2017-04-11 20:51:16.023958800 +0100
+@@ -70,7 +70,7 @@
+     props.linesize      = avFrame->linesize;
+     props.streamIndex   = decoConf->stream->index;
+ 
+-    if(decoConf->stream->codec->pix_fmt == PIX_FMT_YUV420P)
++    if(decoConf->stream->codec->pix_fmt == AV_PIX_FMT_YUV420P)
+         props.pxlFmt = yuv420p;
+     if(decoConf->stream->codec->pix_fmt == PIX_FMT_YUV422P)
+         props.pxlFmt = yuv422p;
+--- libdash/qtsampleplayer/libdashframework/Input/DASHManager.cpp.orig	2017-04-11 20:52:37.902955700 +0100
++++ libdash/qtsampleplayer/libdashframework/Input/DASHManager.cpp	2017-04-11 20:53:22.013518200 +0100
+@@ -102,12 +102,12 @@
+     int h = props->height;
+ 
+     AVFrame *rgbframe   = avcodec_alloc_frame();
+-    int     numBytes    = avpicture_get_size(PIX_FMT_RGB24, w, h);
++    int     numBytes    = avpicture_get_size(AV_PIX_FMT_RGB24, w, h);
+     uint8_t *buffer     = (uint8_t*)av_malloc(numBytes);
+ 
+-    avpicture_fill((AVPicture*)rgbframe, buffer, PIX_FMT_RGB24, w, h);
++    avpicture_fill((AVPicture*)rgbframe, buffer, AV_PIX_FMT_RGB24, w, h);
+ 
+-    SwsContext *imgConvertCtx = sws_getContext(props->width, props->height, (PixelFormat)props->pxlFmt, w, h, PIX_FMT_RGB24, SWS_BICUBIC, NULL, NULL, NULL);
++    SwsContext *imgConvertCtx = sws_getContext(props->width, props->height, (PixelFormat)props->pxlFmt, w, h, AV_PIX_FMT_RGB24, SWS_BICUBIC, NULL, NULL, NULL);
+ 
+     sws_scale(imgConvertCtx, data, props->linesize, 0, h, rgbframe->data, rgbframe->linesize);
+ 
+--- libdash/qtsampleplayer/Decoder/LibavDecoder.cpp.orig	2017-04-11 21:15:50.680515500 +0100
++++ libdash/qtsampleplayer/Decoder/LibavDecoder.cpp	2017-04-11 21:17:01.422979200 +0100
+@@ -254,7 +254,7 @@
+     if (this->errorHappened)
+         return false;
+ 
+-    this->frame = avcodec_alloc_frame();
++    this->frame = av_frame_alloc();
+ 
+     av_init_packet(&this->avpkt);
+     this->InitStreams(avFormatContextPtr);
+--- libdash/qtsampleplayer/libdashframework/Input/DASHManager.cpp.orig	2017-04-11 21:18:00.536853800 +0100
++++ libdash/qtsampleplayer/libdashframework/Input/DASHManager.cpp	2017-04-11 21:18:40.616632400 +0100
+@@ -101,7 +101,7 @@
+     int w = props->width;
+     int h = props->height;
+ 
+-    AVFrame *rgbframe   = avcodec_alloc_frame();
++    AVFrame *rgbframe   = av_frame_alloc();
+     int     numBytes    = avpicture_get_size(AV_PIX_FMT_RGB24, w, h);
+     uint8_t *buffer     = (uint8_t*)av_malloc(numBytes);
+ 
+--- libdash/qtsampleplayer/libdashframework/Input/DASHManager.cpp.orig	2017-04-11 21:19:51.688925200 +0100
++++ libdash/qtsampleplayer/libdashframework/Input/DASHManager.cpp	2017-04-11 21:20:11.119982600 +0100
+@@ -107,7 +107,7 @@
+ 
+     avpicture_fill((AVPicture*)rgbframe, buffer, AV_PIX_FMT_RGB24, w, h);
+ 
+-    SwsContext *imgConvertCtx = sws_getContext(props->width, props->height, (PixelFormat)props->pxlFmt, w, h, AV_PIX_FMT_RGB24, SWS_BICUBIC, NULL, NULL, NULL);
++    SwsContext *imgConvertCtx = sws_getContext(props->width, props->height, (AVPixelFormat)props->pxlFmt, w, h, AV_PIX_FMT_RGB24, SWS_BICUBIC, NULL, NULL, NULL);
+ 
+     sws_scale(imgConvertCtx, data, props->linesize, 0, h, rgbframe->data, rgbframe->linesize);
+ 
+--- libdash/qtsampleplayer/Decoder/LibavDecoder.cpp.orig	2017-04-11 21:26:27.016649500 +0100
++++ libdash/qtsampleplayer/Decoder/LibavDecoder.cpp	2017-04-11 21:26:47.032107100 +0100
+@@ -72,7 +72,7 @@
+ 
+     if(decoConf->stream->codec->pix_fmt == AV_PIX_FMT_YUV420P)
+         props.pxlFmt = yuv420p;
+-    if(decoConf->stream->codec->pix_fmt == PIX_FMT_YUV422P)
++    if(decoConf->stream->codec->pix_fmt == AV_PIX_FMT_YUV422P)
+         props.pxlFmt = yuv422p;
+ 
+     for(size_t i = 0; i < videoObservers.size(); i++)
