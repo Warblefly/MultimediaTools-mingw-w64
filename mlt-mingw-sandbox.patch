@@ -1,9 +1,9 @@
---- src/melt/Makefile.orig	2016-10-06 14:43:07.738836400 +0100
-+++ src/melt/Makefile	2016-10-06 14:44:15.458897700 +0100
+--- src/melt/Makefile.orig	2017-04-23 13:29:19.335842900 +0100
++++ src/melt/Makefile	2017-04-23 13:29:51.035300500 +0100
 @@ -12,8 +12,8 @@
  ifeq ($(targetos), MinGW)
  ifeq (, $(findstring MELT_NOSDL, $(CFLAGS)))
- ifeq (, $(shell pkg-config --exists sdl))
+ ifeq (, $(shell pkg-config --exists sdl && echo yes))
 -CFLAGS += $(shell  sdl-config --cflags)
 -LDFLAGS += $(shell sdl-config --libs)
 +CFLAGS += $(shell  x86_64-w64-mingw32-sdl-config --cflags)
@@ -11,36 +11,3 @@
  else
  CFLAGS += $(shell  pkg-config --cflags sdl)
  LDFLAGS += $(shell pkg-config --libs sdl)
---- src/modules/sdl/configure.orig	2016-10-06 14:44:38.193980000 +0100
-+++ src/modules/sdl/configure	2016-10-06 14:45:21.617980400 +0100
-@@ -4,7 +4,7 @@
- 
- 	if pkg-config --exists sdl > /dev/null 2>&1 ; then
- 		PKG_CONFIG=1
--	elif sdl-config --version > /dev/null 2>&1 ; then
-+	elif x86_64-w64-mingw32-sdl-config --version > /dev/null 2>&1 ; then
- 		SDL_CONFIG=1
- 	fi
- 
-@@ -16,7 +16,7 @@
- 		fi
- 	elif [ "$SDL_CONFIG" ]; then
- 		echo "USE_PKG_CONFIG=0" > config.mak
--		image=`sdl-config --prefix`/include/SDL/SDL_image.h
-+		image=`x86_64-w64-mingw32-sdl-config --prefix`/include/SDL/SDL_image.h
- 		if [ -f "$image" ]; then
- 			echo "WITH_SDL_IMAGE=1" >> config.mak
- 		fi
---- src/modules/sdl/Makefile.orig	2016-10-06 14:45:42.482129300 +0100
-+++ src/modules/sdl/Makefile	2016-10-06 14:46:22.499276500 +0100
-@@ -25,8 +25,8 @@
- CFLAGS += $(shell pkg-config --cflags sdl)
- LDFLAGS += $(shell pkg-config --libs sdl)
- else
--CFLAGS += $(shell sdl-config --cflags)
--LDFLAGS += $(shell sdl-config --libs)
-+CFLAGS += $(shell x86_64-w64-mingw32-sdl-config --cflags)
-+LDFLAGS += $(shell x86_64-w64-mingw32-sdl-config --libs)
- endif
- 
- ifeq ($(WITH_SDL_IMAGE),1)
