@@ -1,0 +1,40 @@
+--- Makefile.am.orig	2017-04-29 12:02:56.559235700 +0100
++++ Makefile.am	2017-04-29 12:03:58.699395700 +0100
+@@ -98,7 +98,6 @@
+                   opus_compare \
+                   opus_demo \
+                   repacketizer_demo \
+-                  silk/tests/test_unit_LPC_inv_pred_gain \
+                   tests/test_opus_api \
+                   tests/test_opus_decode \
+                   tests/test_opus_encode \
+@@ -112,7 +111,6 @@
+         celt/tests/test_unit_mdct \
+         celt/tests/test_unit_rotation \
+         celt/tests/test_unit_types \
+-        silk/tests/test_unit_LPC_inv_pred_gain \
+         tests/test_opus_api \
+         tests/test_opus_decode \
+         tests/test_opus_encode \
+@@ -141,11 +139,6 @@
+ tests_test_opus_padding_SOURCES = tests/test_opus_padding.c tests/test_opus_common.h
+ tests_test_opus_padding_LDADD = libopus.la $(NE10_LIBS) $(LIBM)
+ 
+-silk_tests_test_unit_LPC_inv_pred_gain_SOURCES = silk/tests/test_unit_LPC_inv_pred_gain.c
+-silk_tests_test_unit_LPC_inv_pred_gain_LDADD = libopus.la $(NE10_LIBS) $(LIBM)
+-# this target requires hidden symbols
+-silk_tests_test_unit_LPC_inv_pred_gain_LDFLAGS = -static
+-
+ celt_tests_test_unit_cwrs32_SOURCES = celt/tests/test_unit_cwrs32.c
+ celt_tests_test_unit_cwrs32_LDADD = $(LIBM)
+ 
+@@ -303,8 +296,7 @@
+ OPT_UNIT_TEST_OBJ = $(celt_tests_test_unit_mathops_SOURCES:.c=.o) \
+                     $(celt_tests_test_unit_rotation_SOURCES:.c=.o) \
+                     $(celt_tests_test_unit_mdct_SOURCES:.c=.o) \
+-                    $(celt_tests_test_unit_dft_SOURCES:.c=.o) \
+-                    $(silk_tests_test_unit_LPC_inv_pred_gain_SOURCES:.c=.o)
++                    $(celt_tests_test_unit_dft_SOURCES:.c=.o) 
+ 
+ if HAVE_SSE
+ SSE_OBJ = $(CELT_SOURCES_SSE:.c=.lo)

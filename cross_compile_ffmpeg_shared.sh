@@ -1135,8 +1135,11 @@ build_libgsm() {
 }
 
 build_libopus() {
-  download_and_unpack_file http://downloads.xiph.org/releases/opus/opus-1.2-alpha.tar.gz opus-1.2-alpha
-  cd opus-1.2-alpha
+#  download_and_unpack_file http://downloads.xiph.org/releases/opus/opus-1.2-alpha.tar.gz opus-1.2-alpha
+  do_git_checkout https://github.com/xiph/opus.git opus
+  cd opus
+#  cd opus-1.2-alpha
+     apply_patch file://${top_dir}/opus-nostatic.patch # one test doesn't work with a shared library
 #    apply_patch file://${top_dir}/opus11.patch # allow it to work with shared builds
     generic_configure_make_install "--enable-custom-modes --enable-asm --enable-ambisonics --enable-update-draft" 
   cd ..
@@ -2036,7 +2039,7 @@ build_tesseract() {
     sed -i.bak 's/-ltesseract/-ltesseract -llept -ltiff -ljpeg -lpng -lwebp -lz/' tesseract.pc.in
     # Unpack English language tessdata into data directory
     # tar xvvf ${top_dir}/tessdata-snapshot-20150411.tar.xz
-    generic_configure_make_install #"--disable-openmp"
+    generic_configure_make_install "--enable-maintainer-mode" #"--disable-openmp"
     unset LIBLEPT_HEADERSDIR
     unset LIBS
     export CXXFLAGS="${old_cxxflags}"
