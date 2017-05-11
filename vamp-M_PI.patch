@@ -1,0 +1,14 @@
+--- src/vamp-hostsdk/Window.h.orig	2017-05-07 12:51:16.007357700 +0100
++++ src/vamp-hostsdk/Window.h	2017-05-07 12:51:44.180101500 +0100
+@@ -42,6 +42,11 @@
+ #include <cmath>
+ #include <cstdlib>
+ 
++#ifndef M_PI
++    #define M_PI 3.14159265358979323846
++#endif
++
++
+ _VAMP_SDK_HOSTSPACE_BEGIN(Window.h)
+ 
+ template <typename T>

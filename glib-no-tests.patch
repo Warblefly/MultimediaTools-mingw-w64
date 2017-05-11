@@ -17,7 +17,7 @@
  ACLOCAL_AMFLAGS = -I m4macros ${ACLOCAL_FLAGS}
 -SUBDIRS = . m4macros glib gmodule gthread gobject gio po docs tests
 +SUBDIRS = . m4macros glib gmodule gthread gobject gio po docs
- DIST_SUBDIRS = $(SUBDIRS) build
+ DIST_SUBDIRS = $(SUBDIRS) build win32
  bin_SCRIPTS = glib-gettextize
  AM_CPPFLAGS = \
 --- Makefile.am.orig	2016-11-24 20:58:29.035384000 +0000
@@ -28,6 +28,6 @@
  
 -SUBDIRS = . m4macros glib gmodule gthread gobject gio po docs tests
 +SUBDIRS = . m4macros glib gmodule gthread gobject gio po docs
- DIST_SUBDIRS = $(SUBDIRS) build
+ DIST_SUBDIRS = $(SUBDIRS) build win32
  
  bin_SCRIPTS = glib-gettextize

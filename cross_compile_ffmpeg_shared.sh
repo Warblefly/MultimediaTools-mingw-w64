@@ -38,7 +38,7 @@ yes_no_sel () {
 }
 
 check_missing_packages () {
-  local check_packages=('sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint' 'pxz' 'wget' 'zip' 'xmlto' 'gtkdocize' 'python-config' 'ant' 'sdl-config' 'sdl2-config' 'gyp')
+  local check_packages=('sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint' 'pxz' 'wget' 'zip' 'xmlto' 'gtkdocize' 'python-config' 'ant' 'sdl-config' 'sdl2-config' 'gyp' 'mm-common-prepare' 'sassc')
   for package in "${check_packages[@]}"; do
     type -P "$package" >/dev/null || missing_packages=("$package" "${missing_packages[@]}")
   done
@@ -161,7 +161,8 @@ install_cross_compiler() {
   sed -i.bak "s/mingw_w64_release_ver='3.3.0'/mingw_w64_release_ver='4.0.4'/" mingw-w64-build-3.6.6
   sed -i.bak "s/gcc_release_ver='4.9.2'/gcc_release_ver='6.2.0'/" mingw-w64-build-3.6.6
   sed -i.bak "s/mpfr_release_ver='3.1.2'/mpfr_release_ver='3.1.5'/" mingw-w64-build-3.6.6
-  sed -i.bak "s/binutils_release_ver='2.25'/binutils_release_ver='2.27'/" mingw-w64-build-3.6.6
+  sed -i.bak "s/binutils_release_ver='2.25'/binutils_release_ver='2.28'/" mingw-w64-build-3.6.6
+  sed -i.bak "s/cloog_release_ver='0.18.1'/cloog_release_ver='0.18.1'/" mingw-w64-build-3.6.6
   sed -i.bak "s/isl_release_ver='0.12.2'/isl_release_ver='0.18'/" mingw-w64-build-3.6.6
   sed -i.bak "s/gmp_release_ver='6.0.0a'/gmp_release_ver='6.1.2'/" mingw-w64-build-3.6.6
   sed -i.bak "s/gmp-6\.0\.0/gmp-6.1.2/" mingw-w64-build-3.6.6
@@ -173,7 +174,7 @@ install_cross_compiler() {
 #  sed -i.bak "s/--enable-threads=win32/--enable-threads=posix/" mingw-w64-build-3.6.6
 # Gendef compilation throws a char-as-array-index error when invoked with "--target=" : "--host" avoids this.
 #  sed -i.bak 's#gendef/configure" --build="$system_type" --prefix="$mingw_w64_prefix" --target#gendef/configure" --build="$system_type" --prefix="$mingw_w64_prefix" --host#' mingw-w64-build-3.6.6
-  ./mingw-w64-build-3.6.6 --gcc-langs=c,c++,fortran --default-configure --mingw-w64-ver=git --gcc-ver=svn --pthreads-w32-ver=2-9-1 --cpu-count=$gcc_cpu_count --build-type=$build_choice --enable-gendef --enable-widl --binutils-ver=2.27 --verbose || exit 1 # --disable-shared allows c++ to be distributed at all...which seemed necessary for some random dependency...
+  ./mingw-w64-build-3.6.6 --gcc-langs=c,c++,fortran --default-configure --mingw-w64-ver=git --gcc-ver=svn --pthreads-w32-ver=2-9-1 --cpu-count=$gcc_cpu_count --build-type=$build_choice --enable-gendef --enable-widl --binutils-ver=2.28 --verbose || exit 1 # --disable-shared allows c++ to be distributed at all...which seemed necessary for some random dependency...
   export CFLAGS=$original_cflags # reset it
 # We need to move the plain cross-compiling versions of bintools out of the way
 # because exactly the same binaries exist with the host triplet prefix
@@ -844,7 +845,10 @@ build_openblas() {
   do_git_checkout https://github.com/xianyi/OpenBLAS.git OpenBLAS
   cd OpenBLAS
     apply_patch file://${top_dir}/OpenBLAS-makefile.patch
+    # Now alter the Makefile.rules to point to the installation directory
+    sed -i.bak 's!# PREFIX = /opt/OpenBLAS!PREFIX = '"${mingw_w64_x86_64_prefix}"'!' Makefile.rule
     do_make
+    do_make_install
   cd ..
 }
 
@@ -921,9 +925,9 @@ build_opendcp() {
 }
 
 build_dcpomatic() {
-  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic
-#  download_and_unpack_file http://dcpomatic.com/downloads/2.9.0/dcpomatic-2.9.0.tar.bz2 dcpomatic-2.9.0
-  cd dcpomatic
+#  do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic
+  download_and_unpack_file https://dcpomatic.com/downloads/2.11.3/dcpomatic-2.11.3.tar.bz2 dcpomatic-2.11.3
+  cd dcpomatic-2.11.3
     apply_patch file://${top_dir}/dcpomatic-wscript.patch
 #    apply_patch file://${top_dir}/dcpomatic-src-wx-wscript.patch
     apply_patch file://${top_dir}/dcpomatic-test-wscript.patch
@@ -943,7 +947,7 @@ build_dcpomatic() {
 }
 
 build_gcal() {
-  generic_download_and_install http://ftp.gnu.org/gnu/gcal/gcal-4.tar.xz gcal-4
+  generic_download_and_install http://ftp.gnu.org/gnu/gcal/gcal-4.1.tar.xz gcal-4.1
 }
 
 build_libxavs() {
@@ -957,8 +961,8 @@ build_libxavs() {
 }
 
 build_libpng() {
-  download_and_unpack_file http://download.sourceforge.net/libpng/libpng-1.6.27.tar.xz libpng-1.6.27
-  cd libpng-1.6.27
+  download_and_unpack_file http://download.sourceforge.net/libpng/libpng-1.6.29.tar.xz libpng-1.6.29
+  cd libpng-1.6.29
     # DBL_EPSILON 21 Feb 2015 starts to come back "undefined". I have NO IDEA why.
     grep -lr DBL_EPSILON contrib | xargs sed -i "s| DBL_EPSILON| 2.2204460492503131E-16|g"
     generic_configure_make_install "--enable-shared"
@@ -1098,8 +1102,8 @@ build_lsdvd() {
 }
 
 build_doxygen() {
-  download_and_unpack_file http://ftp.stack.nl/pub/users/dimitri/doxygen-1.8.11.src.tar.gz doxygen-1.8.11
-  cd doxygen-1.8.11
+  download_and_unpack_file http://ftp.stack.nl/pub/users/dimitri/doxygen-1.8.13.src.tar.gz doxygen-1.8.13
+  cd doxygen-1.8.13
     sed -i.bak 's/WIN32/MSVC/' CMakeLists.txt
     sed -i.bak 's/if (win_static/if (win_static AND MSVC/' CMakeLists.txt
     apply_patch file://${top_dir}/doxygen-fix-casts.patch
@@ -1321,9 +1325,9 @@ build_ncurses() {
     wget http://invisible-island.net/datafiles/current/terminfo.src.gz
     gunzip terminfo.src.gz
   fi
- download_and_unpack_file ftp://invisible-island.net/ncurses/current/ncurses-6.0-20161231.tgz ncurses-6.0-20161231
+ download_and_unpack_file ftp://invisible-island.net/ncurses/current/ncurses-6.0-20170429.tgz ncurses-6.0-20170429
  # generic_configure "--build=x86_64-pc-linux --host=x86_64-w64-mingw32 --with-libtool --disable-termcap --enable-widec --enable-term-driver --enable-sp-funcs --without-ada --with-debug=no --with-shared=yes --with-normal=no --enable-database --with-progs --enable-interop --with-pkg-config-libdir=${mingw_w64_x86_64_prefix}/lib/pkgconfig --enable-pc-files"
-  cd ncurses-6.0-20161231
+  cd ncurses-6.0-20170429
     generic_configure "--build=x86_64-pc-linux --host=x86_64-w64-mingw32 --disable-termcap --enable-widec --enable-term-driver --enable-sp-funcs --without-ada --without-cxx-binding --with-debug=no --with-shared=yes --with-normal=no --enable-database --with-probs --enable-interop --with-pkg-config-libdir=${mingw_w64_x86_64_prefix}/lib/pkgconfig --enable-pc-files --disable-static --enable-shared" 
     do_make
 #    do_make "dlls"
@@ -1362,7 +1366,9 @@ build_libopencore() {
 # NB this is kind of worse than just using the one that comes from the zeranoe script, since this one requires the -DPTHREAD_STATIC everywhere...
 build_win32_pthreads() {
   download_and_unpack_file ftp://sourceware.org/pub/pthreads-win32/pthreads-w32-2-9-1-release.tar.gz   pthreads-w32-2-9-1-release
+#  download_and_unpack_file https://downloads.sourceforge.net/project/pthreads4w/pthreads4w-code-v2.10.0-rc.zip pthreads4w-code-02fecc211d626f28e05ecbb0c10f739bd36d6442
   cd pthreads-w32-2-9-1-release
+#  cd pthreads4w-code-02fecc211d626f28e05ecbb0c10f739bd36d6442
 #    do_make "clean GC-static CROSS=$cross_prefix" # NB no make install
      do_make "clean GC-inlined CROSS=$cross_prefix"
     cp -v libpthreadGC2.a $mingw_w64_x86_64_prefix/lib/libpthread.a || exit 1
@@ -1542,12 +1548,12 @@ build_libxslt() {
 }
 
 build_libxmlsec() {
-  download_and_unpack_file http://www.aleksey.com/xmlsec/download/xmlsec1-1.2.23.tar.gz xmlsec1-1.2.23
-  cd xmlsec1-1.2.23
-    apply_patch file://${top_dir}/xsltsec-Makefile.in.patch
+  download_and_unpack_file http://www.aleksey.com/xmlsec/download/xmlsec1-1.2.24.tar.gz xmlsec1-1.2.24
+  cd xmlsec1-1.2.24
+    # apply_patch file://${top_dir}/xsltsec-Makefile.in.patch
     export GCRYPT_LIBS=-lgcrypt
     export LIBS=-lgcrypt
-    generic_configure_make_install "LIBS=-lgcrypt --disable-silent-rules GCRYPT_LIBS=-lgcrypt --with-gcrypt=${mingw_w64_x86_64_prefix} --disable-silent-rules"
+    generic_configure_make_install "LIBS=-lgcrypt --disable-silent-rules GCRYPT_LIBS=-lgcrypt --with-gcrypt=${mingw_w64_x86_64_prefix} --disable-silent-rules --enable-docs=no"
     unset LIBS
     unset GCRYPT_LIBS
   cd ..
@@ -1623,7 +1629,7 @@ build_icu() {
      
 
 build_libunistring() {
-  generic_download_and_install http://ftp.gnu.org/gnu/libunistring/libunistring-0.9.5.tar.xz libunistring-0.9.5
+  generic_download_and_install http://ftp.gnu.org/gnu/libunistring/libunistring-0.9.7.tar.xz libunistring-0.9.7
 }
 
 build_libffi() {
@@ -1631,19 +1637,19 @@ build_libffi() {
 }
 
 build_libatomic_ops() {
-  generic_download_and_install http://www.ivmaisoft.com/_bin/atomic_ops/libatomic_ops-7.4.2.tar.gz libatomic_ops-7.4.2
+  generic_download_and_install http://www.ivmaisoft.com/_bin/atomic_ops/libatomic_ops-7.4.4.tar.gz libatomic_ops-7.4.4
 }
 
 build_bdw-gc() {
-  generic_download_and_install http://www.hboehm.info/gc/gc_source/gc-7.4.2.tar.gz gc-7.4.2
+  generic_download_and_install http://www.hboehm.info/gc/gc_source/gc-7.6.0.tar.gz gc-7.6.0
 }
 
 build_guile() {
-  generic_download_and_install ftp://ftp.gnu.org/pub/gnu/guile/guile-2.0.11.tar.xz guile-2.0.11
+  generic_download_and_install ftp://ftp.gnu.org/pub/gnu/guile/guile-2.0.14.tar.xz guile-2.0.14
 }
 
 build_autogen() {
-  generic_download_and_install http://ftp.gnu.org/gnu/autogen/rel5.18.7/autogen-5.18.7.tar.xz autogen-5.18.7
+  generic_download_and_install http://ftp.gnu.org/gnu/autogen/rel5.18.12/autogen-5.18.12.tar.xz autogen-5.18.12
 }
 
 build_liba52() {
@@ -1653,9 +1659,9 @@ build_liba52() {
 }
 
 build_gnutls() {
-  download_and_unpack_file https://www.gnupg.org/ftp/gcrypt/gnutls/v3.3/gnutls-3.3.26.tar.xz gnutls-3.3.26
+  download_and_unpack_file https://www.gnupg.org/ftp/gcrypt/gnutls/v3.3/gnutls-3.3.27.tar.xz gnutls-3.3.27
 #  do_git_checkout https://gitlab.com/gnutls/gnutls.git gnutls
-  cd gnutls-3.3.26
+  cd gnutls-3.3.27
 #    git submodule init
 #    git submodule update
 #    make autoreconf
@@ -1666,8 +1672,8 @@ build_gnutls() {
 }
 
 build_libnettle() {
-  download_and_unpack_file https://ftp.gnu.org/gnu/nettle/nettle-3.2.tar.gz nettle-3.2
-  cd nettle-3.2
+  download_and_unpack_file https://ftp.gnu.org/gnu/nettle/nettle-3.3.tar.gz nettle-3.3
+  cd nettle-3.3
     generic_configure "--disable-openssl" # in case we have both gnutls and openssl, just use gnutls [except that gnutls uses this so...huh? https://github.com/rdp/ffmpeg-windows-build-helpers/issues/25#issuecomment-28158515
     do_make_install
   cd ..
@@ -1853,6 +1859,7 @@ build_libdcp() {
     sed -i.bak "s/boost_lib_suffix = '-mt'/boost_lib_suffix = ''/" wscript
     sed -i.bak "s/boost_lib_suffix = '-mt'/boost_lib_suffix = ''/" test/wscript
 #    apply_patch file://${top_dir}/libdcp-libxml.patch
+    apply_patch file://${top_dir}/libdcp-boost.patch
     export CXX=x86_64-w64-mingw32-g++
     do_configure "configure -v -pp --prefix=${mingw_w64_x86_64_prefix} --target-windows --check-cxx-compiler=gxx --enable-debug --disable-tests" "./waf" # --disable-gcov
     ./waf build || exit 1
@@ -1927,7 +1934,7 @@ build_fdk_aac() {
     if [[ ! -f "configure" ]]; then
       autoreconf -fiv || exit 1
     fi
-    generic_configure_make_install "CXXFLAGS=-Wno-narrowing --enable-example=yes"
+    generic_configure_make_install "CXXFLAGS=-Wno-narrowing --enable-example=yes --disable-silent-rules"
   cd ..
 }
 
@@ -1941,21 +1948,27 @@ build_ladspa() {
 }
 
 build_libfftw() {
-  generic_download_and_install http://www.fftw.org/fftw-3.3.4.tar.gz fftw-3.3.4 "--with-our-malloc16 --with-windows-f77-mangling --enable-threads --with-combined-threads --enable-portable-binary --enable-sse2 --with-incoming-stack-boundary=2"
+  generic_download_and_install http://www.fftw.org/fftw-3.3.6-pl2.tar.gz fftw-3.3.6-pl2 "--with-our-malloc16 --with-windows-f77-mangling --enable-threads --with-combined-threads --enable-portable-binary --enable-sse2 --with-incoming-stack-boundary=2"
 }
 
 build_libsamplerate() {
-  generic_download_and_install http://www.mega-nerd.com/SRC/libsamplerate-0.1.8.tar.gz libsamplerate-0.1.8
+  do_git_checkout https://github.com/erikd/libsamplerate.git libsamplerate
+  cd libsamplerate
+    generic_configure_make_install
+  cd ..
+#  generic_download_and_install http://www.mega-nerd.com/SRC/libsamplerate-0.1.9.tar.gz libsamplerate-0.1.9
 }
 
 build_vamp-sdk() {
   export cpu_count=1
-  download_and_unpack_file https://code.soundsoftware.ac.uk/attachments/download/1520/vamp-plugin-sdk-2.6.tar.gz vamp-plugin-sdk-2.6
-  cd vamp-plugin-sdk-2.6
+  download_and_unpack_file https://code.soundsoftware.ac.uk/attachments/download/2206/vamp-plugin-sdk-2.7.1.tar.gz vamp-plugin-sdk-2.7.1
+  cd vamp-plugin-sdk-2.7.1
     # Tell the build system to use the mingw-w64 versions of binary utilities
     sed -i.bak 's/AR		= ar/AR		= x86_64-w64-mingw32-ar/' Makefile.in
     sed -i.bak 's/RANLIB		= ranlib/RANLIB		= x86_64-w64-mingw32-ranlib/' Makefile.in
     sed -i.bak 's/sdk plugins host rdfgen test/sdk plugins host rdfgen/' configure
+    # M_PI doesn't get defined: it's not standard C++
+    apply_patch file://${top_dir}/vamp-M_PI.patch
     # Vamp installs shared libraries. They confuse mpv's linker (I think)
     export SNDFILE_LIBS="-lsndfile -lspeex -logg -lspeexdsp -lFLAC -lvorbisenc -lvorbis -logg -lvorbisfile -logg -lFLAC++ -lsndfile"
     generic_configure_make_install
@@ -1988,10 +2001,10 @@ build_librubberband() {
 }
 
 build_iconv() {
-  download_and_unpack_file http://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.14.tar.gz libiconv-1.14
-  cd libiconv-1.14
+  download_and_unpack_file http://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.15.tar.gz libiconv-1.15
+  cd libiconv-1.15
     # Apply patch to fix non-exported inline function in gcc-5.2.0
-    apply_patch file://${top_dir}/libiconv-1.14-iconv-fix-inline.patch
+    #apply_patch file://${top_dir}/libiconv-1.14-iconv-fix-inline.patch
     # We also need an empty langinfo.h to compile this
 #    touch $cur_dir/include/langinfo.h
     generic_configure_make_install
@@ -2052,8 +2065,8 @@ build_tesseract() {
 }
 
 build_freetype() {
-  download_and_unpack_file http://download.savannah.gnu.org/releases/freetype/freetype-2.6.3.tar.bz2 freetype-2.6.3
-  cd freetype-2.6.3
+  download_and_unpack_file http://download.savannah.gnu.org/releases/freetype/freetype-2.7.1.tar.bz2 freetype-2.7.1
+  cd freetype-2.7.1
   # Need to make a directory for the build library
   mkdir lib
   generic_configure "--with-png=yes --host=x86_64-w64-mingw32 --build=x86_64-redhat-linux"
@@ -2281,7 +2294,7 @@ build_wx() {
 build_libsndfile() {
   store_libs=$LIBS
   export LIBS="-logg -lvorbis"
-  generic_download_and_install http://www.mega-nerd.com/libsndfile/files/libsndfile-1.0.25.tar.gz libsndfile-1.0.25 "--enable-experimental"
+  generic_download_and_install http://www.mega-nerd.com/libsndfile/files/libsndfile-1.0.28.tar.gz libsndfile-1.0.28 "--enable-experimental"
   export LIBS=$store_libs
 }
 
@@ -2301,8 +2314,8 @@ build_libbs2b() {
 }
 
 build_libgame-music-emu() {
-  download_and_unpack_file  https://bitbucket.org/mpyne/game-music-emu/downloads/game-music-emu-0.6.0.tar.bz2 game-music-emu-0.6.0
-  cd game-music-emu-0.6.0
+  download_and_unpack_file  https://bitbucket.org/mpyne/game-music-emu/downloads/game-music-emu-0.6.1.tar.bz2 game-music-emu-0.6.1
+  cd game-music-emu-0.6.1
     # sed -i.bak "s|SHARED|STATIC|" gme/CMakeLists.txt
     do_cmake_and_install
   cd ..
@@ -2331,7 +2344,7 @@ build_glew() {
 #    cd ../..
 #    generic_configure_make_install
 #  cd ..
-  download_and_unpack_file http://downloads.sourceforge.net/project/glew/glew/snapshots/glew-20160708.tgz glew-2.0.0
+  download_and_unpack_file http://downloads.sourceforge.net/project/glew/glew/snapshots/glew-20170423.tgz glew-2.0.0
   cd glew-2.0.0
     sed -i.bak 's/i686-w64-mingw32-/x86_64-w64-mingw32-/g' config/Makefile.linux-mingw-w64
     sed -i.bak "s!LDFLAGS.GL = -lopengl32!LDFLAGS.GL = -L${mingw_w64_x86_64_prefix}/lib -lmsvcrt -lopengl32!" config/Makefile.linux-mingw-w64
@@ -2347,11 +2360,15 @@ build_glew() {
 }
 
 build_libwebp() {
-  generic_download_and_install http://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-0.5.0.tar.gz libwebp-0.5.0
+  do_git_checkout https://github.com/webmproject/libwebp.git libwebp
+  cd libwebp
+    generic_configure_make_install
+  cd ..
+#  generic_download_and_install http://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-0.6.0.tar.gz libwebp-0.6.0
 }
 
 build_wavpack() {
-  generic_download_and_install http://wavpack.com/wavpack-4.75.2.tar.bz2 wavpack-4.75.2
+  generic_download_and_install http://wavpack.com/wavpack-5.1.0.tar.bz2 wavpack-5.1.0
 }
 
 
@@ -2441,8 +2458,8 @@ build_libtool() {
 }
 
 build_libiberty() {
-  download_and_unpack_file https://launchpad.net/ubuntu/+archive/primary/+files/libiberty_20160215.orig.tar.xz libiberty-20160215
-  cd libiberty-20160215
+  download_and_unpack_file https://launchpad.net/ubuntu/+archive/primary/+files/libiberty_20161220.orig.tar.xz libiberty-20161220
+  cd libiberty-20161220
     do_configure "--host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-shared --disable-static --enable-install-libiberty" "./libiberty/configure"
     do_make_install
   cd ..
@@ -2594,8 +2611,8 @@ build_regex() {
 }
 
 build_boost() { 
-  download_and_unpack_file "http://sourceforge.net/projects/boost/files/boost/1.63.0/boost_1_63_0.tar.bz2/download" boost_1_63_0
-  cd boost_1_63_0 
+  download_and_unpack_file "http://sourceforge.net/projects/boost/files/boost/1.64.0/boost_1_64_0.tar.bz2/download" boost_1_64_0
+  cd boost_1_64_0 
     local touch_name=$(get_small_touchfile_name already_configured "$configure_options $configure_name $LDFLAGS $CFLAGS") 
     if [ ! -f  "$touch_name" ]; then 
 #      ./bootstrap.sh mingw target-os=windows address-model=64 link=shared threading=multi threadapi=win32 toolset=gcc-mingw --prefix=${mingw_w64_x86_64_prefix} || exit 1
@@ -2747,8 +2764,8 @@ build_frei0r() {
 }
 
 build_gobject_introspection() {
-  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/gobject-introspection/1.48/gobject-introspection-1.48.0.tar.xz gobject-introspection-1.48.0
-  cd gobject-introspection-1.48.0
+  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/gobject-introspection/1.53/gobject-introspection-1.53.1.tar.xz gobject-introspection-1.53.1
+  cd gobject-introspection-1.53.1
     sed -i.bak 's/PYTHON_LIBS=`\$PYTHON-config --ldflags --libs/PYTHON_LIBS=`$PYTHON-config --ldflags/'  m4/python.m4
     generic_configure_make_install
   cd ..
@@ -2771,23 +2788,9 @@ build_gtk2() {
 }
 
 build_gtk() {
-  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/gtk+/3.22/gtk+-3.22.4.tar.xz gtk+-3.22.4
-#  do_git_checkout https://github.com/GNOME/gtk.git gtk
-  cd gtk+-3.22.4
-#    orig_cpu_count=$cpu_count
-#    export cpu_count=1
-    # Don't attempt to run the icon updater here. It's a Windows executable.
-    apply_patch file://${top_dir}/gtk3-demos-gtk-demo-Makefile-am.patch
-    apply_patch file://${top_dir}/gtk3-demos-widget-factory-Makefile-am.patch
-    apply_patch file://${top_dir}/gtk3-modules-input-Makefile.am.patch
-    # Now regenerate autoconf and automake files
-    rm -v ./configure ./autogen.sh
-    generic_configure_make_install "--disable-silent-rules --enable-win32-backend --disable-cups --disable-glibtest"
-#    export cpu_count=$orig_cpu_count
-  cd ..
   # Now to get to work on a default theme
-  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/adwaita-icon-theme/3.22/adwaita-icon-theme-3.22.0.tar.xz adwaita-icon-theme-3.22.0
-  cd adwaita-icon-theme-3.22.0
+  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/adwaita-icon-theme/3.24/adwaita-icon-theme-3.24.0.tar.xz adwaita-icon-theme-3.24.0
+  cd adwaita-icon-theme-3.24.0
     generic_configure_make_install "--enable-w32-cursors"
   cd ..
   download_and_unpack_file https://icon-theme.freedesktop.org/releases/hicolor-icon-theme-0.15.tar.xz hicolor-icon-theme-0.15
@@ -2795,6 +2798,22 @@ build_gtk() {
     rm -v aclocal.m4 Makefile.in configure
     generic_configure_make_install
   cd ..
+  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/gtk+/3.22/gtk+-3.22.12.tar.xz gtk+-3.22.12
+#  do_git_checkout https://github.com/GNOME/gtk.git gtk gtk-3-22
+  cd gtk+-3.22.12
+#    orig_cpu_count=$cpu_count
+#    export cpu_count=1
+    # Don't attempt to run the icon updater here. It's a Windows executable.
+#    apply_patch file://${top_dir}/gtk3-demos-gtk-demo-Makefile-am.patch
+#    apply_patch file://${top_dir}/gtk3-demos-widget-factory-Makefile-am.patch
+#    apply_patch file://${top_dir}/gtk3-modules-input-Makefile.am.patch
+    # Now regenerate autoconf and automake files
+    # rm -v ./configure ./autogen.sh
+    apply_patch file://${top_dir}/gtk3-22-12.patch
+    generic_configure_make_install "--build=x86_64-unknown-linux-gnu --disable-silent-rules --enable-win32-backend --disable-cups --disable-glibtest --with-included-immodules --disable-test-print-backend"
+#    export cpu_count=$orig_cpu_count
+  cd ..
+
 }
 
 build_snappy () {
@@ -2817,7 +2836,7 @@ build_vidstab() {
 }
 
 build_libchromaprint() {
-  do_git_checkout https://github.com/acoustid/chromaprint.git chromaprint 29ace183de7fb4f83a44afb29b3d5c6a641fb917
+  do_git_checkout https://github.com/acoustid/chromaprint.git chromaprint # 29ace183de7fb4f83a44afb29b3d5c6a641fb917
   cd chromaprint
 #    apply_patch file://${top_dir}/chromaprint-vector.patch
     do_cmake "-DWITH_FFTW3=ON -DBUILD_EXAMPLES=OFF -DBUILD_SHARED_LIBS=ON"
@@ -2909,7 +2928,7 @@ build_asdcplib() {
 
 
 build_libtiff() {
-  generic_download_and_install http://download.osgeo.org/libtiff/tiff-4.0.6.tar.gz tiff-4.0.6
+  generic_download_and_install http://download.osgeo.org/libtiff/tiff-4.0.7.tar.gz tiff-4.0.7
 }
 
 build_opencl() {
@@ -3010,23 +3029,34 @@ build_libuuid() {
 }
 
 build_wxsvg() {
-  generic_download_and_install http://downloads.sourceforge.net/project/wxsvg/wxsvg/1.5.10/wxsvg-1.5.10.tar.bz2 wxsvg-1.5.10 "--with-wx-config=${mingw_w64_x86_64_prefix}/bin/wx-config"
+  generic_download_and_install http://downloads.sourceforge.net/project/wxsvg/wxsvg/1.5.12/wxsvg-1.5.12.tar.bz2 wxsvg-1.5.12 "--with-wx-config=${mingw_w64_x86_64_prefix}/bin/wx-config"
 }
 
 build_pixman() {
-  do_git_checkout https://github.com/aseprite/pixman.git pixman
-  cd pixman
-    generic_configure_make_install
-  cd ..
+#  do_git_checkout https://github.com/aseprite/pixman.git pixman
+#  cd pixman
+#    generic_configure_make_install
+#  cd ..
+  generic_download_and_install https://www.cairographics.org/releases/pixman-0.34.0.tar.gz pixman-0.34.0
 }
 
 build_cairo() {
-  do_git_checkout git://anongit.freedesktop.org/git/cairo cairo
-  cd cairo
-    cp -v ${top_dir}/private-strndup.h ${mingw_w64_x86_64_prefix}/include/private-strndup.h || exit 1
-    apply_patch file://${top_dir}/cairo-pdf-interchange-strndup.patch
-    generic_configure_make_install "--disable-silent-rules"
+  download_and_unpack_file https://www.cairographics.org/releases/cairo-1.14.8.tar.xz cairo-1.14.8
+  cd cairo-1.14.8
+     rm -v autogen.sh configure
+     generic_configure_make_install "--disable-silent-rules --enable-win32 --enable-win32-font --enable-gobject --enable-tee --enable-pdf --enable-ps --enable-svg --disable-dependency-tracking"
   cd ..
+  download_and_unpack_file http://cairographics.org/snapshots/cairo-1.15.4.tar.xz cairo-1.15.4
+  cd cairo-1.15.4
+     rm -v autogen.sh configure
+     generic_configure_make_install "--disable-silent-rules --enable-win32 --enable-win32-font --enable-gobject --enable-tee --enable-pdf --enable-ps --enable-svg --disable-dependency-tracking"
+  cd ..
+#  do_git_checkout git://anongit.freedesktop.org/git/cairo cairo
+#  cd cairo
+#    cp -v ${top_dir}/private-strndup.h ${mingw_w64_x86_64_prefix}/include/private-strndup.h || exit 1
+#    apply_patch file://${top_dir}/cairo-pdf-interchange-strndup.patch
+#    generic_configure_make_install "--disable-silent-rules --enable-win32 --enable-win32-font --enable-gobject --enable-tee --enable-pdf --enable-ps --enable-svg"
+#"--disable-silent-rules --enable-win32 --enable-win32-font --enable-gobject --enable-tee --enable-pdf --enable-ps --enable-svg  cd ..
 }
 
 build_mmcommon() {
@@ -3037,11 +3067,23 @@ build_mmcommon() {
 }
 
 build_cairomm() {
-  download_and_unpack_file http://cairographics.org/releases/cairomm-1.12.0.tar.gz cairomm-1.12.0
-  cd cairomm-1.12.0
-    apply_patch file://${top_dir}/cairomm-missing-M_PI.patch
+#  download_and_unpack_file http://cairographics.org/releases/cairomm-1.15.3.tar.gz cairomm-1.15.3
+  do_git_checkout git://git.cairographics.org/git/cairomm cairomm v1.15.3
+  cd cairomm
+    apply_patch file://${top_dir}/cairomm-win32_surface.patch
+    orig_aclocalpath=${ACLOCAL_PATH}
+    export ACLOCAL_PATH="/usr/local/share/aclocal"
+    generic_configure_make_install "--with-boost"
+    export ACLOCAL_PATH=${orig_aclocalpath}
+  cd ..
+  download_and_unpack_file http://cairographics.org/releases/cairomm-1.12.2.tar.gz cairomm-1.12.2
+  cd cairomm-1.12.2
     generic_configure_make_install "--with-boost"
   cd ..
+#  cd cairomm-1.15.3
+#    apply_patch file://${top_dir}/cairomm-missing-M_PI.patch
+#    generic_configure_make_install "--with-boost"
+#  cd ..
 }
 
 build_taglib() {
@@ -3324,7 +3366,17 @@ build_makemkv() { # THIS IS NOT WORKING - MAKEMKV NEEDS MORE THAN MINGW OFFERS
 }
 
 build_gettext() {
-  generic_download_and_install http://ftp.gnu.org/pub/gnu/gettext/gettext-0.19.7.tar.xz gettext-0.19.7 "CFLAGS=-O2 CXXFLAGS=-O2 LIBS=-lpthread"
+  do_git_checkout https://git.savannah.gnu.org/git/gettext.git gettext
+  cd gettext
+    do_configure "CFLAGS=-O2 CXXFLAGS=-O2 LIBS=-lpthread"
+    cd gettext-runtime/intl
+      do_make
+      do_make_install
+    cd ../..
+  cd ..
+#    apply_patch file://${top_dir}/gettext-cross.patch
+#    generic_configure_make_install "CFLAGS=-O2 CXXFLAGS=-O2 LIBS=-lpthread"
+#  generic_download_and_install http://ftp.gnu.org/pub/gnu/gettext/gettext-0.19.8.1.tar.xz gettext-0.19.8.1 "CFLAGS=-O2 CXXFLAGS=-O2 LIBS=-lpthread --without-libexpat-prefix --without-libxml2-prefix"
 }
 
 build_pcre() {
@@ -3332,10 +3384,10 @@ build_pcre() {
 }
 
 build_glib() {
-  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/glib/2.51/glib-2.51.0.tar.xz glib-2.51.0
+  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/glib/2.53/glib-2.53.1.tar.xz glib-2.53.1
   export orig_cpu=$cpu_count
   export cpu_count=1
-  cd glib-2.51.0
+  cd glib-2.53.1
     export glib_cv_long_long_format=I64
     export glib_cv_stack_grows=no
     apply_patch file://${top_dir}/glib-no-tests.patch
@@ -3352,16 +3404,29 @@ build_glib() {
 }
 
 build_atk() {
-  generic_download_and_install http://ftp.gnome.org/pub/GNOME/sources/atk/2.22/atk-2.22.0.tar.xz atk-2.22.0 "--disable-glibtest"
+  generic_download_and_install http://ftp.gnome.org/pub/GNOME/sources/atk/2.24/atk-2.24.0.tar.xz atk-2.24.0 "--disable-glibtest"
 }
 
 build_gdk_pixbuf() {
-  generic_download_and_install http://ftp.gnome.org/pub/GNOME/sources/gdk-pixbuf/2.36/gdk-pixbuf-2.36.0.tar.xz gdk-pixbuf-2.36.0 "--with-libjasper --disable-glibtest"
+  download_and_unpack_file http://ftp.gnome.org/pub/GNOME/sources/gdk-pixbuf/2.36/gdk-pixbuf-2.36.6.tar.xz gdk-pixbuf-2.36.6 "--with-libjasper --disable-glibtest --enable-always-build-tests=no --enable-relocations --with-included-loaders=yes --build=x86_64-unknown-linux-gnu"
+#  do_git_checkout https://git.gnome.org/browse/gdk-pixbuf gdk-pixbuf
+    cd gdk-pixbuf-2.36.6
+      apply_patch file://${top_dir}/gdk-pixbuf.patch
+      rm -v ./configure
+      generic_configure_make_install "--with-libjasper --disable-glibtest --enable-relocations --with-included-loaders=yes --disable-installed-tests --disable-always-build-tests --build=x86_64-unknown-linux-gnu"  
+  cd ..
 }
 
 build_libsigc++() {
   generic_download_and_install https://download.gnome.org/sources/libsigc++/2.10/libsigc++-2.10.0.tar.xz libsigc++-2.10.0
-  generic_download_and_install https://download.gnome.org/sources/libsigc++/2.99/libsigc++-2.99.7.tar.xz libsigc++-2.99.7
+  do_git_checkout https://github.com/GNOME/libsigcplusplus.git libsigcplusplus
+  cd libsigcplusplus
+    orig_aclocalpath=${ACLOCAL_PATH}
+    export ACLOCAL_PATH="/usr/local/share/aclocal"
+    generic_configure_make_install
+    export ACLOCAL_PATH=${orig_aclocalpath}
+  cd ..
+# generic_download_and_install https://download.gnome.org/sources/libsigc++/2.99/libsigc++-2.99.8.tar.xz libsigc++-2.99.8
 }
 
 build_locked_sstream() {
@@ -3398,17 +3463,45 @@ build_glibmm() {
   # the Boost libraries. These provide an (almost) drop-in replacement.
   export GLIBMM_LIBS="-lgobject-2.0 -lgmodule-2.0 -lglib-2.0 -lboost_system -lsigc-2.0 -lboost_thread_win32"
   export GIOMM_LIBS="-lgio-2.0 -lgobject-2.0 -lgmodule-2.0 -lglib-2.0 -lboost_system -lsigc-2.0"
-  download_and_unpack_file http://ftp.heanet.ie/mirrors/ftp.gnome.org/sources/glibmm/2.49/glibmm-2.49.7.tar.xz glibmm-2.49.7
-  cd glibmm-2.49.7
+  export NOCONFIGURE=1
+  download_and_unpack_file http://ftp.heanet.ie/mirrors/ftp.gnome.org/sources/glibmm/2.50/glibmm-2.50.1.tar.xz glibmm-2.50.1
+  cd glibmm-2.50.1
     apply_patch file://${top_dir}/glibmm-mutex.patch
-    generic_configure_make_install 
+    generic_configure_make_install "--disable-silent-rules" 
   cd ..
+#  do_git_checkout https://github.com/GNOME/glibmm.git glibmm glibmm-2-52
+#  cd glibmm
+#    orig_aclocalpath=${ACLOCAL_PATH}
+#    export ACLOCAL_PATH="/usr/local/share/aclocal"
+#    export GLIBMM_LIBS="-lgobject-2.0 -lgmodule-2.0 -lglib-2.0 -lboost_system -lsigc-2.0 -lboost_thread_win32"
+#    export GIOMM_LIBS="-lgio-2.0 -lgobject-2.0 -lgmodule-2.0 -lglib-2.0 -lboost_system -lsigc-2.0"
+#  download_and_unpack_file ftp://ftp.gnome.org/mirror/gnome.org/sources/glibmm/2.53/glibmm-2.53.1.1.tar.xz glibmm-2.53.1.1
+#  cd glibmm-2.53.1.1
+#    apply_patch file://${top_dir}/glibmm-2.53-mutex.patch
+#    rm -v configure
+#    generic_configure_make_install "NOCONFIGURE=1 --disable-silent-rules --disable-deprecated-api"
+#  cd ..
+ # export ACLOCAL_PATH=${orig_aclocalpath}
   unset GLIBMM_LIBS
   unset GIOMM_LIBS
+  unset NOCONFIGURE
 }
 
 build_libxml++ () {
-  generic_download_and_install http://ftp.gnome.org/pub/GNOME/sources/libxml++/2.40/libxml++-2.40.1.tar.xz libxml++-2.40.1
+  orig_aclocalpath=${ACLOCAL_PATH}
+  export ACLOCAL_PATH="/usr/local/share/aclocal"
+  download_and_unpack_file http://ftp.gnome.org/pub/GNOME/sources/libxml++/2.40/libxml++-2.40.1.tar.xz libxml++-2.40.1
+  cd libxml++-2.40.1
+    rm -v configure 
+#    apply_patch file://${top_dir}/libxml++-2.4-ac.patch
+    generic_configure_make_install 
+  cd ..
+#  do_git_checkout https://git.gnome.org/browse/libxml++ libxml++
+#  cd libxml++
+#    generic_configure_make_install
+#  cd ..
+#  generic_download_and_install https://git.gnome.org/browse/libxml++/snapshot/libxml++-3.0.1.tar.xz libxml++-3.0.1
+  export ACLOCAL_PATH=${orig_aclocalpath}
 }
 
 build_libexif() {
@@ -3421,7 +3514,7 @@ build_libexif() {
 }
 
 build_libzip() {
-  generic_download_and_install http://www.nih.at/libzip/libzip-1.1.2.tar.xz libzip-1.1.2
+  generic_download_and_install http://www.nih.at/libzip/libzip-1.2.0.tar.xz libzip-1.2.0
 }
 
 build_exif() {
@@ -3437,11 +3530,11 @@ build_exif() {
 }
 
 build_hdf() {
-  generic_download_and_install http://www.hdfgroup.org/ftp/HDF5/current/src/hdf5-1.8.16.tar.bz2 hdf5-1.8.16
+  generic_download_and_install http://www.hdfgroup.org/ftp/HDF5/current/src/hdf5-1.8.18.tar.bz2 hdf5-1.8.18
 }
 
 build_netcdf() {
-  generic_download_and_install ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-4.4.0.tar.gz netcdf-4.4.0 "--enable-dll --disable-netcdf4"
+  generic_download_and_install ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-4.4.1.1.tar.gz netcdf-4.4.1.1 "--enable-dll --disable-netcdf4"
 }
 
 build_vlc() {
@@ -3530,12 +3623,12 @@ build_mp4box() { # like build_gpac
 }
 
 build_pango() {
-  generic_download_and_install http://ftp.gnome.org/pub/gnome/sources/pango/1.40/pango-1.40.3.tar.xz pango-1.40.3
+  generic_download_and_install http://ftp.gnome.org/pub/gnome/sources/pango/1.40/pango-1.40.5.tar.xz pango-1.40.5
 }
 
 build_pangomm() {
   export PANGOMM_LIBS="-lgobject-2.0 -lgmodule-2.0 -lglib-2.0 -lglibmm-2.4 -lgio-2.0 -lboost_system -lsigc-2.0 -lboost_thread_win32 -lboost_system -lcairo -lcairomm-1.0 -lpango-1.0 -lpangocairo-1.0"
-  generic_download_and_install http://ftp.gnome.org/pub/GNOME/sources/pangomm/2.40/pangomm-2.40.0.tar.xz pangomm-2.40.0
+  generic_download_and_install http://ftp.gnome.org/pub/GNOME/sources/pangomm/2.40/pangomm-2.40.1.tar.xz pangomm-2.40.1
   unset PANGOMM_LIBS
 }
 
@@ -3626,8 +3719,17 @@ build_cuetools() {
   cd ..
 }
 
+build_turingcodec() {
+  do_git_checkout https://github.com/bbc/turingcodec.git turingcodec
+  cd turingcodec
+    do_cmake
+    do_make
+    do_make_install
+  cd ..
+}
+
 build_dbus() {
-  generic_download_and_install https://dbus.freedesktop.org/releases/dbus/dbus-1.11.10.tar.gz dbus-1.11.10
+  generic_download_and_install https://dbus.freedesktop.org/releases/dbus/dbus-1.11.12.tar.gz dbus-1.11.12
 }
 
 build_lash() {
@@ -3796,8 +3898,8 @@ build_imagemagick()
 }
 
 build_jasper() {
-  download_and_unpack_file https://www.ece.uvic.ca/~frodo/jasper/software/jasper-1.900.1.zip jasper-1.900.1
-  cd jasper-1.900.1
+  download_and_unpack_file https://www.ece.uvic.ca/~frodo/jasper/software/jasper-1.900.29.tar.gz jasper-1.900.29
+  cd jasper-1.900.29
     apply_patch file://${top_dir}/jasper-dll.patch
     rm -v configure
     # We must regenerate configure for libjasper so that a DLL is made
@@ -3823,7 +3925,7 @@ build_graphicsmagick() {
   local new_hg_version=`hg --debug id -i`
   if [[ "$old_hg_version" != "$new_hg_version" ]]; then
     echo "got upstream hg changes, forcing rebuild...GraphicsMagick"
-    #apply_patch file://${top_dir}/graphicmagick-mingw64.patch
+    apply_patch file://${top_dir}/graphicmagick-mingw64.patch
     cd build
       rm already*
 #      generic_download_and_install ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020150919.tar.xz GraphicsMagick-1.4.020150919 "--host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-magick-compat --disable-shared --enable-static --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix}/include CPPFLAGS=-I${mingw_w64_x86_64_prefix}" 
@@ -3832,7 +3934,7 @@ build_graphicsmagick() {
       sed -i.bak 's/Libs: -L\${libdir} -lGraphicsMagick/Libs: -L${libdir} -lGraphicsMagick -lfreetype -lbz2 -lz -llcms2 -lpthread -lpng16 -ltiff -lgdi32 -lgdiplus -ljpeg -lwebp -ljasper/' ../magick/GraphicsMagick.pc.in
       # References to a libcorelib are not needed. The library doesn't exist on my platform
       sed -i.bak 's/-lcorelib//' ../magick/GraphicsMagick.pc.in
-      do_configure "--disable-static --enable-shared --host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-magick-compat --enable-broken-coders --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix} CPPFLAGS=-I${mingw_w64_x86_64_prefix}" "../configure"
+      do_configure "--disable-static --enable-shared --with-modules --host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-broken-coders --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix} CPPFLAGS=-I${mingw_w64_x86_64_prefix}" "../configure"
       do_make_install || exit 1
     cd ..
   else
@@ -4046,6 +4148,7 @@ build_dependencies() {
 		# of libx264 it tracks is way behind the current version. Instead, we must
 		# be happy with the command-line x262 program, and pipe data to it.
   build_libx265
+#  build_turingcodec # Needs work on thread interface. Can't mingw compile yet
   build_asdcplib
   build_lame
   build_vidstab
@@ -4109,11 +4212,11 @@ build_dependencies() {
   build_poppler
   build_SWFTools
   build_ASIOSDK
+  build_eigen
   build_portaudio_without_jack
   build_jack
   build_portaudio_with_jack
-  # build_openblas Not until we make a Fortran compiler
-  build_eigen
+  build_openblas # Not until we make a Fortran compiler
   build_opencv
   build_frei0r
   build_liba52
@@ -4153,8 +4256,6 @@ build_dependencies() {
 #  build_eigen
   build_libdv
   build_asdcplib-cth
-  build_libdcp
-  build_libsub
 }
 
 build_apps() {
@@ -4212,6 +4313,8 @@ build_apps() {
   fi
   build_cuetools
   build_graphicsmagick
+  build_libdcp # Now needs graphicsmagick
+  build_libsub
   build_wx
   build_wxsvg
   build_mediainfo  
@@ -4428,5 +4531,4 @@ echo "are in build directory."
 #  echo "built $file"
 #done
 echo "done!"
-
 

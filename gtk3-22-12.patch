@@ -1,0 +1,50 @@
+--- gdk/win32/gdkmain-win32.c.orig	2017-05-10 16:34:51.063111500 +0100
++++ gdk/win32/gdkmain-win32.c	2017-05-10 16:35:09.929406400 +0100
+@@ -64,7 +64,7 @@
+ };
+ 
+ BOOL WINAPI
+-DllMain (HINSTANCE hinstDLL,
++gtk_DllMain (HINSTANCE hinstDLL,
+ 	 DWORD     dwReason,
+ 	 LPVOID    reserved)
+ {
+--- gtk/gtkwin32.c.orig	2017-05-10 16:35:30.911397500 +0100
++++ gtk/gtkwin32.c	2017-05-10 16:35:49.931713700 +0100
+@@ -42,7 +42,7 @@
+ static HMODULE gtk_dll;
+ 
+ BOOL WINAPI
+-DllMain (HINSTANCE hinstDLL,
++gtk_DllMain (HINSTANCE hinstDLL,
+          DWORD     fdwReason,
+          LPVOID    lpvReserved)
+ {
+--- demos/gtk-demo/Makefile.in.orig	2017-05-10 16:37:04.575640300 +0100
++++ demos/gtk-demo/Makefile.in	2017-05-10 16:37:53.064187900 +0100
+@@ -1423,11 +1423,9 @@
+ 
+ install-update-icon-cache:
+ 	$(AM_V_at)$(POST_INSTALL)
+-	test -n "$(DESTDIR)" || $(update_icon_cache) "$(iconthemedir)"
+ 
+ uninstall-update-icon-cache:
+ 	$(AM_V_at)$(POST_UNINSTALL)
+-	test -n "$(DESTDIR)" || $(update_icon_cache) "$(iconthemedir)"
+ 
+ #
+ # Creates Visual Studio 2008/2010 projects from items passed in from autotools files
+--- demos/widget-factory/Makefile.in.orig	2017-05-10 16:38:14.295151100 +0100
++++ demos/widget-factory/Makefile.in	2017-05-10 16:38:29.899679800 +0100
+@@ -1162,11 +1162,9 @@
+ 
+ install-update-icon-cache:
+ 	$(AM_V_at)$(POST_INSTALL)
+-	test -n "$(DESTDIR)" || $(update_icon_cache) "$(iconthemedir)"
+ 
+ uninstall-update-icon-cache:
+ 	$(AM_V_at)$(POST_UNINSTALL)
+-	test -n "$(DESTDIR)" || $(update_icon_cache) "$(iconthemedir)"
+ 
+ -include $(top_srcdir)/git.mk
+ 

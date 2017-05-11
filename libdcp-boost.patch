@@ -1,0 +1,10 @@
+--- src/colour_conversion.h.orig	2017-05-10 19:54:50.907701900 +0100
++++ src/colour_conversion.h	2017-05-10 19:55:10.803563700 +0100
+@@ -40,6 +40,7 @@
+ 
+ #include "chromaticity.h"
+ #include <boost/shared_ptr.hpp>
++#include <boost/serialization/array_wrapper.hpp>
+ #include <boost/numeric/ublas/matrix.hpp>
+ #include <boost/optional.hpp>
+ 

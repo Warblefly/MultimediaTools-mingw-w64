@@ -1,0 +1,14 @@
+--- cairomm/win32_surface.cc.orig
++++ cairomm/win32_surface.cc
+@@ -53,11 +53,6 @@ RefPtr<Win32Surface> Win32Surface::create(HDC hdc)
+   return make_refptr_for_instance<Win32Surface>(new Win32Surface(cobject, true /* has reference */));
+ }
+ 
+-RefPtr<Win32Surface> Win32Surface::create(Format format, int width, int height)
+-{
+-  return create_with_dib(format, width, height);
+-}
+-
+ RefPtr<Win32Surface> Win32Surface::create_with_dib(Format format, int width, int height)
+ {
+   auto cobject = cairo_win32_surface_create_with_dib((cairo_format_t)format, width, height);
