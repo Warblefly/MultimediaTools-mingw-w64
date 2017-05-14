@@ -1603,7 +1603,7 @@ build_icu() {
   # First, build native ICU, whose build tools are required by cross-compiled ICU
   # Luckily, we do this only once per build.
   if [ ! -f icu.built ]; then
-    download_and_unpack_file http://download.icu-project.org/files/icu4c/57.1/icu4c-57_1-src.tgz icu
+    download_and_unpack_file http://download.icu-project.org/files/icu4c/59.1/icu4c-59_1-src.tgz icu
     holding_path=$PATH
     export PATH=$original_path
     mv icu icu_native
@@ -1613,7 +1613,7 @@ build_icu() {
       # Don't install this
     cd ../..
     export PATH=$holding_path
-    download_and_unpack_file http://download.icu-project.org/files/icu4c/57.1/icu4c-57_1-src.tgz icu
+    download_and_unpack_file http://download.icu-project.org/files/icu4c/59.1/icu4c-59_1-src.tgz icu
     cd icu
       # ICU 58.2 uses a pair of locale-related functiont that don't occur in mingw yet
      # apply_patch file://${top_dir}/icu-mingw-locale.patch
@@ -3321,6 +3321,22 @@ build_zimg() {
   cd ..
 }
 
+build_codec2() {
+  do_svn_checkout https://svn.code.sf.net/p/freetel/code/codec2-dev codec2-dev
+  cd codec2-dev
+    mkdir -v build
+    cd build
+      do_cmake .. "-DCMAKE_BUILD_TYPE=Release"
+      do_make
+      cd src
+        cp -v *exe ${mingw_w64_x86_64_prefix}/bin/
+        cp -v *dll ${mingw_w64_x86_64_prefix}/bin/
+        cp -v *dll.a ${mingw_w64_x86_64_prefix}/lib/
+      cd ..
+    cd ..
+  cd ..
+}
+
 build_libcdio() {
 #  download_and_unpack_file file://${top_dir}/libcdio-4b5eda30.tar.gz libcdio-cdtext-testing-4b5eda3
   do_git_checkout git://git.sv.gnu.org/libcdio.git libcdio #  cd libcdio
@@ -4293,6 +4309,7 @@ build_apps() {
 #  build_openssh
 #  build_rsync
   build_dvdbackup
+  build_codec2
   if [[ $build_ffmpeg_shared = "y" ]]; then
     build_ffmpeg ffmpeg shared
   fi
