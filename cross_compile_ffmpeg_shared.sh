@@ -925,9 +925,9 @@ build_opendcp() {
 }
 
 build_dcpomatic() {
-#  do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic
-  download_and_unpack_file https://dcpomatic.com/downloads/2.11.3/dcpomatic-2.11.3.tar.bz2 dcpomatic-2.11.3
-  cd dcpomatic-2.11.3
+  do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic
+#  download_and_unpack_file https://dcpomatic.com/downloads/2.11.3/dcpomatic-2.11.3.tar.bz2 dcpomatic-2.11.3
+  cd dcpomatic
     apply_patch file://${top_dir}/dcpomatic-wscript.patch
 #    apply_patch file://${top_dir}/dcpomatic-src-wx-wscript.patch
     apply_patch file://${top_dir}/dcpomatic-test-wscript.patch
