@@ -931,6 +931,7 @@ build_dcpomatic() {
     apply_patch file://${top_dir}/dcpomatic-wscript.patch
 #    apply_patch file://${top_dir}/dcpomatic-src-wx-wscript.patch
     apply_patch file://${top_dir}/dcpomatic-test-wscript.patch
+#    apply_patch file://${top_dir}/dcpomatic-libsub.patch
      # M_PI is missing in mingw-w64
     sed -i.bak 's/M_PI/3.14159265358979323846/g' src/lib/audio_filter.cc
      # The RC file looks for wxWidgets 3.0 rc, but it's 3.1 in our build
@@ -1850,7 +1851,7 @@ build_asdcplib-cth() {
 
 build_libdcp() {
   # Branches are slightly askew. 1.0 is where development takes place
-  do_git_checkout https://github.com/cth103/libdcp.git libdcp 1.0
+  do_git_checkout https://github.com/cth103/libdcp.git libdcp  1.0
 #  download_and_unpack_file http://carlh.net/downloads/libdcp/libdcp-1.3.4.tar.bz2 libdcp-1.3.4
   cd libdcp
     # M_PI is required. This is a quick way of defining it
@@ -1867,14 +1868,15 @@ build_libdcp() {
     unset CXX
         # The installation puts the pkgconfig file and the DLL import file in the wrong place
     cp -v build/libdcp-1.0.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig
-    cp -v build/src/libdcp-1.0.dll.a ${mingw_w64_x86_64_prefix}/lib
+    cp -v build/libdcp.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig/libdcp.pc
+    cp -v build/src/libdcp.dll.a ${mingw_w64_x86_64_prefix}/lib
   cd ..
 }
 
 build_libsub() {
-  do_git_checkout git://git.carlh.net/git/libsub.git libsub 1.0
-#  download_and_unpack_file http://carlh.net/downloads/libsub/libsub-1.1.13.tar.bz2 libsub-1.1.13
-  cd libsub
+#  do_git_checkout git://git.carlh.net/git/libsub.git libsub # 1.0
+  download_and_unpack_file http://carlh.net/downloads/libsub/libsub-1.2.4.tar.bz2 libsub-1.2.4
+  cd libsub-1.2.4
     # include <iostream> is missing
     apply_patch file://${top_dir}/libdcp-reader.h.patch
 #    apply_patch file://${top_dir}/libdcp-sub_time.h.patch
@@ -2935,17 +2937,18 @@ build_opencl() {
 # Method: get the headers, then (in a later function) build OpenCL.dll from the github source
 # which does NOT contain the headers
   mkdir -p ${mingw_w64_x86_64_prefix}/include/CL && cd ${mingw_w64_x86_64_prefix}/include/CL
-    wget --no-clobber https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl21/cl_d3d10.h \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl21/cl_d3d11.h \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl21/cl_dx9_media_sharing.h \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl21/cl_ext.h \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl21/cl_gl_ext.h \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl21/cl_gl.h \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl21/cl.h \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl21/cl_platform.h \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl21/opencl.h \
+    wget --no-clobber https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/opencl22/CL/cl_d3d10.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/opencl22/CL/cl_d3d11.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/opencl22/CL/cl_dx9_media_sharing.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/opencl22/CL/cl_ext.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/opencl22/CL/cl_gl_ext.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/opencl22/CL/cl_gl.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/opencl22/CL/cl.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/opencl22/CL/cl_platform.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/opencl22/CL/opencl.h \
 https://www.khronos.org/registry/cl/api/2.1/cl.hpp \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/opencl21/cl_egl.h
+https://github.com/KhronosGroup/OpenCL-CLHPP/releases/download/v2.0.10/cl2.hpp \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/opencl22/CL/cl_egl.h
 #  cd -
 #  cd ${top_dir}
 # Use the installed OpenCL.dll to make libOpenCL.a
