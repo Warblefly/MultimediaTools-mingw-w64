@@ -3675,36 +3675,41 @@ build_angle() {
     # If Angle has been build, then skip the whole process because Git barfs
     if [[ ! -f "angle/already_built_angle" ]]; then 
       echo "Angle not built: building from scratch."
-      do_git_checkout https://github.com/google/angle.git angle 57ce9ea23e
+      do_git_checkout https://github.com/google/angle.git angle 9f10b775c9b17f901d940157e43e5a74b75c2708 # 57ce9ea23e
       cd angle
         # remove .git directory to prevent: No rule to make target '../build-x86_64/.git/index', needed by 'out/Debug/obj/gen/angle/id/commit.h'.
         rm -rvf .git || exit 1
         # These patches from the AUR linux project
-        apply_patch_p1 file://${top_dir}/angle-Fix-dynamic-libraries.patch
-        apply_patch_p1 file://${top_dir}/angle-Link-against-dxguid-d3d9-and-gdi32.patch
-        apply_patch_p1 file://${top_dir}/angle-Export-shader-API-via-libGLESv2.dll.patch
-        apply_patch_p1 file://${top_dir}/angle-Make-GLintptr-and-GLsizeiptr-match-those-from-Qt-5.patch
-        apply_patch_p1 file://${top_dir}/angle-Remove-copy_scripts-target.patch
-        apply_patch_p1 file://${top_dir}/angle-Fix-generation-of-commit_id.h.patch
-        # These are my patches to work around VC-only functions
+#        apply_patch_p1 file://${top_dir}/angle-Fix-dynamic-libraries.patch
+#        apply_patch_p1 file://${top_dir}/angle-Link-against-dxguid-d3d9-and-gdi32.patch
+#        apply_patch_p1 file://${top_dir}/angle-Export-shader-API-via-libGLESv2.dll.patch
+#        apply_patch_p1 file://${top_dir}/angle-Make-GLintptr-and-GLsizeiptr-match-those-from-Qt-5.patch
+#        apply_patch_p1 file://${top_dir}/angle-Remove-copy_scripts-target.patch
+#        apply_patch_p1 file://${top_dir}/angle-Fix-generation-of-commit_id.h.patch
+#        # These are my patches to work around VC-only functions
         apply_patch file://${top_dir}/angle-string_utils-cpp.patch
         apply_patch file://${top_dir}/angle-RendererD3D-cpp.patch
-    #    apply_patch file://${top_dir}/angle-future.patch
+#        apply_patch file://${top_dir}/angle-future.patch
         # executing .bat scripts on Linux is a no-go so make this a no-op
+
         echo "" > src/copy_compiler_dll.bat
         chmod +x src/copy_compiler_dll.bat
         # provide a file to export symbols declared in ShaderLang.h as part of libGLESv2.dll
         # (required to build Qt WebKit which uses shader interface)
     #    cp ${top_dir}/angle-entry_points_shader.cpp src/libGLESv2/entry_points_shader.cpp
+        apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-angleproject-git/0000-build-fix.patch
+        apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-angleproject-git/angleproject-include-import-library-and-use-def-file.patch
+        apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-angleproject-git/0001-static-build-workaround.patch
+        apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-angleproject-git/0002-redist.patch
         mkdir build-x86_64
         cd build-x86_64
           export CXX=x86_64-w64-mingw32-g++
           export AR=x86_64-w64-mingw32-ar
           old_cxxflags=${CXXFLAGS}
-          export CXXFLAGS="-O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions --param=ssp-buffer-size=4 -std=c++11 -msse2 -DUNICODE -D_UNICODE -I./../src -I./../include -I./../src/common/third_party/numerics"
+          export CXXFLAGS="-O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions --param=ssp-buffer-size=4 -std=c++14 -msse2 -DANGLE_STD_ASYNC_WORKERS=ANGLE_DISABLED -DUNICODE -D_UNICODE -I./../src -I./../include -I./../src/common/third_party/numerics"
           # Prepare the Makefile
-          gyp -D use_ozone=0 -D OS=win -D TARGET=win64 --format make -DMSVS_VERSION="" --depth . -I ../gyp/common.gypi ../src/angle.gyp
-          make V=1 LIBS="-lmingw32 -lm -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -lwinmm -limm32 -lole32 -loleaut32 -lshell32 -lversion -luuid -ld3d9" -j $cpu_count || exit 1
+          gyp -D angle_enable_vulkan=0 -D use_ozone=0 -D OS=win -D TARGET=win64 --format make -DMSVS_VERSION="" --depth . -I ../gyp/common.gypi ../src/angle.gyp
+          make V=1 LIBS="-lmingw32 -lm -lsetupapi -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -lwinmm -limm32 -lole32 -loleaut32 -lshell32 -lversion -luuid -ld3d9 -ld3d11" -j $cpu_count || exit 1
           # The libraries are built but have the wrong suffix
           # There is no make install target
           cp -v out/Debug/src/libGLESv2.so "${mingw_w64_x86_64_prefix}/bin/libGLESv2.dll"
@@ -3953,8 +3958,9 @@ build_graphicsmagick() {
       sed -i.bak 's/Libs: -L\${libdir} -lGraphicsMagick/Libs: -L${libdir} -lGraphicsMagick -lfreetype -lbz2 -lz -llcms2 -lpthread -lpng16 -ltiff -lgdi32 -lgdiplus -ljpeg -lwebp -ljasper/' ../magick/GraphicsMagick.pc.in
       # References to a libcorelib are not needed. The library doesn't exist on my platform
       sed -i.bak 's/-lcorelib//' ../magick/GraphicsMagick.pc.in
-      do_configure "--disable-static --enable-shared --with-modules --host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-broken-coders --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix} CPPFLAGS=-I${mingw_w64_x86_64_prefix}" "../configure"
+      do_configure "--disable-static --enable-shared --host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-broken-coders --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix} CPPFLAGS=-I${mingw_w64_x86_64_prefix}" "../configure"
       do_make_install || exit 1
+      cp -v config/* ${mingw_w64_x86_64_prefix}/share/GraphicsMagick-1.4/config/
     cd ..
   else
     echo "still at hg $new_hg_version GraphicsMagick"
@@ -3986,7 +3992,7 @@ build_ffmpeg() {
 
   # FFmpeg + libav compatible options
   # add libpsapi to enable libdlfcn for Windows to work, thereby enabling frei0r plugins
-  local extra_configure_opts="--enable-libsoxr --enable-fontconfig --enable-libass --enable-libbluray --enable-iconv --enable-libtwolame --enable-libzvbi --enable-libcaca --enable-libmodplug --extra-libs=-lstdc++ --extra-libs=-lpsapi --enable-opengl --extra-libs=-lz --extra-libs=-lpng --enable-libvidstab --enable-decklink --extra-libs=-loleaut32 --enable-libcdio --enable-libzimg --enable-chromaprint --enable-libsnappy --enable-libx265 --logfile=/dev/stdout"
+  local extra_configure_opts="--enable-libxml2 --enable-libsoxr --enable-fontconfig --enable-libass --enable-libbluray --enable-iconv --enable-libtwolame --enable-libzvbi --enable-libcaca --enable-libmodplug --extra-libs=-lstdc++ --extra-libs=-lpsapi --enable-opengl --extra-libs=-lz --extra-libs=-lpng --enable-libvidstab --enable-decklink --extra-libs=-loleaut32 --enable-libcdio --enable-libzimg --enable-chromaprint --enable-libsnappy --enable-libx265 --logfile=/dev/stdout"
 
   if [[ $type = "libav" ]]; then
     # libav [ffmpeg fork]  has a few missing options?
@@ -4023,7 +4029,7 @@ build_ffmpeg() {
 # --extra-cflags=$CFLAGS, though redundant, just so that FFmpeg lists what it used in its "info" output
   apply_patch_p1 file://${top_dir}/ffmpeg-dash-demux.patch
 
-  config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --disable-doc --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-netcdf --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libschroedinger --enable-libvpx --enable-libilbc --enable-libwavpack --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --enable-d3d11va --enable-nvenc --enable-libopencv --enable-libxml2 --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts --extra-cflags=$CFLAGS" # other possibilities: --enable-w32threads --enable-libflite
+  config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --disable-doc --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-netcdf --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libschroedinger --enable-libvpx --enable-libilbc --enable-libwavpack --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --enable-d3d11va --enable-nvenc --enable-libopencv --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts --extra-cflags=$CFLAGS" # other possibilities: --enable-w32threads --enable-libflite
   if [[ "$non_free" = "y" ]]; then
     config_options="$config_options --enable-nonfree --enable-libfdk-aac --enable-decoder=aac" # To use fdk-aac in VLC, we need to change FFMPEG's default (faac), but I haven't found how to do that... So I disabled it. This could be an new option for the script? -- faac deemed too poor quality and becomes the default -- add it in and uncomment the build_faac line to include it 
     # other possible options: --enable-openssl --enable-libaacplus
