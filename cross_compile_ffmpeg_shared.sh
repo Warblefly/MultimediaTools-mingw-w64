@@ -3804,6 +3804,36 @@ build_movit() {
   cd ..
 }
 
+build_aom() {
+  do_git_checkout https://aomedia.googlesource.com/aom aom
+  cd aom
+    old_LDFLAGS=${LDFLAGS}
+    old_CFLAGS=${CFLAGS}
+    old_CXXFLAGS=${CFLAGS}
+    old_CC=${CC}
+    old_LD=${LD}
+    old_AR=${AR}
+    old_CXX=${CXX}
+    export LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib
+    export CFLAGS=-I${mingw_w64_x86_64_prefix}/include
+    export CXXFLAGS=-I${mingw_w64_x86_64_prefix}/include
+    export CC=x86_64-w64-mingw32-gcc
+    export LD=x86_64-w64-mingw32-ld
+    export AR=x86_64-w64-mingw32-ar
+    export CXX=x86_64-w64-mingw32-g++
+    do_configure "--target=x86_64-win64-gcc --prefix=${mingw_w64_x86_64_prefix} --enable-webm-io --enable-pic --enable-error-concealment --enable-multithread --enable-runtime-cpu-detect --enable-postproc --enable-av1 --enable-lowbitdepth"
+    do_make
+    do_make_install
+    export LDFLAGS=${old_LDFLAGS}
+    export CFLAGS=${old_CFLAGS}
+    export CXXFLAGS=${old_CXXFLAGS}
+    export CC=${old_CC}
+    export AR=${old_AR}
+    export LD=${old_LD}
+    export CXX=${old_CXX}
+  cd ..
+}
+
 build_libdash() {
   do_git_checkout https://github.com/bitmovin/libdash.git libdash
   cd libdash
@@ -4280,6 +4310,7 @@ build_dependencies() {
   build_graphicsmagick
 #  build_eigen
   build_libdv
+  build_aom
   build_asdcplib-cth
 }
 
