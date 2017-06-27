@@ -2277,6 +2277,8 @@ build_mpv() {
     sed -i.bak 's/  ytdl.path, "--no-warnings"/  "python.exe", ytdl.path, "--no-warnings"/' player/lua/ytdl_hook.lua
     ./waf build || exit 1
     ./waf install || exit 1
+    mkdir -pv ${mingw_w64_x86_64_prefix}/share/mpv
+    cp -vf ${top_dir}/mpv.conf ${mingw_w64_x86_64_prefix}/share/mpv/mpv.conf
     unset DEST_OS
     unset TARGET
   cd ..
