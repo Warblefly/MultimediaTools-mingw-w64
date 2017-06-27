@@ -38,7 +38,7 @@ yes_no_sel () {
 }
 
 check_missing_packages () {
-  local check_packages=('sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint' 'pxz' 'wget' 'zip' 'xmlto' 'gtkdocize' 'python-config' 'ant' 'sdl-config' 'sdl2-config' 'gyp' 'mm-common-prepare' 'sassc')
+  local check_packages=('sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint' 'pxz' 'wget' 'zip' 'xmlto' 'gtkdocize' 'python-config' 'ant' 'sdl-config' 'sdl2-config' 'gyp' 'mm-common-prepare' 'sassc' 'nasm')
   for package in "${check_packages[@]}"; do
     type -P "$package" >/dev/null || missing_packages=("$package" "${missing_packages[@]}")
   done
@@ -887,6 +887,23 @@ build_opencv() {
   # This helps frei0r find opencv
 }
 
+build_cunit() {
+  generic_download_and_install https://downloads.sourceforge.net/project/cunit/CUnit/2.1-3/CUnit-2.1-3.tar.bz2 CUnit-2.1-3 "--disable-shared --enable-static"
+}
+
+build_libmysofa() {
+  do_git_checkout https://github.com/hoene/libmysofa.git libmysofa
+  cd libmysofa
+    cd src/tests
+  #    sed -i.bak 's/CUnit\.h/Cunit\.h/' tests.c
+  #    sed -i.bak 's/CUnit\.h/Cunit\.h/' tests.h
+    cd ../..
+    do_cmake "-DCMAKE_BUILD_TYPE=Release -DCMAKE_COLOR_MAKEFILE=ON"
+    do_make
+    do_make_install
+  cd ..
+}
+
 build_opendcp() {
 # There are quite a few patches because I prefer to build this as a static program,
 # whereas the author, understandably, created it as a dynamically-linked program.
@@ -1144,7 +1161,7 @@ build_libopus() {
   do_git_checkout https://github.com/xiph/opus.git opus
   cd opus
 #  cd opus-1.2-alpha
-     apply_patch file://${top_dir}/opus-nostatic.patch # one test doesn't work with a shared library
+#     apply_patch file://${top_dir}/opus-nostatic.patch # one test doesn't work with a shared library
 #    apply_patch file://${top_dir}/opus11.patch # allow it to work with shared builds
     generic_configure_make_install "--enable-custom-modes --enable-asm --enable-ambisonics --enable-update-draft" 
   cd ..
@@ -2166,7 +2183,7 @@ build_sdl2() {
 #  mkdir build
   do_git_checkout https://github.com/spurious/SDL-mirror.git SDL
   cd SDL
-    apply_patch file://${top_dir}/sdl2.xinput.patch
+#    apply_patch file://${top_dir}/sdl2.xinput.patch
 #    mkdir -v build
 
 #  local new_hg_version=`hg --debug id -i`
@@ -2247,7 +2264,11 @@ build_mpv() {
     ./bootstrap.py
     export DEST_OS=win32
     export TARGET=x86_64-w64-mingw32
-    do_configure "configure -pp --prefix=${mingw_w64_x86_64_prefix} --enable-vf-dlopen-filters --enable-win32-internal-pthreads --disable-x11 --disable-debug-build --enable-sdl2 --enable-libmpv-shared --disable-libmpv-static" "./waf"
+    unset AR
+    unset CC
+    unset LD
+    env
+    do_configure "configure -v -pp --prefix=${mingw_w64_x86_64_prefix} --enable-vf-dlopen-filters --enable-win32-internal-pthreads --disable-x11 --disable-debug-build --enable-sdl2 --enable-libmpv-shared --disable-libmpv-static" "./waf"
     # In this cross-compile for Windows, we keep the Python script up-to-date and therefore
     # must call it directly by its full name, because mpv can only explore for executables
     # with the .exe suffix.
@@ -2659,12 +2680,25 @@ build_mkvtoolnix() {
     sed -i.bak 's/\-O2/-O0/' ac/debugging_profiling.m4
     sed -i.bak 's/\-O3/-O0/' ac/debugging_profiling.m4
     sed -i.bak 's/\-O1/-O0/' ac/debugging_profiling.m4
+    old_CC=${CC}
+    old_LD=${LD}
+    old_AR=${AR}
+    old_CXX=${CXX}
+    export CC=x86_64-w64-mingw32-gcc
+    export LD=x86_64-w64-mingw32-ld
+    export AR=x86_64-w64-mingw32-ar
+    export CXX=x86_64-w64-mingw32-g++
     generic_configure "--with-boost=${mingw_w64_x86_64_prefix} --with-boost-system=boost_system --with-boost-filesystem=boost_filesystem --with-boost-date-time=boost_date_time --with-boost-regex=boost_regex --without-curl --enable-qt --enable-optimization"
     # Now we must prevent inclusion of sys_windows.cpp because our build uses shared libraries,
     # and this piece of code unfortunately tries to pull in a static version of the Windows Qt
     # platform library libqwindows.a
     sed -i.bak 's!sources("src/info/sys_windows.o!#!' Rakefile
+    env
     do_rake_and_rake_install "V=1"
+    export CC=${old_CC}
+    export AR=${old_AR}
+    export LD=${old_LD}
+    export CXX=${old_CXX}
     #    export LDFLAGS=${orig_ldflags}
   cd ..
 }
@@ -3821,7 +3855,7 @@ build_aom() {
     export LD=x86_64-w64-mingw32-ld
     export AR=x86_64-w64-mingw32-ar
     export CXX=x86_64-w64-mingw32-g++
-    do_configure "--target=x86_64-win64-gcc --prefix=${mingw_w64_x86_64_prefix} --enable-webm-io --enable-pic --enable-error-concealment --enable-multithread --enable-runtime-cpu-detect --enable-postproc --enable-av1 --enable-lowbitdepth"
+    do_configure "--target=x86_64-win64-gcc --prefix=${mingw_w64_x86_64_prefix} --enable-webm-io --enable-pic --enable-error-concealment --enable-multithread --enable-runtime-cpu-detect --enable-postproc --enable-av1 --enable-lowbitdepth --disable-unit-tests"
     do_make
     do_make_install
     export LDFLAGS=${old_LDFLAGS}
@@ -4059,7 +4093,7 @@ build_ffmpeg() {
 # --extra-cflags=$CFLAGS, though redundant, just so that FFmpeg lists what it used in its "info" output
   apply_patch_p1 file://${top_dir}/ffmpeg-dash-demux.patch
 
-  config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --disable-doc --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-netcdf --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libschroedinger --enable-libvpx --enable-libilbc --enable-libwavpack --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --enable-d3d11va --enable-nvenc --enable-libopencv --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts --extra-cflags=$CFLAGS" # other possibilities: --enable-w32threads --enable-libflite
+  config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --disable-doc --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-libmysofa --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libvpx --enable-libilbc --enable-libwavpack --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --enable-d3d11va --enable-nvenc --enable-libopencv --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts --extra-cflags=$CFLAGS" # other possibilities: --enable-w32threads --enable-libflite
   if [[ "$non_free" = "y" ]]; then
     config_options="$config_options --enable-nonfree --enable-libfdk-aac --enable-decoder=aac" # To use fdk-aac in VLC, we need to change FFMPEG's default (faac), but I haven't found how to do that... So I disabled it. This could be an new option for the script? -- faac deemed too poor quality and becomes the default -- add it in and uncomment the build_faac line to include it 
     # other possible options: --enable-openssl --enable-libaacplus
@@ -4301,6 +4335,8 @@ build_dependencies() {
   build_ilmbase
 #  build_hdf
   build_netcdf
+  build_cunit
+  build_libmysofa
   build_libiberty
 #  build_gobject_introspection
   build_libepoxy
