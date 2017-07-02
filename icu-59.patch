@@ -1,0 +1,42 @@
+--- source/common/putil.cpp.orig	2017-06-28 12:42:45.288231700 +0100
++++ source/common/putil.cpp	2017-06-28 12:43:38.962309100 +0100
+@@ -101,15 +101,15 @@
+ #   define NOIME
+ #   define NOMCX
+ #   include <windows.h>
+-#   include "unicode\uloc.h"
++#   include "unicode/uloc.h"
+ #if U_PLATFORM_HAS_WINUWP_API == 0
+ #   include "wintz.h"
+ #else // U_PLATFORM_HAS_WINUWP_API
+ typedef PVOID LPMSG; // TODO: figure out how to get rid of this typedef
+ #include <Windows.Globalization.h>
+ #include <windows.system.userprofile.h>
+-#include <wrl\wrappers\corewrappers.h>
+-#include <wrl\client.h>
++#include <wrl/wrappers/corewrappers.h>
++#include <wrl/client.h>
+ 
+ using namespace ABI::Windows::Foundation;
+ using namespace Microsoft::WRL;
+--- source/io/ufile.cpp.orig	2017-06-28 13:19:05.735098800 +0100
++++ source/io/ufile.cpp	2017-06-28 13:20:03.368163800 +0100
+@@ -160,7 +160,7 @@
+         // TODO: test this code path, including wperm.
+         wchar_t wperm[40] = {};
+         size_t  retVal;
+-        mbstowcs_s(&retVal, wperm, perm, _TRUNCATE);
++        mbstowcs_s(&retVal, wperm, 40, perm, _TRUNCATE);
+         FILE *systemFile = _wfopen((const wchar_t *)filename, wperm);
+         if (systemFile) {
+             result = finit_owner(systemFile, locale, codepage, TRUE);
+--- source/tools/toolutil/pkg_genc.cpp.orig	2017-06-28 13:33:21.383757100 +0100
++++ source/tools/toolutil/pkg_genc.cpp	2017-06-28 13:33:43.285760600 +0100
+@@ -43,6 +43,7 @@
+ #include "cmemory.h"
+ #include "cstring.h"
+ #include "filestrm.h"
++#include "filetools.h"
+ #include "toolutil.h"
+ #include "unicode/uclean.h"
+ #include "uoptions.h"

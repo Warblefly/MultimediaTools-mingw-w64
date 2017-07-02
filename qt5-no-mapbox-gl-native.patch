@@ -1,0 +1,26 @@
+--- qtlocation/src/plugins/geoservices/geoservices.pro.orig	2017-06-30 13:44:30.320673100 +0100
++++ qtlocation/src/plugins/geoservices/geoservices.pro	2017-06-30 13:44:44.912530500 +0100
+@@ -5,12 +5,3 @@
+ qtConfig(concurrent) {
+     SUBDIRS += osm
+ }
+-
+-qtConfig(c++14):qtConfig(c++14):!win32|mingw:!qnx {
+-    !exists(../../3rdparty/mapbox-gl-native/CMakeLists.txt) {
+-        warning("Submodule mapbox-gl-native does not exist. Run 'git submodule update --init' on qtlocation.")
+-    } else {
+-        SUBDIRS += mapboxgl ../../3rdparty/mapbox-gl-native
+-        mapboxgl.depends = ../../3rdparty/mapbox-gl-native
+-    }
+-}
+--- qtmultimedia/src/plugins/common/evr/evrd3dpresentengine.cpp.orig	2017-07-01 23:01:19.486015500 +0100
++++ qtmultimedia/src/plugins/common/evr/evrd3dpresentengine.cpp	2017-07-01 23:02:15.154010700 +0100
+@@ -49,7 +49,7 @@
+ #include <private/qmediaopenglhelper_p.h>
+ 
+ #ifdef MAYBE_ANGLE
+-# include <qtgui/qguiapplication.h>
++# include <QtGui/qguiapplication.h>
+ # include <qpa/qplatformnativeinterface.h>
+ # include <qopenglfunctions.h>
+ # include <EGL/eglext.h>

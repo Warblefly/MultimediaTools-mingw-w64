@@ -1,0 +1,15 @@
+--- Makefile.am.orig	2017-07-02 12:13:59.151539800 +0100
++++ Makefile.am	2017-07-02 12:14:17.395930400 +0100
+@@ -63,12 +63,3 @@
+ CLEANFILES = synaesthesia.ico syn_icon.rgb syn_icon_rgb.cc \
+              synaesthesia.js synaesthesia.html.mem a.out.js
+ 
+-install:
+-	-xdg-icon-resource install --novendor --context apps \
+-	                           --size 256 synaesthesia.png synaesthesia
+-	-xdg-desktop-menu install --novendor synaesthesia.desktop
+-
+-uninstall:
+-	-xdg-icon-resource uninstall --novendor --context apps \
+-	                             --size 256 synaesthesia
+-	-xdg-desktop-menu uninstall --novendor synaesthesia.desktop

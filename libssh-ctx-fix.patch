@@ -1,0 +1,20 @@
+--- src/wrapper.c.orig	2017-06-28 19:36:37.471261100 +0100
++++ src/wrapper.c	2017-06-28 19:38:45.920689700 +0100
+@@ -120,14 +120,12 @@
+     SAFE_FREE(cipher->key);
+   }
+ #endif
+-  if (cipher->ctx != NULL) {
+-    if (cipher->cleanup != NULL) {
+-      cipher->cleanup(cipher);
++  if (cipher->cleanup != NULL) {
++    cipher->cleanup(cipher);
+     }
+ #ifdef HAVE_LIBCRYPTO
+-    EVP_CIPHER_CTX_free(cipher->ctx);
++  EVP_CIPHER_CTX_free(cipher->ctx);
+ #endif
+-  }
+ }
+ 
+ static void cipher_free(struct ssh_cipher_struct *cipher) {

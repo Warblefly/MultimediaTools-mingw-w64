@@ -693,20 +693,22 @@ build_librtmp() {
 }
 
 build_qt() {
-  export QT_VERSION="5.8.0"
+  export QT_VERSION="5.9.1"
   export QT_SOURCE="qt-source"
   export QT_BUILD="qt-build"
 #  orig_cpu_count=$cpu_count
 #  export cpu_count=1
   if [ ! -f qt.built ]; then
-    download_and_unpack_file ftp://ftp.mirrorservice.org/sites/download.qt-project.org/official_releases/qt/5.8/${QT_VERSION}/single/qt-everywhere-opensource-src-${QT_VERSION}.tar.gz "qt-everywhere-opensource-src-${QT_VERSION}"
+    download_and_unpack_file http://download.qt.io/archive/qt/5.9/${QT_VERSION}/single/qt-everywhere-opensource-src-${QT_VERSION}.tar.xz "qt-everywhere-opensource-src-${QT_VERSION}"
     cd "qt-everywhere-opensource-src-${QT_VERSION}"
-      apply_patch file://${top_dir}/qt-permissive.patch
+#      apply_patch file://${top_dir}/qt-permissive.patch
+    apply_patch file://${top_dir}/qt5-no-mapbox-gl-native.patch
     cd ..
     mkdir -p "${QT_BUILD}"
     ln -vs "qt-everywhere-opensource-src-${QT_VERSION}" "${QT_SOURCE}"
     cd "${QT_BUILD}"
-      do_configure "-xplatform win32-g++ -prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -opensource -skip qtactiveqt -qt-freetype -confirm-license -accessibility -nomake examples -nomake tests -debug -debug-and-release -strip -openssl -opengl desktop -device-option CROSS_COMPILE=$cross_prefix -device-option PKG_CONFIG=${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config -no-use-gold-linker -D MINGW_HAS_SECURE_API -D _WIN32_IE=0x0A00 -v" "../${QT_SOURCE}/configure" # "noclean"
+      do_configure "-xplatform win32-g++ -prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -opensource  -qt-freetype -confirm-license -accessibility -nomake examples -nomake tests -debug -debug-and-release -strip -openssl -opengl dynamic -device-option CROSS_COMPILE=$cross_prefix -device-option PKG_CONFIG=${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config -no-use-gold-linker -D MINGW_HAS_SECURE_API -D _WIN32_IE=0x0A00 -v -skip qtactiveqt" "../${QT_SOURCE}/configure" # "noclean" # -skip qtactiveqt
+      # For sone reason, the compiler doesn't set the include path properly!
       do_make || exit 1
       do_make_install || exit 1
     cd ..
@@ -1208,8 +1210,8 @@ build_libdvdcss() {
 
 build_gdb() {
   export LIBS="-lpsapi -ldl"
-  download_and_unpack_file ftp://sourceware.org/pub/gdb/releases/gdb-7.12.1.tar.xz gdb-7.12.1
-  cd gdb-7.12.1
+  download_and_unpack_file ftp://sourceware.org/pub/gdb/releases/gdb-8.0.tar.xz gdb-8.0
+  cd gdb-8.0
 #    cd readline
 #    generic_configure_make_install
 #   cd ..
@@ -1343,9 +1345,9 @@ build_ncurses() {
     wget http://invisible-island.net/datafiles/current/terminfo.src.gz
     gunzip terminfo.src.gz
   fi
- download_and_unpack_file ftp://invisible-island.net/ncurses/current/ncurses-6.0-20170429.tgz ncurses-6.0-20170429
+ download_and_unpack_file ftp://invisible-island.net/ncurses/current/ncurses-6.0-20170624.tgz ncurses-6.0-20170624
  # generic_configure "--build=x86_64-pc-linux --host=x86_64-w64-mingw32 --with-libtool --disable-termcap --enable-widec --enable-term-driver --enable-sp-funcs --without-ada --with-debug=no --with-shared=yes --with-normal=no --enable-database --with-progs --enable-interop --with-pkg-config-libdir=${mingw_w64_x86_64_prefix}/lib/pkgconfig --enable-pc-files"
-  cd ncurses-6.0-20170429
+  cd ncurses-6.0-20170624
     generic_configure "--build=x86_64-pc-linux --host=x86_64-w64-mingw32 --disable-termcap --enable-widec --enable-term-driver --enable-sp-funcs --without-ada --without-cxx-binding --with-debug=no --with-shared=yes --with-normal=no --enable-database --with-probs --enable-interop --with-pkg-config-libdir=${mingw_w64_x86_64_prefix}/lib/pkgconfig --enable-pc-files --disable-static --enable-shared" 
     do_make
 #    do_make "dlls"
@@ -1360,7 +1362,7 @@ build_coreutils() {
 }
 
 build_less() {
-  generic_download_and_install http://greenwoodsoftware.com/less/less-471.tar.gz less-471
+  generic_download_and_install https://ftp.gnu.org/gnu/less/less-487.tar.gz less-487
 }
 
 build_dvdbackup() {
@@ -1512,7 +1514,7 @@ build_libfribidi() {
 }
 
 build_libass() {
-  generic_download_and_install https://github.com/libass/libass/releases/download/0.13.6/libass-0.13.6.tar.gz libass-0.13.6
+  generic_download_and_install https://github.com/libass/libass/releases/download/0.13.7/libass-0.13.7.tar.gz libass-0.13.7
   # fribidi, fontconfig, freetype throw them all in there for good measure, trying to help mplayer once though it didn't help [FFmpeg needed a change for fribidi here though I believe]
   sed -i.bak 's/-lass -lm/-lass -lfribidi -lfontconfig -lfreetype -lexpat -lpng -lm/' "$PKG_CONFIG_PATH/libass.pc"
 }
@@ -1634,10 +1636,16 @@ build_icu() {
     download_and_unpack_file http://download.icu-project.org/files/icu4c/59.1/icu4c-59_1-src.tgz icu
     cd icu
       # ICU 58.2 uses a pair of locale-related functiont that don't occur in mingw yet
-     # apply_patch file://${top_dir}/icu-mingw-locale.patch
+      apply_patch file://${top_dir}/icu-59.patch
     cd ..
     cd icu/source
+      export CFLAGS_ORIG=${CFLAGS}
+      export CXXFLAGS_ORIG=${CXXFLAGS}
+      export CFLAGS="-fpermissive -DWINVER=0x0A00 -DMINGW_HAS_SECURE_API=1"
+      export CXXFLAGS="-fpermissive -DWINVER=0x0A00 -DMINGW_HAS_SECURE_API=1"
       generic_configure_make_install "--host=x86_64-w64-mingw32 --with-cross-build=${top_dir}/sandbox/x86_64/icu_native/source"
+      export CFLAGS=${CFLAGS_ORIG}
+      export CXXFLAGS=${CXXFLAGS_ORIG}
     cd ../..
     touch icu.built
   else
@@ -1655,7 +1663,7 @@ build_libffi() {
 }
 
 build_libatomic_ops() {
-  generic_download_and_install http://www.ivmaisoft.com/_bin/atomic_ops/libatomic_ops-7.4.4.tar.gz libatomic_ops-7.4.4
+  generic_download_and_install http://www.ivmaisoft.com/_bin/atomic_ops/libatomic_ops-7.4.6.tar.gz libatomic_ops-7.4.6
 }
 
 build_bdw-gc() {
@@ -1773,8 +1781,8 @@ build_libxvid() {
 }
 
 build_fontconfig() {
-  download_and_unpack_file https://www.freedesktop.org/software/fontconfig/release/fontconfig-2.12.1.tar.bz2 fontconfig-2.12.1
-  cd fontconfig-2.12.1
+  download_and_unpack_file https://www.freedesktop.org/software/fontconfig/release/fontconfig-2.12.3.tar.bz2 fontconfig-2.12.3
+  cd fontconfig-2.12.3
     generic_configure "--disable-docs"
     do_make_install
   cd .. 
@@ -1792,12 +1800,12 @@ build_libaacplus() {
 }
 
 build_openssl() {
-  download_and_unpack_file ftp://ftp.openssl.org/source/openssl-1.0.2k.tar.gz openssl-1.0.2k
+  download_and_unpack_file ftp://ftp.openssl.org/source/openssl-1.0.2l.tar.gz openssl-1.0.2l
   # When the manpages are written, they need somewhere to go otherwise there is an error.
   mkdir -pv ${mingw_w64_x86_64_prefix}/include/openssl
   mkdir -pv ${mingw_w64_x86_64_prefix}/lib/engines
   mkdir -pv ${mingw_w64_x86_64_prefix}/ssl/misc
-  cd openssl-1.0.2k
+  cd openssl-1.0.2l
 #  export cross="$cross_prefix"
   export CROSS_COMPILE="${cross_prefix}"
 #  export CC="${cross}gcc"
@@ -1825,6 +1833,7 @@ build_libssh() {
   mkdir libssh_build
   cd libssh
 #    apply_patch file://${top_dir}/libssh-win32.patch
+    apply_patch file://${top_dir}/libssh-ctx-fix.patch
   cd ..
   cd libssh_build
     local touch_name=$(get_small_touchfile_name already_ran_cmake "$extra_args")
@@ -1851,7 +1860,9 @@ build_asdcplib-cth() {
     # Don't look for boost libraries ending in -mt -- all our libraries are multithreaded anyway
     sed -i.bak "s/boost_lib_suffix = '-mt'/boost_lib_suffix = ''/" wscript
 #    sed -i.bak "s/boost_lib_suffix = '-mt'/boost_lib_suffix = ''/" test/wscript
+    export CC=x86_64-w64-mingw32-g++
     export CXX=x86_64-w64-mingw32-g++
+    export AR=x86_64-w64-mingw32-ar
     do_configure "configure -v -pp --prefix=${mingw_w64_x86_64_prefix} --libdir=${mingw_w64_x86_64_prefix}/lib --target-windows --check-cxx-compiler=gxx" "./waf"
     ./waf build || exit 1
     ./waf install || exit 1
@@ -1860,6 +1871,8 @@ build_asdcplib-cth() {
     cp -v build/src/libasdcp-cth.dll.a ${mingw_w64_x86_64_prefix}/lib
     cp -v build/src/libkumu-cth.dll.a ${mingw_w64_x86_64_prefix}/lib
     unset CXX
+    unset CC
+    unset AR
     unset CXXFLAGS
     unset CFLAGS
     unset LIBS
@@ -1933,13 +1946,21 @@ build_intel_quicksync_mfx() { # qsv
 
 build_libnvenc() {
   if [[ ! -f $mingw_w64_x86_64_prefix/include/nvEncodeAPI.h ]]; then
-    rm -rf nvenc # just in case :)
+#    rm -rf nvenc # just in case :)
+#    mkdir nvenc
+#    cd nvenc
+#      echo "installing nvenc [nvidia gpu assisted encoder]"
+#      curl --retry 5 -4 http://developer.download.nvidia.com/assets/cuda/files/nvidia_video_sdk_6.0.1.zip -O -L --fail || exit 1
+#      unzip nvidia_video_sdk_6.0.1.zip
+#      cp nvidia_video_sdk_6.0.1/Samples/common/inc/* $mingw_w64_x86_64_prefix/include
+#    cd ..
+
+    rm  -rf nvenc
     mkdir nvenc
     cd nvenc
-      echo "installing nvenc [nvidia gpu assisted encoder]"
-      curl --retry 5 -4 http://developer.download.nvidia.com/assets/cuda/files/nvidia_video_sdk_6.0.1.zip -O -L --fail || exit 1
-      unzip nvidia_video_sdk_6.0.1.zip
-      cp nvidia_video_sdk_6.0.1/Samples/common/inc/* $mingw_w64_x86_64_prefix/include
+      echo "Installing nvend [nvidia gnu assisted encoder]"
+      tar xvvf ${top_dir}/nvidia-sdk-headers-8.0.14.tar.xz
+      cp -Rv nvidia-sdk-headers-8.0.14/inc/* ${mingw_w64_x86_64_prefix}/include
     cd ..
   else
     echo "already installed nvenc"
@@ -1959,7 +1980,7 @@ build_fdk_aac() {
 
 
 build_libexpat() {
-  generic_download_and_install http://downloads.sourceforge.net/project/expat/expat/2.2.0/expat-2.2.0.tar.bz2 expat-2.2.0
+  generic_download_and_install http://downloads.sourceforge.net/project/expat/expat/2.2.1/expat-2.2.1.tar.bz2 expat-2.2.1
 }
 
 build_ladspa() {
@@ -2059,7 +2080,7 @@ build_libgcrypt() {
 
 build_tesseract() {
   do_git_checkout https://github.com/tesseract-ocr/tesseract tesseract
-  download_and_unpack_file https://github.com/tesseract-ocr/tesseract/archive/3.05.00dev.tar.gz tesseract-3.05.00dev 
+#  download_and_unpack_file https://github.com/tesseract-ocr/tesseract/archive/3.05.00dev.tar.gz tesseract-3.05.00dev 
   cd tesseract
 #    apply_patch file://${top_dir}/tesseract-thread.patch
 #    apply_patch file://${top_dir}/tesseract-libgomp.patch
@@ -2084,8 +2105,8 @@ build_tesseract() {
 }
 
 build_freetype() {
-  download_and_unpack_file http://download.savannah.gnu.org/releases/freetype/freetype-2.7.1.tar.bz2 freetype-2.7.1
-  cd freetype-2.7.1
+  download_and_unpack_file http://download.savannah.gnu.org/releases/freetype/freetype-2.8.tar.bz2 freetype-2.8
+  cd freetype-2.8
   # Need to make a directory for the build library
   mkdir lib
   generic_configure "--with-png=yes --host=x86_64-w64-mingw32 --build=x86_64-redhat-linux"
@@ -2260,7 +2281,7 @@ build_vim() {
 build_mpv() {
   do_git_checkout https://github.com/mpv-player/mpv.git mpv # 4c516a064a8246c9067eee32578a7a78feb371dc
   cd mpv
-    apply_patch file://${top_dir}/mpv-disable-rectangle.patch
+#    apply_patch file://${top_dir}/mpv-disable-rectangle.patch
     ./bootstrap.py
     export DEST_OS=win32
     export TARGET=x86_64-w64-mingw32
@@ -2268,7 +2289,7 @@ build_mpv() {
     unset CC
     unset LD
     env
-    do_configure "configure -v -pp --prefix=${mingw_w64_x86_64_prefix} --enable-vf-dlopen-filters --enable-win32-internal-pthreads --disable-x11 --disable-debug-build --enable-sdl2 --enable-libmpv-shared --disable-libmpv-static" "./waf"
+    do_configure "configure -v -pp --prefix=${mingw_w64_x86_64_prefix} --enable-win32-internal-pthreads --disable-x11 --disable-debug-build --enable-sdl2 --enable-libmpv-shared --disable-libmpv-static" "./waf"
     # In this cross-compile for Windows, we keep the Python script up-to-date and therefore
     # must call it directly by its full name, because mpv can only explore for executables
     # with the .exe suffix.
@@ -2802,8 +2823,8 @@ build_frei0r() {
 }
 
 build_gobject_introspection() {
-  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/gobject-introspection/1.53/gobject-introspection-1.53.1.tar.xz gobject-introspection-1.53.1
-  cd gobject-introspection-1.53.1
+  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/gobject-introspection/1.53/gobject-introspection-1.53.3.tar.xz gobject-introspection-1.53.3
+  cd gobject-introspection-1.53.3
     sed -i.bak 's/PYTHON_LIBS=`\$PYTHON-config --ldflags --libs/PYTHON_LIBS=`$PYTHON-config --ldflags/'  m4/python.m4
     generic_configure_make_install
   cd ..
@@ -2836,9 +2857,9 @@ build_gtk() {
     rm -v aclocal.m4 Makefile.in configure
     generic_configure_make_install
   cd ..
-  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/gtk+/3.22/gtk+-3.22.12.tar.xz gtk+-3.22.12
+  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/gtk+/3.22/gtk+-3.22.16.tar.xz gtk+-3.22.16 # was .12
 #  do_git_checkout https://github.com/GNOME/gtk.git gtk gtk-3-22
-  cd gtk+-3.22.12
+  cd gtk+-3.22.16
 #    orig_cpu_count=$cpu_count
 #    export cpu_count=1
     # Don't attempt to run the icon updater here. It's a Windows executable.
@@ -2966,7 +2987,7 @@ build_asdcplib() {
 
 
 build_libtiff() {
-  generic_download_and_install http://download.osgeo.org/libtiff/tiff-4.0.7.tar.gz tiff-4.0.7
+  generic_download_and_install http://download.osgeo.org/libtiff/tiff-4.0.8.tar.gz tiff-4.0.8
 }
 
 build_opencl() {
@@ -3080,13 +3101,13 @@ build_pixman() {
 }
 
 build_cairo() {
-  download_and_unpack_file https://www.cairographics.org/releases/cairo-1.14.8.tar.xz cairo-1.14.8
-  cd cairo-1.14.8
+  download_and_unpack_file https://www.cairographics.org/releases/cairo-1.14.10.tar.xz cairo-1.14.10 # Was .8
+  cd cairo-1.14.10
      rm -v autogen.sh configure
      generic_configure_make_install "--disable-silent-rules --enable-win32 --enable-win32-font --enable-gobject --enable-tee --enable-pdf --enable-ps --enable-svg --disable-dependency-tracking"
   cd ..
-  download_and_unpack_file http://cairographics.org/snapshots/cairo-1.15.4.tar.xz cairo-1.15.4
-  cd cairo-1.15.4
+  download_and_unpack_file http://cairographics.org/snapshots/cairo-1.15.6.tar.xz cairo-1.15.6 # Was .4
+  cd cairo-1.15.6
      rm -v autogen.sh configure
      generic_configure_make_install "--disable-silent-rules --enable-win32 --enable-win32-font --enable-gobject --enable-tee --enable-pdf --enable-ps --enable-svg --disable-dependency-tracking"
   cd ..
@@ -3157,7 +3178,7 @@ build_dvdauthor() {
 
 
 build_openssh() {
-    generic_download_and_install http://mirror.bytemark.co.uk/pub/OpenBSD/OpenSSH/portable/openssh-7.2p2.tar.gz openssh-7.2p2 "LIBS=-lgdi32"
+    generic_download_and_install http://mirror.bytemark.co.uk/pub/OpenBSD/OpenSSH/portable/openssh-7.5p1.tar.gz openssh-7.5p1 "LIBS=-lgdi32"
 }
 
 build_libffi() {
@@ -3423,7 +3444,7 @@ build_makemkv() { # THIS IS NOT WORKING - MAKEMKV NEEDS MORE THAN MINGW OFFERS
 build_gettext() {
   do_git_checkout https://git.savannah.gnu.org/git/gettext.git gettext
   cd gettext
-    do_configure "CFLAGS=-O2 CXXFLAGS=-O2 LIBS=-lpthread"
+    generic_configure "CFLAGS=-O2 CXXFLAGS=-O2 LIBS=-lpthread"
     cd gettext-runtime/intl
       do_make
       do_make_install
@@ -3439,10 +3460,10 @@ build_pcre() {
 }
 
 build_glib() {
-  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/glib/2.53/glib-2.53.1.tar.xz glib-2.53.1
+  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/glib/2.53/glib-2.53.3.tar.xz glib-2.53.3 # Was .1
   export orig_cpu=$cpu_count
   export cpu_count=1
-  cd glib-2.53.1
+  cd glib-2.53.3
     export glib_cv_long_long_format=I64
     export glib_cv_stack_grows=no
     apply_patch file://${top_dir}/glib-no-tests.patch
@@ -3459,7 +3480,7 @@ build_glib() {
 }
 
 build_atk() {
-  generic_download_and_install http://ftp.gnome.org/pub/GNOME/sources/atk/2.24/atk-2.24.0.tar.xz atk-2.24.0 "--disable-glibtest"
+  generic_download_and_install http://ftp.gnome.org/pub/GNOME/sources/atk/2.25/atk-2.25.2.tar.xz atk-2.25.2 "--disable-glibtest" # Was 2.24.0
 }
 
 build_gdk_pixbuf() {
@@ -3485,7 +3506,8 @@ build_libsigc++() {
 }
 
 build_locked_sstream() {
-  do_git_checkout git://git.carlh.net/git/locked_sstream.git locked_sstream
+  do_git_checkout https://github.com/cth103/locked_sstream.git locked_sstream
+#  do_git_checkout git://git.carlh.net/git/locked_sstream.git locked_sstream
   cd locked_sstream
     do_configure "configure --prefix=${mingw_w64_x86_64_prefix}" "./waf"
     ./waf build || exit 1
@@ -3516,6 +3538,7 @@ build_libcxml(){
 build_glibmm() {
   # Because our threading model for our GCC does not involve posix threads, we must emulate them with
   # the Boost libraries. These provide an (almost) drop-in replacement.
+  # VERSION WARNING: glibmm-2.51 breaks compatibility. You have to read the documentation to learn this.
   export GLIBMM_LIBS="-lgobject-2.0 -lgmodule-2.0 -lglib-2.0 -lboost_system -lsigc-2.0 -lboost_thread_win32"
   export GIOMM_LIBS="-lgio-2.0 -lgobject-2.0 -lgmodule-2.0 -lglib-2.0 -lboost_system -lsigc-2.0"
   export NOCONFIGURE=1
@@ -3585,7 +3608,7 @@ build_exif() {
 }
 
 build_hdf() {
-  generic_download_and_install http://www.hdfgroup.org/ftp/HDF5/current/src/hdf5-1.8.18.tar.bz2 hdf5-1.8.18
+  generic_download_and_install http://www.hdfgroup.org/ftp/HDF5/current/src/hdf5-1.8.19.tar.bz2 hdf5-1.8.19
 }
 
 build_netcdf() {
@@ -3678,10 +3701,11 @@ build_mp4box() { # like build_gpac
 }
 
 build_pango() {
-  generic_download_and_install http://ftp.gnome.org/pub/gnome/sources/pango/1.40/pango-1.40.5.tar.xz pango-1.40.5
+  generic_download_and_install http://ftp.gnome.org/pub/gnome/sources/pango/1.40/pango-1.40.6.tar.xz pango-1.40.6 # Was .5
 }
 
 build_pangomm() {
+  # VERSION WARNING Pango-2.41 breaks compatibility
   export PANGOMM_LIBS="-lgobject-2.0 -lgmodule-2.0 -lglib-2.0 -lglibmm-2.4 -lgio-2.0 -lboost_system -lsigc-2.0 -lboost_thread_win32 -lboost_system -lcairo -lcairomm-1.0 -lpango-1.0 -lpangocairo-1.0"
   generic_download_and_install http://ftp.gnome.org/pub/GNOME/sources/pangomm/2.40/pangomm-2.40.1.tar.xz pangomm-2.40.1
   unset PANGOMM_LIBS
@@ -3708,7 +3732,7 @@ build_qjackctl() {
 
 build_angle() {
 #  do_git_checkout https://chromium.googlesource.com/angle/angle angle dd1b0c485561e0ce825a9426d7e223b4e158a358 # 57ce9ea23e54e7beb0526502bdf9094d1ddfde68 # 9f09037b073a7481bc5d94984a26b7c9d3427b16 
-    # If Angle has been build, then skip the whole process because Git barfs
+    # If Angle has been built, then skip the whole process because Git barfs
     if [[ ! -f "angle/already_built_angle" ]]; then 
       echo "Angle not built: building from scratch."
       do_git_checkout https://github.com/google/angle.git angle 9f10b775c9b17f901d940157e43e5a74b75c2708 # 57ce9ea23e
@@ -3764,7 +3788,7 @@ build_angle() {
 }
 
 build_libepoxy() {
-  generic_download_and_install https://github.com/anholt/libepoxy/releases/download/v1.3.1/libepoxy-1.3.1.tar.bz2 libepoxy-1.3.1
+  generic_download_and_install https://github.com/anholt/libepoxy/releases/download/1.4.3/libepoxy-1.4.3.tar.xz libepoxy-1.4.3 # Was 1.3.1
 #  do_git_checkout https://github.com/anholt/libepoxy.git libepoxy
 #  cd libepoxy
 #    generic_configure_make_install
@@ -3809,8 +3833,8 @@ build_pngcrush() {
 }
 
 build_eigen() {
-  download_and_unpack_file http://bitbucket.org/eigen/eigen/get/3.3.3.tar.bz2 eigen-eigen-67e894c6cd8f
-  cd eigen-eigen-67e894c6cd8f
+  download_and_unpack_file http://bitbucket.org/eigen/eigen/get/3.3.4.tar.bz2 eigen-eigen-5a0156e40feb
+  cd eigen-eigen-5a0156e40feb
     mkdir -v build
     cd build ..
       export FC=${cross_prefix}gfortran
@@ -3895,6 +3919,7 @@ build_synaesthesia() {
   do_git_checkout https://github.com/dreamlayers/synaesthesia.git synaesthesia
   cd synaesthesia
     apply_patch file://${top_dir}/synaesthesia-case.patch
+    apply_patch file://${top_dir}/synaesthesia-missing-icon.patch
     export LIBS="-lmingw32 -lSDL2main"
     generic_configure_make_install "CXXFLAGS=-fpermissive --with-sdl2=yes" 
     unset LIBS
@@ -4567,7 +4592,7 @@ fi
 # TODO: CHECK THIS LIST WHEN ADDING NEW PACKAGES
 
 echo "Copying runtime libraries that have gone to the wrong build directory."
-wrong_libs=('icudt57.dll' 'icutu57.dll' 'icuin57.dll' 'icuio57.dll' 'icule57.dll' 'iculx57.dll' 'icutest57.dll' 'icuuc57.dll' 'libatomic-1.dll' 'libboost_chrono.dll' 'libboost_date_time.dll' 'libboost_filesystem.dll' 'libboost_prg_exec_monitor.dll' 'libboost_regex.dll' 'libboost_system.dll' 'libboost_locale.dll' 'libboost_thread_win32.dll' 'libboost_unit_test_framework.dll' 'libboost_timer.dll' 'libdcadec.dll' 'libgcc_s_seh-1.dll' 'libopendcp-lib.dll' 'libpthread.dll' 'libquadmath-0.dll' 'libssp-0.dll' 'libstdc++-6.dll' 'pthreadGC2.dll' 'libebur128.dll')
+wrong_libs=('icudt59.dll' 'icutu59.dll' 'icuin59.dll' 'icuio59.dll' 'icutest59.dll' 'icuuc59.dll' 'libatomic-1.dll' 'libboost_chrono.dll' 'libboost_date_time.dll' 'libboost_filesystem.dll' 'libboost_prg_exec_monitor.dll' 'libboost_regex.dll' 'libboost_system.dll' 'libboost_locale.dll' 'libboost_thread_win32.dll' 'libboost_unit_test_framework.dll' 'libboost_timer.dll' 'libdcadec.dll' 'libgcc_s_seh-1.dll' 'libopendcp-lib.dll' 'libpthread.dll' 'libquadmath-0.dll' 'libssp-0.dll' 'libstdc++-6.dll' 'pthreadGC2.dll' 'libebur128.dll')
 for move in ${wrong_libs[@]}; do
   cp -Lv "${mingw_w64_x86_64_prefix}/lib/${move}" "${mingw_w64_x86_64_prefix}/bin/${move}" || exit 1
 done
