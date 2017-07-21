@@ -1,0 +1,15 @@
+--- src/CMakeLists.txt.orig	2017-07-17 13:00:46.870563600 +0100
++++ src/CMakeLists.txt	2017-07-17 13:02:14.677874000 +0100
+@@ -24,9 +24,9 @@
+   include_directories(${CMAKE_SOURCE_DIR}/windows/third-party/zlib-1.2.11/include/)
+ endif()
+ 
+-# include(FindZLIB)
+-# include_directories(${ZLIB_INCLUDE_DIRS})
+-# MESSAGE(STATUS "ZLIB libs" ${ZLIB_LIBRARIES})
++include(FindZLIB)
++include_directories(${ZLIB_INCLUDE_DIRS})
++MESSAGE(STATUS "ZLIB libs" ${ZLIB_LIBRARIES})
+ 
+ if(NOT WIN32)
+     find_library(MATH m)

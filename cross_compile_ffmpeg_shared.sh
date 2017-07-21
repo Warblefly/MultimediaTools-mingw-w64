@@ -294,7 +294,8 @@ get_small_touchfile_name() { # have to call with assignment like a=$(get_small..
 do_configure() {
   local configure_options="$1"
   local configure_name="$2"
-  local configure_noclean="$3"
+  local configure_env="$3"
+  local configure_noclean=""
   if [[ "$configure_name" = "" ]]; then
     configure_name="./configure"
   fi
@@ -320,7 +321,7 @@ do_configure() {
       fi
     fi
     rm -f already_* # reset
-    echo "configuring $english_name ($PWD) as $ PATH=$PATH $configure_name $configure_options"
+    echo "configuring $english_name ($PWD) as $ PATH=$PATH ${configure_env} $configure_name $configure_options"
     "$configure_name" $configure_options || exit 1
     touch -- "$touch_name"
     make clean # just in case
@@ -699,7 +700,7 @@ build_qt() {
 #  orig_cpu_count=$cpu_count
 #  export cpu_count=1
   if [ ! -f qt.built ]; then
-    download_and_unpack_file http://download.qt.io/archive/qt/5.9/${QT_VERSION}/single/qt-everywhere-opensource-src-${QT_VERSION}.tar.xz "qt-everywhere-opensource-src-${QT_VERSION}"
+    download_and_unpack_file https://www.mirrorservice.org/sites/download.qt-project.org/archive/qt/5.9/5.9.1/single/qt-everywhere-opensource-src-5.9.1.tar.xz "qt-everywhere-opensource-src-${QT_VERSION}"
     cd "qt-everywhere-opensource-src-${QT_VERSION}"
 #      apply_patch file://${top_dir}/qt-permissive.patch
     apply_patch file://${top_dir}/qt5-no-mapbox-gl-native.patch
@@ -894,8 +895,9 @@ build_cunit() {
 }
 
 build_libmysofa() {
-  do_git_checkout https://github.com/hoene/libmysofa.git libmysofa
+  do_git_checkout https://github.com/hoene/libmysofa.git libmysofa "Branch_v0.4(Windows)"
   cd libmysofa
+#    apply_patch file://${top_dir}/libmysofa-zlib.patch
     cd src/tests
   #    sed -i.bak 's/CUnit\.h/Cunit\.h/' tests.c
   #    sed -i.bak 's/CUnit\.h/Cunit\.h/' tests.h
@@ -951,6 +953,7 @@ build_dcpomatic() {
 #    apply_patch file://${top_dir}/dcpomatic-src-wx-wscript.patch
     apply_patch file://${top_dir}/dcpomatic-test-wscript.patch
 #    apply_patch file://${top_dir}/dcpomatic-libsub.patch
+#    apply_patch file://${top_dir}/dcpomatic-LogColorspace.patch
      # M_PI is missing in mingw-w64
     sed -i.bak 's/M_PI/3.14159265358979323846/g' src/lib/audio_filter.cc
      # The RC file looks for wxWidgets 3.0 rc, but it's 3.1 in our build
@@ -1099,7 +1102,7 @@ build_libcdio-paranoia() {
 build_libx262() {
   do_git_checkout http://git.videolan.org/git/x262.git x262
   cd x262
-    generic_configure "--host=$host_target --enable-shared --disable-static --cross-prefix=$cross_prefix --prefix=$mingw_w64_x86_64_prefix --disable-avs --disable-swscale --disable-lavf --disable-ffms --disable-gpac"
+    generic_configure "--host=$host_target --enable-static --disable-shared --cross-prefix=$cross_prefix --prefix=$mingw_w64_x86_64_prefix --disable-avs --disable-swscale --disable-lavf --disable-ffms --disable-gpac --disable-win32thread"
     do_make
     # We ONLY need the x262.exe binary, because the version of libx264 it incorporates is not up-to-date.
     # Therefore, to use its MPEG2 video encoding capability, data must be piped to the x262.exe program
@@ -1278,7 +1281,9 @@ build_jack() {
       apply_patch file://${top_dir}/jack2-win32.patch
       export AR=x86_64-w64-mingw32-ar 
       export CC=x86_64-w64-mingw32-gcc 
-      export CXX=x86_64-w64-mingw32-g++ 
+      export CXX=x86_64-w64-mingw32-g++
+      export CXXFLAGS_ORIG=${CXXFLAGS}
+      export CXXFLAGS=-DMINGW_HAS_SECURE_API=1 
 #      export cpu_count=1
       do_configure "configure --prefix=${mingw_w64_x86_64_prefix} --platform=win32 -ppp" "./waf"
       ./waf build || exit 1
@@ -1292,7 +1297,8 @@ build_jack() {
       cp -v windows/Setup/src/64bits/JackRouter.dll ${mingw_w64_x86_64_prefix}/bin || exit 1
       cp -v windows/Setup/src/32bits/JackRouter.dll ${mingw_w64_x86_64_prefix}/bin/JackRouter32.dll || exit 1
       cp -v windows/Setup/src/64bits/JackRouter.ini ${mingw_w64_x86_64_prefix}/bin || exit 1
-      cp -v ${mingw_w64_x86_64_prefix}/bin/jack-0.dll ${mingw_w64_x86_64_prefix}/bin/libjack64.dll || exit 1
+      cp -v ${mingw_w64_x86_64_prefix}/bin/libjack-0.dll ${mingw_w64_x86_64_prefix}/bin/libjack64.dll || exit 1
+      export CXXFLAGS=${CXXFLAGS_ORIG}
 #      export cpu_count=$original_cpu_count
       # Because of what we have just done, 
       # bizarrely, jack installs ANOTHER libportaudio over the real libportaudio DLL export library
@@ -2261,7 +2267,7 @@ build_vim() {
       cp -fv gvim.exe vimrun.exe xxd/xxd.exe GvimExt/gvimext.dll GvimExt/gvimext.res "${mingw_w64_x86_64_prefix}/bin"
       # Here come the runtime files, necessary for syntax highlighting, etc.
       # On the installation host, these files must be pointed to by VIMRUNTIME
-      mkdir ${mingw_w64_x86_64_prefix}/share/vim && cp -Rv ../runtime/* ${mingw_w64_x86_64_prefix}/share/vim
+      mkdir -pv ${mingw_w64_x86_64_prefix}/share/vim && cp -Rv ../runtime/* ${mingw_w64_x86_64_prefix}/share/vim
   cd ../..
 
   do_git_checkout https://github.com/vim/vim.git vim_console
@@ -3017,6 +3023,7 @@ https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/opencl22/CL
   mkdir -p ${mingw_w64_x86_64_prefix}/include/EGL && cd ${mingw_w64_x86_64_prefix}/include/EGL
     wget --no-clobber https://raw.githubusercontent.com/google/angle/master/include/EGL/egl.h \
 https://raw.githubusercontent.com/google/angle/master/include/EGL/eglext.h \
+https://raw.githubusercontent.com/google/angle/master/include/EGL/eglext_angle.h \
 https://raw.githubusercontent.com/google/angle/master/include/EGL/eglplatform.h
   cd -
   mkdir -p ${mingw_w64_x86_64_prefix}/include/KHR && cd ${mingw_w64_x86_64_prefix}/include/KHR
@@ -4119,6 +4126,9 @@ build_ffmpeg() {
 #  apply_patch file://${top_dir}/ffmpeg-amix.patch
 # --extra-cflags=$CFLAGS, though redundant, just so that FFmpeg lists what it used in its "info" output
   apply_patch_p1 file://${top_dir}/ffmpeg-dash-demux.patch
+  apply_patch_p1 file://${top_dir}/ffmpeg-mcompand.patch
+#  apply_patch_p1 file://${top_dir}/ffmpeg-decklink-teletext-1-reverse.patch
+#  apply_patch_p1 file://${top_dir}/ffmpeg-decklink-teletext-2-reverse.patch
 
   config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --disable-doc --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-libmysofa --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libvpx --enable-libilbc --enable-libwavpack --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --enable-d3d11va --enable-nvenc --enable-libopencv --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts --extra-cflags=$CFLAGS" # other possibilities: --enable-w32threads --enable-libflite
   if [[ "$non_free" = "y" ]]; then

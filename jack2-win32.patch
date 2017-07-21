@@ -87,3 +87,14 @@
      freebob_src = [
          'linux/freebob/JackFreebobDriver.cpp'
      ]
+--- common/JackProxyDriver.cpp.orig	2017-07-17 09:35:19.466995700 +0100
++++ common/JackProxyDriver.cpp	2017-07-17 09:36:01.057817300 +0100
+@@ -24,7 +24,7 @@
+ #include "JackWaitCallbackDriver.h"
+ #include "JackProxyDriver.h"
+ 
+-#if _WIN32
++#if 0 // This is actually defined in windows/JackSystemDeps_os.h
+ inline int setenv(const char* name, const char* value, int) {
+     static const char* const kFakeZero = "0";
+     if (*value == '\0')
