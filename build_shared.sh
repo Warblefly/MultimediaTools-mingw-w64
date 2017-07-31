@@ -459,14 +459,17 @@ File /nonfatal /r "./bin/share/*.*"
 setOutPath "$INSTDIR\bin\jack"
 File /nonfatal /r "./bin/jack/*.*"
 
+setOutPath "$INSTDIR\lib"
+File /nonfatal /r "./lib/*.dll"
+
 setOutPath "$INSTDIR\lib\frei0r-1"
 File /nonfatal /r "./lib/frei0r-1/*.*"
 
-setOutPath "$INSTDIR\lib\gdk-pixbuf-2.0\2.10.0\loaders"
-File /nonfatal /r "./lib/gdk-pixbuf-2.0/2.10.0/loaders/*.dll"
+#setOutPath "$INSTDIR\lib\gdk-pixbuf-2.0\2.10.0\loaders"
+#File /nonfatal /r "./lib/gdk-pixbuf-2.0/2.10.0/loaders/*.dll"
 
-setOutPath "$INSTDIR\lib\gtk-3.0\3.0.0\immodules"
-File /nonfatal /r "./lib/gtk-3.0\3.0.0\immodules\*.dll"
+#setOutPath "$INSTDIR\lib\gtk-3.0\3.0.0\immodules"
+#File /nonfatal /r "./lib/gtk-3.0\3.0.0\immodules\*.dll"
 
 setOutPath "$INSTDIR\lib\gpac"
 File /nonfatal /r "./lib/gpac/*.*"
@@ -494,6 +497,7 @@ ${EnvVarUpdate} $0 TESSDATA_PREFIX "A" "HKCU" "$INSTDIR\share\"
 ${EnvVarUpdate} $0 TERMINFO "A" "HKCU" "$INSTDIR\share\terminfo"
 ${EnvVarUpdate} $0 VIMRUNTIME "A" "HKCU" "$INSTDIR\share\vim"
 ${EnvVarUpdate} $0 GDK_PIXBUF_MODULE_FILE "A" "HKCU" "$INSTDIR\lib\gdk-pixbuf-2.0\2.10.0\loaders.cache"
+${EnvVarUpdate} $0 VLC_PLUGIN_PATH "A" "HKCU" "$INSTDIR\lib\vlc"
 
 ; Set up the GTK loader cache
 

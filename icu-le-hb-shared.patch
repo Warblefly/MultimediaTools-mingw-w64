@@ -1,0 +1,11 @@
+--- src/Makefile.am.orig	2017-07-30 22:08:45.757877800 +0100
++++ src/Makefile.am	2017-07-30 22:08:56.853198100 +0100
+@@ -17,7 +17,7 @@
+ 
+ lib_LTLIBRARIES = libicu-le-hb.la
+ 
+-libicu_le_hb_la_LDFLAGS =
++libicu_le_hb_la_LDFLAGS = -no-undefined
+ libicu_le_hb_la_CPPFLAGS = \
+ 	$(HARFBUZZ_CFLAGS) \
+ 	$(ICU_CFLAGS) \

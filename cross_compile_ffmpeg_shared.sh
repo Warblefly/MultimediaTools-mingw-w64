@@ -38,7 +38,7 @@ yes_no_sel () {
 }
 
 check_missing_packages () {
-  local check_packages=('sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint' 'pxz' 'wget' 'zip' 'xmlto' 'gtkdocize' 'python-config' 'ant' 'sdl-config' 'sdl2-config' 'gyp' 'mm-common-prepare' 'sassc' 'nasm')
+  local check_packages=('sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint' 'pxz' 'wget' 'zip' 'xmlto' 'gtkdocize' 'python-config' 'ant' 'sdl-config' 'sdl2-config' 'gyp' 'mm-common-prepare' 'sassc' 'nasm' 'ragel')
   for package in "${check_packages[@]}"; do
     type -P "$package" >/dev/null || missing_packages=("$package" "${missing_packages[@]}")
   done
@@ -946,7 +946,7 @@ build_opendcp() {
 }
 
 build_dcpomatic() {
-  do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic
+  do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic a1f9c20f7f1cb7811504bf092360dee92de93b0a
 #  download_and_unpack_file https://dcpomatic.com/downloads/2.11.3/dcpomatic-2.11.3.tar.bz2 dcpomatic-2.11.3
   cd dcpomatic
     apply_patch file://${top_dir}/dcpomatic-wscript.patch
@@ -1640,11 +1640,12 @@ build_icu() {
     cd ../..
     export PATH=$holding_path
     download_and_unpack_file http://download.icu-project.org/files/icu4c/59.1/icu4c-59_1-src.tgz icu
-    cd icu
+    mv icu icu_plain
+    cd icu_plain
       # ICU 58.2 uses a pair of locale-related functiont that don't occur in mingw yet
       apply_patch file://${top_dir}/icu-59.patch
     cd ..
-    cd icu/source
+    cd icu_plain/source
       export CFLAGS_ORIG=${CFLAGS}
       export CXXFLAGS_ORIG=${CXXFLAGS}
       export CFLAGS="-fpermissive -DWINVER=0x0A00 -DMINGW_HAS_SECURE_API=1"
@@ -1657,8 +1658,72 @@ build_icu() {
   else
     echo "ICU is already built."
   fi
-}
+  # The ICU libraries are made without the prefix 'lib'. Also, the version is missing from the link library. Let's correct that.
+  cp -v ${mingw_w64_x86_64_prefix}/lib/icudt.dll ${mingw_w64_x86_64_prefix}/lib/libicudt.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/icudt59.dll ${mingw_w64_x86_64_prefix}/lib/libicudt59.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/icuin.dll ${mingw_w64_x86_64_prefix}/lib/libicuin.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/icuin59.dll ${mingw_w64_x86_64_prefix}/lib/libicuin59.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/icuio.dll ${mingw_w64_x86_64_prefix}/lib/libicuio.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/icuio59.dll ${mingw_w64_x86_64_prefix}/lib/libicuio59.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/icutest.dll ${mingw_w64_x86_64_prefix}/lib/libicutest.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/icutest59.dll ${mingw_w64_x86_64_prefix}/lib/libicutest59.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/icutu.dll ${mingw_w64_x86_64_prefix}/lib/libicutu.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/icutu59.dll ${mingw_w64_x86_64_prefix}/lib/libicutu59.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/icuuc.dll ${mingw_w64_x86_64_prefix}/lib/libicuuc.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/icuuc59.dll ${mingw_w64_x86_64_prefix}/lib/libicuuc59.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libicudt.dll.a ${mingw_w64_x86_64_prefix}/lib/libicudt59.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuin.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuin59.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuio.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuio59.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libicutest.dll.a ${mingw_w64_x86_64_prefix}/lib/libicutest59.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libicutu.dll.a ${mingw_w64_x86_64_prefix}/lib/libicutu59.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuuc.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuuc59.dll.a  
+} 
      
+build_icu_with_iculehb() {
+  # Native ICU has already been built
+  if [ ! -f icu-hb.built ]; then
+    download_and_unpack_file http://download.icu-project.org/files/icu4c/59.1/icu4c-59_1-src.tgz icu
+    cd icu
+      # ICU 58.2 uses a pair of locale-related functiont that don't occur in mingw yet
+      apply_patch file://${top_dir}/icu-59.patch
+    cd ..
+    cd icu/source
+      export CFLAGS_ORIG=${CFLAGS}
+      export CXXFLAGS_ORIG=${CXXFLAGS}
+      export CFLAGS="-fpermissive -DWINVER=0x0A00 -DMINGW_HAS_SECURE_API=1"
+      export CXXFLAGS="-fpermissive -DWINVER=0x0A00 -DMINGW_HAS_SECURE_API=1"
+      generic_configure_make_install "--enable-extras --enable-icuio --enable-layoutex --host=x86_64-w64-mingw32 --with-cross-build=${top_dir}/sandbox/x86_64/icu_native/source"
+      export CFLAGS=${CFLAGS_ORIG}
+      export CXXFLAGS=${CXXFLAGS_ORIG}
+    cd ../..
+    touch icu-hb.built
+  else
+    echo "ICU with Harfbuzz is already built."
+  fi
+    # The ICU libraries are made without the prefix 'lib'. Also, the version is missing from the link library. Let's correct that.
+  cp -v ${mingw_w64_x86_64_prefix}/lib/icudt.dll ${mingw_w64_x86_64_prefix}/lib/libicudt.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/icudt59.dll ${mingw_w64_x86_64_prefix}/lib/libicudt59.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/icuin.dll ${mingw_w64_x86_64_prefix}/lib/libicuin.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/icuin59.dll ${mingw_w64_x86_64_prefix}/lib/libicuin59.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/icuio.dll ${mingw_w64_x86_64_prefix}/lib/libicuio.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/icuio59.dll ${mingw_w64_x86_64_prefix}/lib/libicuio59.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/icutest.dll ${mingw_w64_x86_64_prefix}/lib/libicutest.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/icutest59.dll ${mingw_w64_x86_64_prefix}/lib/libicutest59.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/icutu.dll ${mingw_w64_x86_64_prefix}/lib/libicutu.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/icutu59.dll ${mingw_w64_x86_64_prefix}/lib/libicutu59.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/icuuc.dll ${mingw_w64_x86_64_prefix}/lib/libicuuc.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/icuuc59.dll ${mingw_w64_x86_64_prefix}/lib/libicuuc59.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libicudt.dll.a ${mingw_w64_x86_64_prefix}/lib/libicudt59.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuin.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuin59.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuio.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuio59.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libicutest.dll.a ${mingw_w64_x86_64_prefix}/lib/libicutest59.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libicutu.dll.a ${mingw_w64_x86_64_prefix}/lib/libicutu59.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuuc.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuuc59.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/iculx.dll ${mingw_w64_x86_64_prefix}/lib/libiculx.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/iculx59.dll ${mingw_w64_x86_64_prefix}/lib/libiculx59.dll
+}
+
+
 
 build_libunistring() {
   generic_download_and_install http://ftp.gnu.org/gnu/libunistring/libunistring-0.9.7.tar.xz libunistring-0.9.7
@@ -1839,7 +1904,7 @@ build_libssh() {
   mkdir libssh_build
   cd libssh
 #    apply_patch file://${top_dir}/libssh-win32.patch
-    apply_patch file://${top_dir}/libssh-ctx-fix.patch
+#    apply_patch file://${top_dir}/libssh-ctx-fix.patch
   cd ..
   cd libssh_build
     local touch_name=$(get_small_touchfile_name already_ran_cmake "$extra_args")
@@ -3933,6 +3998,21 @@ build_synaesthesia() {
   cd ..
 }
 
+build_harfbuzz() {
+  do_git_checkout https://github.com/behdad/harfbuzz.git harfbuzz
+  cd harfbuzz
+    generic_configure_make_install
+  cd ..
+}
+
+build_iculehb() {
+  do_git_checkout https://github.com/behdad/icu-le-hb.git icu-le-hb
+  cd icu-le-hb
+    apply_patch file://${top_dir}/icu-le-hb-shared.patch
+    generic_configure_make_install
+  cd ..
+}
+
 build_rtaudio() {
   do_git_checkout https://github.com/thestk/rtaudio.git rtaudio
   cd rtaudio
@@ -4226,7 +4306,7 @@ build_dependencies() {
   build_libopus
   build_libopencore
   build_libogg
-  build_icu
+#  build_icu
   build_boost # needed for mkv tools
   build_libspeexdsp # Speex now split into two libraries
   build_libspeex # needs libogg for exe's
@@ -4356,6 +4436,10 @@ build_dependencies() {
   build_cairomm
   build_pango
   build_pangomm
+  build_icu
+  build_harfbuzz
+  build_iculehb
+  build_icu_with_iculehb
   # build_lash
   build_tesseract
   if [[ "$non_free" = "y" ]]; then
@@ -4602,10 +4686,11 @@ fi
 # TODO: CHECK THIS LIST WHEN ADDING NEW PACKAGES
 
 echo "Copying runtime libraries that have gone to the wrong build directory."
-wrong_libs=('icudt59.dll' 'icutu59.dll' 'icuin59.dll' 'icuio59.dll' 'icutest59.dll' 'icuuc59.dll' 'libatomic-1.dll' 'libboost_chrono.dll' 'libboost_date_time.dll' 'libboost_filesystem.dll' 'libboost_prg_exec_monitor.dll' 'libboost_regex.dll' 'libboost_system.dll' 'libboost_locale.dll' 'libboost_thread_win32.dll' 'libboost_unit_test_framework.dll' 'libboost_timer.dll' 'libdcadec.dll' 'libgcc_s_seh-1.dll' 'libopendcp-lib.dll' 'libpthread.dll' 'libquadmath-0.dll' 'libssp-0.dll' 'libstdc++-6.dll' 'pthreadGC2.dll' 'libebur128.dll')
-for move in ${wrong_libs[@]}; do
-  cp -Lv "${mingw_w64_x86_64_prefix}/lib/${move}" "${mingw_w64_x86_64_prefix}/bin/${move}" || exit 1
-done
+#wrong_libs=('iculx59.dll' 'icudt59.dll' 'icutu59.dll' 'icuin59.dll' 'icuio59.dll' 'icutest59.dll' 'icuuc59.dll' 'libatomic-1.dll' 'libboost_chrono.dll' 'libboost_date_time.dll' 'libboost_filesystem.dll' 'libboost_prg_exec_monitor.dll' 'libboost_regex.dll' 'libboost_system.dll' 'libboost_locale.dll' 'libboost_thread_win32.dll' 'libboost_unit_test_framework.dll' 'libboost_timer.dll' 'libdcadec.dll' 'libgcc_s_seh-1.dll' 'libopendcp-lib.dll' 'libpthread.dll' 'libquadmath-0.dll' 'libssp-0.dll' 'libstdc++-6.dll' 'pthreadGC2.dll' 'libebur128.dll')
+#for move in ${wrong_libs[@]}; do
+#  cp -Lv "${mingw_w64_x86_64_prefix}/lib/${move}" "${mingw_w64_x86_64_prefix}/bin/${move}" || exit 1
+  cp -Lv ${mingw_w64_x86_64_prefix}/lib/*dll ${mingw_w64_x86_64_prefix}/bin/ || exit 1
+#done
 # Also copy WxWidgets
 cp -v ${mingw_w64_x86_64_prefix}/lib/wx*dll ${mingw_w64_x86_64_prefix}/bin/ || exit 1
 echo "Runtime libraries in wrong directory now copied."
@@ -4645,15 +4730,17 @@ echo "Stripping all binaries..."
 
 ${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/bin/*.exe
 ${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/bin/*.dll
-${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/plugins/bearer/*.dll
-${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/plugins/generic/*.dll
-${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/plugins/iconengines/*.dll
-${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/plugins/imageformats/*.dll
-${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/plugins/platforms/*.dll
-${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/plugins/printsupport/*.dll
-${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/plugins/sqldrivers/*.dll
-${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/lib/frei0r-1/*.dll
-${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/lib/gdk-pixbuf-2.0/2.10.0/loaders/*.dll
+${cross_prefix}strip  -p -s -v `find ${mingw_w64_x86_64_prefix}/../lib -name "*dll"`
+${cross_prefix}strip  -p -s -v `find ${mingw_w64_x86_64_prefix}/plugins -name "*dll"`
+#${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/plugins/bearer/*.dll
+#${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/plugins/generic/*.dll
+#${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/plugins/iconengines/*.dll
+#${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/plugins/imageformats/*.dll
+#${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/plugins/platforms/*.dll
+#${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/plugins/printsupport/*.dll
+#${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/plugins/sqldrivers/*.dll
+#${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/lib/frei0r-1/*.dll
+#${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/lib/gdk-pixbuf-2.0/2.10.0/loaders/*.dll
 echo "Binaries are stripped. Debugging versions of FFmpeg programs ending _g"
 echo "are in build directory."
 #echo "searching for some local exes..."
