@@ -2825,13 +2825,13 @@ build_fdkaac-commandline() {
 }
 
 build_poppler() {
-  do_git_checkout git://git.freedesktop.org/git/poppler/poppler poppler # 4d799cdf9b9039b003de7d3baf05d858bc507a5a
+  do_git_checkout git://git.freedesktop.org/git/poppler/poppler poppler poppler-0.57
   cd poppler
     sed -i.bak 's!string\.h!sec_api/string_s.h!' test/perf-test.cc
     sed -i.bak 's/noinst_PROGRAMS += perf-test/noinst_PROGRAMS += /' test/Makefile.am
     # Allow installation of QT5 PDF viewer
     sed -i.bak 's/noinst_PROGRAMS = poppler_qt5viewer/bin_PROGRAMS = poppler_qt5viewer/' qt5/demos/Makefile.am
-    generic_configure_make_install "CFLAGS=-DMINGW_HAS_SECURE_API CXXFLAGS=-fpermissive LIBOPENJPEG_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/openjpeg-1.5/ --enable-xpdf-headers --enable-cmyk --enable-libtiff --enable-libjpeg --enable-libopenjpeg=openjpeg1" # "--enable-libcurl"
+    generic_configure_make_install "CFLAGS=-DMINGW_HAS_SECURE_API CXXFLAGS=-fpermissive --enable-xpdf-headers --enable-cmyk --enable-libtiff --enable-libopenjpeg=openjpeg2 --enable-zlib-uncompress --enable-libcurl"
   cd ..
 }
 
@@ -2949,10 +2949,11 @@ build_gtk() {
 build_snappy () {
   do_git_checkout https://github.com/google/snappy.git snappy
   cd snappy
-    apply_patch file://${top_dir}/snappy-shared-dll.patch
+    # apply_patch file://${top_dir}/snappy-shared-dll.patch
     cp README.md README
     # Distribution got its documentation wrong
-    generic_configure_make_install
+    do_cmake "-DBUILD_SHARED_LIBS=ON -DSNAPPY_BUILD_TESTS=OFF"
+    do_make_install
   cd ..
 }
 
@@ -3691,7 +3692,11 @@ build_vlc() {
   # Not built. VLC requires many static libraries, and that's not really my remit just now.
   do_git_checkout https://github.com/videolan/vlc.git vlc
   cd vlc
-    generic_configure_make_install "--disable-silent-rules JACK_LIBS=-ljack JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib"
+    unset CFLAGS
+    unset CXXFLAGS
+    apply_patch file://${top_dir}/vlc-qt5.patch
+    apply_patch file://${top_dir}/vlc-more-static.patch
+    generic_configure_make_install "--enable-qt --disable-ncurses --disable-dbus --disable-sdl --disable-telx --disable-silent-rules JACK_LIBS=-ljack JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib"
   cd ..
 }
 
@@ -3930,6 +3935,7 @@ build_movit() {
   do_git_checkout https://git.sesse.net/movit movit
   cd movit
     apply_patch file://${top_dir}/movit-ffs.patch
+    apply_patch file://${top_dir}/movit-fp64.patch # Introduced on 1st August 2017
     export GTEST_DIR=../googletest/googletest
     generic_configure_make_install "CFLAGS=-fpermissive CXXFLAGS=-fpermissive"
     unset GTEST_DIR
@@ -4544,7 +4550,7 @@ build_apps() {
   build_synaesthesia
   # Because loudness scanner installs its own out-of-date libebur128, we must re-install our own.
 #  build_dvdstyler
-#  build_vlc # REquires many static libraries, for good reason: but not my remit just now
+  build_vlc
 }
 
 # set some parameters initial values

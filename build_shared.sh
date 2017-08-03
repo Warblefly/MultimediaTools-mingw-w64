@@ -462,6 +462,9 @@ File /nonfatal /r "./bin/jack/*.*"
 setOutPath "$INSTDIR\lib"
 File /nonfatal /r "./lib/*.dll"
 
+setOutPath "$INSTDIR\lib"
+File /nonfatal /r "./lib/*.luac"
+
 setOutPath "$INSTDIR\lib\frei0r-1"
 File /nonfatal /r "./lib/frei0r-1/*.*"
 
