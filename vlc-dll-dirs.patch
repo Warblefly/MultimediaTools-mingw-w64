@@ -1,0 +1,22 @@
+--- src/win32/specific.c.orig	2017-08-03 23:49:07.744548100 +0100
++++ src/win32/specific.c	2017-08-03 23:49:38.478822700 +0100
+@@ -68,7 +68,7 @@
+     if (GetProcAddress(GetModuleHandle(TEXT("kernel32.dll")),
+                                        "SetDefaultDllDirectories") != NULL)
+ # endif /* FIXME: not reentrant */
+-        LoadLibraryFlags = LOAD_LIBRARY_SEARCH_SYSTEM32;
++        LoadLibraryFlags = LOAD_LIBRARY_SEARCH_DEFAULT_DIRS;
+ #endif
+ }
+ 
+--- bin/winvlc.c.orig	2017-08-03 23:50:29.070393600 +0100
++++ bin/winvlc.c	2017-08-03 23:51:09.427915300 +0100
+@@ -156,7 +156,7 @@
+      * The LoadLibrary* calls from the modules and the 3rd party code
+      * will search in SYSTEM32 only
+      * */
+-    SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32);
++    SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
+     /***
+      * Load DLLs from system32 before any other folder (when possible)
+      */

@@ -3694,8 +3694,10 @@ build_vlc() {
   cd vlc
     unset CFLAGS
     unset CXXFLAGS
+    export LIBS="-lwinmm"
     apply_patch file://${top_dir}/vlc-qt5.patch
     apply_patch file://${top_dir}/vlc-more-static.patch
+    apply_patch file://${top_dir}/vlc-dll-dirs.patch
     generic_configure_make_install "--enable-qt --disable-ncurses --disable-dbus --disable-sdl --disable-telx --disable-silent-rules JACK_LIBS=-ljack JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib"
   cd ..
 }
