@@ -3482,6 +3482,16 @@ build_lzo() {
   generic_download_and_install http://www.oberhumer.com/opensource/lzo/download/lzo-2.10.tar.gz lzo-2.10
 }
 
+build_lz4() {
+  do_git_checkout https://github.com/lz4/lz4.git lz4
+  cd lz4
+    cd contrib/cmake_unofficial
+      do_cmake
+      do_make_install
+    cd ../..
+  cd ..
+}
+
 build_libcdio() {
 #  download_and_unpack_file file://${top_dir}/libcdio-4b5eda30.tar.gz libcdio-cdtext-testing-4b5eda3
   do_git_checkout git://git.sv.gnu.org/libcdio.git libcdio #  cd libcdio
@@ -4316,6 +4326,7 @@ build_dependencies() {
   build_bzlib2 # in case someone wants it [ffmpeg uses it]
   build_xz
   build_lzo
+  build_lz4
   build_taglib # Used by loudness-scanner among others
   build_snappy # For certain types of very fast video compression
   build_libpng # for openjpeg, needs zlib
