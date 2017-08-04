@@ -38,7 +38,7 @@ yes_no_sel () {
 }
 
 check_missing_packages () {
-  local check_packages=('sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint' 'pxz' 'wget' 'zip' 'xmlto' 'gtkdocize' 'python-config' 'ant' 'sdl-config' 'sdl2-config' 'gyp' 'mm-common-prepare' 'sassc' 'nasm' 'ragel' 'gengetopt')
+  local check_packages=('sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint' 'pxz' 'wget' 'zip' 'xmlto' 'gtkdocize' 'python-config' 'ant' 'sdl-config' 'sdl2-config' 'gyp' 'mm-common-prepare' 'sassc' 'nasm' 'ragel' 'gengetopt' 'asn1Parser')
   for package in "${check_packages[@]}"; do
     type -P "$package" >/dev/null || missing_packages=("$package" "${missing_packages[@]}")
   done
@@ -2582,6 +2582,26 @@ build_libiberty() {
   cd ..
 }
 
+build_live555() {
+  download_and_unpack_file http://www.live555.com/liveMedia/public/live555-latest.tar.gz live
+  cd live
+    export CC=x86_64-w64-mingw32-gcc
+    export LD=x86_64-w64-mingw32-ld
+    export AR=x86_64-w64-mingw32-ar
+    export CXX=x86_64-w64-mingw32-g++
+    ./genMakefiles mingw
+    do_make
+    x86_64-w64-mingw32-gcc -shared -o livemedia.dll -Wl,--out-implib,liblivemedia.dll.a -Wl,--whole-archive liveMedia/libliveMedia.a UsageEnvironment/libUsageEnvironment.a BasicUsageEnvironment/libBasicUsageEnvironment.a groupsock/libgroupsock.a -Wl,--no-whole-archive -lstdc++ -lws2_32
+    cp -v livemedia.dll ${mingw_w64_x86_64_prefix}/bin
+    cp -v liblivemedia.dll.a ${mingw_w64_x86_64_prefix}/lib
+    install -v -D -t ${mingw_w64_x86_64_prefix}/include/liveMedia liveMedia/include/*.hh
+    install -v -D -t ${mingw_w64_x86_64_prefix}/include/UsageEnvironment UsageEnvironment/include/*.hh
+    install -v -D -t ${mingw_w64_x86_64_prefix}/include/BasicUsageEnvironment BasicUsageEnvironment/include/*.hh
+    install -v -D -t ${mingw_w64_x86_64_prefix}/include/groupsock groupsock/include/*.hh
+  cd ..
+
+}
+
 build_exiv2() {
   do_svn_checkout svn://dev.exiv2.org/svn/trunk exiv2
   cd exiv2
@@ -2978,7 +2998,8 @@ build_libchromaprint() {
 build_libarchive() {
   do_git_checkout https://github.com/libarchive/libarchive.git libarchive
   cd libarchive
-    do_cmake "-DENABLE_LZO=ON -DENABLE_TAR_SHARED=ON -DENABLE_CPIO_SHARED=ON -DENABLE_CAT_SHARED=ON"
+    cp ${top_dir}/ZlibResult.cmake .
+    do_cmake "-DENABLE_LZO=ON -DENABLE_TAR_SHARED=ON -DENABLE_CPIO_SHARED=ON -DENABLE_CAT_SHARED=ON -CZlibResult.cmake"
     do_make_install
   cd ..
 }
@@ -3482,6 +3503,13 @@ build_lzo() {
   generic_download_and_install http://www.oberhumer.com/opensource/lzo/download/lzo-2.10.tar.gz lzo-2.10
 }
 
+build_dvbpsi() {
+  do_git_checkout http://git.videolan.org/git/libdvbpsi.git libdvbpsi
+  cd libdvbpsi
+    generic_configure_make_install
+  cd ..
+}
+
 build_lz4() {
   do_git_checkout https://github.com/lz4/lz4.git lz4
   cd lz4
@@ -3489,6 +3517,21 @@ build_lz4() {
       do_cmake
       do_make_install
     cd ../..
+  cd ..
+}
+
+build_libtasn1() {
+  generic_download_and_install https://ftp.gnu.org/gnu/libtasn1/libtasn1-4.12.tar.gz libtasn1-4.12 "--disable-doc --disable-gtk-doc --disable-gtk-doc-html --disable-gtk-doc-pdf"
+#  do_git_checkout https://git.savannah.gnu.org/git/libtasn1.git libtasn1
+#  cd libtasn1
+#    generic_configure_make_install
+#  cd ..
+}
+
+build_libdsm() {
+  do_git_checkout https://github.com/videolabs/libdsm.git libdsm
+  cd libdsm
+    generic_configure_make_install
   cd ..
 }
 
@@ -3610,6 +3653,20 @@ build_locked_sstream() {
   cd ..
 }
 
+build_libebml() {
+  do_git_checkout https://github.com/Matroska-Org/libebml.git libebml
+  cd libebml
+    generic_configure_make_install
+  cd ..
+}
+
+build_libmatroska() {
+  do_git_checkout https://github.com/Matroska-Org/libmatroska.git libmatroska
+  cd libmatroska
+    generic_configure_make_install
+  cd ..
+}
+
 build_libcxml(){
   do_git_checkout https://github.com/cth103/libcxml.git libcxml
 #  download_and_unpack_file http://carlh.net/downloads/libcxml/libcxml-0.15.1.tar.bz2 libcxml-0.15.1
@@ -3720,7 +3777,8 @@ build_vlc() {
     apply_patch file://${top_dir}/vlc-qt5.patch
     apply_patch file://${top_dir}/vlc-more-static.patch
     apply_patch file://${top_dir}/vlc-dll-dirs.patch
-    generic_configure_make_install "--enable-qt --disable-ncurses --disable-dbus --disable-sdl --disable-telx --disable-silent-rules JACK_LIBS=-ljack JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib"
+    export LIVE555_CFLAGS="-I${mingw_w64_x86_64_prefix}/include/liveMedia -I${mingw_w64_x86_64_prefix}/include/UsageEnvironment -I${mingw_w64_x86_64_prefix}/include/BasicUsageEnvironment -I${mingw_w64_x86_64_prefix}/groupsock"
+    generic_configure_make_install "--enable-qt --disable-ncurses --disable-dbus --disable-sdl --disable-telx --disable-silent-rules JACK_LIBS=-ljack JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib LIVE555_LIBS=-llivemedia ASDCP_LIBS=lasdcp ASDCP_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/asdcp"
   cd ..
 }
 
@@ -4432,6 +4490,7 @@ build_dependencies() {
   build_libchromaprint
   build_libsndfile
   # build_libnvenc
+  build_live555
   build_googletest
   build_glib
   build_libsigc++
@@ -4500,6 +4559,11 @@ build_dependencies() {
   build_lua
   build_ladspa # Not a real build: just copying the API header file into place
   build_librubberband # for mpv
+  build_libtasn1
+  build_libdsm
+  build_dvbpsi
+  build_libebml
+  build_libmatroska
   build_vim
   build_ilmbase
 #  build_hdf
