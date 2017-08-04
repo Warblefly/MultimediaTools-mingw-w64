@@ -1,0 +1,13 @@
+/**\defgroup win32demo Win32-Native Demo Application
+ *
+ * \section Description
+ *
+ * As of version 6.4.6, a new, Win32-native demo application was generated in order to:
+ *  - Get a fresh start, ensuring that the demo is only a "view" of the 1394Camera API.
+ *  - Ensure 64-bit compatibility "from the ground up", and
+ *  - Get away from MFC (and thus to be able to build with VC Express)
+ *
+ * The original MFC-based demo app will be included in the distribution, but this new demo app will be the default demo
+ * in the sense that the desktop and high-profile shortcuts will point to the new demo, and shortcuts to the MFC app
+ * will be marked as "legacy".
+ */

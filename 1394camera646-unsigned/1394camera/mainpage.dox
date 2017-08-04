@@ -1,0 +1,108 @@
+/*! \mainpage CMU 1394 Digital Camera Driver
+\section Introduction
+<p> The purpose of this driver set is to provide easy, direct access to
+the controls and imagery of compliant cameras on the 1394 serial bus.
+These cameras are capable of transmitting image data at up to 400 mbps*
+while also offering the ability to control myriad parameters of the
+camera from software. </p>
+<p> The work on this driver set started back in 1999, when cameras that
+comply with the 1394 Digital Camera Specification were first becoming
+commercially available.  Back then, there was a void of software support
+for these cameras, so we took it upon ourselves to write our own, then
+make it publicly available. </p>
+<p> Now, cameras that fit this specification are popping up everywhere,
+and despite the appearance of other software packages like this one, our
+driver set remains wildly popular in the research community, with
+thousands of downloads each month. </p>
+\section A Note About DV Cameras
+<p> There are many consumer (and professional) digital camcorders
+available that use the 1394 bus to transfer data to a computer but are
+not in and of themselves compliant with the 1394 Digital Camera
+Specification. These cameras, widely classified as <b>DV</b> cameras <i>will
+not work with this driver set</i>. </p>
+\section Requirements
+This driver set should work with all versions of MS Windows from 98 SE
+through XP.  Beyond that, there are no hard minimums other than a 1394
+host controller (preferably OHCI-compliant) and a camera.  However, the
+things that you can do with the data from these cameras will be limited
+by how much RAM you have and how fast your processer is, so more of both
+will be better.  I wouldn't expect useful results on anything less than
+a Pentium II 233 with 64 MB of RAM.
+\section Acknowledgements
+<p>First and foremost, we would like to recognize the original author
+of the driver set, Iwan Ulrich.  Ulrich is unfortunately no longer with
+us. Iwan and his wife Catherine were killed in a severe car accident
+during a vacation on the West Coast on July 4, 2000. As a tribute to
+Iwan, we at The Robotics Institute will continue to maintain this very
+popular driver set. </p>
+<p>The current curator of the driver set is Christopher Baker <a
+ href="mailto:cbaker+iwan1394@cs.cmu.edu">cbaker+iwan1394@cs.cmu.edu</a>.
+He was an undergraduate student in the School of Compute Science and is
+now a graduate student in the Robotics Institute.  While the work he
+does on the driver set is tangentially to his projects, the time he
+spends on development is largely his own.&nbsp; As such, he cannot
+always respond quickly to requests or provide extensive support. </p>
+<p>Other people who deserve credit: </p>
+<ul>
+  <li>David Walk for lending us a camera for several months and for his
+support in general. </li>
+  <li>Jerry Fife for lending us Sony cameras and for providing us with
+technical information </li>
+  <li>Ben Wegbreit for funding a large part of this project. </li>
+  <li>Mark Whitehorn for helping with the multiple camera support. </li>
+  <li>Ruigang Yang and Greg Welch for Windows 2000 support. </li>
+  <li>Chikayoshi Okamura for his technical support. </li>
+  <li>Larry Klementowsky for his technical advice. </li>
+  <li>Darlene Theriault for providing the original documentation for
+version 4.0. </li>
+  <li>All the grateful and patient users of the driver set who make
+this endeavor worthwhile. </li>
+</ul>
+<p> <i>* - only 80% of the 1394 bus bandwidth may be
+allocated for actual data streaming, limiting the data rate to 320 mbps.
+The remaining 20% is reserved for asynchronous transfers and general bus
+overhead.</i> </p>
+*/
+
+/** \page Manual Installation Instructions
+\section Introduction
+This page outlines the process of manually updating your cameras to use the CMU 1394 Digital Camera Driver.  These instructions should be followed if:
+<ol>
+  <li> You did not (or do not wish to) use the automatic driver update process embedded in the installer, 1394camera646.exe, or else </li>
+  <li> You are running on a 64-bit windows platform, for which automatic driver installation is not yet supported.
+</ol>
+
+\section Special Instructions for Beta driver releases on 64-bit platforms
+All 64-bit version of Windows require that kernel-mode drivers be digitally signed in order to load them into the kernel.  Beta releases of the CMU 1394 Digital Camera Driver are not signed with an official Authenticode certificate, and are instead signed with a "testing" certificate that requires you to:
+<ol>
+  <li> Install the public key for the test certificate as a "trusted root authority", and </li>
+  <li> Place your PC into "Test Mode", which requires a modification to the boot command line and a subsequent reboot of your machine. </li>
+<ol>
+
+You may feel free to do this yourself: the necessary certificate is distributed in the "Driver/cert" directory.  To simplify the process, there is a batch script in that same directory that automates the process.  To use this script:
+<ol>
+  <li> Open an elevated command prompt: "Start->All Programs->Accessories->Command Prompt" (Right-Click and select "Run as Administrator") </li>
+  <li> Change into the Driver/certs directory: "cd C:\Program Files (x86)\CMU\1394Camera\Driver\cert" </li>
+  <li> Run the 'installcerts.bat' script (note: 'removecerts.bat' will remove the certs and disable test mode) </li>
+  <li> Reboot your machine (if not already in "Test Mode" for other purposes), and proceed to the manual installation instructions below
+</ol>
+
+\section Manual Installation
+
+The short description is "use the Device Manager to update your camera(s) to the driver file provided at C:\Program Files (x86)\CMU\1394Camera\Driver".
+
+The long description is:
+<ol>
+  <li> Right-Click "My Computer" (Icon on the Desktop and/or entry on the Vista/Win7 Start Menu) and select "Manage"
+  <li> Select the "Device Manager" in the left side of the resulting computer management console
+  <li> Expand "Imaging Devices" in the right panel, and, for each camera listed there that you wish to update:
+  <ol>
+    <li> Right-click the camera icon and select "Update Driver..."
+    <li> In the resulting dialog box, select some variation of "Browse my computer for driver software"
+    <li> Point the browsing dialog at the installation directory (e.g., "C:\Program Files (x86)\CMU\1394Camera\Driver")
+    <li> Wait for the driver installation process to complete
+  </ol>
+</ol>
+
+When you are finished, you should be able to run the provided "1394 Camera Demo" application and use your camera(s)!
+*/

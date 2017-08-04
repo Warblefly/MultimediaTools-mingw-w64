@@ -1,0 +1,21 @@
+TARGETNAME=1394cmdr
+TARGETPATH=obj
+TARGETTYPE=DRIVER
+DRIVERTYPE=WDM
+
+C_DEFINES=-DDRIVER
+
+USE_MAPSYM=1
+
+SOURCES= \
+        1394cmdr.c \
+        1394cmdr.rc \
+        ioctl.c \
+        pnp.c \
+        power.c \
+	isochapi.c \
+	asyncapi.c \
+	1394api.c \
+	util.c \
+	debug.c
+

@@ -894,6 +894,14 @@ build_cunit() {
   generic_download_and_install https://downloads.sourceforge.net/project/cunit/CUnit/2.1-3/CUnit-2.1-3.tar.bz2 CUnit-2.1-3 "--disable-shared --enable-static"
 }
 
+build_libspatialaudio() {
+  do_git_checkout https://github.com/videolabs/libspatialaudio.git libspatialaudio
+  cd libspatialaudio
+    do_cmake
+    do_make_install
+  cd ..
+}
+
 build_libmysofa() {
   do_git_checkout https://github.com/hoene/libmysofa.git libmysofa "Branch_v0.4(Windows)"
   cd libmysofa
@@ -2488,6 +2496,17 @@ build_wavpack() {
   generic_download_and_install http://wavpack.com/wavpack-5.1.0.tar.bz2 wavpack-5.1.0
 }
 
+build_libmpeg2() {
+  do_git_checkout https://code.videolan.org/videolan/libmpeg2.git libmpeg2
+  cd libmpeg2
+    rm bootstrap
+    apply_patch file://${top_dir}/libmpeg2-inline.patch
+    export orig_cpu_count=$cpu_count
+    export cpu_count=1
+    generic_configure_make_install "--without-x --disable-sdl"
+    export cpu_count=$orig_cpu_count
+  cd ..
+}
 
 build_lame() {
   # generic_download_and_install http://sourceforge.net/projects/lame/files/lame/3.99/lame-3.99.5.tar.gz/download lame-3.99.5
@@ -2598,6 +2617,7 @@ build_live555() {
     install -v -D -t ${mingw_w64_x86_64_prefix}/include/UsageEnvironment UsageEnvironment/include/*.hh
     install -v -D -t ${mingw_w64_x86_64_prefix}/include/BasicUsageEnvironment BasicUsageEnvironment/include/*.hh
     install -v -D -t ${mingw_w64_x86_64_prefix}/include/groupsock groupsock/include/*.hh
+    install -v -D -t ${mingw_w64_x86_64_prefix}/include groupsock/include/*.h
   cd ..
 
 }
@@ -3080,6 +3100,7 @@ build_asdcplib() {
     rm configure
     apply_patch file://${top_dir}/asdcplib-shared.patch
     generic_configure_make_install "--with-openssl=${mingw_w64_x86_64_prefix} --with-expat=${mingw_w64_x86_64_prefix}"
+    cp -v src/dirent_win.h ${mingw_w64_x86_64_prefix}/include
   cd ..
   unset CXXFLAGS
   unset CFLAGS
@@ -3508,6 +3529,7 @@ build_dvbpsi() {
   cd libdvbpsi
     generic_configure_make_install
   cd ..
+  cp -v ${mingw_w64_x86_64_prefix}/include/dvbpsi/atsc/*h ${mingw_w64_x86_64_prefix}/include/dvbpsi
 }
 
 build_lz4() {
@@ -3533,6 +3555,9 @@ build_libdsm() {
   cd libdsm
     generic_configure_make_install
   cd ..
+  cd ${mingw_w64_x86_64_prefix}/lib/pkgconfig
+    apply_patch file://${top_dir}/libdsm-pc.patch
+  cd -
 }
 
 build_libcdio() {
@@ -3667,6 +3692,19 @@ build_libmatroska() {
   cd ..
 }
 
+build_1394camera() {
+  cp -v ${top_dir}/1394camera.dll ${mingw_w64_x86_64_prefix}/bin/1394camera.dll
+  cp -v ${top_dir}/lib1394camera.a ${mingw_w64_x86_64_prefix}/lib/lib1394camera.a
+  cp -v ${top_dir}/1394*h ${mingw_w64_x86_64_prefix}/include
+}
+
+build_libdc1394() {
+  do_git_checkout https://git.code.sf.net/p/libdc1394/code libdc1394
+  cd libdc1394/libdc1394
+    generic_configure_make_install
+  cd ../..
+}
+
 build_libcxml(){
   do_git_checkout https://github.com/cth103/libcxml.git libcxml
 #  download_and_unpack_file http://carlh.net/downloads/libcxml/libcxml-0.15.1.tar.bz2 libcxml-0.15.1
@@ -3777,8 +3815,8 @@ build_vlc() {
     apply_patch file://${top_dir}/vlc-qt5.patch
     apply_patch file://${top_dir}/vlc-more-static.patch
     apply_patch file://${top_dir}/vlc-dll-dirs.patch
-    export LIVE555_CFLAGS="-I${mingw_w64_x86_64_prefix}/include/liveMedia -I${mingw_w64_x86_64_prefix}/include/UsageEnvironment -I${mingw_w64_x86_64_prefix}/include/BasicUsageEnvironment -I${mingw_w64_x86_64_prefix}/groupsock"
-    generic_configure_make_install "--enable-qt --disable-ncurses --disable-dbus --disable-sdl --disable-telx --disable-silent-rules JACK_LIBS=-ljack JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib LIVE555_LIBS=-llivemedia ASDCP_LIBS=lasdcp ASDCP_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/asdcp"
+    export LIVE555_CFLAGS="-I${mingw_w64_x86_64_prefix}/include/liveMedia -I${mingw_w64_x86_64_prefix}/include/UsageEnvironment -I${mingw_w64_x86_64_prefix}/include/BasicUsageEnvironment -I${mingw_w64_x86_64_prefix}/include/groupsock"
+    generic_configure_make_install "--enable-qt --disable-asdcp --disable-ncurses --disable-dbus --disable-sdl --disable-telx --disable-silent-rules JACK_LIBS=-ljack JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib LIVE555_LIBS=-llivemedia ASDCP_LIBS=lasdcp ASDCP_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/asdcp"
   cd ..
 }
 
@@ -4041,7 +4079,7 @@ build_aom() {
     export LD=x86_64-w64-mingw32-ld
     export AR=x86_64-w64-mingw32-ar
     export CXX=x86_64-w64-mingw32-g++
-    do_configure "--target=x86_64-win64-gcc --prefix=${mingw_w64_x86_64_prefix} --enable-webm-io --enable-pic --enable-error-concealment --enable-multithread --enable-runtime-cpu-detect --enable-postproc --enable-av1 --enable-lowbitdepth --disable-unit-tests"
+    do_configure "--target=x86_64-win64-gcc --prefix=${mingw_w64_x86_64_prefix} --enable-webm-io --enable-pic --enable-multithread --enable-runtime-cpu-detect --enable-postproc --enable-av1 --enable-lowbitdepth --disable-unit-tests"
     do_make
     do_make_install
     export LDFLAGS=${old_LDFLAGS}
@@ -4564,6 +4602,9 @@ build_dependencies() {
   build_dvbpsi
   build_libebml
   build_libmatroska
+  build_1394camera
+  build_libdc1394
+  build_libmpeg2
   build_vim
   build_ilmbase
 #  build_hdf
@@ -4571,6 +4612,7 @@ build_dependencies() {
   build_cunit
   build_libmysofa
   build_libiberty
+  build_libspatialaudio
   build_libidn
 #  build_gobject_introspection
   build_libepoxy

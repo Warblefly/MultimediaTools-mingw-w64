@@ -1,0 +1,334 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#define APSTUDIO_HIDDEN_SYMBOLS
+#include "windows.h"
+#undef APSTUDIO_HIDDEN_SYMBOLS
+#include "ntverp.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 6,4,6,240
+ PRODUCTVERSION 6,4,6,240
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x2L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "Comments", "This is part of the CMU 1394 Digital Camera Driver.  See http://www.cs.cmu.edu/~iwan/1394 for updates and details.\0"
+            VALUE "CompanyName", "CMU Robotics Institute\0"
+            VALUE "FileDescription", "1394 Digital Camera Interface DLL\0"
+            VALUE "FileVersion", "6.04.06.0240\0"
+            VALUE "InternalName", "1394CAMERA.DLL\0"
+            VALUE "LegalCopyright", "Copyright (C) CMU 2000-2011\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "1394CAMERA.DLL\0"
+            VALUE "PrivateBuild", "\0"
+            VALUE "ProductName", "1394 Digital Camera\0"
+            VALUE "ProductVersion", "6.04.06.0240\0"
+            VALUE "SpecialBuild", "\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE MOVEABLE PURE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE MOVEABLE PURE 
+BEGIN
+    "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""windows.h""\r\n"
+    "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""ntverp.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE MOVEABLE PURE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_DEBUG DIALOG DISCARDABLE  0, 0, 186, 132
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "1394 Camera Debug Options"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,129,111,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,75,111,50,14
+    CONTROL         "Slider1",IDC_SLIDER_DLL,"msctls_trackbar32",TBS_BOTH | 
+                    TBS_NOTICKS | WS_TABSTOP,9,17,166,15
+    CONTROL         "Slider2",IDC_SLIDER_SYS,"msctls_trackbar32",TBS_BOTH | 
+                    TBS_NOTICKS | WS_TABSTOP,9,70,166,15
+    CTEXT           "Description of DLL Trace Level",IDC_DLL_DESCRIPTION,10,
+                    39,166,9,SS_CENTERIMAGE
+    CTEXT           "Description of Driver Trace Level",IDC_SYS_DESCRIPTION,
+                    10,89,166,9,SS_CENTERIMAGE
+    CONTROL         "Make Default",IDC_CHECK_DEFAULT,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,115,59,10
+    GROUPBOX        "DLL Trace Level",IDC_STATIC,7,7,172,44
+    GROUPBOX        "Driver Trace Level",IDC_STATIC,7,57,172,44
+END
+
+IDD_CONTROL_PANE DIALOG DISCARDABLE  0, 0, 92, 195
+STYLE DS_3DLOOK | DS_CONTROL | WS_CHILD | WS_CLIPSIBLINGS
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "Slider1",IDC_SLIDER1,"msctls_trackbar32",TBS_VERT | 
+                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP | 0x400,37,54,17,100
+    CTEXT           "Feedback1",IDC_SLIDER_FEEDBACK1,19,160,52,11,
+                    SS_CENTERIMAGE | SS_SUNKEN
+    CONTROL         "Slider2",IDC_SLIDER2,"msctls_trackbar32",TBS_VERT | 
+                    TBS_BOTH | TBS_NOTICKS | NOT WS_VISIBLE | WS_TABSTOP | 
+                    0x400,57,54,17,100
+    CTEXT           "Feedback2",IDC_SLIDER_FEEDBACK2,47,160,36,11,
+                    SS_CENTERIMAGE | SS_SUNKEN | NOT WS_VISIBLE
+    GROUPBOX        "Title",IDC_TITLE,4,0,84,192
+    PUSHBUTTON      "Advanced",IDC_BUT_ADVANCED,7,174,76,13,BS_CENTER | 
+                    BS_VCENTER
+    PUSHBUTTON      "On/Off",IDC_BUT_ONOFF,8,31,37,11
+    PUSHBUTTON      "One Push",IDC_BUT_ONEPUSH,8,43,37,11
+    PUSHBUTTON      "Auto/Man",IDC_BUT_AUTO_MAN,47,31,37,11
+    PUSHBUTTON      "Poll",IDC_BUT_POLL,47,43,37,11
+    CTEXT           "P",IDC_INQ_PRES,36,10,8,9,SS_SUNKEN | WS_DISABLED
+    CTEXT           "O",IDC_INQ_ONEPUSH,44,10,8,9,SS_SUNKEN | WS_DISABLED
+    CTEXT           "R",IDC_INQ_READ,52,10,8,9,SS_SUNKEN | WS_DISABLED
+    CTEXT           "o",IDC_INQ_ONOFF,60,10,8,9,SS_SUNKEN | WS_DISABLED
+    CTEXT           "A",IDC_INQ_AUTO,68,10,8,9,SS_SUNKEN | WS_DISABLED
+    CTEXT           "M",IDC_INQ_MANUAL,76,10,8,9,SS_SUNKEN | WS_DISABLED
+    CTEXT           "Inquiry",IDC_STATIC,8,10,27,9,SS_CENTERIMAGE | 
+                    SS_SUNKEN
+    CTEXT           "Status",IDC_STATIC,8,20,27,9,SS_CENTERIMAGE | SS_SUNKEN
+    CTEXT           "P",IDC_STA_PRES,36,20,8,9,SS_SUNKEN | WS_DISABLED
+    CTEXT           "O",IDC_STA_ONEPUSH,44,20,8,9,SS_SUNKEN | WS_DISABLED
+    CTEXT           "o",IDC_STA_ONOFF,60,20,8,9,SS_SUNKEN | WS_DISABLED
+    CTEXT           "A",IDC_STA_AUTO,68,20,8,9,SS_SUNKEN | WS_DISABLED
+    CTEXT           "M",IDC_STA_MANUAL,76,20,8,9,SS_SUNKEN | WS_DISABLED
+END
+
+IDD_ADVANCED_CONTROL DIALOG DISCARDABLE  0, 0, 185, 73
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Advanced Settings"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,128,52,50,14
+    CONTROL         "Use Absolute Controls",IDC_ABSCTL,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,13,17,85,10
+    GROUPBOX        "Absolute Value Control",IDC_STATIC,7,7,171,42
+    LTEXT           "Stuff",IDC_ABSMIN,13,32,74,8
+    LTEXT           "Stuff",IDC_ABSMAX,87,32,91,8
+END
+
+IDD_PARTIAL_SCAN DIALOG DISCARDABLE  0, 0, 358, 172
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Partial Scan Setup"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,191,150,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,246,150,50,14
+    PUSHBUTTON      "Apply",IDAPPLY,301,150,50,14
+    GROUPBOX        "Configuration",IDC_STATIC,7,7,180,51
+    LTEXT           "Partial Scan Mode",IDC_STATIC,14,16,59,15,
+                    SS_CENTERIMAGE
+    COMBOBOX        IDC_COMBO_MODE,80,18,100,65,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Color Format",IDC_STATIC,14,37,59,15,SS_CENTERIMAGE
+    COMBOBOX        IDC_COMBO_COLORCODE,80,39,100,78,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Size",IDC_STATIC,7,60,180,51,WS_GROUP
+    LTEXT           "Width",IDC_STATIC,14,69,26,15,SS_CENTERIMAGE
+    CONTROL         "Image Width",IDC_SLIDER_WIDTH,"msctls_trackbar32",
+                    TBS_BOTH | TBS_NOTICKS | WS_GROUP | WS_TABSTOP,47,69,100,
+                    15
+    CTEXT           "0",IDC_WIDTH_FEEDBACK,154,69,26,15,SS_CENTERIMAGE
+    LTEXT           "Height",IDC_STATIC,14,90,26,15,SS_CENTERIMAGE
+    CONTROL         "Image Height",IDC_SLIDER_HEIGHT,"msctls_trackbar32",
+                    TBS_BOTH | TBS_NOTICKS | WS_GROUP | WS_TABSTOP,47,90,100,
+                    15
+    CTEXT           "0",IDC_HEIGHT_FEEDBACK,154,90,26,15,SS_CENTERIMAGE
+    GROUPBOX        "Position",IDC_STATIC,7,113,180,51
+    LTEXT           "Left",IDC_STATIC,14,122,26,15,SS_CENTERIMAGE
+    CONTROL         "Image Left",IDC_SLIDER_LEFT,"msctls_trackbar32",
+                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,47,122,100,15
+    CTEXT           "0",IDC_LEFT_FEEDBACK,154,122,26,15,SS_CENTERIMAGE
+    LTEXT           "Top",IDC_STATIC,14,143,26,15,SS_CENTERIMAGE
+    CONTROL         "Image Top",IDC_SLIDER_TOP,"msctls_trackbar32",TBS_BOTH | 
+                    TBS_NOTICKS | WS_TABSTOP,47,143,100,15
+    CTEXT           "0",IDC_TOP_FEEDBACK,154,143,26,15,SS_CENTERIMAGE
+    GROUPBOX        "Frame Information",IDC_STATIC,192,7,159,138
+    LTEXT           "Pixels / Frame",IDC_STATIC,199,16,46,11,SS_CENTERIMAGE
+    CTEXT           "0",IDC_PIXFRAME_FEEDBACK,305,16,40,11,SS_CENTERIMAGE
+    LTEXT           "Bytes / Frame",IDC_STATIC,199,29,45,11,SS_CENTERIMAGE
+    CTEXT           "0",IDC_BYTESFRAME_FEEDBACK,305,29,40,11,SS_CENTERIMAGE
+    LTEXT           "Bytes / Packet",IDC_STATIC,199,42,48,11,SS_CENTERIMAGE
+    CONTROL         "PacketBytes",IDC_SLIDER_BYTESPACKET,"msctls_trackbar32",
+                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,254,42,44,11
+    CTEXT           "0",IDC_BYTESPACKET_FEEDBACK,305,42,40,11,SS_CENTERIMAGE
+    LTEXT           "Packets / Frame",IDC_STATIC,199,55,54,11,SS_CENTERIMAGE
+    CTEXT           "0",IDC_PACKETSFRAME_FEEDBACK,305,55,40,11,
+                    SS_CENTERIMAGE
+    LTEXT           "Error Status",IDC_STATIC,199,107,56,11,SS_CENTERIMAGE
+    CTEXT           "None",IDC_ERROR_FEEDBACK,305,106,40,11,SS_CENTERIMAGE
+    PUSHBUTTON      "Reload Values",IDREFRESH,231,125,78,14
+    LTEXT           "Data Depth (Bits)",IDC_STATIC,199,68,54,11,
+                    SS_CENTERIMAGE
+    LTEXT           "Color Filter",IDC_STATIC,199,81,54,11,SS_CENTERIMAGE
+    LTEXT           "Minimum Frame Interval (s)",IDC_STATIC,199,94,100,11,
+                    SS_CENTERIMAGE
+    CTEXT           "0",IDC_DATADEPTH_FEEDBACK,305,68,40,11,SS_CENTERIMAGE
+    CTEXT           "0",IDC_COLORFILTER_FEEDBACK,305,81,40,11,SS_CENTERIMAGE
+    CTEXT           "0",IDC_FRAMEINTERVAL_FEEDBACK,305,94,40,11,
+                    SS_CENTERIMAGE
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO MOVEABLE PURE 
+BEGIN
+    IDD_DEBUG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 125
+    END
+
+    IDD_ADVANCED_CONTROL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 178
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 66
+    END
+
+    IDD_PARTIAL_SCAN, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 351
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 165
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_CONTROL_MENU MENU DISCARDABLE 
+BEGIN
+    POPUP "&Controls"
+    BEGIN
+        MENUITEM "&Poll All\tCtrl+P",           ID_CONTROL_POLLALL
+        MENUITEM "&Close\tCtrl+W",              ID_FILE_CLOSE
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "&All Controls",               ID_VIEW_ALLCONTROLS
+        MENUITEM "Strictly &Present",           ID_VIEW_STRICT_PRESENT
+        MENUITEM "L&oosely Present",            ID_VIEW_LOOSE_PRESENT
+        MENUITEM SEPARATOR
+        MENUITEM "&Load Default View",          ID_FILE_LOADDEFAULTVIEW
+        MENUITEM "&Save Default View",          ID_FILE_SAVEDEFAULTVIEW
+        MENUITEM SEPARATOR
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_ICON1               ICON    DISCARDABLE     "res\\1394CameraDemo.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_CONTROL_ACCEL ACCELERATORS DISCARDABLE 
+BEGIN
+    "P",            ID_CONTROL_POLLALL,     VIRTKEY, CONTROL, NOINVERT
+    "W",            ID_FILE_CLOSE,          VIRTKEY, CONTROL, NOINVERT
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

@@ -1,0 +1,573 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// 24
+//
+
+1                       24      MOVEABLE PURE   "1394CameraDemo.exe.manifest"
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""res\\1394CameraDemo.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON    DISCARDABLE     "res\\1394CameraDemo.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MAINFRAME MENU PRELOAD DISCARDABLE 
+BEGIN
+    POPUP "&Camera"
+    BEGIN
+        MENUITEM "Check &Link",                 ID_1394_CHECK_LINK
+        POPUP "&Select Camera"
+        BEGIN
+            MENUITEM "Camera #1",                   ID_1394_CAMERA1
+            MENUITEM "Camera #2",                   ID_1394_CAMERA2
+            MENUITEM "Camera #3",                   ID_1394_CAMERA3
+            MENUITEM "Camera #4",                   ID_1394_CAMERA4
+            MENUITEM "Camera #5",                   ID_1394_CAMERA5
+            MENUITEM "Camera #6",                   ID_1394_CAMERA6
+            MENUITEM "Camera #7",                   ID_1394_CAMERA7
+            MENUITEM "Camera #8",                   ID_1394_CAMERA8
+            MENUITEM "Camera #9",                   ID_1394_CAMERA9
+        END
+        MENUITEM "&Init Camera",                ID_1394_INIT_CAMERA
+        MENUITEM "1394&b Support",              ID_1394_B_SUPPORT
+        MENUITEM SEPARATOR
+        MENUITEM "Camera Mo&del",               ID_1394_CAMERA_MODEL
+        MENUITEM "&Maximum Speed",              ID_1394_MAXIMUM_SPEED
+        MENUITEM SEPARATOR
+        POPUP "Stream Control"
+        BEGIN
+            MENUITEM "S&ubscribe Only",             ID_CAMERA_STREAM_SUBSCRIBE
+
+            MENUITEM "&Dual Packet Support",        ID_CAMERA_STREAM_DUAL_PACKET
+
+            MENUITEM SEPARATOR
+            MENUITEM "&Continuous",                 ID_CAMERA_STREAM_CONTINUOUS
+            , CHECKED
+            MENUITEM "&One Shot\tCtrl+O",           ID_CAMERA_STREAM_ONESHOT
+            MENUITEM "&Multi Shot...\tCtrl+M",      ID_CAMERA_STREAM_MULTISHOT
+
+        END
+        MENUITEM "Sho&w Camera",                ID_1394_SHOW_CAMERA
+        MENUITEM "Sto&p Camera",                ID_1394_STOP_CAMERA
+        MENUITEM SEPARATOR
+        MENUITEM "Po&wer Control",              ID_1394_POWER
+        MENUITEM "&Control Dialog...",          ID_1394_CONTROL
+        POPUP "External &Trigger"
+        BEGIN
+            MENUITEM "Active",                      ID_1394_TRIGGER
+            MENUITEM "Invert Polarity",             ID_1394_TRIGGER_POLARITY
+            MENUITEM SEPARATOR
+            POPUP "Mode"
+            BEGIN
+                MENUITEM "Mode 0",                      ID_1394_TRIGGER_MODE0
+
+                MENUITEM "Mode 1",                      ID_1394_TRIGGER_MODE1
+
+                MENUITEM "Mode 2",                      ID_1394_TRIGGER_MODE2
+
+                MENUITEM "Mode 3",                      ID_1394_TRIGGER_MODE3
+
+                MENUITEM "Mode 4",                      ID_1394_TRIGGER_MODE4
+
+                MENUITEM "Mode 5",                      ID_1394_TRIGGER_MODE5
+
+                MENUITEM SEPARATOR
+                MENUITEM "Mode 14",                     ID_1394_TRIGGER_MODE45
+
+                MENUITEM "Mode 15",                     ID_1394_TRIGGER_MODE15
+
+            END
+            POPUP "Input"
+            BEGIN
+                MENUITEM "Input 0",                     ID_1394_TRIGGER_INPUT0
+
+                MENUITEM "Input 1",                     ID_1394_TRIGGER_INPUT1
+
+                MENUITEM "Input 2",                     ID_1394_TRIGGER_INPUT2
+
+                MENUITEM "Input 3",                     ID_1394_TRIGGER_INPUT3
+
+                MENUITEM "SW Input",                    ID_1394_TRIGGER_INPUT7
+
+            END
+            MENUITEM "Parameter...",                ID_1394_TRIGGER_PARAM
+            MENUITEM "Do SW Trigger",               ID_1394_TRIGGER_SWTRIGGER
+
+        END
+        POPUP "Optional Features"
+        BEGIN
+            MENUITEM "Parallel I/O...",             ID_1394_OPTIONAL_PIO
+            MENUITEM "Serial I/O...",               ID_1394_OPTIONAL_SIO
+            MENUITEM "Strobe I/O...",               ID_1394_OPTIONAL_STROBE
+            MENUITEM "Vendor Unique...",            ID_1394_OPTIONAL_VENDOR
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       ID_APP_EXIT
+    END
+    POPUP "&Mode"
+    BEGIN
+        MENUITEM "160x120 YUV(4:4:4)",          ID_1394_160X120YUV444
+        MENUITEM "320x240 YUV(4:2:2)",          ID_1394_320X240YUV422
+        MENUITEM "640x480 YUV(4:1:1)",          ID_1394_640X480YUV411
+        MENUITEM "640x480 YUV(4:2:2)",          ID_1394_640X480YUV422
+        MENUITEM "640x480 RGB",                 ID_1394_640X480RGB
+        MENUITEM "640x480 Mono (8-bit)",        ID_1394_640X480MONO
+        MENUITEM "640x480 Mono (16-bit)",       ID_1394_640X480MONO16
+        MENUITEM SEPARATOR
+        MENUITEM "800x600 YUV(4:2:2)",          ID_1394_800X600YUV422
+        MENUITEM "800x600 RGB",                 ID_1394_800X600RGB
+        MENUITEM "800x600 Mono (8-bit)",        ID_1394_800X600MONO
+        MENUITEM "800x600 Mono (16-bit)",       ID_1394_800X600MONO16
+        MENUITEM "1024x768 YUV(4:2:2)",         ID_1394_1024X768YUV422
+        MENUITEM "1024x768 RGB",                ID_1394_1024X768RGB
+        MENUITEM "1024x768 Mono (8-bit)",       ID_1394_1024X768MONO
+        MENUITEM "1024x768 Mono (16-bit)",      ID_1394_1024X768MONO16
+        MENUITEM SEPARATOR
+        MENUITEM "1280x960 YUV(4:2:2)",         ID_1394_1280X960YUV422
+        MENUITEM "1280x960 RGB",                ID_1394_1280X960RGB
+        MENUITEM "1280x960 Mono (8-bit)",       ID_1394_1280X960MONO
+        MENUITEM "1280x960 Mono (16-bit)",      ID_1394_1280X960MONO16
+        MENUITEM "1600x1200 YUV(4:2:2)",        ID_1394_1600X1200YUV422
+        MENUITEM "1600x1200 RGB",               ID_1394_1600X1200RGB
+        MENUITEM "1600x1200 Mono (8-bit)",      ID_1394_1600X1200MONO
+        MENUITEM "1600x1200 Mono (16-bit)",     ID_1394_1600X1200MONO16
+        MENUITEM SEPARATOR
+        MENUITEM "&Partial Scan...",            ID_1394_PARTIALSCAN
+    END
+    POPUP "&Rate"
+    BEGIN
+        MENUITEM "1.875 fps",                   ID_1394_2FPS
+        MENUITEM "3.75 fps",                    ID_1394_4FPS
+        MENUITEM "7.5 fps",                     ID_1394_7FPS
+        MENUITEM "15 fps",                      ID_1394_15FPS
+        MENUITEM "30 fps",                      ID_1394_30FPS
+        MENUITEM "60 fps",                      ID_1394_60FPS
+        MENUITEM "120 fps",                     ID_1394_120FPS
+        MENUITEM "240 fps",                     ID_1394_240FPS
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About 1394CameraDemo...",    ID_APP_ABOUT
+        MENUITEM "Debug Settings",              ID_APP_DEBUG
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_MAINFRAME ACCELERATORS PRELOAD MOVEABLE PURE 
+BEGIN
+    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    "M",            ID_CAMERA_STREAM_MULTISHOT, VIRTKEY, CONTROL, NOINVERT
+    "O",            ID_CAMERA_STREAM_ONESHOT, VIRTKEY, CONTROL, NOINVERT
+    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
+    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT, NOINVERT
+    VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT, NOINVERT
+    VK_F6,          ID_NEXT_PANE,           VIRTKEY, NOINVERT
+    VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT, NOINVERT
+    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT, NOINVERT
+    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL, NOINVERT
+    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOG DISCARDABLE  0, 0, 144, 110
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About 1394CameraDemo"
+FONT 8, "MS Sans Serif"
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,7,7,20,20
+    LTEXT           "1394CameraDemo Version 6.4.1",IDC_STATIC,37,9,100,8,
+                    SS_NOPREFIX
+    LTEXT           "Copyright (C) 8/2006",IDC_STATIC,37,21,83,8
+    DEFPUSHBUTTON   "Close",IDOK,7,89,130,14,WS_GROUP
+    LTEXT           "Christopher Baker\nRobotics Institute\nCarnegie Mellon University\n5000 Forbes Avenue\nPittsburgh, PA 15213\ncbaker@cs.cmu.edu",
+                    IDC_STATIC,37,33,89,50
+END
+
+IDD_GETINTEGER DIALOG DISCARDABLE  0, 0, 186, 46
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION
+CAPTION "Integer Input"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,129,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,129,24,50,14
+    EDITTEXT        IDC_THE_INTEGER,7,24,119,14,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "Message",IDC_MESSAGE_TEXT,7,7,119,14
+END
+
+IDD_TWIDDLE DIALOG DISCARDABLE  0, 0, 186, 74
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Twiddle Camera Registers"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "Done",IDOK,129,54,50,14
+    PUSHBUTTON      "Read",IDC_REGREAD,129,7,50,14
+    PUSHBUTTON      "Write",IDC_REGWRITE,129,30,50,14
+    EDITTEXT        IDC_EDIT_ADDRESS,42,7,78,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_DATA,42,30,78,14,ES_AUTOHSCROLL
+    LTEXT           "Address",IDC_STATIC,7,7,26,14,SS_CENTERIMAGE
+    LTEXT           "Data",IDC_STATIC,7,30,26,14,SS_CENTERIMAGE
+    LTEXT           "All Values are in Hexadecimal",IDC_STATIC,7,48,94,8
+    LTEXT           "Address with leading 0xF is absolute",IDC_STATIC,7,60,
+                    114,8
+END
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 6,4,4,128
+ PRODUCTVERSION 6,4,4,128
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "Comments", "This is part of the CMU 1394 Digital Camera Driver Set.  See http://www.cs.cmu.edu/~iwan/1394 for updates and details.\0"
+            VALUE "CompanyName", "CMU Robotics Institute\0"
+            VALUE "FileDescription", "1394CameraDemo MFC Application\0"
+            VALUE "FileVersion", "6.04.04.0128\0"
+            VALUE "InternalName", "1394CameraDemo\0"
+            VALUE "LegalCopyright", "Copyright (C) 2006\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "1394CameraDemo.EXE\0"
+            VALUE "PrivateBuild", "\0"
+            VALUE "ProductName", "1394CameraDemo Application\0"
+            VALUE "ProductVersion", "6.04.04.0128\0"
+            VALUE "SpecialBuild", "\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 137
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 103
+    END
+
+    IDD_GETINTEGER, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 39
+    END
+
+    IDD_TWIDDLE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 67
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    IDR_MAINFRAME           "1394 Camera Demo"
+END
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    AFX_IDS_APP_TITLE       "1394CameraDemo"
+    AFX_IDS_IDLEMESSAGE     "Ready"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_INDICATOR_EXT        "EXT"
+    ID_INDICATOR_CAPS       "CAP"
+    ID_INDICATOR_NUM        "NUM"
+    ID_INDICATOR_SCRL       "SCRL"
+    ID_INDICATOR_OVR        "OVR"
+    ID_INDICATOR_REC        "REC"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
+    ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_NEXT_PANE            "Switch to the next window pane\nNext Pane"
+    ID_PREV_PANE            "Switch back to the previous window pane\nPrevious Pane"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_WINDOW_SPLIT         "Split the active window into panes\nSplit"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_EDIT_CLEAR           "Erase the selection\nErase"
+    ID_EDIT_CLEAR_ALL       "Erase everything\nErase All"
+    ID_EDIT_COPY            "Copy the selection and put it on the Clipboard\nCopy"
+    ID_EDIT_CUT             "Cut the selection and put it on the Clipboard\nCut"
+    ID_EDIT_FIND            "Find the specified text\nFind"
+    ID_EDIT_PASTE           "Insert Clipboard contents\nPaste"
+    ID_EDIT_REPEAT          "Repeat the last action\nRepeat"
+    ID_EDIT_REPLACE         "Replace specific text with different text\nReplace"
+    ID_EDIT_SELECT_ALL      "Select the entire document\nSelect All"
+    ID_EDIT_UNDO            "Undo the last action\nUndo"
+    ID_EDIT_REDO            "Redo the previously undone action\nRedo"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_VIEW_STATUS_BAR      "Show or hide the status bar\nToggle StatusBar"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_SCSIZE          "Change the window size"
+    AFX_IDS_SCMOVE          "Change the window position"
+    AFX_IDS_SCMINIMIZE      "Reduce the window to an icon"
+    AFX_IDS_SCMAXIMIZE      "Enlarge the window to full size"
+    AFX_IDS_SCNEXTWINDOW    "Switch to the next document window"
+    AFX_IDS_SCPREVWINDOW    "Switch to the previous document window"
+    AFX_IDS_SCCLOSE         "Close the active window and prompts to save the documents"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_SCRESTORE       "Restore the window to normal size"
+    AFX_IDS_SCTASKLIST      "Activate Task List"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_1394_CHECK_LINK      "Check 1394 Link"
+    ID_1394_RESET_LINK      "Reset 1394 Link"
+    ID_1394_CONTROL         "Show Control Dialog"
+    ID_1394_SHOW_CAMERA     "Show Camera Image with Method #1"
+    ID_1394_STOP_CAMERA     "Stop Camera Image"
+    ID_1394_30FPS           "Set Framerate to 30 fps"
+    ID_1394_15FPS           "Set Framerate to 15 fps"
+    ID_1394_7FPS            "Set Framerate to 7.5 fps"
+    ID_1394_4FPS            "Set Framerate to 3.75 fps"
+    ID_1394_160X120YUV444   "Select Video Mode 160x120 YUV(4:4:4)"
+    ID_1394_320X240YUV422   "Select Video Mode 320x240 YUV(4:2:2)"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_1394_MEASURE_FRAMERATE2 "Measure Framerate based on Method #2"
+    ID_1394_640X480RGB      "Select Video Mode 640x480 RGB"
+    ID_1394_INIT_CAMERA     "Init Camera"
+    ID_1394_640X480MONO     "Select Video Mode 640x480 Mono"
+    ID_1394_CAMERA_MODEL    "Display Camera Name and Model"
+    ID_1394_800X600YUV422   "Select Video Mode 800x600 YUV(4:2:2)"
+    ID_1394_SHOW_CAMERA2    "Show Camera Image with Method #2"
+    ID_1394_MAXIMUM_SPEED   "Display Maximum Speed Value"
+    ID_1394_800X600RGB      "Select Video Mode 800x600 RGB"
+    ID_1394_800X600MONO     "Select Video Mode 800x600 Mono"
+    ID_1394_1024X768YUV422  "Select Video Mode 1024x768 YUV(4:2:2)"
+    ID_1394_1024X768RGB     "Select Video Mode 1024x768 RGB"
+    ID_1394_1024X768MONO    "Select Video Mode 1024x768 Mono"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_1394_640X480YUV422   "Select Video Mode 640x480 YUV(4:2:2)"
+    ID_1394_640X480YUV411   "Select Video Mode 640x480 YUV(4:1:1)"
+    ID_1394_MEASURE_FRAMERATE1 "Measure Framerate based on Method #1"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_1394_1280X960YUV422  "Select Video Mode 1280x960 YUV(4:2:2)"
+    ID_1394_1280X960RGB     "Select Video Mode 1280x960 RGB"
+    ID_1394_1280X960MONO    "Select Video Mode 1280x960 Mono"
+    ID_1394_1600X1200YUV422 "Select Video Mode 1600x1200 YUV(4:2:2)"
+    ID_1394_1600X1200RGB    "Select Video Mode 1600x1200 RGB"
+    ID_1394_1600X1200MONO   "Select Video Mode 1600x1200 Mono"
+    ID_1394_2FPS            "Set Framerate to 1.875 fps"
+    ID_1394_60FPS           "Set Framerate to 60 fps"
+    ID_1394_SAVE_IMAGE      "Save Current Image to Harddisk"
+    ID_1394_TRIGGER         "Enable or Disable External Trigger"
+    ID_MODE_PARTIALSCAN     "Only Show Upper Left Area (requires external trigger)"
+    ID_1394_PARTIALSCAN     "Show Upper Left Partial Scan Area (requires external trigger)"
+    ID_CAMERA_SELECTCAMERA  "Select a camera"
+    ID_1394_SELECT_CAMERA   "Select a camera"
+    ID_1394_CAMERA1         "Select Camera #1"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_1394_CAMERA2         "Select Camera #2"
+    ID_1394_CAMERA3         "Select Camera #3"
+    ID_1394_CAMERA4         "Select Camera #4"
+    ID_1394_CAMERA7         "Select Camera #7"
+    ID_1394_CAMERA6         "Select Camera #6"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_1394_CAMERA5         "Select Camera #5"
+    ID_1394_CAMERA8         "Select Camera #8"
+    ID_1394_CAMERA9         "Select Camera #9"
+    ID_1394_640X480MONO16   "Select Video Mode 640x480 Mono (16-bit)"
+    ID_1394_800X600MONO16   "Select Video Mode 800x600 Mono (16-bit)"
+    ID_1394_1024X768MONO16  "Select Video Mode 1024x768 Mono (16-bit)"
+    ID_1394_1280X960MONO16  "Select Video Mode 1280x960 Mono (16-bit)"
+    ID_1394_1600X1200MONO16 "Select Video Mode 1600x1200 Mono (16-bit)"
+    ID_CAMERA_REGISTERS     "Show Register Dialog"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_1394_120FPS          "Set Frame Rate to 120 fps"
+    ID_1394_240FPS          "Set Frame Rate to 240 FPS"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_CAMERA_STREAM_DUAL_PACKET "Enable Point-Grey Dual Packet Support"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif //_WIN32
+#include "res\1394CameraDemo.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"         // Standard components
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

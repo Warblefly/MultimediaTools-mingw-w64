@@ -1,0 +1,395 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#define APSTUDIO_HIDDEN_SYMBOLS
+#include "windows.h"
+#undef APSTUDIO_HIDDEN_SYMBOLS
+#include "ntverp.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""windows.h""\r\n"
+    "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""ntverp.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON    DISCARDABLE     "res\\1394CameraDemo.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MAINFRAME MENU PRELOAD DISCARDABLE 
+BEGIN
+    POPUP "&Camera"
+    BEGIN
+        MENUITEM "Check &Link",                 IDM_CAMERA_CHECKLINK
+        POPUP "&Select Camera"
+        BEGIN
+            MENUITEM "No Cameras Found!",           IDM_CAMERA_SELECT_0
+        END
+        MENUITEM "&Init Camera\tCtrl+I",        IDM_CAMERA_INIT
+        MENUITEM "1394&b Support\tCtrl+B",      IDM_CAMERA_1394B
+        MENUITEM SEPARATOR
+        MENUITEM "Camera Mo&del",               IDM_CAMERA_MODEL
+        MENUITEM "Strea&m Capabilities",        IDM_CAMERA_MAXSPEED
+        MENUITEM SEPARATOR
+        POPUP "Stream Control"
+        BEGIN
+            MENUITEM "S&ubscribe Only",             IDM_CAMERA_STREAM_SUBSCRIBE
+
+            MENUITEM "&Dual Packet Support",        IDM_CAMERA_STREAM_DUAL_PACKET
+
+            MENUITEM SEPARATOR
+            MENUITEM "&Continuous",                 IDM_CAMERA_STREAM_CONTINUOUS
+            , CHECKED
+            MENUITEM "&One Shot\tCtrl+O",           IDM_CAMERA_STREAM_ONESHOT
+
+            MENUITEM "&Multi Shot...\tCtrl+M",      IDM_CAMERA_STREAM_MULTISHOT
+
+        END
+        MENUITEM "Sho&w Camera\tCtrl-X",        IDM_CAMERA_SHOW
+        MENUITEM "Sto&p Camera\tCtrl-Z",        IDM_CAMERA_STOP
+        MENUITEM SEPARATOR
+        MENUITEM "Po&wer Control",              IDM_CAMERA_POWER
+        MENUITEM "&Control Dialog...\tCtrl-C",  IDM_CAMERA_CONTROL_DLG
+        MENUITEM "T&widdle Dialog...\tCtrl-D",  IDM_CAMERA_TWIDDLE_DLG
+        POPUP "External &Trigger"
+        BEGIN
+            MENUITEM "Active",                      IDM_CAMERA_TRIGGER_ACTIVE
+
+            MENUITEM "Invert Polarity",             IDM_CAMERA_TRIGGER_POLARITY
+
+            MENUITEM SEPARATOR
+            POPUP "Mode"
+            BEGIN
+                MENUITEM "Mode 0",                      IDM_CAMERA_TRIGGER_MODE_0
+
+                MENUITEM "Mode 1",                      IDM_CAMERA_TRIGGER_MODE_1
+
+                MENUITEM "Mode 2",                      IDM_CAMERA_TRIGGER_MODE_2
+
+                MENUITEM "Mode 3",                      IDM_CAMERA_TRIGGER_MODE_3
+
+                MENUITEM "Mode 4",                      IDM_CAMERA_TRIGGER_MODE_4
+
+                MENUITEM "Mode 5",                      IDM_CAMERA_TRIGGER_MODE_5
+
+                MENUITEM SEPARATOR
+                MENUITEM "Mode 14",                     IDM_CAMERA_TRIGGER_MODE_14
+
+                MENUITEM "Mode 15",                     IDM_CAMERA_TRIGGER_MODE_15
+
+            END
+            POPUP "Input"
+            BEGIN
+                MENUITEM "Input 0",                     IDM_CAMERA_TRIGGER_INPUT_0
+
+                MENUITEM "Input 1",                     IDM_CAMERA_TRIGGER_INPUT_1
+
+                MENUITEM "Input 2",                     IDM_CAMERA_TRIGGER_INPUT_2
+
+                MENUITEM "Input 3",                     IDM_CAMERA_TRIGGER_INPUT_3
+
+                MENUITEM "SW Input",                    IDM_CAMERA_TRIGGER_INPUT_SW
+
+            END
+            MENUITEM "Parameter...",                IDM_CAMERA_TRIGGER_PARAMETER_DLG
+
+            MENUITEM "Do SW Trigger\tCtrl-T",       IDM_CAMERA_TRIGGER_SWTRIGGER
+
+        END
+        POPUP "Optional Features"
+        BEGIN
+            MENUITEM "Parallel I/O...",             IDM_CAMERA_OPTIONAL_PIO_DLG
+
+            MENUITEM "Serial I/O...",               IDM_CAMERA_OPTIONAL_SIO_DLG
+
+            MENUITEM "Strobe I/O...",               IDM_CAMERA_OPTIONAL_STROBE_DLG
+
+            MENUITEM "Vendor Unique...",            IDM_CAMERA_OPTIONAL_VENDOR_DLG
+
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit\tCtrl-Q",               IDM_CAMERA_EXIT
+    END
+    POPUP "&Mode"
+    BEGIN
+        MENUITEM "160x120 YUV(4:4:4)",          IDM_FORMAT0_MODE0
+        MENUITEM "320x240 YUV(4:2:2)",          IDM_FORMAT0_MODE1
+        MENUITEM "640x480 YUV(4:1:1)",          IDM_FORMAT0_MODE2
+        MENUITEM "640x480 YUV(4:2:2)",          IDM_FORMAT0_MODE3
+        MENUITEM "640x480 RGB",                 IDM_FORMAT0_MODE4
+        MENUITEM "640x480 Mono (8-bit)",        IDM_FORMAT0_MODE5
+        MENUITEM "640x480 Mono (16-bit)",       IDM_FORMAT0_MODE6
+        MENUITEM SEPARATOR
+        MENUITEM "800x600 YUV(4:2:2)",          IDM_FORMAT1_MODE0
+        MENUITEM "800x600 RGB",                 IDM_FORMAT1_MODE1
+        MENUITEM "800x600 Mono (8-bit)",        IDM_FORMAT1_MODE2
+        MENUITEM "1024x768 YUV(4:2:2)",         IDM_FORMAT1_MODE3
+        MENUITEM "1024x768 RGB",                IDM_FORMAT1_MODE4
+        MENUITEM "1024x768 Mono (8-bit)",       IDM_FORMAT1_MODE5
+        MENUITEM "800x600 Mono (16-bit)",       IDM_FORMAT1_MODE6
+        MENUITEM "1024x768 Mono (16-bit)",      IDM_FORMAT1_MODE7
+        MENUITEM SEPARATOR
+        MENUITEM "1280x960 YUV(4:2:2)",         IDM_FORMAT2_MODE0
+        MENUITEM "1280x960 RGB",                IDM_FORMAT2_MODE1
+        MENUITEM "1280x960 Mono (8-bit)",       IDM_FORMAT2_MODE2
+        MENUITEM "1600x1200 YUV(4:2:2)",        IDM_FORMAT2_MODE3
+        MENUITEM "1600x1200 RGB",               IDM_FORMAT2_MODE4
+        MENUITEM "1600x1200 Mono (8-bit)",      IDM_FORMAT2_MODE5
+        MENUITEM "1280x960 Mono (16-bit)",      IDM_FORMAT2_MODE6
+        MENUITEM "1600x1200 Mono (16-bit)",     IDM_FORMAT2_MODE7
+        MENUITEM SEPARATOR
+        MENUITEM "&Partial Scan / ROI...",      IDM_FORMAT7
+    END
+    POPUP "&Rate"
+    BEGIN
+        MENUITEM "1.875 fps",                   IDM_FRAMERATE0
+        MENUITEM "3.75 fps",                    IDM_FRAMERATE1
+        MENUITEM "7.5 fps",                     IDM_FRAMERATE2
+        MENUITEM "15 fps",                      IDM_FRAMERATE3
+        MENUITEM "30 fps",                      IDM_FRAMERATE4
+        MENUITEM "60 fps",                      IDM_FRAMERATE5
+        MENUITEM "120 fps",                     IDM_FRAMERATE6
+        MENUITEM "240 fps",                     IDM_FRAMERATE7
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "Driver Debug &Settings...",   IDM_HELP_DEBUG_SETTINGS
+        MENUITEM "Enable Demo App Debug Output", IDM_HELP_DEBUG_DEMO
+        MENUITEM "1394Camera &Documentation...", IDM_HELP_DOCUMENTATION
+        MENUITEM "&About 1394CameraDemo...",    IDM_HELP_ABOUT
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_MAINFRAME ACCELERATORS PRELOAD MOVEABLE PURE 
+BEGIN
+    "C",            IDM_CAMERA_CONTROL_DLG, VIRTKEY, CONTROL, NOINVERT
+    "M",            IDM_CAMERA_STREAM_MULTISHOT, VIRTKEY, CONTROL, NOINVERT
+    "O",            IDM_CAMERA_STREAM_ONESHOT, VIRTKEY, CONTROL, NOINVERT
+    "T",            IDM_CAMERA_TRIGGER_SWTRIGGER, VIRTKEY, CONTROL, NOINVERT
+    "X",            IDM_CAMERA_SHOW,        VIRTKEY, CONTROL, NOINVERT
+    "Z",            IDM_CAMERA_STOP,        VIRTKEY, CONTROL, NOINVERT
+    "I",            IDM_CAMERA_INIT,        VIRTKEY, CONTROL, NOINVERT
+    "0",            IDM_CAMERA_SELECT_0,    VIRTKEY, CONTROL, NOINVERT
+    "Q",            IDM_CAMERA_EXIT,        VIRTKEY, CONTROL, NOINVERT
+    "B",            IDM_CAMERA_1394B,       VIRTKEY, CONTROL, NOINVERT
+    "D",            IDM_CAMERA_TWIDDLE_DLG, VIRTKEY, CONTROL, NOINVERT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOG DISCARDABLE  0, 0, 144, 110
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About 1394CameraDemo"
+FONT 8, "MS Sans Serif"
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,7,7,21,20
+    LTEXT           "1394CameraDemo (Win32) Version 6.4.6.231",IDC_STATIC,37,
+                    9,100,8,SS_NOPREFIX
+    LTEXT           "Copyright (C) 5/2010",IDC_STATIC,37,21,83,8
+    DEFPUSHBUTTON   "Close",IDOK,7,89,130,14,WS_GROUP
+    LTEXT           "Christopher Baker\nRobotics Institute\nCarnegie Mellon University\n5000 Forbes Avenue\nPittsburgh, PA 15213\ncbaker@cs.cmu.edu",
+                    IDC_STATIC,37,33,89,50
+END
+
+IDD_GETINTEGER DIALOG DISCARDABLE  0, 0, 186, 46
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION
+CAPTION "Integer Input"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,129,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,129,24,50,14
+    LTEXT           "Message",IDC_MESSAGE_TEXT,7,7,119,14
+    EDITTEXT        IDC_THE_INTEGER,7,25,106,14,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "Spin1",IDC_THE_INTEGER_SPIN,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,113,25,11,14
+END
+
+IDD_TWIDDLE DIALOG DISCARDABLE  0, 0, 186, 74
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Twiddle Camera Registers"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "Done",IDOK,129,54,50,14
+    PUSHBUTTON      "Read",IDC_REGREAD,129,7,50,14
+    PUSHBUTTON      "Write",IDC_REGWRITE,129,30,50,14
+    EDITTEXT        IDC_EDIT_ADDRESS,42,7,78,14,ES_AUTOHSCROLL
+    CONTROL         "AddressSpin",IDC_ADDRESS_SPIN,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,113,25,11,14
+    EDITTEXT        IDC_EDIT_DATA,42,30,78,14,ES_AUTOHSCROLL
+    LTEXT           "Address",IDC_STATIC,7,7,26,14,SS_CENTERIMAGE
+    LTEXT           "Data",IDC_STATIC,7,30,26,14,SS_CENTERIMAGE
+    LTEXT           "All Values are in Hexadecimal",IDC_STATIC,7,48,94,8
+    LTEXT           "Address with leading 0xF is absolute",IDC_STATIC,7,60,
+                    114,8
+END
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 6,4,6,240
+ PRODUCTVERSION 6,4,6,240
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "Comments", "This is part of the CMU 1394 Digital Camera Driver Set.  See http://www.cs.cmu.edu/~iwan/1394 for updates and details.\0"
+            VALUE "CompanyName", "CMU Robotics Institute\0"
+            VALUE "FileDescription", "1394CameraDemo Win32 Application\0"
+            VALUE "FileVersion", "6.04.06.0240\0"
+            VALUE "InternalName", "1394CameraDemo\0"
+            VALUE "LegalCopyright", "Copyright (C) 2010\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "1394CameraDemo32.EXE\0"
+            VALUE "PrivateBuild", "\0"
+            VALUE "ProductName", "1394CameraDemo Win32 Application\0"
+            VALUE "ProductVersion", "6.04.06.0240\0"
+            VALUE "SpecialBuild", "\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 137
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 103
+    END
+
+    IDD_GETINTEGER, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 39
+    END
+
+    IDD_TWIDDLE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 67
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    IDR_MAINFRAME           "1394 Camera Demo"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
