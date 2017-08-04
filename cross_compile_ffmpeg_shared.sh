@@ -2975,6 +2975,14 @@ build_libchromaprint() {
   cd ..
 }
 
+build_libarchive() {
+  do_git_checkout https://github.com/libarchive/libarchive.git libarchive
+  cd libarchive
+    do_cmake "-DENABLE_LZO=ON -DENABLE_TAR_SHARED=ON -DENABLE_CPIO_SHARED=ON -DENABLE_CAT_SHARED=ON"
+    do_make_install
+  cd ..
+}
+
 build_pkg-config() {
   cp -v /usr/bin/pkg-config ${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config
 }
@@ -4035,6 +4043,13 @@ build_libidn() {
   cd ..
 }
 
+build_xz() {
+  do_git_checkout https://git.tukaani.org/xz.git xz
+  cd xz
+    generic_configure_make_install
+  cd ..
+}
+
 build_libMXF() {
   #download_and_unpack_file http://sourceforge.net/projects/ingex/files/1.0.0/libMXF/libMXF-src-1.0.0.tgz "libMXF-src-1.0.0"
   #cd libMXF-src-1.0.0
@@ -4295,6 +4310,7 @@ build_dependencies() {
   build_libdlfcn # ffmpeg's frei0r implentation needs this <sigh>
   build_zlib # rtmp depends on it [as well as ffmpeg's optional but handy --enable-zlib]
   build_bzlib2 # in case someone wants it [ffmpeg uses it]
+  build_xz
   build_taglib # Used by loudness-scanner among others
   build_snappy # For certain types of very fast video compression
   build_libpng # for openjpeg, needs zlib
@@ -4407,6 +4423,7 @@ build_dependencies() {
   build_libxml++
   build_libcxml
   build_dbus
+  build_libarchive
   build_jasper # JPEG2000 codec for GraphicsMagick among others
   build_atk
   build_gdk_pixbuf
