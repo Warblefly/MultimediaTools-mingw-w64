@@ -38,7 +38,7 @@ yes_no_sel () {
 }
 
 check_missing_packages () {
-  local check_packages=('sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint' 'pxz' 'wget' 'zip' 'xmlto' 'gtkdocize' 'python-config' 'ant' 'sdl-config' 'sdl2-config' 'gyp' 'mm-common-prepare' 'sassc' 'nasm' 'ragel')
+  local check_packages=('sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint' 'pxz' 'wget' 'zip' 'xmlto' 'gtkdocize' 'python-config' 'ant' 'sdl-config' 'sdl2-config' 'gyp' 'mm-common-prepare' 'sassc' 'nasm' 'ragel' 'gengetopt')
   for package in "${check_packages[@]}"; do
     type -P "$package" >/dev/null || missing_packages=("$package" "${missing_packages[@]}")
   done
@@ -3447,7 +3447,7 @@ build_smake() { # This enables build of cdrtools. Jorg Schilling uses his own ma
 
 
 build_zimg() {
-  do_git_checkout https://github.com/sekrit-twc/zimg.git zimg
+  do_git_checkout https://github.com/sekrit-twc/zimg.git zimg e6069fa9e883e0e637e0dd2023d444a07b4dc73c
   cd zimg
     sed -i.bak 's/Windows\.h/windows.h/' src/testcommon/mmap.cpp
     generic_configure_make_install "--enable-x86simd --enable-example" 
@@ -4028,6 +4028,13 @@ build_rtaudio() {
   cd ..
 }
 
+build_libidn() {
+  do_git_checkout https://gitlab.com/libidn/libidn2.git libidn2
+  cd libidn2
+    generic_configure_make_install
+  cd ..
+}
+
 build_libMXF() {
   #download_and_unpack_file http://sourceforge.net/projects/ingex/files/1.0.0/libMXF/libMXF-src-1.0.0.tgz "libMXF-src-1.0.0"
   #cd libMXF-src-1.0.0
@@ -4467,6 +4474,7 @@ build_dependencies() {
   build_cunit
   build_libmysofa
   build_libiberty
+  build_libidn
 #  build_gobject_introspection
   build_libepoxy
   build_rtaudio
