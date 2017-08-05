@@ -3525,11 +3525,16 @@ build_lzo() {
 }
 
 build_dvbpsi() {
-  do_git_checkout http://git.videolan.org/git/libdvbpsi.git libdvbpsi
+  do_git_checkout https://anonscm.debian.org/git/pkg-multimedia/libdvbpsi.git libdvbpsi
   cd libdvbpsi
     generic_configure_make_install
   cd ..
+  # It helps some programs to see all these headers in the one place
   cp -v ${mingw_w64_x86_64_prefix}/include/dvbpsi/atsc/*h ${mingw_w64_x86_64_prefix}/include/dvbpsi
+  cp -v ${mingw_w64_x86_64_prefix}/include/dvbpsi/custom/*h ${mingw_w64_x86_64_prefix}/include/dvbpsi
+  cp -v ${mingw_w64_x86_64_prefix}/include/dvbpsi/dvb/*h ${mingw_w64_x86_64_prefix}/include/dvbpsi
+  cp -v ${mingw_w64_x86_64_prefix}/include/dvbpsi/mpeg/*h ${mingw_w64_x86_64_prefix}/include/dvbpsi
+  cp -v ${mingw_w64_x86_64_prefix}/include/dvbpsi/types/*h ${mingw_w64_x86_64_prefix}/include/dvbpsi
 }
 
 build_lz4() {
