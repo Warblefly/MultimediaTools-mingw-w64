@@ -4060,7 +4060,7 @@ build_movit() {
   do_git_checkout https://git.sesse.net/movit movit
   cd movit
     apply_patch file://${top_dir}/movit-ffs.patch
-    apply_patch file://${top_dir}/movit-fp64.patch # Introduced on 1st August 2017
+#    apply_patch file://${top_dir}/movit-fp64.patch # Introduced on 1st August 2017
     export GTEST_DIR=../googletest/googletest
     generic_configure_make_install "CFLAGS=-fpermissive CXXFLAGS=-fpermissive"
     unset GTEST_DIR
@@ -4331,13 +4331,13 @@ build_ffmpeg() {
   # can't mix and match --enable-static --enable-shared unfortunately, or the final executable seems to just use shared if the're both present
   if [[ $shared == "shared" ]]; then
     output_dir=${output_dir}_shared
-    do_git_checkout $git_url ${output_dir}
+    do_git_checkout $git_url ${output_dir} 
     final_install_dir=`pwd`/${output_dir}.installed
     extra_configure_opts="--enable-shared --disable-static $extra_configure_opts"
     # avoid installing this to system?
     extra_configure_opts="$extra_configure_opts --prefix=$final_install_dir"
   else
-    do_git_checkout $git_url $output_dir
+    do_git_checkout $git_url $output_dir 
     extra_configure_opts="--enable-shared --disable-static --disable-debug --disable-stripping $extra_configure_opts" # --pkg-config-flags=--static
   fi
   cd $output_dir
@@ -4352,6 +4352,7 @@ build_ffmpeg() {
 # --extra-cflags=$CFLAGS, though redundant, just so that FFmpeg lists what it used in its "info" output
   apply_patch_p1 file://${top_dir}/ffmpeg-dash-demux.patch
   apply_patch_p1 file://${top_dir}/ffmpeg-mcompand.patch
+  apply_patch file://${top_dir}/lavfi-vfstack-reverse.patch
 #  apply_patch_p1 file://${top_dir}/ffmpeg-decklink-teletext-1-reverse.patch
 #  apply_patch_p1 file://${top_dir}/ffmpeg-decklink-teletext-2-reverse.patch
 

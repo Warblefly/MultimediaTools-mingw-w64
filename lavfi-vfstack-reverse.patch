@@ -1,0 +1,132 @@
+reverted:
+--- libavfilter/Makefile
++++ libavfilter/Makefile
+@@ -202,7 +202,7 @@
+ OBJS-$(CONFIG_HISTOGRAM_FILTER)              += vf_histogram.o
+ OBJS-$(CONFIG_HQDN3D_FILTER)                 += vf_hqdn3d.o
+ OBJS-$(CONFIG_HQX_FILTER)                    += vf_hqx.o
++OBJS-$(CONFIG_HSTACK_FILTER)                 += vf_stack.o framesync.o
+-OBJS-$(CONFIG_HSTACK_FILTER)                 += vf_stack.o framesync2.o
+ OBJS-$(CONFIG_HUE_FILTER)                    += vf_hue.o
+ OBJS-$(CONFIG_HWDOWNLOAD_FILTER)             += vf_hwdownload.o
+ OBJS-$(CONFIG_HWMAP_FILTER)                  += vf_hwmap.o
+@@ -322,7 +322,7 @@
+ OBJS-$(CONFIG_VIDSTABDETECT_FILTER)          += vidstabutils.o vf_vidstabdetect.o
+ OBJS-$(CONFIG_VIDSTABTRANSFORM_FILTER)       += vidstabutils.o vf_vidstabtransform.o
+ OBJS-$(CONFIG_VIGNETTE_FILTER)               += vf_vignette.o
++OBJS-$(CONFIG_VSTACK_FILTER)                 += vf_stack.o framesync.o
+-OBJS-$(CONFIG_VSTACK_FILTER)                 += vf_stack.o framesync2.o
+ OBJS-$(CONFIG_W3FDIF_FILTER)                 += vf_w3fdif.o
+ OBJS-$(CONFIG_WAVEFORM_FILTER)               += vf_waveform.o
+ OBJS-$(CONFIG_WEAVE_FILTER)                  += vf_weave.o
+reverted:
+--- libavfilter/vf_stack.c
++++ libavfilter/vf_stack.c
+@@ -26,7 +26,7 @@
+ #include "avfilter.h"
+ #include "formats.h"
+ #include "internal.h"
++#include "framesync.h"
+-#include "framesync2.h"
+ #include "video.h"
+ 
+ typedef struct StackContext {
+@@ -58,6 +58,12 @@
+     return ff_set_common_formats(ctx, pix_fmts);
+ }
+ 
++static int filter_frame(AVFilterLink *inlink, AVFrame *in)
++{
++    StackContext *s = inlink->dst->priv;
++    return ff_framesync_filter_frame(&s->fs, inlink, in);
++}
++
+ static av_cold int init(AVFilterContext *ctx)
+ {
+     StackContext *s = ctx->priv;
+@@ -77,6 +83,7 @@
+         pad.name = av_asprintf("input%d", i);
+         if (!pad.name)
+             return AVERROR(ENOMEM);
++        pad.filter_frame = filter_frame;
+ 
+         if ((ret = ff_insert_inpad(ctx, i, &pad)) < 0) {
+             av_freep(&pad.name);
+@@ -97,7 +104,7 @@
+     int i, p, ret, offset[4] = { 0 };
+ 
+     for (i = 0; i < s->nb_inputs; i++) {
++        if ((ret = ff_framesync_get_frame(&s->fs, i, &in[i], 0)) < 0)
+-        if ((ret = ff_framesync2_get_frame(&s->fs, i, &in[i], 0)) < 0)
+             return ret;
+     }
+ 
+@@ -180,7 +187,7 @@
+     outlink->time_base  = time_base;
+     outlink->frame_rate = frame_rate;
+ 
++    if ((ret = ff_framesync_init(&s->fs, ctx, s->nb_inputs)) < 0)
+-    if ((ret = ff_framesync2_init(&s->fs, ctx, s->nb_inputs)) < 0)
+         return ret;
+ 
+     in = s->fs.in;
+@@ -196,7 +203,13 @@
+         in[i].after  = s->shortest ? EXT_STOP : EXT_INFINITY;
+     }
+ 
++    return ff_framesync_configure(&s->fs);
++}
++
++static int request_frame(AVFilterLink *outlink)
++{
++    StackContext *s = outlink->src->priv;
++    return ff_framesync_request_frame(&s->fs, outlink);
+-    return ff_framesync2_configure(&s->fs);
+ }
+ 
+ static av_cold void uninit(AVFilterContext *ctx)
+@@ -204,19 +217,13 @@
+     StackContext *s = ctx->priv;
+     int i;
+ 
++    ff_framesync_uninit(&s->fs);
+-    ff_framesync2_uninit(&s->fs);
+     av_freep(&s->frames);
+ 
+     for (i = 0; i < ctx->nb_inputs; i++)
+         av_freep(&ctx->input_pads[i].name);
+ }
+ 
+-static int activate(AVFilterContext *ctx)
+-{
+-    StackContext *s = ctx->priv;
+-    return ff_framesync2_activate(&s->fs);
+-}
+-
+ #define OFFSET(x) offsetof(StackContext, x)
+ #define FLAGS AV_OPT_FLAG_VIDEO_PARAM | AV_OPT_FLAG_FILTERING_PARAM
+ static const AVOption stack_options[] = {
+@@ -230,6 +237,7 @@
+         .name          = "default",
+         .type          = AVMEDIA_TYPE_VIDEO,
+         .config_props  = config_output,
++        .request_frame = request_frame,
+     },
+     { NULL }
+ };
+@@ -248,7 +256,6 @@
+     .outputs       = outputs,
+     .init          = init,
+     .uninit        = uninit,
+-    .activate      = activate,
+     .flags         = AVFILTER_FLAG_DYNAMIC_INPUTS,
+ };
+ 
+@@ -268,7 +275,6 @@
+     .outputs       = outputs,
+     .init          = init,
+     .uninit        = uninit,
+-    .activate      = activate,
+     .flags         = AVFILTER_FLAG_DYNAMIC_INPUTS,
+ };
+ 
