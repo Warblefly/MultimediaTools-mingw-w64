@@ -4359,7 +4359,8 @@ build_ffmpeg() {
 # --extra-cflags=$CFLAGS, though redundant, just so that FFmpeg lists what it used in its "info" output
   apply_patch_p1 file://${top_dir}/ffmpeg-dash-demux.patch
   apply_patch_p1 file://${top_dir}/ffmpeg-mcompand.patch
-  apply_patch file://${top_dir}/lavfi-vfstack-reverse.patch
+  apply_patch file://${top_dir}/ffmpeg-framesync2.patch
+#  apply_patch file://${top_dir}/lavfi-vfstack-reverse.patch
 #  apply_patch_p1 file://${top_dir}/ffmpeg-decklink-teletext-1-reverse.patch
 #  apply_patch_p1 file://${top_dir}/ffmpeg-decklink-teletext-2-reverse.patch
 
