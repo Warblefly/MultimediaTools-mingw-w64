@@ -61,16 +61,16 @@ echo "Archive will be uploaded to ${upload_location}"
 # Ensure the LICENSE.rtf file goes where the installer will find it
 # and don't proceed if there isn't a licence
 
-cp -v LICENSE.rtf sandbox/mingw-w64-x86_64/x86_64-w64-mingw32/LICENSE.rtf || exit 1
+cp -v LICENSE.rtf sandbox/x86_64-w64-mingw32/x86_64-w64-mingw32/LICENSE.rtf || exit 1
 
 # Make archive of executables
 if  [[ "$dump_archive" = [Yy] ]]; then
   echo "Archive dump selected."
   # Put the unzip scripts where we can find them.
-  cp -v install-zipfile.ps1 sandbox/mingw-w64-x86_64/x86_64-w64-mingw32/bin/install-zipfile.ps1
-  cp -v install-zipfile.cmd sandbox/mingw-w64-x86_64/x86_64-w64-mingw32/bin/install-zipfile.cmd
-  cp -v fonts.conf sandbox/mingw-w64-x86_64/x86_64-w64-mingw32/
-  cd sandbox/mingw-w64-x86_64/x86_64-w64-mingw32
+  cp -v install-zipfile.ps1 sandbox/x86_64-w64-mingw32/x86_64-w64-mingw32/bin/install-zipfile.ps1
+  cp -v install-zipfile.cmd sandbox/x86_64-w64-mingw32/x86_64-w64-mingw32/bin/install-zipfile.cmd
+  cp -v fonts.conf sandbox/x86_64-w64-mingw32/x86_64-w64-mingw32/
+  cd sandbox/x86_64-w64-mingw32/x86_64-w64-mingw32
   rm -v archive_list.files
   # Symbolic links are de-referenced because Windows doesn't understand these.
 #  zip -r -9 -v -db -dc ${dump_file}  ./bin/*exe ./bin/*com ./bin/*dll ./bin/*py ./bin/*pl ./bin/*cmd ./bin/*config ./bin/platforms/*dll ./bin/lib/* ./bin/share/* ./bin/jack/* ./lib/frei0r-1/* ./plugins/* ./share/OpenCV/* ./share/tessdata ./share/terminfo ./share/misc/magic.mgc ./share/vim/* ./bin/install-zipfile.ps1 ./bin/install-zipfile.cmd || exit 1

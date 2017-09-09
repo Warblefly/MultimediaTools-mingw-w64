@@ -1,0 +1,6 @@
+--- src/modules/rtaudio/config.mak.orig	2017-09-08 14:51:53.234617600 +0100
++++ src/modules/rtaudio/config.mak	2017-09-08 14:48:25.719734800 +0100
+@@ -1,2 +1,2 @@
+ CXXFLAGS += -pthread -D__WINDOWS_WASAPI__ -I/root/src/MultimediaTools-mingw-w64/sandbox/x86_64-w64-mingw32/x86_64-w64-mingw32/include/rtaudio
+-LDFLAGS += -L/root/src/MultimediaTools-mingw-w64/sandbox/x86_64-w64-mingw32/x86_64-w64-mingw32/lib -lrtaudio
++LDFLAGS += -L/root/src/MultimediaTools-mingw-w64/sandbox/x86_64-w64-mingw32/x86_64-w64-mingw32/lib -lrtaudio -lole32 -lwinmm -lksuser -luuid

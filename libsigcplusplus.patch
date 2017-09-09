@@ -1,0 +1,10 @@
+--- autogen.sh.orig	2017-09-05 10:17:13.631789600 +0100
++++ autogen.sh	2017-09-05 10:17:37.816020600 +0100
+@@ -2,6 +2,6 @@
+ test -n "$srcdir" || srcdir=`dirname "$0"`
+ test -n "$srcdir" || srcdir=.
+ 
+-mm-common-prepare --copy --force "$srcdir"
++${mingw_w64_x86_64_prefix}/bin/mm-common-prepare --copy --force "$srcdir"
+ autoreconf --force --install --verbose --warnings=all "$srcdir"
+ test -n "$NOCONFIGURE" || "$srcdir/configure" --enable-maintainer-mode "$@"

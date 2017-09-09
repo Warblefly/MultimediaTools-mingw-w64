@@ -6,7 +6,7 @@ diff -ru lua-5.3.0/Makefile lua-5.3.0-fixed/Makefile
  # You may want to make INSTALL_LMOD and INSTALL_CMOD consistent with
  # LUA_ROOT, LUA_LDIR, and LUA_CDIR in luaconf.h.
 -INSTALL_TOP= /usr/local
-+INSTALL_TOP= ../../../mingw-w64-x86_64/x86_64-w64-mingw32
++INSTALL_TOP= ../../../x86_64-w64-mingw32/x86_64-w64-mingw32
  INSTALL_BIN= $(INSTALL_TOP)/bin
  INSTALL_INC= $(INSTALL_TOP)/include
  INSTALL_LIB= $(INSTALL_TOP)/lib
@@ -18,15 +18,15 @@ diff -ru lua-5.3.0/src/Makefile lua-5.3.0-fixed/src/Makefile
  PLAT= none
  
 -CC= gcc
-+CC= ../../../mingw-w64-x86_64/bin/x86_64-w64-mingw32-gcc.exe -std=gnu99
++CC= ../../../x86_64-w64-mingw32/bin/x86_64-w64-mingw32-gcc.exe -std=gnu99
  CFLAGS= -O2 -Wall -DLUA_COMPAT_ALL $(SYSCFLAGS) $(MYCFLAGS)
  LDFLAGS= $(SYSLDFLAGS) $(MYLDFLAGS)
  LIBS= -lm $(SYSLIBS) $(MYLIBS)
  
 -AR= ar rcu
 -RANLIB= ranlib
-+AR= ../../../mingw-w64-x86_64/bin/x86_64-w64-mingw32-ar.exe rcu
-+RANLIB= ../../../mingw-w64-x86_64/bin/x86_64-w64-mingw32-ranlib.exe
++AR= ../../../x86_64-w64-mingw32/bin/x86_64-w64-mingw32-ar.exe rcu
++RANLIB= ../../../x86_64-w64-mingw32/bin/x86_64-w64-mingw32-ranlib.exe
 +
  RM= rm -f
  

@@ -13,3 +13,84 @@
 -	-xdg-icon-resource uninstall --novendor --context apps \
 -	                             --size 256 synaesthesia
 -	-xdg-desktop-menu uninstall --novendor synaesthesia.desktop
+--- configure.ac.orig	2017-09-09 12:41:34.658684600 +0100
++++ configure.ac	2017-09-09 12:43:54.619709500 +0100
+@@ -161,29 +161,4 @@
+               LIBS="$LIBS $SDL_LIBS"],
+              [AC_MSG_FAILURE([SDL is required for graphical output and user interface])])])
+ 
+-dnl Use icon if present
+-AH_TEMPLATE([HAVE_ICON], [Set to 1 if window icon is compiled in and set by code.])
+-AC_CHECK_FILE([synaesthesia.png],
+-              [AS_IF([test "x$windows_host" = "xyes"],
+-                     [AC_CHECK_PROG([has_icotool],[icotool],[yes],[no])
+-                      AS_IF([test "x$has_icotool" = "xyes"],
+-                            [AC_CHECK_PROG([windows_icon],[windres],[yes],[no])],
+-                            [windows_icon=no])
+-                      AS_IF([test "x$windows_icon" != "xyes"],
+-                            [AC_MSG_WARN([Icon found but need icotool from icoutils and windres to use it])])],
+-                      [windows_icon=0])
+-               AS_IF([test "x$enable_emscripten" = "xyes"], [sdl_icon=no],
+-                     [test "x$windows_host" = "xyes" -a "x$with_sdl2" != "xno"], [sdl_icon=no],
+-                     [AC_CHECK_PROG([has_convert],[convert],[yes],[no])
+-                      AS_IF([test "x$has_convert" = "xyes"],
+-                            [AC_CHECK_PROG([has_xxd],[xxd],[yes],[no])],
+-                            [use_xxd=no])
+-                      AS_IF([test "x$has_xxd" = "xyes"],
+-                            [AC_DEFINE([HAVE_ICON], [1])
+-                             sdl_icon=yes],
+-                            [AC_MSG_WARN([Icon found but need convert from ImageMagick and xxd to use it])
+-                             sdl_icon=no])])])
+-AM_CONDITIONAL([COMPILE_WINICON], [test "x$windows_icon" = "xyes"])
+-AM_CONDITIONAL([COMPILE_SDLICON], [test "x$sdl_icon" = "xyes"])
+-
+ AC_OUTPUT(Makefile)
+--- Makefile.am.orig	2017-09-09 15:45:43.006371700 +0100
++++ Makefile.am	2017-09-09 15:46:44.583160200 +0100
+@@ -13,35 +13,12 @@
+ if COMPILE_WINDOWS
+ synaesthesia_LDFLAGS = -static
+ 
+-if COMPILE_WINICON
+-synaesthesia_SOURCES += syn-res.rc
+-synaesthesia_DEPENDENCIES = synaesthesia.ico
+-
+-.rc.o:
+-	windres -o $@ $<
+-
+-syn-res.o: synaesthesia.ico
+-
+-synaesthesia.ico: synaesthesia.png
+-	icotool -c -o $@ $^
+-endif
+-
+ if COMPILE_WINAMP
+ synaesthesia_SOURCES += winamp.cc
+ synaesthesia_LDFLAGS += -shared -Wl,-no-undefined
+ endif
+ endif COMPILE_WINDOWS
+ 
+-if COMPILE_SDLICON
+-syn_icon.rgb: synaesthesia.png
+-	convert $< -resize "64x64!" $@
+-
+-syn_icon_rgb.cc: syn_icon.rgb
+-	xxd -i $< > $@
+-
+-nodist_synaesthesia_SOURCES = syn_icon_rgb.cc
+-endif COMPILE_SDLICON
+-
+ if COMPILE_AUDACIOUS
+ synaesthesia_SOURCES += audacious.cc
+ synaesthesia_LDFLAGS = -shared -Wl,-no-undefined
+--- Makefile.am.orig	2017-09-09 15:54:33.998859200 +0100
++++ Makefile.am	2017-09-09 15:55:00.126661600 +0100
+@@ -11,7 +11,7 @@
+ endif
+ 
+ if COMPILE_WINDOWS
+-synaesthesia_LDFLAGS = -static
++synaesthesia_LDFLAGS = -shared -Wl,-no-undefined
+ 
+ if COMPILE_WINAMP
+ synaesthesia_SOURCES += winamp.cc

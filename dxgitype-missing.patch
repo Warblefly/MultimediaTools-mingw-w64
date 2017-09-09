@@ -1,5 +1,5 @@
---- include/dxgitype.h.orig	2017-07-29 19:40:43.136707700 +0100
-+++ include/dxgitype.h	2017-07-29 19:41:29.358281300 +0100
+--- dxgitype.h.orig	2017-07-29 19:40:43.136707700 +0100
++++ dxgitype.h	2017-07-29 19:41:29.358281300 +0100
 @@ -93,4 +93,28 @@
      DXGI_RGB GammaCurve[1025];
  } DXGI_GAMMA_CONTROL;

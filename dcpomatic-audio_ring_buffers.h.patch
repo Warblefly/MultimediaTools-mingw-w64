@@ -1,0 +1,10 @@
+--- src/lib/audio_ring_buffers.h.orig	2017-09-09 11:06:21.620756500 +0100
++++ src/lib/audio_ring_buffers.h	2017-09-09 11:06:49.469168800 +0100
+@@ -26,6 +26,7 @@
+ #include "dcpomatic_time.h"
+ #include <boost/shared_ptr.hpp>
+ #include <boost/thread.hpp>
++#include <iostream>
+ #include <list>
+ 
+ class AudioRingBuffers : public boost::noncopyable

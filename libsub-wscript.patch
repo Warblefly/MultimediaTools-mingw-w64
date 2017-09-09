@@ -1,0 +1,16 @@
+--- wscript.orig	2017-09-09 11:47:10.551359800 +0100
++++ wscript	2017-09-09 11:47:49.519367100 +0100
+@@ -34,11 +34,11 @@
+         conf.check_cfg(package='libcxml', atleast_version='0.08', args='--cflags', uselib_store='CXML', mandatory=True)
+         conf.env.STLIB_DCP = ['dcp', 'asdcp-libdcp', 'kumu-libdcp', 'openjpeg']
+         conf.env.LIB_DCP = ['glibmm-2.4', 'ssl', 'crypto', 'bz2', 'xslt', 'xmlsec1', 'xmlsec1-openssl']
+-        conf.check_cfg(package='libdcp', atleast_version='0.98', args='--cflags', uselib_store='DCP', mandatory=True)
++        conf.check_cfg(package='libdcp-1.0', atleast_version='0.98', args='--cflags', uselib_store='DCP', mandatory=True)
+         conf.env.DEFINES_DCP = [f.replace('\\', '') for f in conf.env.DEFINES_DCP]
+     else:
+         conf.check_cfg(package='libcxml', atleast_version='0.08', args='--cflags --libs', uselib_store='CXML', mandatory=True)
+-        conf.check_cfg(package='libdcp', atleast_version='0.97.0', args='--cflags --libs', uselib_store='DCP', mandatory=True)
++        conf.check_cfg(package='libdcp-1.0', atleast_version='0.97.0', args='--cflags --libs', uselib_store='DCP', mandatory=True)
+         conf.env.DEFINES_DCP = [f.replace('\\', '') for f in conf.env.DEFINES_DCP]
+ 
+     boost_lib_suffix = ''

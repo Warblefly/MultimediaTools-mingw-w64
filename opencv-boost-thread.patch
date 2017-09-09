@@ -5,7 +5,7 @@
        # no need to link to system libs with emscripten
      else()
 -      set(OPENCV_LINKER_LIBS ${OPENCV_LINKER_LIBS} dl m pthread rt)
-+      set(OPENCV_LINKER_LIBS ${OPENCV_LINKER_LIBS} dl m pthread rt boost_thread_win32)
++      set(OPENCV_LINKER_LIBS ${OPENCV_LINKER_LIBS} dl m pthread rt boost_thread_win32-mt)
      endif()
    else()
      set(HAVE_LIBPTHREAD YES)

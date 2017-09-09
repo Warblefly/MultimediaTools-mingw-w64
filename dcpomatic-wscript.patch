@@ -8,16 +8,3 @@
                                         '-Wall',
                                         '-Wno-attributes',
                                         '-Wextra',
---- wscript.orig	2017-04-23 13:53:06.448201100 +0100
-+++ wscript	2017-04-23 13:53:39.145805700 +0100
-@@ -121,8 +121,8 @@
-         conf.check(lib='dsound', uselib_store='DSOUND', msg="Checking for library dsound")
-         conf.check(lib='winmm', uselib_store='WINMM', msg="Checking for library winmm")
-         conf.check(lib='ksuser', uselib_store='KSUSER', msg="Checking for library ksuser")
--        boost_lib_suffix = '-mt'
--        boost_thread = 'boost_thread_win32-mt'
-+        boost_lib_suffix = ''
-+        boost_thread = 'boost_thread_win32'
-         conf.check_cxx(fragment="""
-                                #include <boost/locale.hpp>\n
-                                int main() { std::locale::global (boost::locale::generator().generate ("")); }\n
