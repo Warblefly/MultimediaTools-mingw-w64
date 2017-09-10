@@ -761,7 +761,7 @@ build_qt() {
   else
     echo "Skipping QT build... already completed."
     # Remove the debug versions of libQt5 libraries
-    # rm -v ${mingw_w64_x86_64_prefix}/bin/Qt5*d.dll
+    rm -v ${mingw_w64_x86_64_prefix}/bin/Qt5*d.dll
   fi
   ln -sv ${mingw_w64_x86_64_prefix}/bin/Qt*.dll ${mingw_w64_x86_64_prefix}/../bin
   ln -sv ${mingw_w64_x86_64_prefix}/plugins ${mingw_w64_x86_64_prefix}/../plugins
@@ -2361,8 +2361,8 @@ build_tesseract() {
   mkdir tessdata
   cd tessdata
     if [ ! -f tessdata.downloaded ]; then
-      curl https://github.com/tesseract-ocr/tessdata/raw/master/osd.traineddata > osd.traineddata
-      curl https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata > eng.traineddata
+      curl --location https://github.com/tesseract-ocr/tessdata/raw/master/osd.traineddata > osd.traineddata
+      curl --location https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata > eng.traineddata
 #  do_git_checkout https://github.com/tesseract-ocr/tessdata.git tessdata
 #  cd tessdata
       cp -v eng* osd* ${mingw_w64_x86_64_prefix}/share/tessdata
@@ -5275,6 +5275,13 @@ rm -fv ${mingw_w64_x86_64_prefix}/../plugins
 echo "Removing stray link to plugins directory..."
 rm -fv ${mingw_w64_x86_64_prefix}/plugins/plugins
 
+# A number of Windows DLLs have now been duplicated from /lib. They don't
+# belong there. For safety's sake, let's remove only the top directory.
+# Leave all the other files behind. They're sometimes needed for run-time
+# linking or other work.
+echo "Removing DLL files accidentally left in /lib"
+rm -fv ${mingw_w64_x86_64_prefix}/lib/*dll
+
 # The new mingw compilation script has fixed this next hack
 # for library in ${mingw_w64_x86_64_prefix}/../bin/*dll; do
 #   linkname=$(basename $library)
@@ -5294,10 +5301,10 @@ echo "Stripping all binaries..."
 
 # TODO: Check plugin directories for new things that future builds of QT5 might install
 
-${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/bin/*.exe
-${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/bin/*.dll
-${cross_prefix}strip  -p -s -v `find ${mingw_w64_x86_64_prefix}/../lib -name "*dll"`
-${cross_prefix}strip  -p -s -v `find ${mingw_w64_x86_64_prefix}/plugins -name "*dll"`
+${cross_prefix}strip  -p -s -v `find ${mingw_w64_x86_64_prefix} -iname "*.exe"`
+${cross_prefix}strip  -p -s -v `find ${mingw_w64_x86_64_prefix} -iname "*.dll"`
+#${cross_prefix}strip  -p -s -v `find ${mingw_w64_x86_64_prefix}/../lib -name "*dll"`
+#${cross_prefix}strip  -p -s -v `find ${mingw_w64_x86_64_prefix}/plugins -name "*dll"`
 #${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/plugins/bearer/*.dll
 #${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/plugins/generic/*.dll
 #${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/plugins/iconengines/*.dll
