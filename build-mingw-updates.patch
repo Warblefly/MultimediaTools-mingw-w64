@@ -272,3 +272,14 @@
  
    return 0
  }
+--- mingw-w64-build.orig	2017-09-10 17:32:21.968615700 +0100
++++ mingw-w64-build	2017-09-10 17:32:41.924608500 +0100
+@@ -150,7 +150,7 @@
+   clean_build "$bld/mingw-w64"
+   echo "configuring mingw-w64-headers" #>&3
+   "$src/mingw-w64-git/mingw-w64-headers/configure" --build="$build" \
+-    --host="$host" --prefix="$prefix/$host" --enable-secure-api || error_exit
++    --host="$host" --prefix="$prefix/$host" --enable-secure-api --enable-idl || error_exit
+   echo "installing mingw-w64-headers" #>&3
+   make install || error_exit
+   cd "$prefix" || error_exit
