@@ -1,4 +1,4 @@
-§#!/usr/bin/env bash
+#!/usr/bin/env bash
 
 
 
@@ -38,7 +38,7 @@ yes_no_sel () {
 }
 
 check_missing_packages () {
-  local check_packages=('sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint' 'pxz' 'wget' 'zip' 'xmlto' 'gtkdocize' 'python-config' 'ant' 'sdl-config' 'sdl2-config' 'gyp' 'mm-common-prepare' 'sassc' 'nasm' 'ragel' 'gengetopt' 'asn1Parser' 'ronn')
+  local check_packages=('sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint' 'pxz' 'wget' 'zip' 'xmlto' 'gtkdocize' 'python-config' 'ant' 'sdl-config' 'sdl2-config' 'gyp' 'mm-common-prepare' 'sassc' 'nasm' 'ragel' 'gengetopt' 'asn1Parser' 'ronn' 'docbook2x-man')
   for package in "${check_packages[@]}"; do
     type -P "$package" >/dev/null || missing_packages=("$package" "${missing_packages[@]}")
   done
@@ -183,14 +183,14 @@ install_cross_compiler() {
 # because exactly the same binaries exist with the host triplet prefix
 #  rm ${mingw_w64_x86_64_prefix}/bin/objdump ${mingw_w64_x86_64_prefix}/bin/ar ${mingw_w64_x86_64_prefix}/bin/ranlib ${mingw_w64_x86_64_prefix}/bin/objcopy ${mingw_w64_x86_64_prefix}/bin/dlltool ${mingw_w64_x86_64_prefix}/bin/nm ${mingw_w64_x86_64_prefix}/bin/strip ${mingw_w64_x86_64_prefix}/bin/as ${mingw_w64_x86_64_prefix}/bin/ld.bfd ${mingw_w64_x86_64_prefix}/bin/ld 
   # A couple of multimedia-related files need cases changing because of QT5 includes
-  cd x86_64-w64-mingw32/include
+  cd x86_64-w64-mingw32/x86_64-w64-mingw32/include
     ln -s evr9.h Evr9.h
     ln -s mferror.h Mferror.h
     cp -v ${top_dir}/dxgi*.h .
     apply_patch file://${top_dir}/d3d11.h.patch
     apply_patch file://${top_dir}/dxgitype-missing.patch
 #    apply_patch file://${top_dir}/dxgi1_3.h.patch
-  cd ../..
+  cd ../../..
   if [ -d x86_64-w64-mingw32 ]; then
     touch x86_64-w64-mingw32/compiler.done
   fi
@@ -1053,8 +1053,8 @@ build_libxavs() {
 }
 
 build_libpng() {
-  download_and_unpack_file http://download.sourceforge.net/libpng/libpng-1.6.29.tar.xz libpng-1.6.29
-  cd libpng-1.6.29
+  download_and_unpack_file http://download.sourceforge.net/libpng/libpng-1.6.32.tar.xz libpng-1.6.32
+  cd libpng-1.6.32
     # DBL_EPSILON 21 Feb 2015 starts to come back "undefined". I have NO IDEA why.
     grep -lr DBL_EPSILON contrib | xargs sed -i "s| DBL_EPSILON| 2.2204460492503131E-16|g"
     generic_configure_make_install "--enable-shared"
@@ -1225,12 +1225,17 @@ build_libflite() {
 #  cd flite-1.4-release
    download_and_unpack_file http://www.festvox.org/flite/packed/flite-2.0/flite-2.0.0-release.tar.bz2 flite-2.0.0-release
    cd flite-2.0.0-release
-     apply_patch flite_64.diff
+#     apply_patch file://${top_dir}/flite_64.diff
      sed -i.bak "s|i386-mingw32-|$cross_prefix|" configure*
      generic_configure
      do_make
-     make install # it fails in error...
-     cp ./build/x86_64-mingw32/lib/*.a $mingw_w64_x86_64_prefix/lib || exit 1
+     make install # it fails in error..
+     # Now create the shared library
+     cp -v ./build/x86_64-mingw32/lib/libflite.a .
+     ${cross_prefix}gcc -shared -o libflite.dll -Wl,--out-implib,libflite.dll.a -Wl,--whole-archive,libflite.a,--no-whole-archive -lpthread || echo "Files cleaned already. No problem."
+     cp -v ./build/x86_64-mingw32/lib/*.a $mingw_w64_x86_64_prefix/lib 
+     cp -v libflite.dll.a $mingw_w64_x86_64_prefix/lib 
+     cp -v libflite.dll $mingw_w64_x86_64_prefix/bin 
      do_cleanup
    cd ..
 }
@@ -1303,8 +1308,8 @@ build_libdvdcss() {
 
 build_gdb() {
   export LIBS="-lpsapi -ldl"
-  download_and_unpack_file ftp://sourceware.org/pub/gdb/releases/gdb-8.0.tar.xz gdb-8.0
-  cd gdb-8.0
+  download_and_unpack_file ftp://sourceware.org/pub/gdb/releases/gdb-8.0.1.tar.xz gdb-8.0.1
+  cd gdb-8.0.1
 #    cd readline
 #    generic_configure_make_install
 #   cd ..
@@ -1637,7 +1642,6 @@ build_libfribidi() {
 
 build_libass() {
   generic_download_and_install https://github.com/libass/libass/releases/download/0.13.7/libass-0.13.7.tar.gz libass-0.13.7
-  # fribidi, fontconfig, freetype throw them all in there for good measure, trying to help mplayer once though it didn't help [FFmpeg needed a change for fribidi here though I believe]
   sed -i.bak 's/-lass -lm/-lass -lfribidi -lfontconfig -lfreetype -lexpat -lpng -lm/' "$PKG_CONFIG_PATH/libass.pc"
 }
 
@@ -1915,6 +1919,7 @@ build_liba52() {
 build_gnutls() {
   download_and_unpack_file https://www.gnupg.org/ftp/gcrypt/gnutls/v3.3/gnutls-3.3.27.tar.xz gnutls-3.3.27
 #  do_git_checkout https://gitlab.com/gnutls/gnutls.git gnutls
+#  download_and_unpack_file https://www.gnupg.org/ftp/gcrypt/gnutls/v3.6/gnutls-3.6.0.tar.xz gnutls-3.6.0
   cd gnutls-3.3.27
 #    git submodule init
 #    git submodule update
@@ -2014,8 +2019,8 @@ build_libxvid() {
 }
 
 build_fontconfig() {
-  download_and_unpack_file https://www.freedesktop.org/software/fontconfig/release/fontconfig-2.12.3.tar.bz2 fontconfig-2.12.3
-  cd fontconfig-2.12.3
+  download_and_unpack_file https://www.freedesktop.org/software/fontconfig/release/fontconfig-2.12.5.tar.bz2 fontconfig-2.12.5
+  cd fontconfig-2.12.5
     generic_configure "--disable-docs"
     do_make_install
     do_cleanup
@@ -2226,8 +2231,8 @@ build_fdk_aac() {
 
 
 build_libexpat() {
-  generic_download_and_install http://downloads.sourceforge.net/project/expat/expat/2.2.1/expat-2.2.1.tar.bz2 expat-2.2.1
-  cd expat-2.2.1
+  generic_download_and_install http://downloads.sourceforge.net/project/expat/expat/2.2.4/expat-2.2.4.tar.bz2 expat-2.2.4
+  cd expat-2.2.4
     do_cleanup
   cd ..
 }
@@ -2505,7 +2510,7 @@ build_sdl2_image() {
     rm -v aclocal.m4 Makefile.in configure
     do_configure "--host=x86_64-w64-mingw32 --target=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-shared --enable-static"
     do_make_install "V=1"
-    do_make_clean
+    # do_make_clean
   cd ..
 }
 
@@ -2678,8 +2683,8 @@ build_glew() {
 #    cd ../..
 #    generic_configure_make_install
 #  cd ..
-  download_and_unpack_file http://downloads.sourceforge.net/project/glew/glew/snapshots/glew-20170423.tgz glew-2.0.0
-  cd glew-2.0.0
+  download_and_unpack_file https://downloads.sourceforge.net/project/glew/glew/2.1.0/glew-2.1.0.tgz glew-2.1.0
+  cd glew-2.1.0
     sed -i.bak 's/i686-w64-mingw32-/x86_64-w64-mingw32-/g' config/Makefile.linux-mingw-w64
     sed -i.bak "s!LDFLAGS.GL = -lopengl32!LDFLAGS.GL = -L${mingw_w64_x86_64_prefix}/lib -lmsvcrt -lopengl32!" config/Makefile.linux-mingw-w64
     sed -i.bak 's/LDFLAGS.EXTRA += -nostdlib/LDFLAGS.EXTRA +=/' config/Makefile.linux-mingw-w64
@@ -2826,8 +2831,8 @@ build_libtool() {
 }
 
 build_libiberty() {
-  download_and_unpack_file https://launchpad.net/ubuntu/+archive/primary/+files/libiberty_20161220.orig.tar.xz libiberty-20161220
-  cd libiberty-20161220
+  download_and_unpack_file https://launchpad.net/ubuntu/+archive/primary/+files/libiberty_20170627.orig.tar.xz libiberty-20170627
+  cd libiberty-20170627
     do_configure "--host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-shared --disable-static --enable-install-libiberty" "./libiberty/configure"
     do_make_install
     do_cleanup
@@ -3190,8 +3195,8 @@ build_frei0r() {
 }
 
 build_gobject_introspection() {
-  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/gobject-introspection/1.53/gobject-introspection-1.53.3.tar.xz gobject-introspection-1.53.3
-  cd gobject-introspection-1.53.3
+  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/gobject-introspection/1.54/gobject-introspection-1.54.0.tar.xz gobject-introspection-1.54.0
+  cd gobject-introspection-1.54.0
     sed -i.bak 's/PYTHON_LIBS=`\$PYTHON-config --ldflags --libs/PYTHON_LIBS=`$PYTHON-config --ldflags/'  m4/python.m4
     generic_configure_make_install
     do_cleanup
@@ -3217,12 +3222,12 @@ build_gtk2() {
 
 build_gtk() {
   # Now to get to work on a default theme
-  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/adwaita-icon-theme/3.24/adwaita-icon-theme-3.24.0.tar.xz adwaita-icon-theme-3.24.0
-  cd adwaita-icon-theme-3.24.0
+  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/adwaita-icon-theme/3.25/adwaita-icon-theme-3.25.4.tar.xz adwaita-icon-theme-3.25.4
+  cd adwaita-icon-theme-3.25.4
     generic_configure_make_install "--enable-w32-cursors"
   cd ..
-  download_and_unpack_file https://icon-theme.freedesktop.org/releases/hicolor-icon-theme-0.15.tar.xz hicolor-icon-theme-0.15
-  cd hicolor-icon-theme-0.15
+  download_and_unpack_file https://icon-theme.freedesktop.org/releases/hicolor-icon-theme-0.17.tar.xz hicolor-icon-theme-0.17
+  cd hicolor-icon-theme-0.17
     rm -v aclocal.m4 Makefile.in configure
     generic_configure_make_install
   cd ..
@@ -3238,7 +3243,10 @@ build_gtk() {
     # Now regenerate autoconf and automake files
     # rm -v ./configure ./autogen.sh
     apply_patch file://${top_dir}/gtk3-22-12.patch
+    orig_pythonpatch=${PYTHONPATH}
+    export PYTHONPATH=${mingw_w64_x86_64_prefix}/share/glib-2.0/codegen
     generic_configure_make_install "--build=x86_64-unknown-linux-gnu --disable-silent-rules --enable-win32-backend --disable-cups --disable-glibtest --with-included-immodules --disable-test-print-backend"
+    export PYTHONPATH=${orig_pythonpath}
     do_cleanup
 #    export cpu_count=$orig_cpu_count
   cd ..
@@ -3556,7 +3564,7 @@ build_cairomm() {
     apply_patch file://${top_dir}/cairomm-win32_surface.patch
     orig_aclocalpath=${ACLOCAL_PATH}
     export ACLOCAL_PATH="/usr/local/share/aclocal"
-    generic_configure_make_install "--with-boost"
+    generic_configure_make_install # "--with-boost"
     do_make_clean
     export ACLOCAL_PATH=${orig_aclocalpath}
   cd ..
@@ -3976,13 +3984,14 @@ build_pcre() {
 }
 
 build_glib() {
-  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/glib/2.53/glib-2.53.3.tar.xz glib-2.53.3 # Was .1
+  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/glib/2.54/glib-2.54.0.tar.xz glib-2.54.0 # Was 2.53.1
   export orig_cpu=$cpu_count
   export cpu_count=1
-  cd glib-2.53.3
+  cd glib-2.54.0
     export glib_cv_long_long_format=I64
     export glib_cv_stack_grows=no
     apply_patch file://${top_dir}/glib-no-tests.patch
+    rm aclocal.m4
     # Work around mingw-w64 lacking strerror_s()
 #    sed -i.bak 's/strerror_s (buf, sizeof (buf), errnum);/strerror_r (errno, buf, sizeof (buf);/' glib/gstrfuncs.c
     generic_configure_make_install "--disable-compile-warnings --disable-silent-rules CFLAGS=-DMINGW_HAS_SECURE_API --enable-debug=no --enable-installed-tests=no --enable-always-build-tests=no"
@@ -3997,16 +4006,16 @@ build_glib() {
 }
 
 build_atk() {
-  generic_download_and_install http://ftp.gnome.org/pub/GNOME/sources/atk/2.25/atk-2.25.2.tar.xz atk-2.25.2 "--disable-glibtest" # Was 2.24.0
-  cd atk-2.25.2
+  generic_download_and_install http://ftp.gnome.org/pub/GNOME/sources/atk/2.26/atk-2.26.0.tar.xz atk-2.26.0 "--disable-glibtest" # Was 2.25.2
+  cd atk-2.26.0
     do_cleanup
   cd ..
 }
 
 build_gdk_pixbuf() {
-  download_and_unpack_file http://ftp.gnome.org/pub/GNOME/sources/gdk-pixbuf/2.36/gdk-pixbuf-2.36.6.tar.xz gdk-pixbuf-2.36.6 "--with-libjasper --disable-glibtest --enable-always-build-tests=no --enable-relocations --with-included-loaders=yes --build=x86_64-unknown-linux-gnu"
+  download_and_unpack_file http://ftp.gnome.org/pub/GNOME/sources/gdk-pixbuf/2.36/gdk-pixbuf-2.36.10.tar.xz gdk-pixbuf-2.36.10 "--with-libjasper --disable-glibtest --enable-always-build-tests=no --enable-relocations --with-included-loaders=yes --build=x86_64-unknown-linux-gnu"
 #  do_git_checkout https://git.gnome.org/browse/gdk-pixbuf gdk-pixbuf
-    cd gdk-pixbuf-2.36.6
+    cd gdk-pixbuf-2.36.10
       apply_patch file://${top_dir}/gdk-pixbuf.patch
       rm -v ./configure
       generic_configure_make_install "--with-libjasper --disable-glibtest --enable-relocations --with-included-loaders=yes --disable-installed-tests --disable-always-build-tests --build=x86_64-unknown-linux-gnu"  
@@ -4150,8 +4159,8 @@ build_libexif() {
 }
 
 build_libzip() {
-  generic_download_and_install http://www.nih.at/libzip/libzip-1.2.0.tar.xz libzip-1.2.0
-  cd libzip-1.2.0
+  generic_download_and_install http://www.nih.at/libzip/libzip-1.3.0.tar.xz libzip-1.3.0
+  cd libzip-1.3.0
     do_cleanup
   cd ..
 }
@@ -4170,8 +4179,9 @@ build_exif() {
 }
 
 build_hdf() {
-  generic_download_and_install http://www.hdfgroup.org/ftp/HDF5/current/src/hdf5-1.8.19.tar.bz2 hdf5-1.8.19
-  cd hdf5-1.8.19
+  generic_download_and_install https://support.hdfgroup.org/ftp/HDF5/current/src/hdf5-1.10.1.tar.bz2 hdf5-1.10.1
+#  generic_download_and_install http://www.hdfgroup.org/ftp/HDF5/current/src/hdf5-1.8.19.tar.bz2 hdf5-1.8.19
+  cd hdf5-1.10.1
     do_cleanup
   cd ..
 }
@@ -4184,7 +4194,8 @@ build_netcdf() {
 }
 
 build_vlc() {
-  # Not built. VLC requires many static libraries, and that's not really my remit just now.
+  # VLC normally requires its own libraries to be linked. However, it in fact builds with latest
+  # versions of everything compiled here. At the moment..
   do_git_checkout https://github.com/videolan/vlc.git vlc
   cd vlc
     unset CFLAGS
@@ -4280,8 +4291,8 @@ build_mp4box() { # like build_gpac
 }
 
 build_pango() {
-  generic_download_and_install http://ftp.gnome.org/pub/gnome/sources/pango/1.40/pango-1.40.6.tar.xz pango-1.40.6 # Was .5
-  cd pango-1.40.6
+  generic_download_and_install http://ftp.gnome.org/pub/gnome/sources/pango/1.40/pango-1.40.12.tar.xz pango-1.40.12 # Was .6
+  cd pango-1.40.12
     do_cleanup
   cd ..
 }
@@ -4408,8 +4419,8 @@ build_turingcodec() {
 }
 
 build_dbus() {
-  generic_download_and_install https://dbus.freedesktop.org/releases/dbus/dbus-1.11.12.tar.gz dbus-1.11.12
-  cd dbus-1.11.12
+  generic_download_and_install https://dbus.freedesktop.org/releases/dbus/dbus-1.11.16.tar.gz dbus-1.11.16
+  cd dbus-1.11.16
     do_cleanup
   cd ..
 }
@@ -4766,7 +4777,7 @@ build_ffmpeg() {
 #  apply_patch_p1 file://${top_dir}/ffmpeg-decklink-teletext-1-reverse.patch
 #  apply_patch_p1 file://${top_dir}/ffmpeg-decklink-teletext-2-reverse.patch
 
-  config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --disable-doc --enable-libxml2 --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-libmysofa --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libvpx --enable-libilbc --enable-libwavpack --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --enable-d3d11va --enable-nvenc --enable-libopencv --enable-libzmq --enable-nonfree --enable-libfdk-aac --enable-decoder=aac --enable-runtime-cpudetect --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts --extra-cflags=$CFLAGS" # other possibilities: --enable-w32threads --enable-libflite
+  config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --disable-doc --enable-libxml2 --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-libmysofa --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libvpx --enable-libilbc --enable-libwavpack --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --enable-d3d11va --enable-nvenc --enable-libopencv --enable-libzmq --enable-nonfree --enable-libfdk-aac --enable-libflite --enable-decoder=aac --enable-runtime-cpudetect --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts --extra-cflags=$CFLAGS" # other possibilities: --enable-w32threads --enable-libflite
   # sed -i 's/openjpeg-1.5/openjpeg-2.1/' configure # change library path for updated libopenjpeg
   export PKG_CONFIG="pkg-config" # --static
   export LDFLAGS="" # "-static" 
@@ -4850,7 +4861,7 @@ build_dependencies() {
 #  build_libutvideo
   build_opencl
   build_OpenCL
-  #build_libflite # too big for the ffmpeg distro...
+  build_libflite # too big for the ffmpeg distro...
   build_sdl # needed for ffplay to be created
   build_sdl2
   build_libopus
@@ -5257,7 +5268,7 @@ echo "Copying runtime libraries that have gone to the wrong build directory."
   cp -Lv ${mingw_w64_x86_64_prefix}/lib/*dll ${mingw_w64_x86_64_prefix}/bin/ || exit 1
 #done
 # Also copy WxWidgets
-cp -v ${mingw_w64_x86_64_prefix}/lib/wx*dll ${mingw_w64_x86_64_prefix}/bin/ || exit 1
+cp -v ${mingw_w64_x86_64_prefix}/lib/wx*dll ${mingw_w64_x86_64_prefix}/bin/ || "WxWidgets already copied."
 echo "Runtime libraries in wrong directory now copied."
 
 # Many DLLs are put in the compiler's directory. I don't know why, but the 
