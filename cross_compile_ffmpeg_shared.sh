@@ -744,11 +744,15 @@ build_qt() {
     mkdir -p "${QT_BUILD}"
     ln -vs "qt-everywhere-opensource-src-${QT_VERSION}" "${QT_SOURCE}"
     cd "${QT_BUILD}"
-      do_configure "-xplatform win32-g++ -prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -opensource  -qt-freetype -confirm-license -accessibility -nomake examples -nomake tests -debug -debug-and-release -strip -openssl -opengl dynamic -device-option CROSS_COMPILE=$cross_prefix -device-option PKG_CONFIG=${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config -no-use-gold-linker -D MINGW_HAS_SECURE_API -D _WIN32_IE=0x0A00 -v -skip qtactiveqt" "../${QT_SOURCE}/configure" # "noclean" # -skip qtactiveqt
+      do_configure "-xplatform win32-g++ -prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -opensource  -qt-freetype -confirm-license -accessibility -nomake examples -nomake tests -release -strip -openssl -opengl dynamic -device-option CROSS_COMPILE=$cross_prefix -device-option PKG_CONFIG=${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config -no-use-gold-linker -D MINGW_HAS_SECURE_API -D _WIN32_IE=0x0A00 -v -skip qtactiveqt" "../${QT_SOURCE}/configure" # "noclean" # -skip qtactiveqt
       # For sone reason, the compiler doesn't set the include path properly!
       do_make || exit 1
       do_make_install || exit 1
     cd ..
+    # Qt, when building only the release libraries, retains pkgconfig files that refer to 
+    # the debug libraries. We have not build the debug libraries. These references must
+    # therefore be changed to point to the release libraries.
+    /usr/bin/python3 ${top_dir}/fix-Qt-non-debug.py ${mingw_w64_x86_64_prefix}/lib/pkgconfig
     touch "qt.built"
     rm -rf $QT_SOURCE $QT_BUILD
     # QT's build tree takes up over 24GB of space. We don't need to see this again because
@@ -2259,21 +2263,23 @@ build_libsamplerate() {
 
 build_vamp-sdk() {
   export cpu_count=1
-  download_and_unpack_file https://code.soundsoftware.ac.uk/attachments/download/2206/vamp-plugin-sdk-2.7.1.tar.gz vamp-plugin-sdk-2.7.1
-  cd vamp-plugin-sdk-2.7.1
+  do_git_checkout  https://github.com/c4dm/vamp-plugin-sdk.git vamp-plugin-sdk
+  # download_and_unpack_file https://code.soundsoftware.ac.uk/attachments/download/2206/vamp-plugin-sdk-2.7.1.tar.gz vamp-plugin-sdk-2.7.1
+  cd vamp-plugin-sdk
     # Tell the build system to use the mingw-w64 versions of binary utilities
     sed -i.bak 's/AR		= ar/AR		= x86_64-w64-mingw32-ar/' Makefile.in
     sed -i.bak 's/RANLIB		= ranlib/RANLIB		= x86_64-w64-mingw32-ranlib/' Makefile.in
     sed -i.bak 's/sdk plugins host rdfgen test/sdk plugins host rdfgen/' configure
     # M_PI doesn't get defined: it's not standard C++
     apply_patch file://${top_dir}/vamp-M_PI.patch
+    apply_patch file://${top_dir}/vamp-configure.patch
     # Vamp installs shared libraries. They confuse mpv's linker (I think)
     export SNDFILE_LIBS="-lsndfile -lspeex -logg -lspeexdsp -lFLAC -lvorbisenc -lvorbis -logg -lvorbisfile -logg -lFLAC++ -lsndfile"
     generic_configure_make_install
-    do_cleanup
+  #  do_cleanup
     unset SNDFILE_LIBS
-    echo "Now executing rm -fv $mingw_w64_x86_64_prefix/lib/libvamp*.so*"
-    rm -fv $mingw_w64_x86_64_prefix/lib/libvamp*.so*
+  #  echo "Now executing rm -fv $mingw_w64_x86_64_prefix/lib/libvamp*.so*"
+  #  rm -fv $mingw_w64_x86_64_prefix/lib/libvamp*.so*
     export cpu_count=$original_cpu_count
   cd ..
 }
@@ -3197,7 +3203,8 @@ build_frei0r() {
 build_gobject_introspection() {
   download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/gobject-introspection/1.54/gobject-introspection-1.54.0.tar.xz gobject-introspection-1.54.0
   cd gobject-introspection-1.54.0
-    sed -i.bak 's/PYTHON_LIBS=`\$PYTHON-config --ldflags --libs/PYTHON_LIBS=`$PYTHON-config --ldflags/'  m4/python.m4
+    apply_patch file://${top_dir}/gobject-introspection.patch 
+    #    sed -i.bak 's/PYTHON_LIBS=`\$PYTHON-config --ldflags --libs/PYTHON_LIBS=`$PYTHON-config --ldflags/'  m4/python.m4
     generic_configure_make_install
     do_cleanup
   cd ..
@@ -3231,9 +3238,9 @@ build_gtk() {
     rm -v aclocal.m4 Makefile.in configure
     generic_configure_make_install
   cd ..
-  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/gtk+/3.22/gtk+-3.22.16.tar.xz gtk+-3.22.16 # was .12
+  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/gtk+/3.22/gtk+-3.22.19.tar.xz gtk+-3.22.19 # was .12
 #  do_git_checkout https://github.com/GNOME/gtk.git gtk gtk-3-22
-  cd gtk+-3.22.16
+  cd gtk+-3.22.19
 #    orig_cpu_count=$cpu_count
 #    export cpu_count=1
     # Don't attempt to run the icon updater here. It's a Windows executable.
@@ -3241,11 +3248,12 @@ build_gtk() {
 #    apply_patch file://${top_dir}/gtk3-demos-widget-factory-Makefile-am.patch
 #    apply_patch file://${top_dir}/gtk3-modules-input-Makefile.am.patch
     # Now regenerate autoconf and automake files
-    # rm -v ./configure ./autogen.sh
+#    rm -v ./configure ./autogen.sh
     apply_patch file://${top_dir}/gtk3-22-12.patch
-    orig_pythonpatch=${PYTHONPATH}
-    export PYTHONPATH=${mingw_w64_x86_64_prefix}/share/glib-2.0/codegen
-    generic_configure_make_install "--build=x86_64-unknown-linux-gnu --disable-silent-rules --enable-win32-backend --disable-cups --disable-glibtest --with-included-immodules --disable-test-print-backend"
+    orig_pythonpath=${PYTHONPATH}
+    export PYTHON=/usr/bin/python2
+#  export PYTHONPATH=${mingw_w64_x86_64_prefix}/share/glib-2.0/codegen
+    generic_configure_make_install "PYTHON=/usr/bin/python2 --build=x86_64-unknown-linux-gnu --disable-introspection --disable-silent-rules --enable-win32-backend --disable-cups --disable-glibtest --with-included-immodules --disable-test-print-backend"
     export PYTHONPATH=${orig_pythonpath}
     do_cleanup
 #    export cpu_count=$orig_cpu_count
@@ -4000,7 +4008,7 @@ build_glib() {
     unset glib_cv_stack_grows
     # To ensure gtk uses the latest gdbus-codegen, we must ensure that the glib Python utility by this name
     # appears in our PATH
-    cp -v ${mingw_w64_x86_64_prefix}/bin/gdbus-codegen ${mingw_w64_x86_64_prefix}/../bin/gdbus-codegen
+#    cp -v ${mingw_w64_x86_64_prefix}/bin/gdbus-codegen ${mingw_w64_x86_64_prefix}/../bin/gdbus-codegen
   cd ..
   export cpu_count=$orig_cpu
 }
@@ -4724,7 +4732,7 @@ build_get_iplayer() {
   # Don't forget - you MUST have a working Perl interpreter to run this program.
   # Note that this is the development version, that closely tracks the developers' work on changes
   # to the BBC website. It is NOT supported, but may have fixes before the release version.
-  curl -o ${mingw_w64_x86_64_prefix}/bin/get_iplayer.pl https://raw.githubusercontent.com/get-iplayer/get_iplayer/develop/get_iplayer
+  curl -o ${mingw_w64_x86_64_prefix}/bin/get_iplayer.pl https://raw.githubusercontent.com/get-iplayer/get_iplayer/contribute/get_iplayer
 }
 
 build_libdecklink() {
