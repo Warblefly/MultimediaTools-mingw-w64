@@ -493,6 +493,7 @@ setOutPath "$INSTDIR"
 writeUninstaller "$INSTDIR\uninstall.exe"
 
 ${EnvVarUpdate} $0 PATH "A" "HKCU" "$INSTDIR\bin"
+${EnvVarUpdate} $0 PATHEXT "A" "HKCU" ".pl"
 ${EnvVarUpdate} $0 FONTCONFIG_FILE "A" "HKCU" "fonts.conf"
 ${EnvVarUpdate} $0 FONTCONFIG_PATH "A" "HKCU" "$LOCALAPPDATA\fontconfig"
 ${EnvVarUpdate} $0 FREI0R_PATH "A" "HKCU" "$INSTDIR\lib\frei0r-1"
