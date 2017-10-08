@@ -2521,7 +2521,7 @@ build_sdl2_image() {
 }
 
 build_OpenCL() {
-  do_git_checkout https://github.com/KhronosGroup/OpenCL-ICD-Loader.git OpenCL-ICD-Loader
+  do_git_checkout https://github.com/KhronosGroup/OpenCL-ICD-Loader.git OpenCL-ICD-Loader 6849f617e991e8a46eebf746df43032175f263b3
   cd OpenCL-ICD-Loader
     mkdir -v inc/CL
     cp -v ${mingw_w64_x86_64_prefix}/include/CL/* inc/CL/
@@ -3126,14 +3126,23 @@ build_fdkaac-commandline() {
 }
 
 build_poppler() {
-  do_git_checkout git://git.freedesktop.org/git/poppler/poppler poppler poppler-0.57
+  do_git_checkout git://git.freedesktop.org/git/poppler/poppler poppler poppler-0.60.1
   cd poppler
     sed -i.bak 's!string\.h!sec_api/string_s.h!' test/perf-test.cc
-    sed -i.bak 's/noinst_PROGRAMS += perf-test/noinst_PROGRAMS += /' test/Makefile.am
+    #sed -i.bak 's/noinst_PROGRAMS += perf-test/noinst_PROGRAMS += /' test/Makefile.am
     # Allow installation of QT5 PDF viewer
-    sed -i.bak 's/noinst_PROGRAMS = poppler_qt5viewer/bin_PROGRAMS = poppler_qt5viewer/' qt5/demos/Makefile.am
-    generic_configure_make_install "CFLAGS=-DMINGW_HAS_SECURE_API CXXFLAGS=-fpermissive --enable-xpdf-headers --enable-cmyk --enable-libtiff --enable-libopenjpeg=openjpeg2 --enable-zlib-uncompress --enable-libcurl"
+    #sed -i.bak 's/noinst_PROGRAMS = poppler_qt5viewer/bin_PROGRAMS = poppler_qt5viewer/' qt5/demos/Makefile.am
+    #generic_configure_make_install "CFLAGS=-DMINGW_HAS_SECURE_API CXXFLAGS=-fpermissive --enable-xpdf-headers --enable-cmyk --enable-libtiff --enable-libopenjpeg=openjpeg2 --enable-zlib-uncompress --enable-libcurl"
+    export CFLAGS_ORIG="${CFLAGS}"
+    export CFLAGS=-DMINGW_HAS_SECURE_API
+    export CXXFLAGS=-fpermissive
+    export PKG_CONFIG_PATH="${mingw_w64_x86_64_prefix}/lib/pkgconfig"
+    do_cmake "-DENABLE_XPDF_HEADERS=ON -DSPLASH_CMYK=ON -DBUILD_SHARED_LIBS=ON -DENABLE_ZLIB_UNCOMPRESS=ON -DENABLE_GLIB=OFF -DENABLE_LIBOPENJPEG=unmaintained" && ${top_dir}/correct_headers.sh
+    do_make_install
     do_make_clean
+    export CFLAGS="${CFLAGS_ORIG}"
+    unset CXXFLAGS
+#    unset PKG_CONFIG_PATH
   cd ..
 }
 
@@ -3238,9 +3247,9 @@ build_gtk() {
     rm -v aclocal.m4 Makefile.in configure
     generic_configure_make_install
   cd ..
-  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/gtk+/3.22/gtk+-3.22.19.tar.xz gtk+-3.22.19 # was .12
+  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/gtk+/3.22/gtk+-3.22.21.tar.xz gtk+-3.22.21 # was .19
 #  do_git_checkout https://github.com/GNOME/gtk.git gtk gtk-3-22
-  cd gtk+-3.22.19
+  cd gtk+-3.22.21
 #    orig_cpu_count=$cpu_count
 #    export cpu_count=1
     # Don't attempt to run the icon updater here. It's a Windows executable.
@@ -3835,7 +3844,7 @@ build_smake() { # This enables build of cdrtools. Jorg Schilling uses his own ma
 
 
 build_zimg() {
-  do_git_checkout https://github.com/sekrit-twc/zimg.git zimg e6069fa9e883e0e637e0dd2023d444a07b4dc73c
+  do_git_checkout https://github.com/sekrit-twc/zimg.git zimg # e6069fa9e883e0e637e0dd2023d444a07b4dc73c
   cd zimg
     sed -i.bak 's/Windows\.h/windows.h/' src/testcommon/mmap.cpp
     generic_configure_make_install "--enable-x86simd --enable-example" 
@@ -4759,13 +4768,13 @@ build_ffmpeg() {
   # can't mix and match --enable-static --enable-shared unfortunately, or the final executable seems to just use shared if the're both present
   if [[ $shared == "shared" ]]; then
     output_dir=${output_dir}_shared
-    do_git_checkout $git_url ${output_dir} 
+    do_git_checkout $git_url ${output_dir} # 2f7ca0b94e49c2bfce8bda3f883766101ebd7a9b 
     final_install_dir=`pwd`/${output_dir}.installed
     extra_configure_opts="--enable-shared --disable-static $extra_configure_opts"
     # avoid installing this to system?
     extra_configure_opts="$extra_configure_opts --prefix=$final_install_dir"
   else
-    do_git_checkout $git_url $output_dir 
+    do_git_checkout $git_url $output_dir # 2f7ca0b94e49c2bfce8bda3f883766101ebd7a9b
     extra_configure_opts="--enable-shared --disable-static --disable-debug --disable-stripping $extra_configure_opts" # --pkg-config-flags=--static
   fi
   cd $output_dir
@@ -5220,6 +5229,7 @@ install_cross_compiler
 # the header Windows.h needs to appear
 cd ${cur_dir}/x86_64-w64-mingw32/x86_64-w64-mingw32/include
   ln -s windows.h Windows.h
+  ln -s devpkey.h Devpkey.h
   ln -s uiviewsettingsinterop.h UIViewSettingsInterop.h
 cd -
 cd ${cur_dir}/x86_64-w64-mingw32/x86_64-w64-mingw32/lib
