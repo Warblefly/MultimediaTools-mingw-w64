@@ -3,10 +3,10 @@
     # We must instruct it to treat system include files as ordinary include files
 find ./ -name 'includes_CXX.rsp' | while read fname; do
   echo "Correcting headers in ${fname}..."
-  sed -i.bak 's/-isystem /-I/g' "${fname}"
+  sed -i.bak 's/\-isystem /-I/g' "${fname}"
   done
 find ./ -name 'build.make' | while read fname; do
   echo "Correting headers in ${fname}..."
-  sed -i.bak 's/-isystem/-I/g' "${fname}"
+  sed -i.bak 's/\-isystem/-I/g' "${fname}"
   done
 echo "Headers now corrected."

@@ -50,7 +50,7 @@
  SET(LIBS ${LIBS} -L${LIB_DIR_SYS} -lexpat)
  
  SET(COMPILE_OPENJPEG 0)
-+INCLUDE_DIRECTORIES(${SYSROOT_PATH}/include/openjpeg-2.2)
++INCLUDE_DIRECTORIES(${SYSROOT_PATH}/include/openjpeg-2.3)
  SET(LIBS ${LIBS} -lopenjp2)
  
  SET(LIBS ${LIBS} -ltiff -ljpeg)

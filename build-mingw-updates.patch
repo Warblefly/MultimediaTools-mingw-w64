@@ -6,7 +6,7 @@
  v_script="4.0.0"
 -v_binutils="2.28"
 -v_gcc="7.1.0"
-+v_binutils="2.29"
++v_binutils="2.29.1"
 +v_gcc="7.2.0"
  v_gmp="6.1.2"
  v_mpfr="3.1.5"

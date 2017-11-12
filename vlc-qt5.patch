@@ -1,14 +1,3 @@
---- modules/gui/qt/main_interface_win32.cpp.orig	2017-07-22 20:02:33.234050300 +0100
-+++ modules/gui/qt/main_interface_win32.cpp	2017-07-22 20:02:58.013478200 +0100
-@@ -39,7 +39,7 @@
- 
- #if HAS_QT5
- # include <QWindow>
--# include <qpa/qplatformnativeinterface.h>
-+# include <5.9.1/QtGui/qpa/qplatformnativeinterface.h>
- #endif
- 
- #define WM_APPCOMMAND 0x0319
 --- Makefile.am.orig	2017-07-22 21:14:44.180563100 +0100
 +++ Makefile.am	2017-07-22 21:16:19.048542900 +0100
 @@ -107,7 +107,7 @@
@@ -42,3 +31,14 @@
  #endif
  
  #include <math.h>
+--- modules/gui/qt/main_interface_win32.cpp.orig	2017-11-11 14:43:05.848111200 +0000
++++ modules/gui/qt/main_interface_win32.cpp	2017-11-11 14:43:28.779465500 +0000
+@@ -38,7 +38,7 @@
+ #include <assert.h>
+ 
+ #include <QWindow>
+-#include <qpa/qplatformnativeinterface.h>
++#include <5.9.1/QtGui/qpa/qplatformnativeinterface.h>
+ 
+ #define WM_APPCOMMAND 0x0319
+ 

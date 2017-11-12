@@ -186,10 +186,11 @@ install_cross_compiler() {
   cd x86_64-w64-mingw32/x86_64-w64-mingw32/include
     ln -s evr9.h Evr9.h
     ln -s mferror.h Mferror.h
-    cp -v ${top_dir}/dxgi*.h .
+#    cp -v ${top_dir}/dxgi*.h .
     apply_patch file://${top_dir}/d3d11.h.patch
-    apply_patch file://${top_dir}/dxgitype-missing.patch
+#    apply_patch file://${top_dir}/dxgitype-missing.patch
 #    apply_patch file://${top_dir}/dxgi1_3.h.patch
+     cp -v ${top_dir}/dxgi1_6.h .
   cd ../../..
   if [ -d x86_64-w64-mingw32 ]; then
     touch x86_64-w64-mingw32/compiler.done
@@ -645,6 +646,9 @@ do_cleanup() {
 
 build_libx265() {
   do_git_checkout https://github.com/videolan/x265.git x265
+  cd x265
+    apply_patch file://${top_dir}/x265-headers-revert.patch
+  cd ..
   cd x265/source
     local cmake_params="-DENABLE_SHARED=ON -DENABLE_STATIC=OFF -DENABLE_HDR10_PLUS=ON -DENABLE_ASSEMBLY=ON"
     #if [[ $high_bitdepth == "y" ]]; then
@@ -855,6 +859,8 @@ build_DJV() {
     apply_patch file://${top_dir}/djv-djvSystem.cpp.patch
     # Non-portable patch to restore missing #define-s of these math constants
     # that have lately disappeared in Mingw-w64
+    apply_patch file://${top_dir}/djv-FFmpeg.patch
+    # Use #define pulled from FFmpeg source code
     sed -i.bak 's/FLT_EPSILON/1.19209290e-07F/' lib/djvCore/djvMath.cpp
     sed -i.bak 's/DBL_EPSILON/2.2204460492503131e-16/' lib/djvCore/djvMath.cpp
     # FFmpeg's headers have changed. DJV hasn't caught up yet
@@ -871,11 +877,12 @@ build_DJV() {
     # Change Windows' backslashes to forward slashes to allow MinGW compilation
     # Remember that . and \ need escaping with \, which makes this hard to read
     sed -i.bak 's!\.\.\\\\.\.\\\\etc\\\\Windows\\\\djv_view.ico!../../etc/Windows/djv_view.ico!' bin/djv_view/win.rc
-    do_cmake "-DBUILD_SHARED_LIBS=true -DCMAKE_VERBOSE_MAKEFILE=YES -DENABLE_STATIC_RUNTIME=0 -DCMAKE_PREFIX_PATH=${mingw_w64_x86_64_prefix} -DCMAKE_C_FLAGS=-D__STDC_CONSTANT_MACROS -DCMAKE_CXX_FLAGS=-D__STDC_CONSTANT_MACROS -DCMAKE_SUPPRESS_REGENERATION=TRUE" && ${top_dir}/correct_headers.sh
-#    orig_cpu_count=$cpu_count
-#    export cpu_count=1
+    do_cmake "-DBUILD_SHARED_LIBS=true -DCMAKE_VERBOSE_MAKEFILE=YES -DENABLE_STATIC_RUNTIME=0 -DCMAKE_PREFIX_PATH=${mingw_w64_x86_64_prefix} -DCMAKE_C_FLAGS=-D__STDC_CONSTANT_MACROS -DCMAKE_CXX_FLAGS=-D__STDC_CONSTANT_MACROS -DCMAKE_SUPPRESS_REGENERATION=TRUE" 
+    ${top_dir}/correct_headers.sh
+    orig_cpu_count=$cpu_count
+    export cpu_count=1
     do_make "V=1"
-#    export cpu_count=$orig_cpu_count
+    export cpu_count=$orig_cpu_count
     # The whole DJV suite is now in two directories: build/bin and build/lib.
     # bin contains programs and their necessary DLLs, lib contains plugins and development libraries.
     # We need to copy the executables and their companion DLLs to our bin distribution directory
@@ -1018,6 +1025,7 @@ build_dcpomatic() {
   cd dcpomatic
     apply_patch file://${top_dir}/dcpomatic-wscript.patch
     apply_patch file://${top_dir}/dcpomatic-audio_ring_buffers.h.patch
+    apply_patch file://${top_dir}/dcpomatic-ffmpeg.patch
 #    apply_patch file://${top_dir}/dcpomatic-src-wx-wscript.patch
 #    apply_patch file://${top_dir}/dcpomatic-test-wscript.patch
 #    apply_patch file://${top_dir}/dcpomatic-libsub.patch
@@ -1041,6 +1049,13 @@ build_dcpomatic() {
 build_gcal() {
   generic_download_and_install http://ftp.gnu.org/gnu/gcal/gcal-4.1.tar.xz gcal-4.1
   cd gcal-4.1
+    do_cleanup
+  cd ..
+}
+
+build_unbound() {
+  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.6.7 "libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only"
+  cd unbound-1.6.7
     do_cleanup
   cd ..
 }
@@ -1232,6 +1247,7 @@ build_libflite() {
 #     apply_patch file://${top_dir}/flite_64.diff
      sed -i.bak "s|i386-mingw32-|$cross_prefix|" configure*
      generic_configure
+     apply_patch file://${top_dir}/flite-remove-inline.patch
      do_make
      make install # it fails in error..
      # Now create the shared library
@@ -1704,15 +1720,21 @@ build_libxslt() {
 }
 
 build_libxmlsec() {
-  download_and_unpack_file http://www.aleksey.com/xmlsec/download/xmlsec1-1.2.24.tar.gz xmlsec1-1.2.24
-  cd xmlsec1-1.2.24
-    # apply_patch file://${top_dir}/xsltsec-Makefile.in.patch
-    export GCRYPT_LIBS=-lgcrypt
-    export LIBS=-lgcrypt
-    generic_configure_make_install "LIBS=-lgcrypt --disable-silent-rules GCRYPT_LIBS=-lgcrypt --with-gcrypt=${mingw_w64_x86_64_prefix} --disable-silent-rules --enable-docs=no"
-    do_cleanup
-    unset LIBS
-    unset GCRYPT_LIBS
+#  download_and_unpack_file http://www.aleksey.com/xmlsec/download/xmlsec1-1.2.25.tar.gz xmlsec1-1.2.25
+  do_git_checkout https://github.com/lsh123/xmlsec.git xmlsec
+  cd xmlsec
+    apply_patch file://${top_dir}/xmlsec1-x509.patch
+#    export GCRYPT_LIBS=-lgcrypt
+#    export LIBS=-lgcrypt
+    CFLAGS_ORIG=${CFLAGS}
+    env
+    rm autogen.sh
+#    generic_configure_make_install "LIBS=-lgcrypt --disable-silent-rules GCRYPT_LIBS=-lgcrypt --with-gcrypt=${mingw_w64_x86_64_prefix} --disable-silent-rules --enable-docs=no"
+    generic_configure_make_install "--disable-silent-rules --enable-docs=no"
+    do_make_clean
+    
+#    unset LIBS
+#    unset GCRYPT_LIBS
   cd ..
 }
 
@@ -1920,25 +1942,43 @@ build_liba52() {
   export CFLAGS=${original_cflags}
 }
 
+build_p11kit() {
+  generic_download_and_install https://p11-glue.freedesktop.org/releases/p11-kit-0.23.2.tar.gz p11-kit-0.23.2
+  cd p11-kit-0.23.2
+    do_cleanup
+  cd ..
+}
+
+build_libidn2() {
+  do_git_checkout https://github.com/libidn/libidn2.git libidn2
+  cd libidn2
+    generic_configure_make_install
+    do_make_clean
+  cd ..
+}    
+
 build_gnutls() {
-  download_and_unpack_file https://www.gnupg.org/ftp/gcrypt/gnutls/v3.3/gnutls-3.3.27.tar.xz gnutls-3.3.27
-#  do_git_checkout https://gitlab.com/gnutls/gnutls.git gnutls
+#  download_and_unpack_file https://www.gnupg.org/ftp/gcrypt/gnutls/v3.3/gnutls-3.3.27.tar.xz gnutls-3.3.27
+   do_git_checkout https://gitlab.com/gnutls/gnutls.git gnutls
 #  download_and_unpack_file https://www.gnupg.org/ftp/gcrypt/gnutls/v3.6/gnutls-3.6.0.tar.xz gnutls-3.6.0
-  cd gnutls-3.3.27
-#    git submodule init
-#    git submodule update
-#    make autoreconf
-    generic_configure "--disable-doc --enable-local-libopts" # --disable-cxx --disable-doc --without-p11-kit --disable-local-libopts --disable-libopts-install --with-included-libtasn1" # don't need the c++ version, in an effort to cut down on size... XXXX test difference...
+  cd gnutls
+    git submodule init
+    git submodule update
+    make autoreconf
+    generic_configure "--enable-openssl-compatibility --disable-doc --enable-local-libopts --disable-libdane --with-zlib --enable-cxx --enable-nls" # --disable-cxx --disable-doc --without-p11-kit --disable-local-libopts --disable-libopts-install --with-included-libtasn1" # don't need the c++ version, in an effort to cut down on size... XXXX test difference...
     do_make_install
     do_cleanup
   cd ..
-  sed -i.bak 's/-lgnutls *$/-lgnutls -lnettle -lhogweed -lgmp -lcrypt32 -lws2_32 -liconv/' "$PKG_CONFIG_PATH/gnutls.pc"
+  sed -i.bak 's/-lgnutls *$/-lgcrypt -lgnutls -lnettle -lhogweed -lgmp -lcrypt32 -lws2_32 -liconv/' "$PKG_CONFIG_PATH/gnutls.pc"
+  # For some reason, libraries that conflict with mingw-w64-crt are provided. These must go.
+  rm -v ${mingw_w64_x86_64_prefix}/lib/crypt32{.a,.dll.a,.dll}
+  rm -v ${mingw_w64_x86_64_prefix}/lib/ncrypt{.a,.dll.a,.dll}
 }
 
 build_libnettle() {
   download_and_unpack_file https://ftp.gnu.org/gnu/nettle/nettle-3.3.tar.gz nettle-3.3
   cd nettle-3.3
-    generic_configure "--disable-openssl" # in case we have both gnutls and openssl, just use gnutls [except that gnutls uses this so...huh? https://github.com/rdp/ffmpeg-windows-build-helpers/issues/25#issuecomment-28158515
+    generic_configure # "--disable-openssl" # in case we have both gnutls and openssl, just use gnutls [except that gnutls uses this so...huh? https://github.com/rdp/ffmpeg-windows-build-helpers/issues/25#issuecomment-28158515
     do_make_install
     do_cleanup
   cd ..
@@ -2044,40 +2084,49 @@ build_libaacplus() {
 }
 
 build_openssl() {
-  download_and_unpack_file ftp://ftp.openssl.org/source/openssl-1.0.2l.tar.gz openssl-1.0.2l
+  download_and_unpack_file ftp://ftp.openssl.org/source/openssl-1.0.2m.tar.gz openssl-1.0.2m
+#  download_and_unpack_file https://www.openssl.org/source/openssl-1.1.0f.tar.gz openssl-1.1.0f
   # When the manpages are written, they need somewhere to go otherwise there is an error.
   mkdir -pv ${mingw_w64_x86_64_prefix}/include/openssl
   mkdir -pv ${mingw_w64_x86_64_prefix}/lib/engines
   mkdir -pv ${mingw_w64_x86_64_prefix}/ssl/misc
-  cd openssl-1.0.2l
-#  export cross="$cross_prefix"
+  cd openssl-1.0.2m
+  env
+  # apply_patch file://${top_dir}/openssl-1.1.0f.patch
+  #export cross="${cross_prefix}"
   export CROSS_COMPILE="${cross_prefix}"
-#  export CC="${cross}gcc"
-#  export AR="${cross}ar"
-#  export RANLIB="${cross}ranlib"
+  #export CC="x86_64-w64-mingw32-gcc"
+  #export AR="x86_64-w64-mingw32-ar"
+  #export RANLIB="x86_64-w64-mingw32-ranlib"
+  #:export RC="x86_64-w64-mingw32-windres"
   #XXXX do we need no-asm here?
-  if [ "$bits_target" = "32" ]; then
-    do_configure "--prefix=$mingw_w64_x86_64_prefix shared no-asm mingw" ./Configure
-  else
-    do_configure "--prefix=$mingw_w64_x86_64_prefix shared no-asm mingw64" ./Configure
-  fi
+  # apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-openssl/openssl-0.9.6-x509.patch
+  #if [ "$bits_target" = "32" ]; then
+  #  do_configure "--prefix=$mingw_w64_x86_64_prefix shared mingw" ./Configure
+  #else
+  do_configure "--prefix=$mingw_w64_x86_64_prefix zlib shared no-capieng mingw64" ./Configure
+  #fi
+  #do_configure "" ./config
   cpu_count=1
-  do_make
+  do_make # "build_libs"
   do_make "install_sw"
   cpu_count=$original_cpu_count
   unset cross
   unset CC
   unset AR
   unset RANLIB
-  do_cleanup
+  unset RC
+  unset CROSS_COMPILE
+  # do_cleanup
   cd ..
 }
 
 build_libssh() {
-  do_git_checkout git://git.libssh.org/projects/libssh.git libssh
+  download_and_unpack_file https://red.libssh.org/attachments/download/218/libssh-0.7.5.tar.xz libssh-0.7.5
+#  do_git_checkout git://git.libssh.org/projects/libssh.git libssh
   export CMAKE_INCLUDE_PATH=${mingw_w64_x86_64_prefix}/include 
   mkdir libssh_build
-  cd libssh
+  cd libssh-0.7.5
 #    apply_patch file://${top_dir}/libssh-win32.patch
 #    apply_patch file://${top_dir}/libssh-ctx-fix.patch
   cd ..
@@ -2085,9 +2134,9 @@ build_libssh() {
     local touch_name=$(get_small_touchfile_name already_ran_cmake "$extra_args")
     if [ ! -f $touch_name ]; then
       export ZLIB_ROOT_DIR=${mingw_w64_x86_64_prefix}
-      echo doing cmake in ../libssh with PATH=$PATH  with extra_args=$extra_args like this:
-      echo cmake ../libssh -DENABLE_STATIC_RUNTIME=0 -DENABLE_SHARED_RUNTIME=1 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_RANLIB=${cross_prefix}ranlib -DCMAKE_C_COMPILER=${cross_prefix}gcc -DCMAKE_CXX_COMPILER=${cross_prefix}g++ -DCMAKE_RC_COMPILER=${cross_prefix}windres -DCMAKE_INSTALL_PREFIX=$mingw_w64_x86_64_prefix -DWITH_GCRYPT=ON $extra_args || exit 1
-      cmake ../libssh -DENABLE_STATIC_RUNTIME=0 -DENABLE_SHARED_RUNTIME=1 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_RANLIB=${cross_prefix}ranlib -DCMAKE_C_COMPILER=${cross_prefix}gcc -DCMAKE_CXX_COMPILER=${cross_prefix}g++ -DCMAKE_RC_COMPILER=${cross_prefix}windres -DCMAKE_INSTALL_PREFIX=$mingw_w64_x86_64_prefix -DWITH_GCRYPT=ON $extra_args || exit 1
+      echo doing cmake in ../libssh-0.7.5 with PATH=$PATH  with extra_args=$extra_args like this:
+      echo cmake ../libssh-0.7.5 -DENABLE_STATIC_RUNTIME=0 -DENABLE_SHARED_RUNTIME=1 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_RANLIB=${cross_prefix}ranlib -DCMAKE_C_COMPILER=${cross_prefix}gcc -DCMAKE_CXX_COMPILER=${cross_prefix}g++ -DCMAKE_RC_COMPILER=${cross_prefix}windres -DCMAKE_INSTALL_PREFIX=$mingw_w64_x86_64_prefix -DWITH_GCRYPT=ON $extra_args || exit 1
+      cmake ../libssh-0.7.5 -DENABLE_STATIC_RUNTIME=0 -DENABLE_SHARED_RUNTIME=1 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_RANLIB=${cross_prefix}ranlib -DCMAKE_C_COMPILER=${cross_prefix}gcc -DCMAKE_CXX_COMPILER=${cross_prefix}g++ -DCMAKE_RC_COMPILER=${cross_prefix}windres -DCMAKE_INSTALL_PREFIX=$mingw_w64_x86_64_prefix -DWITH_GCRYPT=ON $extra_args || exit 1
       do_make
       do_make_install
       do_make_clean
@@ -2129,7 +2178,8 @@ build_asdcplib-cth() {
 
 build_libdcp() {
   # Branches are slightly askew. 1.0 is where development takes place
-  do_git_checkout https://github.com/cth103/libdcp.git libdcp  1.0
+#  do_git_checkout https://github.com/cth103/libdcp.git libdcp  1.0
+  do_git_checkout https://github.com/cth103/libdcp.git libdcp 1.0
 #  download_and_unpack_file http://carlh.net/downloads/libdcp/libdcp-1.3.4.tar.bz2 libdcp-1.3.4
   cd libdcp
     # M_PI is required. This is a quick way of defining it
@@ -2156,11 +2206,13 @@ build_libdcp() {
 }
 
 build_libsub() {
-  do_git_checkout git://git.carlh.net/git/libsub.git libsub 1.0
+#  do_git_checkout git://git.carlh.net/git/libsub.git libsub 1.0
+  do_git_checkout https://git.carlh.net/git/libsub.git libsub 1.0
 #  download_and_unpack_file http://carlh.net/downloads/libsub/libsub-1.2.4.tar.bz2 libsub-1.2.4
   cd libsub
     # include <iostream> is missing
     apply_patch file://${top_dir}/libdcp-reader.h.patch
+#    apply_patch file://${top_dir}/libsub-2-iostream.patch
 #    apply_patch file://${top_dir}/libdcp-sub_time.h.patch
 #    apply_patch file://${top_dir}/libsub-asdcplib-h__Writer.cpp.patch
     # Our Boost libraries are multithreaded anyway
@@ -2173,7 +2225,7 @@ build_libsub() {
 #    apply_patch file://${top_dir}/libsub_iostream.patch
     export CXX=x86_64-w64-mingw32-g++
     # I thought this was actually the default, but no?
-    export CXXFLAGS="-std=c++11"
+    export CXXFLAGS="-std=c++11 -fpermissive"
     do_configure "configure -v -pp --prefix=${mingw_w64_x86_64_prefix} --target-windows --check-cxx-compiler=gxx --disable-tests" "./waf"
     ./waf build || exit 1
     ./waf install || exit 1
@@ -2340,10 +2392,16 @@ build_libgpg-error() {
 }
 
 build_libgcrypt() {
-#  generic_download_and_install ftp://ftp.gnupg.org/gcrypt/libgcrypt/libgcrypt-1.6.3.tar.gz libgcrypt-1.6.3 "GPG_ERROR_CONFIG=${mingw_w64_x86_64_prefix}/bin/gpg-error-config"
+#  generic_download_and_install ftp://ftp.gnupg.org/gcrypt/libgcrypt/libgcrypt-1.8.1.tar.gz libgcrypt-1.8.1 "GPG_ERROR_CONFIG=${mingw_w64_x86_64_prefix}/bin/gpg-error-config"
   do_git_checkout git://git.gnupg.org/libgcrypt.git libgcrypt
   cd libgcrypt
+    apply_patch file://${top_dir}/libgcrypt-pkgconfig.patch
     generic_configure_make_install "GPG_ERROR_CONFIG=${mingw_w64_x86_64_prefix}/bin/gpg-error-config --disable-doc"
+    echo "Installing pkg-config file because it's added by us"
+    cp -v src/libgcrypt.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig
+#  cd libgcrypt-1.8.1
+#    do_cleanup
+#  cd ..
     do_make_clean
   cd ..
 }
@@ -2486,7 +2544,7 @@ build_sdl2() {
 #      old_hg_version=none-yet
 #  fi
 #  mkdir build
-  do_git_checkout https://github.com/spurious/SDL-mirror.git SDL
+  do_git_checkout https://github.com/SDL-mirror/SDL.git SDL 48bcdfd8cc3db5b100e06ca9d5cdcedd4b46a35a
   cd SDL
 #    apply_patch file://${top_dir}/sdl2.xinput.patch
 #    mkdir -v build
@@ -2511,8 +2569,9 @@ build_sdl2() {
 }
 
 build_sdl2_image() {
-  do_git_checkout https://github.com/SDL-mirror/SDL_image.git SDL_image
-  cd SDL_image
+#  do_git_checkout https://github.com/SDL-mirror/SDL_image.git SDL_image
+  download_and_unpack_file  https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.0.2.tar.gz SDL2_image-2.0.2
+  cd SDL2_image-2.0.2
     rm -v aclocal.m4 Makefile.in configure
     do_configure "--host=x86_64-w64-mingw32 --target=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-shared --enable-static"
     do_make_install "V=1"
@@ -2706,9 +2765,12 @@ build_glew() {
 }
 
 build_libwebp() {
-  do_git_checkout https://github.com/webmproject/libwebp.git libwebp
+  do_git_checkout https://chromium.googlesource.com/webm/libwebp libwebp
   cd libwebp
-    generic_configure_make_install
+    generic_configure_make_install "LIBS=-lSDL2main --enable-libwebpmux --enable-libwebpdemux --enable-libwebpdecoder --enable-libwebpextras --enable-experimental --disable-sdl"
+#    # I don't understand why, but mux.h, required for GraphicMagick, isn't installed
+#    cp -v src/webp/mux.h ${mingw_w64_x86_64_prefix}/include/webp/mux.h
+#    cp -v src/webp/mux_types.h ${mingw_w64_x86_64_prefix}/include/webp/mux_types.h
     do_make_clean
   cd ..
 #  generic_download_and_install http://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-0.6.0.tar.gz libwebp-0.6.0
@@ -2939,6 +3001,7 @@ build_zvbi() {
         do_make_install 
       cd ..
       cp zvbi-0.2.pc $PKG_CONFIG_PATH/zvbi.pc
+      cp zvbi-0.2.pc $PKG_CONFIG_PATH/zvbi-0.2.pc
       touch zvbi.built
 #   there is no .pc for zvbi, so we add --extra-libs=-lpng to FFmpegs configure
       sed -i 's/-lzvbi *$/-lzvbi -lpng -lpthread/' "$PKG_CONFIG_PATH/zvbi.pc"
@@ -3399,6 +3462,7 @@ build_asdcplib() {
   download_and_unpack_file http://download.cinecert.com/asdcplib/asdcplib-2.7.19.tar.gz asdcplib-2.7.19
   cd asdcplib-2.7.19
     rm configure
+    env
     apply_patch file://${top_dir}/asdcplib-shared.patch
     generic_configure_make_install "--with-openssl=${mingw_w64_x86_64_prefix} --with-expat=${mingw_w64_x86_64_prefix}"
     cp -v src/dirent_win.h ${mingw_w64_x86_64_prefix}/include
@@ -3735,8 +3799,8 @@ build_mjpegtools() {
 
 build_file() {
   # Also contains libmagic
-  do_git_checkout https://github.com/file/file.git file_native
-  do_git_checkout https://github.com/file/file.git file
+  do_git_checkout https://github.com/file/file.git file_native # 18726eb5fd61c19f6ba82aefeead820568dededd
+  do_git_checkout https://github.com/file/file.git file # 18726eb5fd61c19f6ba82aefeead820568dededd
   # We use the git version of file and libmagic, which is updated more
   # often than distributions track. File requires its own binary to compile
   # its list of magic numbers. Therefore, because we are cross-compiling, 
@@ -3787,6 +3851,7 @@ build_loudness-scanner() {
     # Rename internal copy of libebur128 because of slight differences
     # update some code for latest FFmpeg
 #    apply_patch file://${top_dir}/ebur128-CMakeLists.txt-private.patch
+    apply_patch file://${top_dir}/loudness-scanner-ffmpeg.patch
     sed -i.bak 's/avcodec_alloc_frame/av_frame_alloc/' scanner/inputaudio/ffmpeg/input_ffmpeg.c 
     do_cmake "-DENABLE_INTERNAL_QUEUE_H=ON"
     sed -i.bak 's/-isystem /-I/g' scanner/scanner-tag/CMakeFiles/scanner-tag.dir/includes_CXX.rsp
@@ -4098,14 +4163,14 @@ build_libcxml(){
   do_git_checkout https://github.com/cth103/libcxml.git libcxml
 #  download_and_unpack_file http://carlh.net/downloads/libcxml/libcxml-0.15.1.tar.bz2 libcxml-0.15.1
   cd libcxml
-#    apply_patch file://${top_dir}/libcxml-libxml++3-check.patch
+#    apply_patch file://${top_dir}/libcxml-shared_ptr.patch
     export ORIG_PKG_CONFIG_PATH=$PKG_CONFIG_PATH
     export PKG_CONFIG_PATH="${mingw_w64_x86_64_prefix}/lib/pkgconfig"
     export CXXFLAGS=-fpermissive
     # libdir must be set
     # We have to tell wscript not to look in /usr/local/lib. This ought not to be hard-coded
     sed -i.bak "s!libpath='/usr/local/!libpath='${mingw_w64_x86_64_prefix}/!" wscript
-    do_configure "configure --target-windows WINRC=x86_64-w64-mingw32-windres CXX=x86_64-w64-mingw32-g++ -vv -pp --prefix=${mingw_w64_x86_64_prefix} --libdir=${mingw_w64_x86_64_prefix}/lib --check-cxx-compiler=gxx" "./waf"
+    do_configure "configure --target-windows -vv -pp --prefix=${mingw_w64_x86_64_prefix} --check-cxx-compiler=gxx" "./waf" # --libdir=${mingw_w64_x86_64_prefix}/lib WINRC=x86_64-w64-mingw32-windres CXX=x86_64-w64-mingw32-g++
     ./waf build || exit 1
     ./waf install || exit 1
     # The installation puts the pkgconfig file and the DLL import library in the wrong place
@@ -4563,10 +4628,11 @@ build_synaesthesia() {
 }
 
 build_harfbuzz() {
-  do_git_checkout https://github.com/behdad/harfbuzz.git harfbuzz
-  cd harfbuzz
+  download_and_unpack_file https://www.freedesktop.org/software/harfbuzz/release/harfbuzz-1.6.3.tar.bz2 harfbuzz-1.6.3
+#  do_git_checkout https://github.com/behdad/harfbuzz.git harfbuzz
+  cd harfbuzz-1.6.3
     generic_configure_make_install
-    do_make_clean
+    do_cleanup
   cd ..
 }
 
@@ -4582,7 +4648,7 @@ build_iculehb() {
 build_rtaudio() {
   do_git_checkout https://github.com/thestk/rtaudio.git rtaudio
   cd rtaudio
-    apply_patch file://${top_dir}/rtaudio-configure.patch
+#    apply_patch file://${top_dir}/rtaudio-configure.patch
     generic_configure_make_install "--with-wasapi"
     do_make_clean
   cd ..
@@ -4725,7 +4791,7 @@ build_graphicsmagick() {
       sed -i.bak 's/Libs: -L\${libdir} -lGraphicsMagick/Libs: -L${libdir} -lGraphicsMagick -lfreetype -lbz2 -lz -llcms2 -lpthread -lpng16 -ltiff -lgdi32 -lgdiplus -ljpeg -lwebp -ljasper/' ../magick/GraphicsMagick.pc.in
       # References to a libcorelib are not needed. The library doesn't exist on my platform
       sed -i.bak 's/-lcorelib//' ../magick/GraphicsMagick.pc.in
-      do_configure "--disable-static --enable-shared --host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-broken-coders --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix} CPPFLAGS=-I${mingw_w64_x86_64_prefix}" "../configure"
+      do_configure "--with-magick-plus-plus --disable-static --enable-shared --host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-broken-coders --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix} CPPFLAGS=-I${mingw_w64_x86_64_prefix}" "../configure"
       do_make_install || exit 1
       cp -v config/* ${mingw_w64_x86_64_prefix}/share/GraphicsMagick-1.4/config/
       do_make_clean
@@ -4755,7 +4821,7 @@ build_libdecklink() {
 build_ffmpeg() {
   local type=$1
   local shared=$2
-  local git_url="https://github.com/FFmpeg/FFmpeg.git"
+  local git_url="https://github.com/mpv-player/ffmpeg-mpv.git" # https://github.com/FFmpeg/FFmpeg.git # "https://github.com/mpv-player/ffmpeg-mpv.git"
   local output_dir="ffmpeg_git"
 
   # FFmpeg + libav compatible options
@@ -4864,15 +4930,20 @@ build_dependencies() {
   build_gmp # for libnettle
   build_pcre # for glib and others
   build_libnettle # needs gmp
-#  build_libunistring # Needed for guile
+  build_openssl
+  build_unbound
+  build_libunistring # Needed for gnutls
+  build_libtasn1
+  build_p11kit # Needed for gnutls
 #  build_libffi # Needed for guile
 #  build_libatomic_ops # Needed for bdw-gc
 #  build_bdw-gc # Needed for guile
 #  build_guile # Needed for autogen
 #  build_autogen # Required for gnutls to see libopts
 #  build_iconv # mplayer I think needs it for freetype [just it though], vlc also wants it.  looks like ffmpeg can use it too...not sure what for :)
+  build_libidn2 # Required for gnutls
   build_gnutls # needs libnettle, can use iconv it appears
-  build_openssl
+#  build_openssl
 #  build_gomp   # Not yet.
   build_gavl # Frei0r has this as an optional dependency
 #  build_libutvideo
@@ -5035,7 +5106,7 @@ build_dependencies() {
   build_ladspa # Not a real build: just copying the API header file into place
   build_librubberband # for mpv
   build_zmq
-  build_libtasn1
+#  build_libtasn1
   build_libdsm
   build_dvbpsi
   build_libebml

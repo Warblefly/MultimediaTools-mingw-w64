@@ -1,22 +1,25 @@
---- src/qjackctlMainForm.cpp.orig	2016-07-14 20:33:45.799000000 +0000
-+++ src/qjackctlMainForm.cpp	2016-07-14 20:39:25.788000000 +0000
-@@ -54,8 +54,10 @@
+--- src/qjackctlMainForm.cpp.orig	2017-11-06 22:27:54.371148100 +0000
++++ src/qjackctlMainForm.cpp	2017-11-06 22:29:49.664060300 +0000
+@@ -54,9 +54,10 @@
  #include <QCloseEvent>
  
- #if defined(WIN32)
+ #if defined(__WIN32__) || defined(_WIN32) || defined(WIN32)
 +#if 0
  #include <QPlastiqueStyle>
  #endif
+-
 +#endif
  
- 
  #if QT_VERSION < 0x040500
-@@ -317,7 +319,7 @@
+ namespace Qt {
+@@ -317,8 +318,10 @@
  	: QWidget(pParent, wflags)
  {
- #if defined(WIN32)
--	QApplication::setStyle(new QPlastiqueStyle());
-+//	QApplication::setStyle(new QPlastiqueStyle());
+ #if defined(__WIN32__) || defined(_WIN32) || defined(WIN32)
++#if 0
+ 	QApplication::setStyle(new QPlastiqueStyle());
  #endif
++#endif
  
  	// Setup UI struct...
+ 	m_ui.setupUi(this);
