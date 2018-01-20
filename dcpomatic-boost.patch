@@ -1,0 +1,11 @@
+--- wscript.orig	2017-12-26 09:22:29.364656740 +0000
++++ wscript	2017-12-26 09:22:55.256354990 +0000
+@@ -124,7 +124,7 @@
+         conf.check(lib='winmm', uselib_store='WINMM', msg="Checking for library winmm")
+         conf.check(lib='ksuser', uselib_store='KSUSER', msg="Checking for library ksuser")
+         boost_lib_suffix = '-mt'
+-        boost_thread = 'boost_thread_win32-mt'
++        boost_thread = 'boost_thread_win32-mt'
+         conf.check_cxx(fragment="""
+                                #include <boost/locale.hpp>\n
+                                int main() { std::locale::global (boost::locale::generator().generate ("")); }\n

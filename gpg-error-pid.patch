@@ -1,0 +1,12 @@
+--- src/w32-add.h.orig	2017-12-09 17:04:11.839157691 +0000
++++ src/w32-add.h	2017-12-09 17:04:35.855499863 +0000
+@@ -5,7 +5,8 @@
+ 
+ /* Fixme: This is a quick hack.  We need to check whether the compiler
+  * actually in use already knows that type.  */
+-typedef int pid_t;
++typedef __int64 _pid_t;
++typedef _pid_t pid_t;
+ 
+ /* Decide whether to use the format_arg attribute.  */
+ #if _GPG_ERR_GCC_VERSION > 20800

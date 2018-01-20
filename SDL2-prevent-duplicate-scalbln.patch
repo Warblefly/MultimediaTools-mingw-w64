@@ -1,0 +1,19 @@
+--- src/libm/s_scalbn.c.orig	2017-11-16 21:26:06.735060500 +0000
++++ src/libm/s_scalbn.c	2017-11-16 21:26:35.353267800 +0000
+@@ -26,6 +26,7 @@
+ huge   = 1.0e+300,
+ tiny   = 1.0e-300;
+ 
++#if 0
+ double scalbln(double x, long n)
+ {
+ 	int32_t k, hx, lx;
+@@ -60,7 +61,7 @@
+ 	return x * twom54;
+ }
+ libm_hidden_def(scalbln)
+-
++#endif
+ 
+ double scalbn(double x, int n)
+ {

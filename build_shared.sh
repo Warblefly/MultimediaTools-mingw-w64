@@ -111,7 +111,7 @@ if  [[ "$dump_archive" = [Yy] ]]; then
  *
  *  http://nsis.sourceforge.net/Environmental_Variables:_append%2C_prepend%2C_and_remove_entries
  *
- */
+ **/
  
  
 !ifndef ENVVARUPDATE_FUNCTION
@@ -423,9 +423,9 @@ LicenseData LICENSE.rtf
 LicenseForceSelection radiobuttons "Accept" "Decline"
 ShowInstDetails show
 ShowUninstDetails show
-SetCompressor lzma
-SetCompressorDictSize 16
-XPStyle off
+SetCompressor lzma 
+;SetCompressorDictSize 64
+XPStyle on
 
 
 Page license
@@ -481,7 +481,7 @@ setOutPath "$INSTDIR\plugins"
 File /nonfatal /r "./plugins/*.*"
 
 setOutPath "$INSTDIR\share"
-File /nonfatal /r "./share/*.*"
+File /nonfatal /r /x doc /x man /x gtk-doc "./share/*.*"
 
 setOutPath "$INSTDIR\doc"
 File /nonfatal /r *./doc/*.*"

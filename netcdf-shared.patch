@@ -1,0 +1,11 @@
+--- liblib/Makefile.am.orig	2017-12-24 14:50:23.082453869 +0000
++++ liblib/Makefile.am	2017-12-24 14:50:43.562339374 +0000
+@@ -18,7 +18,7 @@
+ # for information regarding incrementing `-version-info`.
+ ##
+ 
+-libnetcdf_la_LDFLAGS = -version-info 13:0:0
++libnetcdf_la_LDFLAGS = -no-undefined -version-info 13:0:0
+ 
+ libnetcdf_la_CPPFLAGS = ${AM_CPPFLAGS}
+ libnetcdf_la_LIBADD =

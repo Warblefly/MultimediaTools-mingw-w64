@@ -1,0 +1,11 @@
+--- libs.mk.orig	2017-12-10 16:00:56.754423091 +0000
++++ libs.mk	2017-12-10 16:01:13.161833647 +0000
+@@ -295,7 +295,7 @@
+ 	$(qexec)echo 'Version: $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)' >> $@
+ 	$(qexec)echo 'Requires:' >> $@
+ 	$(qexec)echo 'Conflicts:' >> $@
+-	$(qexec)echo 'Libs: -L$${libdir} -laom -lm' >> $@
++	$(qexec)echo 'Libs: -L$${libdir} -laom -lm -lpthread' >> $@
+ ifeq ($(HAVE_PTHREAD_H),yes)
+ 	$(qexec)echo 'Libs.private: -lm -lpthread' >> $@
+ else

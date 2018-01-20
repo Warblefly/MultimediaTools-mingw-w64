@@ -1,6 +1,10 @@
---- src/modules/rtaudio/config.mak.orig	2017-09-08 14:51:53.234617600 +0100
-+++ src/modules/rtaudio/config.mak	2017-09-08 14:48:25.719734800 +0100
-@@ -1,2 +1,2 @@
- CXXFLAGS += -pthread -D__WINDOWS_WASAPI__ -I/root/src/MultimediaTools-mingw-w64/sandbox/x86_64-w64-mingw32/x86_64-w64-mingw32/include/rtaudio
--LDFLAGS += -L/root/src/MultimediaTools-mingw-w64/sandbox/x86_64-w64-mingw32/x86_64-w64-mingw32/lib -lrtaudio
-+LDFLAGS += -L/root/src/MultimediaTools-mingw-w64/sandbox/x86_64-w64-mingw32/x86_64-w64-mingw32/lib -lrtaudio -lole32 -lwinmm -lksuser -luuid
+--- src/modules/rtaudio/Makefile.orig	2017-12-10 10:11:20.670564941 +0000
++++ src/modules/rtaudio/Makefile	2017-12-10 10:11:37.610279583 +0000
+@@ -1,6 +1,6 @@
+ CFLAGS += -I../..
+ 
+-LDFLAGS += -L../../framework -lmlt -lpthread
++LDFLAGS += -L../../framework -lmlt -lpthread -lole32 -lwinmm -lksuser -luuid
+ 
+ include ../../../config.mak
+ 

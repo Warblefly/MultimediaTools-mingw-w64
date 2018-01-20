@@ -1,0 +1,11 @@
+--- configure.in.orig	2017-12-12 08:12:29.879328801 +0000
++++ configure.in	2017-12-12 08:13:18.330695775 +0000
+@@ -1328,7 +1328,7 @@
+     CFLAGS="$save_CFLAGS"
+ 
+     if test x$have_gcc_declaration_after_statement = xyes; then
+-        EXTRA_CFLAGS="$EXTRA_CFLAGS -Wdeclaration-after-statement -Werror=declaration-after-statement"
++        EXTRA_CFLAGS="$EXTRA_CFLAGS -Wdeclaration-after-statement"
+     fi
+ }
+ 

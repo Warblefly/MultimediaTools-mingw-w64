@@ -1,0 +1,31 @@
+--- Rakefile.orig	2018-01-05 22:39:17.929318413 +0000
++++ Rakefile	2018-01-05 22:40:35.427757444 +0000
+@@ -999,13 +999,13 @@
+ Application.new("src/mkvinfo").
+   description("Build the mkvinfo executable").
+   aliases(:mkvinfo).
+-  sources(FileList["src/info/*.cpp"].to_a.reject { |f| %r{/qt|mkvinfo-gui.cpp|sys_windows.cpp$}.match(f) }).
++  sources(FileList["src/info/*.cpp"].to_a.reject { |f| %r{/qt|mkvinfo-gui.cpp$}.match(f) }).
+   sources("src/info/resources.o", :if => $building_for[:windows]).
+   libraries($common_libs).
+   only_if(c?(:USE_QT)).
+-  qt_dependencies_and_sources("info", :cpp_except => [ "src/info/sys_windows.cpp", "src/info/mkvinfo-gui.cpp" ]).
++  qt_dependencies_and_sources("info", :cpp_except => [ "src/info/mkvinfo-gui.cpp" ]).
+   sources("src/info/qt_resources.cpp").
+-  sources("src/info/sys_windows.cpp", :if => $building_for[:windows]).
++#  sources("src/info/sys_windows.cpp", :if => $building_for[:windows]).
+   libraries(:qt).
+   end_if.
+   libraries($custom_libs).
+@@ -1015,9 +1015,9 @@
+   Application.new("src/mkvinfo-gui").
+     description("Build the mkvinfo-gui executable").
+     aliases("mkvinfo-gui").
+-    qt_dependencies_and_sources("info", :cpp_except => [ "src/info/sys_windows.cpp", "src/info/mkvinfo.cpp" ]).
++    qt_dependencies_and_sources("info", :cpp_except => [ "src/info/mkvinfo.cpp" ]).
+     sources("src/info/qt_resources.cpp").
+-    sources("src/info/sys_windows.cpp", "src/info/resources.o", :if => $building_for[:windows]).
++    sources("src/info/resources.o", :if => $building_for[:windows]).
+     libraries($common_libs, :qt, $custom_libs).
+     libraries("-mwindows", :if => $building_for[:windows]).
+     create

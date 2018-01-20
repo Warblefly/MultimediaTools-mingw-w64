@@ -1,0 +1,11 @@
+--- src/video/yuv2rgb/yuv_rgb.h.orig	2017-11-18 08:07:46.374204100 +0000
++++ src/video/yuv2rgb/yuv_rgb.h	2017-11-18 08:08:13.094175900 +0000
+@@ -16,7 +16,7 @@
+ // For all methods, width and height should be even, if not, the last row/column of the result image won't be affected.
+ // For sse methods, if the width if not divisable by 32, the last (width%32) pixels of each line won't be affected.
+ 
+-/*#include <stdint.h> - handled by sources including this header */
++#include <stdint.h>
+ 
+ typedef enum
+ {
