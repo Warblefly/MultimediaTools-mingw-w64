@@ -444,7 +444,8 @@ do_smake_install() {
 
 
 do_cmake() {
-  extra_args="$1"
+  extra_args=$1
+  source_dir=$2
   local touch_name=$(get_small_touchfile_name already_ran_cmake "$extra_args")
 
   if [ ! -f $touch_name ]; then
@@ -452,8 +453,8 @@ do_cmake() {
     export CMAKE_INCLUDE_PATH="$mingw_w64_x86_64_prefix/include"
     export CMAKE_PREFIX_PATH="$mingw_w64_x86_64_prefix"
     echo doing cmake in $cur_dir2 with PATH=$PATH  with extra_args=$extra_args like this:
-    echo cmake "$1" -DENABLE_STATIC_RUNTIME=0 -DENABLE_SHARED_RUNTIME=1 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_RANLIB=${cross_prefix}ranlib -DCMAKE_C_COMPILER=${cross_prefix}gcc -DCMAKE_CXX_COMPILER=${cross_prefix}g++ -DCMAKE_Fortran_COMPILER:FILEPATH=${cross_prefix}gfortran -DCMAKE_RC_COMPILER=${cross_prefix}windres -DCMAKE_INSTALL_PREFIX=$mingw_w64_x86_64_prefix $extra_args || exit 1
-    cmake -DENABLE_STATIC_RUNTIME=0 -DENABLE_SHARED_RUNTIME=1 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_RANLIB=${cross_prefix}ranlib -DCMAKE_C_COMPILER=${cross_prefix}gcc -DCMAKE_CXX_COMPILER=${cross_prefix}g++ -DCMAKE_RC_COMPILER=${cross_prefix}windres -DCMAKE_INSTALL_PREFIX=$mingw_w64_x86_64_prefix $extra_args || exit 1
+    echo cmake $source_dir $extra_args -DENABLE_STATIC_RUNTIME=0 -DENABLE_SHARED_RUNTIME=1 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_RANLIB=${cross_prefix}ranlib -DCMAKE_C_COMPILER=${cross_prefix}gcc -DCMAKE_CXX_COMPILER=${cross_prefix}g++ -DCMAKE_Fortran_COMPILER:FILEPATH=${cross_prefix}gfortran -DCMAKE_RC_COMPILER=${cross_prefix}windres -DCMAKE_INSTALL_PREFIX=$mingw_w64_x86_64_prefix || exit 1
+    cmake $source_dir $extra_args -DENABLE_STATIC_RUNTIME=0 -DENABLE_SHARED_RUNTIME=1 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_RANLIB=${cross_prefix}ranlib -DCMAKE_C_COMPILER=${cross_prefix}gcc -DCMAKE_CXX_COMPILER=${cross_prefix}g++ -DCMAKE_RC_COMPILER=${cross_prefix}windres -DCMAKE_INSTALL_PREFIX=$mingw_w64_x86_64_prefix || exit 1
     touch $touch_name || exit 1
   fi
 }
@@ -1060,8 +1061,8 @@ build_gcal() {
 }
 
 build_unbound() {
-  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.6.7 "libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only"
-  cd unbound-1.6.7
+  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.6.8 "libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only"
+  cd unbound-1.6.8
     
   cd ..
 }
@@ -2192,7 +2193,7 @@ build_asdcplib-cth() {
 build_libdcp() {
   # Branches are slightly askew. 1.0 is where development takes place
 #  do_git_checkout https://github.com/cth103/libdcp.git libdcp  1.0
-  do_git_checkout https://github.com/cth103/libdcp.git libdcp 1.0
+  do_git_checkout https://github.com/cth103/libdcp.git libdcp
 #  download_and_unpack_file http://carlh.net/downloads/libdcp/libdcp-1.3.4.tar.bz2 libdcp-1.3.4
   cd libdcp
     # M_PI is required. This is a quick way of defining it
@@ -2220,7 +2221,7 @@ build_libdcp() {
 
 build_libsub() {
 #  do_git_checkout git://git.carlh.net/git/libsub.git libsub 1.0
-  do_git_checkout https://git.carlh.net/git/libsub.git libsub 1.0
+  do_git_checkout https://git.carlh.net/git/libsub.git libsub 
 #  download_and_unpack_file http://carlh.net/downloads/libsub/libsub-1.2.4.tar.bz2 libsub-1.2.4
   cd libsub
     # include <iostream> is missing
@@ -4611,9 +4612,13 @@ build_aom() {
     export AR=x86_64-w64-mingw32-ar
     export CXX=x86_64-w64-mingw32-g++
     apply_patch file://${top_dir}/aom-pthread.patch
-    do_configure "--target=x86_64-win64-gcc --prefix=${mingw_w64_x86_64_prefix} --enable-webm-io --enable-pic --enable-multithread --enable-runtime-cpu-detect --enable-postproc --enable-av1 --enable-lowbitdepth --disable-unit-tests"
-    do_make
-    do_make_install
+#    do_configure "--target=x86_64-win64-gcc --prefix=${mingw_w64_x86_64_prefix} --enable-webm-io --enable-pic --enable-multithread --enable-runtime-cpu-detect --enable-postproc --enable-av1 --enable-lowbitdepth --disable-unit-tests"
+    mkdir -v ../aom_build
+    cd ../aom_build
+      do_cmake ../aom/. "-DAOM_TARGET_CPU=x86_64 -DCMAKE_TOOLCHAIN_FILE=../aom/build/cmake/toolchains/x86_64-mingw-gcc.cmake"
+      do_make
+      do_make_install
+    cd ../aom
     
     export LDFLAGS=${old_LDFLAGS}
     export CFLAGS=${old_CFLAGS}
@@ -4701,7 +4706,7 @@ build_cmark() {
   cd cmark
     mkdir build
     cd build
-      do_cmake .. "-DCMARK_STATIC:OFF -DCMARK_SHARED:ON"
+    do_cmake .. "-DCMARK_STATIC=OFF -DCMARK_SHARED=ON"
       do_make
       do_make_install
     cd ..

@@ -1,11 +1,11 @@
---- libs.mk.orig	2017-12-10 16:00:56.754423091 +0000
-+++ libs.mk	2017-12-10 16:01:13.161833647 +0000
-@@ -295,7 +295,7 @@
- 	$(qexec)echo 'Version: $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)' >> $@
- 	$(qexec)echo 'Requires:' >> $@
- 	$(qexec)echo 'Conflicts:' >> $@
--	$(qexec)echo 'Libs: -L$${libdir} -laom -lm' >> $@
-+	$(qexec)echo 'Libs: -L$${libdir} -laom -lm -lpthread' >> $@
- ifeq ($(HAVE_PTHREAD_H),yes)
- 	$(qexec)echo 'Libs.private: -lm -lpthread' >> $@
- else
+--- build/cmake/pkg_config.cmake.orig	2018-01-21 19:02:31.544323989 +0000
++++ build/cmake/pkg_config.cmake	2018-01-21 19:02:52.640335580 +0000
+@@ -48,7 +48,7 @@
+ file(APPEND "${pkgconfig_file}" "Version: ${package_version}\n")
+ file(APPEND "${pkgconfig_file}" "Requires:\n")
+ file(APPEND "${pkgconfig_file}" "Conflicts:\n")
+-file(APPEND "${pkgconfig_file}" "Libs: -L${prefix}/lib -l${pkg_name} -lm\n")
++file(APPEND "${pkgconfig_file}" "Libs: -L${prefix}/lib -l${pkg_name} -lm -lpthread\n")
+ if (CONFIG_MULTITHREAD AND HAVE_PTHREAD_H)
+   file(APPEND "${pkgconfig_file}" "Libs.private: -lm -lpthread\n")
+ else ()
