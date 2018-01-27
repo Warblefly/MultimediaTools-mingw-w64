@@ -1,0 +1,23 @@
+--- modules/codec/aom.c.orig	2018-01-27 22:42:34.071882933 +0000
++++ modules/codec/aom.c	2018-01-27 22:42:52.511101229 +0000
+@@ -447,8 +447,7 @@
+         }
+     }
+ 
+-    aom_codec_err_t res = aom_codec_encode(ctx, &img, p_pict->date, 1, 0,
+-                                           AOM_DL_GOOD_QUALITY);
++    aom_codec_err_t res = aom_codec_encode(ctx, &img, p_pict->date, 1, 0);
+     if (res != AOM_CODEC_OK) {
+         AOM_ERR(p_enc, ctx, "Failed to encode frame");
+         aom_img_free(&img);
+--- modules/codec/aom.c.orig	2018-01-27 23:23:50.949599691 +0000
++++ modules/codec/aom.c	2018-01-27 23:28:59.988311632 +0000
+@@ -174,7 +174,7 @@
+     *pkt_pts = block->i_pts;
+ 
+     aom_codec_err_t err;
+-    err = aom_codec_decode(ctx, block->p_buffer, block->i_buffer, pkt_pts, 0);
++    err = aom_codec_decode(ctx, block->p_buffer, block->i_buffer, pkt_pts);
+ 
+     block_Release(block);
+ 

@@ -4313,6 +4313,7 @@ build_vlc() {
     apply_patch file://${top_dir}/vlc-qt5.patch
     apply_patch file://${top_dir}/vlc-more-static.patch
     apply_patch file://${top_dir}/vlc-dll-dirs.patch
+    apply_patch file://${top_dir}/vlc-aom.patch
     export LIVE555_CFLAGS="-I${mingw_w64_x86_64_prefix}/include/liveMedia -I${mingw_w64_x86_64_prefix}/include/UsageEnvironment -I${mingw_w64_x86_64_prefix}/include/BasicUsageEnvironment -I${mingw_w64_x86_64_prefix}/include/groupsock"
     export DSM_LIBS="-lws2_32 -ldsm"
     export BUILDCC=/usr/bin/gcc
@@ -4816,40 +4817,51 @@ build_jasper() {
 }
 
 build_graphicsmagick() {
-  local old_hg_version
-  if [[ -d GM ]]; then
-    cd GM
-      echo "doing hg pull -u GM"
-      old_hg_version=`hg --debug id -i`
-     hg pull -u || exit 1
-     hg update || exit 1 # guess you need this too if no new changes are brought down [what the...]
-  else
-    hg clone http://hg.code.sf.net/p/graphicsmagick/code GM || exit 1
-    cd GM
-      old_hg_version=none-yet
-  fi
-  mkdir build
-
-  local new_hg_version=`hg --debug id -i`
-  if [[ "$old_hg_version" != "$new_hg_version" ]]; then
-    echo "got upstream hg changes, forcing rebuild...GraphicsMagick"
-    apply_patch file://${top_dir}/graphicmagick-mingw64.patch
+#  local old_hg_version
+#  if [[ -d GM ]]; then
+#    cd GM
+#      echo "doing hg pull -u GM"
+#      old_hg_version=`hg --debug id -i`
+#     hg pull -u || exit 1
+#     hg update || exit 1 # guess you need this too if no new changes are brought down [what the...]
+#  else
+#    hg clone http://hg.code.sf.net/p/graphicsmagick/code GM || exit 1
+#    cd GM
+#      old_hg_version=none-yet
+#  fi
+#  mkdir build
+#
+#  local new_hg_version=`hg --debug id -i`
+#  if [[ "$old_hg_version" != "$new_hg_version" ]]; then
+#    echo "got upstream hg changes, forcing rebuild...GraphicsMagick"
+#    apply_patch file://${top_dir}/graphicmagick-mingw64.patch
+#    cd build
+#      rm already*
+#      # Add extra libraries to those required to link with libGraphicsMagick
+#      sed -i.bak 's/Libs: -L\${libdir} -lGraphicsMagick/Libs: -L${libdir} -lGraphicsMagick -lfreetype -lbz2 -lz -llcms2 -lpthread -lpng16 -ltiff -lgdi32 -lgdiplus -ljpeg -lwebp -ljasper/' ../magick/GraphicsMagick.pc.in
+#      # References to a libcorelib are not needed. The library doesn't exist on my platform
+#      sed -i.bak 's/-lcorelib//' ../magick/GraphicsMagick.pc.in
+#      do_configure "--with-magick-plus-plus --enable-magick-compat --without-modules --with-fpx --disable-static --enable-shared --host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-broken-coders --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix} CPPFLAGS=-I${mingw_w64_x86_64_prefix}" "../configure"
+#      do_make_install || exit 1
+#      cp -v config/* ${mingw_w64_x86_64_prefix}/share/GraphicsMagick-1.4/config/
+#      
+#    cd ..
+#  else
+#    echo "still at hg $new_hg_version GraphicsMagick"
+#  fi
+#  cd ..
+  download_and_unpack_file https://sourceforge.net/code-snapshots/hg/g/gr/graphicsmagick/code/graphicsmagick-code-baae93bf73b8701b03340b6ec0b9aaa4ba961d89.zip graphicsmagick-code-baae93bf73b8701b03340b6ec0b9aaa4ba961d89
+  cd graphicsmagick-code-baae93bf73b8701b03340b6ec0b9aaa4ba961d89
+    mkdir -v build
     cd build
-      rm already*
-#      generic_download_and_install ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020150919.tar.xz GraphicsMagick-1.4.020150919 "--host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-magick-compat --disable-shared --enable-static --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix}/include CPPFLAGS=-I${mingw_w64_x86_64_prefix}" 
-#      do_configure "--host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-magick-compat --disable-shared --enable-static --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix}/include CPPFLAGS=-I${mingw_w64_x86_64_prefix}" "../configure"
       # Add extra libraries to those required to link with libGraphicsMagick
       sed -i.bak 's/Libs: -L\${libdir} -lGraphicsMagick/Libs: -L${libdir} -lGraphicsMagick -lfreetype -lbz2 -lz -llcms2 -lpthread -lpng16 -ltiff -lgdi32 -lgdiplus -ljpeg -lwebp -ljasper/' ../magick/GraphicsMagick.pc.in
       # References to a libcorelib are not needed. The library doesn't exist on my platform
       sed -i.bak 's/-lcorelib//' ../magick/GraphicsMagick.pc.in
-      do_configure "--with-magick-plus-plus --disable-static --enable-shared --host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-broken-coders --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix} CPPFLAGS=-I${mingw_w64_x86_64_prefix}" "../configure"
+      do_configure "--with-magick-plus-plus --enable-magick-compat --without-modules --with-fpx --disable-static --enable-shared --host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-broken-coders --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix} CPPFLAGS=-I${mingw_w64_x86_64_prefix}" "../configure"
       do_make_install || exit 1
       cp -v config/* ${mingw_w64_x86_64_prefix}/share/GraphicsMagick-1.4/config/
-      
     cd ..
-  else
-    echo "still at hg $new_hg_version GraphicsMagick"
-  fi
   cd ..
 }
 
