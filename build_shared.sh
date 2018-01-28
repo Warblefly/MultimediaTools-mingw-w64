@@ -423,9 +423,9 @@ LicenseData LICENSE.rtf
 LicenseForceSelection radiobuttons "Accept" "Decline"
 ShowInstDetails show
 ShowUninstDetails show
-SetCompressor lzma 
-;SetCompressorDictSize 64
-XPStyle on
+SetCompressor /SOLID lzma 
+SetCompressorDictSize 128
+XPStyle off
 
 
 Page license
