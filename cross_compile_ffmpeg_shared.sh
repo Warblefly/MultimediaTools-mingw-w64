@@ -1899,6 +1899,7 @@ build_icu_with_iculehb() {
   cp -v ${mingw_w64_x86_64_prefix}/lib/libicuuc.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuuc60.dll.a
   cp -v ${mingw_w64_x86_64_prefix}/lib/iculx.dll ${mingw_w64_x86_64_prefix}/lib/libiculx.dll
   cp -v ${mingw_w64_x86_64_prefix}/lib/iculx60.dll ${mingw_w64_x86_64_prefix}/lib/libiculx60.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libiculx.dll.a ${mingw_w64_x86_64_prefix}/lib/libiculx60.dll.a
 }
 
 
@@ -3606,7 +3607,7 @@ build_libuuid() {
 }
 
 build_zmq() {
-  do_git_checkout https://github.com/zeromq/libzmq libzmq
+  do_git_checkout https://github.com/zeromq/libzmq libzmq 4e2b9e6e07d4622d094febf8c4f61f9f191fd9ae
   cd libzmq
     generic_configure_make_install
     
