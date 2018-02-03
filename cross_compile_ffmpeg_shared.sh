@@ -38,7 +38,7 @@ yes_no_sel () {
 }
 
 check_missing_packages () {
-  local check_packages=('sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint' 'pxz' 'wget' 'zip' 'xmlto' 'gtkdocize' 'python-config' 'ant' 'sdl-config' 'sdl2-config' 'gyp' 'mm-common-prepare' 'sassc' 'nasm' 'ragel' 'gengetopt' 'asn1Parser' 'ronn' 'docbook2x-man' 'intltool-update' 'gtk-update-icon-cache' 'gdk-pixbuf-csource' 'interdiff' 'luac' 'makensis')
+  local check_packages=('bzip2' 'rsync' 'sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint' 'pxz' 'wget' 'zip' 'xmlto' 'gtkdocize' 'python-config' 'ant' 'sdl-config' 'sdl2-config' 'gyp' 'mm-common-prepare' 'sassc' 'nasm' 'ragel' 'gengetopt' 'asn1Parser' 'ronn' 'docbook2x-man' 'intltool-update' 'gtk-update-icon-cache' 'gdk-pixbuf-csource' 'interdiff' 'luac' 'makensis')
   for package in "${check_packages[@]}"; do
     type -P "$package" >/dev/null || missing_packages=("$package" "${missing_packages[@]}")
   done
@@ -753,7 +753,7 @@ build_qt() {
       echo "QMAKE_LINK_OBJECT_SCRIPT = object_script" >> qtbase/mkspecs/win32-g++/qmake.conf
     cd ..
     cd "${QT_BUILD}"
-      do_configure "-xplatform win32-g++ -prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -opensource  -qt-freetype -confirm-license -accessibility -nomake examples -nomake tests -skip qtwebglplugin -release -strip -openssl -opengl dynamic -device-option CROSS_COMPILE=$cross_prefix -device-option PKG_CONFIG=${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config -no-use-gold-linker -D MINGW_HAS_SECURE_API -D _WIN32_IE=0x0A00 -v -skip qtactiveqt" "../${QT_SOURCE}/configure" # "noclean" # -skip qtactiveqt
+      do_configure "-xplatform win32-g++ -prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -opensource  -qt-freetype -confirm-license -accessibility -nomake examples -nomake tests -skip qtwebglplugin -release -strip -openssl -opengl dynamic -device-option CROSS_COMPILE=$cross_prefix -device-option PKG_CONFIG=${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config -no-use-gold-linker -D MINGW_HAS_SECURE_API -D _WIN32_IE=0x0A00 -v -skip qtactiveqt" "../qt-everywhere-src-${QT_VERSION}/configure" # "noclean" # -skip qtactiveqt
       # For sone reason, the compiler doesn't set the include path properly!
       do_make || exit 1
       do_make_install || exit 1
@@ -1479,9 +1479,9 @@ build_ncurses() {
     wget http://invisible-island.net/datafiles/current/terminfo.src.gz
     gunzip terminfo.src.gz
   fi
- download_and_unpack_file http://invisible-mirror.net/archives/ncurses/current/ncurses-6.0-20171216.tgz ncurses-6.0-20171216
+  download_and_unpack_file http://invisible-mirror.net/archives/ncurses/current/ncurses-6.1-20180127.tgz ncurses-6.1-20180127
  # generic_configure "--build=x86_64-pc-linux --host=x86_64-w64-mingw32 --with-libtool --disable-termcap --enable-widec --enable-term-driver --enable-sp-funcs --without-ada --with-debug=no --with-shared=yes --with-normal=no --enable-database --with-progs --enable-interop --with-pkg-config-libdir=${mingw_w64_x86_64_prefix}/lib/pkgconfig --enable-pc-files"
-  cd ncurses-6.0-20171216
+  cd ncurses-6.1-20180127
 #    apply_patch file://${top_dir}/ncurses-rx.patch
 #    rm configure
     generic_configure "LIBS=-lgnurx --build=x86_64-pc-linux --host=x86_64-w64-mingw32 --disable-termcap --enable-widec --enable-term-driver --enable-sp-funcs --without-ada --without-cxx-binding --with-debug=no --with-shared=yes --with-normal=no --enable-database --with-probs --enable-interop --with-pkg-config-libdir=${mingw_w64_x86_64_prefix}/lib/pkgconfig --enable-pc-files --disable-static --enable-shared"
