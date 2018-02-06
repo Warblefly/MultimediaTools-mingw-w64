@@ -38,7 +38,7 @@ yes_no_sel () {
 }
 
 check_missing_packages () {
-  local check_packages=('bzip2' 'rsync' 'sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint' 'pxz' 'wget' 'zip' 'xmlto' 'gtkdocize' 'python-config' 'ant' 'sdl-config' 'sdl2-config' 'gyp' 'mm-common-prepare' 'sassc' 'nasm' 'ragel' 'gengetopt' 'asn1Parser' 'ronn' 'docbook2x-man' 'intltool-update' 'gtk-update-icon-cache' 'gdk-pixbuf-csource' 'interdiff' 'luac' 'makensis')
+  local check_packages=('cmp' 'bzip2' 'rsync' 'sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint' 'pxz' 'wget' 'zip' 'xmlto' 'gtkdocize' 'python-config' 'ant' 'sdl-config' 'sdl2-config' 'gyp' 'mm-common-prepare' 'sassc' 'nasm' 'ragel' 'gengetopt' 'asn1Parser' 'ronn' 'docbook2x-man' 'intltool-update' 'gtk-update-icon-cache' 'gdk-pixbuf-csource' 'interdiff' 'luac' 'makensis')
   for package in "${check_packages[@]}"; do
     type -P "$package" >/dev/null || missing_packages=("$package" "${missing_packages[@]}")
   done
@@ -1061,7 +1061,7 @@ build_gcal() {
 }
 
 build_unbound() {
-  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.6.8 "libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only"
+  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.6.8 "libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
   cd unbound-1.6.8
     
   cd ..
@@ -1293,8 +1293,9 @@ build_libopus() {
 
 build_libdvdread() {
   build_libdvdcss
-  download_and_unpack_file http://download.videolan.org/pub/videolan/libdvdread/5.0.3/libdvdread-5.0.3.tar.bz2 libdvdread-5.0.3
-  cd libdvdread-5.0.3
+  do_git_checkout https://code.videolan.org/videolan/libdvdread.git libdvdread
+#  download_and_unpack_file http://download.videolan.org/pub/videolan/libdvdread/5.0.3/libdvdread-5.0.3.tar.bz2 libdvdread-5.0.3
+  cd libdvdread
   # Need this to help libtool not object
   sed -i.bak 's/libdvdread_la_LDFLAGS = -version-info $(DVDREAD_LTVERSION)/libdvdread_la_LDFLAGS = -version-info $(DVDREAD_LTVERSION) -no-undefined/' Makefile.am
   generic_configure "--with-libdvdcss CFLAGS=-DHAVE_DVDCSS_DVDCSS_H LDFLAGS=-ldvdcss" # vlc patch: "--enable-libdvdcss" # XXX ask how I'm *supposed* to do this to the dvdread peeps [svn?]
@@ -1307,8 +1308,9 @@ build_libdvdread() {
 }
 
 build_libdvdnav() {
-  download_and_unpack_file http://download.videolan.org/pub/videolan/libdvdnav/5.0.3/libdvdnav-5.0.3.tar.bz2 libdvdnav-5.0.3
-  cd libdvdnav-5.0.3
+  do_git_checkout https://code.videolan.org/videolan/libdvdnav.git libdvdnav
+#  download_and_unpack_file http://download.videolan.org/pub/videolan/libdvdnav/5.0.3/libdvdnav-5.0.3.tar.bz2 libdvdnav-5.0.3
+  cd libdvdnav
  # if [[ ! -f ./configure ]]; then
  #   ./autogen.sh
   #fi
@@ -1654,7 +1656,7 @@ build_libtheora() {
 build_libfribidi() {
   # generic_download_and_install http://fribidi.org/download/fribidi-0.19.5.tar.bz2 fribidi-0.19.5 # got report of still failing?
   #  download_and_unpack_file http://fribidi.org/download/fribidi-0.19.7.tar.bz2 fribidi-0.19.7
-  download_and_unpack_file http://pkgs.fedoraproject.org/repo/pkgs/fribidi/fribidi-0.19.7.tar.bz2/6c7e7cfdd39c908f7ac619351c1c5c23/fribidi-0.19.7.tar.bz2 fribidi-0.19.7
+  download_and_unpack_file https://ftp.osuosl.org/pub/blfs/conglomeration/fribidi/fribidi-0.19.7.tar.bz2 fribidi-0.19.7
   cd fribidi-0.19.7
     # make it export symbols right...
 #    apply_patch file://${top_dir}/fribidi.diff
@@ -2303,7 +2305,7 @@ build_fdk_aac() {
 
 build_libexpat() {
   do_git_checkout https://github.com/libexpat/libexpat.git libexpat
-  #  generic_download_and_install http://downloads.sourceforge.net/project/expat/expat/2.2.4/expat-2.2.4.tar.bz2 expat-2.2.4
+ # generic_download_and_install http://downloads.sourceforge.net/project/expat/expat/2.2.5/expat-2.2.5.tar.bz2 expat-2.2.5
   cd libexpat/expat
     generic_configure_make_install
   cd ../..
@@ -3043,7 +3045,7 @@ build_libmodplug() {
 build_libcaca() {
   local cur_dir2=$(pwd)/libcaca
 #  do_git_checkout git://github.com/cacalabs/libcaca libcaca
-  download_and_unpack_file http://pkgs.fedoraproject.org/repo/pkgs/libcaca/libcaca-0.99.beta19.tar.gz/a3d4441cdef488099f4a92f4c6c1da00/libcaca-0.99.beta19.tar.gz libcaca-0.99.beta19
+  download_and_unpack_file http://caca.zoy.org/raw-attachment/wiki/libcaca/libcaca-0.99.beta19.tar.gz libcaca-0.99.beta19
   cd libcaca-0.99.beta19
   # vsnprintf is defined both in libcaca and by mingw-w64-4.0.1 so we'll keep the system definition
   apply_patch_p1 file://${top_dir}/libcaca-vsnprintf.patch
@@ -4314,7 +4316,7 @@ build_vlc() {
     apply_patch file://${top_dir}/vlc-qt5.patch
     apply_patch file://${top_dir}/vlc-more-static.patch
     apply_patch file://${top_dir}/vlc-dll-dirs.patch
-    apply_patch file://${top_dir}/vlc-aom.patch
+#    apply_patch file://${top_dir}/vlc-aom.patch
     export LIVE555_CFLAGS="-I${mingw_w64_x86_64_prefix}/include/liveMedia -I${mingw_w64_x86_64_prefix}/include/UsageEnvironment -I${mingw_w64_x86_64_prefix}/include/BasicUsageEnvironment -I${mingw_w64_x86_64_prefix}/include/groupsock"
     export DSM_LIBS="-lws2_32 -ldsm"
     export BUILDCC=/usr/bin/gcc
@@ -4818,43 +4820,26 @@ build_jasper() {
 }
 
 build_graphicsmagick() {
-#  local old_hg_version
-#  if [[ -d GM ]]; then
-#    cd GM
-#      echo "doing hg pull -u GM"
-#      old_hg_version=`hg --debug id -i`
-#     hg pull -u || exit 1
-#     hg update || exit 1 # guess you need this too if no new changes are brought down [what the...]
-#  else
-#    hg clone http://hg.code.sf.net/p/graphicsmagick/code GM || exit 1
-#    cd GM
-#      old_hg_version=none-yet
-#  fi
-#  mkdir build
-#
-#  local new_hg_version=`hg --debug id -i`
-#  if [[ "$old_hg_version" != "$new_hg_version" ]]; then
-#    echo "got upstream hg changes, forcing rebuild...GraphicsMagick"
-#    apply_patch file://${top_dir}/graphicmagick-mingw64.patch
-#    cd build
-#      rm already*
-#      # Add extra libraries to those required to link with libGraphicsMagick
-#      sed -i.bak 's/Libs: -L\${libdir} -lGraphicsMagick/Libs: -L${libdir} -lGraphicsMagick -lfreetype -lbz2 -lz -llcms2 -lpthread -lpng16 -ltiff -lgdi32 -lgdiplus -ljpeg -lwebp -ljasper/' ../magick/GraphicsMagick.pc.in
-#      # References to a libcorelib are not needed. The library doesn't exist on my platform
-#      sed -i.bak 's/-lcorelib//' ../magick/GraphicsMagick.pc.in
-#      do_configure "--with-magick-plus-plus --enable-magick-compat --without-modules --with-fpx --disable-static --enable-shared --host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-broken-coders --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix} CPPFLAGS=-I${mingw_w64_x86_64_prefix}" "../configure"
-#      do_make_install || exit 1
-#      cp -v config/* ${mingw_w64_x86_64_prefix}/share/GraphicsMagick-1.4/config/
-#      
-#    cd ..
-#  else
-#    echo "still at hg $new_hg_version GraphicsMagick"
-#  fi
-#  cd ..
-  download_and_unpack_file https://sourceforge.net/code-snapshots/hg/g/gr/graphicsmagick/code/graphicsmagick-code-baae93bf73b8701b03340b6ec0b9aaa4ba961d89.zip graphicsmagick-code-baae93bf73b8701b03340b6ec0b9aaa4ba961d89
-  cd graphicsmagick-code-baae93bf73b8701b03340b6ec0b9aaa4ba961d89
-    mkdir -v build
+  local old_hg_version
+  if [[ -d GM ]]; then
+    cd GM
+      echo "doing hg pull -u GM"
+      old_hg_version=`hg --debug id -i`
+     hg pull -u || exit 1
+     hg update || exit 1 # guess you need this too if no new changes are brought down [what the...]
+  else
+    hg clone http://hg.code.sf.net/p/graphicsmagick/code GM || exit 1
+    cd GM
+      old_hg_version=none-yet
+  fi
+  mkdir build
+
+  local new_hg_version=`hg --debug id -i`
+  if [[ "$old_hg_version" != "$new_hg_version" ]]; then
+    echo "got upstream hg changes, forcing rebuild...GraphicsMagick"
+    apply_patch file://${top_dir}/graphicmagick-mingw64.patch
     cd build
+      rm already*
       # Add extra libraries to those required to link with libGraphicsMagick
       sed -i.bak 's/Libs: -L\${libdir} -lGraphicsMagick/Libs: -L${libdir} -lGraphicsMagick -lfreetype -lbz2 -lz -llcms2 -lpthread -lpng16 -ltiff -lgdi32 -lgdiplus -ljpeg -lwebp -ljasper/' ../magick/GraphicsMagick.pc.in
       # References to a libcorelib are not needed. The library doesn't exist on my platform
@@ -4862,8 +4847,25 @@ build_graphicsmagick() {
       do_configure "--with-magick-plus-plus --enable-magick-compat --without-modules --with-fpx --disable-static --enable-shared --host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-broken-coders --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix} CPPFLAGS=-I${mingw_w64_x86_64_prefix}" "../configure"
       do_make_install || exit 1
       cp -v config/* ${mingw_w64_x86_64_prefix}/share/GraphicsMagick-1.4/config/
+      
     cd ..
+  else
+    echo "still at hg $new_hg_version GraphicsMagick"
+  fi
   cd ..
+#  download_and_unpack_file https://sourceforge.net/code-snapshots/hg/g/gr/graphicsmagick/code/graphicsmagick-code-baae93bf73b8701b03340b6ec0b9aaa4ba961d89.zip graphicsmagick-code-baae93bf73b8701b03340b6ec0b9aaa4ba961d89
+#  cd graphicsmagick-code-baae93bf73b8701b03340b6ec0b9aaa4ba961d89
+#    mkdir -v build
+#    cd build
+#      # Add extra libraries to those required to link with libGraphicsMagick
+#      sed -i.bak 's/Libs: -L\${libdir} -lGraphicsMagick/Libs: -L${libdir} -lGraphicsMagick -lfreetype -lbz2 -lz -llcms2 -lpthread -lpng16 -ltiff -lgdi32 -lgdiplus -ljpeg -lwebp -ljasper/' ../magick/GraphicsMagick.pc.in
+      # References to a libcorelib are not needed. The library doesn't exist on my platform
+#      sed -i.bak 's/-lcorelib//' ../magick/GraphicsMagick.pc.in
+#      do_configure "--with-magick-plus-plus --enable-magick-compat --without-modules --with-fpx --disable-static --enable-shared --host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-broken-coders --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix} CPPFLAGS=-I${mingw_w64_x86_64_prefix}" "../configure"
+#      do_make_install || exit 1
+#      cp -v config/* ${mingw_w64_x86_64_prefix}/share/GraphicsMagick-1.4/config/
+#    cd ..
+#  cd ..
 }
 
 build_get_iplayer() {
@@ -4890,7 +4892,7 @@ build_ffmpeg() {
 
   # FFmpeg + libav compatible options
   # add libpsapi to enable libdlfcn for Windows to work, thereby enabling frei0r plugins
-  local extra_configure_opts="--enable-libsoxr --enable-fontconfig --enable-libass --enable-libbluray --enable-iconv --enable-libtwolame --enable-libzvbi --enable-libcaca --enable-libmodplug --extra-libs=-lstdc++ --extra-libs=-lpsapi --enable-opengl --extra-libs=-lz --extra-libs=-lpng --enable-libvidstab --enable-decklink --extra-libs=-loleaut32 --enable-libcdio --enable-libzimg --enable-chromaprint --enable-libsnappy --enable-libx265 --logfile=/dev/stdout"
+  local extra_configure_opts="--enable-libsoxr --enable-fontconfig --enable-libass --enable-libbluray --enable-iconv --enable-libtwolame --enable-libzvbi --enable-libcaca --enable-libmodplug --extra-libs=-lstdc++ --extra-libs=-lpsapi --enable-opengl --extra-libs=-lz --extra-libs=-lpng --enable-libvidstab --enable-decklink --extra-libs=-loleaut32 --enable-libcdio --enable-libzimg --enable-chromaprint --enable-libsnappy --enable-libx265 --logfile=/dev/tty"
 
 # The -Wno-narrowing is because libutvideo triggers a compiler strictness with the narrowing of a constant inside a curly-bracketed declaration
   extra_configure_opts="$extra_configure_opts --extra-cflags=$CFLAGS --extra-version=COMPILED_BY_JohnWarburton --extra-cxxflags=-Wno-narrowing" # extra-cflags is not needed, but adds it to the console output which I lke
@@ -4997,6 +4999,7 @@ build_dependencies() {
   build_pcre # for glib and others
   build_libnettle # needs gmp
   build_openssl
+  build_libexpat
   build_unbound
   build_libunistring # Needed for gnutls
   build_libtasn1

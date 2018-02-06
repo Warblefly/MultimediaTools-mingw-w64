@@ -524,7 +524,7 @@ SectionEnd
 EOF
 
   # Make the Windows installer
-  makensis install_mm.nsi
+  makensis -V4 install_mm.nsi
   # Move the Windows installer into the root of the build tree
   mv -v  MultimediaTools-mingw-w64-Open-source.exe ../../..
   cd ../../..
