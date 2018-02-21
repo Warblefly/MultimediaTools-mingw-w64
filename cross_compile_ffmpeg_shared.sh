@@ -934,7 +934,7 @@ build_opencv() {
     apply_patch file://${top_dir}/opencv-location.patch
     mkdir -v build
     cd build
-      do_cmake ".. -DWITH_IPP=OFF -DWITH_EIGEN=ON -DWITH_VFW=ON -DWITH_DSHOW=ON -DOPENCV_ENABLE_NONFREE=ON -DWITH_GTK=ON -DWITH_WIN32UI=ON -DWITH_DIRECTX=ON -DBUILD_SHARED_LIBS=ON -DBUILD_opencv_apps=ON -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_JASPER=OFF -DBUILD_JPEG=OFF -DBUILD_OPENEXR=OFF -DBUILD_PNG=OFF -DBUILD_TIFF=OFF -DBUILD_ZLIB=OFF -DENABLE_SSE41=ON -DENABLE_SSE42=ON -DWITH_WEBP=OFF -DBUILD_EXAMPLES=ON -DINSTALL_C_EXAMPLES=ON -DWITH_OPENGL=ON -DINSTALL_PYTHON_EXAMPLES=ON -DCMAKE_CXX_FLAGS=-DMINGW_HAS_SECURE_API=1 -DCMAKE_C_FLAGS=-DMINGW_HAS_SECURE_API=1 -DOPENCV_LINKER_LIBS=boost_thread_win32-mt;boost_system-mt -DCMAKE_VERBOSE=ON -DINSTALL_TO_MANGLED_PATHS=OFF" && ${top_dir}/correct_headers.sh
+      do_cmake ".. -DWITH_IPP=OFF -DWITH_EIGEN=ON -DWITH_VFW=ON -DWITH_DSHOW=ON -DOPENCV_ENABLE_NONFREE=ON -DWITH_GTK=ON -DWITH_WIN32UI=ON -DWITH_DIRECTX=ON -DBUILD_SHARED_LIBS=ON -DBUILD_opencv_apps=ON -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_JASPER=OFF -DBUILD_JPEG=OFF -DBUILD_OPENEXR=OFF -DBUILD_PNG=OFF -DBUILD_TIFF=OFF -DBUILD_ZLIB=OFF -DENABLE_SSE41=ON -DENABLE_SSE42=ON -DWITH_WEBP=OFF -DBUILD_EXAMPLES=ON -DINSTALL_C_EXAMPLES=ON -DWITH_OPENGL=ON -DINSTALL_PYTHON_EXAMPLES=ON -DCMAKE_CXX_FLAGS=-DMINGW_HAS_SECURE_API=1 -DCMAKE_C_FLAGS=-DMINGW_HAS_SECURE_API=1 -DOPENCV_LINKER_LIBS=boost_thread-mt;boost_system-mt -DCMAKE_VERBOSE=ON -DINSTALL_TO_MANGLED_PATHS=OFF" && ${top_dir}/correct_headers.sh
       sed -i.bak "s|DBL_EPSILON|2.2204460492503131E-16|g" modules/imgproc/include/opencv2/imgproc/types_c.h
       do_make_install
 #      cp -v ${mingw_w64_x86_64_prefix}/lib/libopencv_core320.dll.a ${mingw_w64_x86_64_prefix}/lib/libopencv_core.dll.a
@@ -2355,7 +2355,7 @@ build_vamp-sdk() {
 }
 
 build_librubberband() {
-  download_and_unpack_file http://code.breakfastquay.com/attachments/download/34/rubberband-1.8.1.tar.bz2 rubberband-1.8.1
+  download_and_unpack_file http://mirrors.buyvm.net/ubuntu/pool/universe/r/rubberband/rubberband_1.8.1.orig.tar.bz2 rubberband-1.8.1
   cd rubberband-1.8.1
 ##     sed -i.bak 's/:= ar/:= x86_64-w64-mingw32-ar/' Makefile.in
 #     sed -i.bak 's#:= bin/rubberband#:= bin/rubberband.exe#' Makefile.in
@@ -2431,7 +2431,7 @@ build_tesseract() {
 #    apply_patch file://${top_dir}/tesseract-thread.patch
 #    apply_patch file://${top_dir}/tesseract-libgomp.patch
     export LIBLEPT_HEADERSDIR="${mingw_w64_x86_64_prefix}/include/leptonica"
-    export LIBS="-ltiff -ljpeg -lpng -lwebp -lz -lboost_thread_win32-mt" # -lboost_thread_win32 -lboost_chrono"
+    export LIBS="-ltiff -ljpeg -lpng -lwebp -lz -lboost_thread-mt" # -lboost_thread_win32 -lboost_chrono"
     old_cxxflags="${CXXFLAGS}"
     export CXXFLAGS="-fpermissive"
     sed -i.bak 's/Windows.h/windows.h/' opencl/openclwrapper.cpp
@@ -3102,8 +3102,8 @@ build_regex() {
 }
 
 build_boost() { 
-  download_and_unpack_file "http://sourceforge.net/projects/boost/files/boost/1.65.1/boost_1_65_1.tar.bz2/download" boost_1_65_1
-  cd boost_1_65_1
+  download_and_unpack_file "http://sourceforge.net/projects/boost/files/boost/1.66.0/boost_1_66_0.tar.bz2/download" boost_1_66_0
+  cd boost_1_66_0
     cd libs/serialization
       apply_patch file://${top_dir}/boost-codecvt.patch 
     cd ../..
@@ -3588,7 +3588,7 @@ EOF
 }
 
 build_sox() {
-  do_git_checkout git://git.code.sf.net/p/sox/code sox
+  do_git_checkout git://repo.or.cz/sox.git sox
   cd sox
   if [[ ! -f "configure" ]]; then
     autoreconf -fiv
@@ -4177,7 +4177,7 @@ build_1394camera() {
 }
 
 build_libdc1394() {
-  do_git_checkout https://git.code.sf.net/p/libdc1394/code libdc1394
+  do_git_checkout git://libdc1394.git.sourceforge.net/gitroot/libdc1394/libdc1394/ libdc1394
   cd libdc1394/libdc1394
     generic_configure_make_install
     
@@ -4210,7 +4210,7 @@ build_glibmm() {
   # Because our threading model for our GCC does not involve posix threads, we must emulate them with
   # the Boost libraries. These provide an (almost) drop-in replacement.
   # VERSION WARNING: glibmm-2.51 breaks compatibility. You have to read the documentation to learn this.
-  export GLIBMM_LIBS="-lgobject-2.0 -lgmodule-2.0 -lglib-2.0 -lboost_system-mt -lsigc-2.0 -lboost_thread_win32-mt"
+  export GLIBMM_LIBS="-lgobject-2.0 -lgmodule-2.0 -lglib-2.0 -lboost_system-mt -lsigc-2.0 -lboost_thread-mt"
   export GIOMM_LIBS="-lgio-2.0 -lgobject-2.0 -lgmodule-2.0 -lglib-2.0 -lboost_system-mt -lsigc-2.0"
   export NOCONFIGURE=1
   download_and_unpack_file http://ftp.heanet.ie/mirrors/ftp.gnome.org/sources/glibmm/2.50/glibmm-2.50.1.tar.xz glibmm-2.50.1
@@ -4413,7 +4413,7 @@ build_pango() {
 
 build_pangomm() {
   # VERSION WARNING Pango-2.41 breaks compatibility
-  export PANGOMM_LIBS="-lgobject-2.0 -lgmodule-2.0 -lglib-2.0 -lglibmm-2.4 -lgio-2.0 -lboost_system-mt -lsigc-2.0 -lboost_thread_win32-mt -lboost_system-mt -lcairo -lcairomm-1.0 -lpango-1.0 -lpangocairo-1.0"
+  export PANGOMM_LIBS="-lgobject-2.0 -lgmodule-2.0 -lglib-2.0 -lglibmm-2.4 -lgio-2.0 -lboost_system-mt -lsigc-2.0 -lboost_thread-mt -lboost_system-mt -lcairo -lcairomm-1.0 -lpango-1.0 -lpangocairo-1.0"
   generic_download_and_install http://ftp.gnome.org/pub/GNOME/sources/pangomm/2.40/pangomm-2.40.1.tar.xz pangomm-2.40.1
   cd pangomm-2.40.1
     
@@ -4820,26 +4820,28 @@ build_jasper() {
 }
 
 build_graphicsmagick() {
-  local old_hg_version
-  if [[ -d GM ]]; then
-    cd GM
-      echo "doing hg pull -u GM"
-      old_hg_version=`hg --debug id -i`
-     hg pull -u || exit 1
-     hg update || exit 1 # guess you need this too if no new changes are brought down [what the...]
-  else
-    hg clone http://hg.code.sf.net/p/graphicsmagick/code GM || exit 1
-    cd GM
-      old_hg_version=none-yet
-  fi
-  mkdir build
-
-  local new_hg_version=`hg --debug id -i`
-  if [[ "$old_hg_version" != "$new_hg_version" ]]; then
-    echo "got upstream hg changes, forcing rebuild...GraphicsMagick"
+#  local old_hg_version
+#  if [[ -d GM ]]; then
+#    cd GM
+#      echo "doing hg pull -u GM"
+#      old_hg_version=`hg --debug id -i`
+#     hg pull -u || exit 1
+#     hg update || exit 1 # guess you need this too if no new changes are brought down [what the...]
+#  else
+#    hg clone http://hg.code.sf.net/p/graphicsmagick/code GM || exit 1
+#    cd GM
+#      old_hg_version=none-yet
+#  fi
+  download_and_unpack_file ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020180218.tar.xz GraphicsMagick-1.4.020180218
+  cd GraphicsMagick-1.4.020180218
+    mkdir build
+#
+#  local new_hg_version=`hg --debug id -i`
+#  if [[ "$old_hg_version" != "$new_hg_version" ]]; then
+#    echo "got upstream hg changes, forcing rebuild...GraphicsMagick"
     apply_patch file://${top_dir}/graphicmagick-mingw64.patch
     cd build
-      rm already*
+#      rm already*
       # Add extra libraries to those required to link with libGraphicsMagick
       sed -i.bak 's/Libs: -L\${libdir} -lGraphicsMagick/Libs: -L${libdir} -lGraphicsMagick -lfreetype -lbz2 -lz -llcms2 -lpthread -lpng16 -ltiff -lgdi32 -lgdiplus -ljpeg -lwebp -ljasper/' ../magick/GraphicsMagick.pc.in
       # References to a libcorelib are not needed. The library doesn't exist on my platform
@@ -4849,9 +4851,9 @@ build_graphicsmagick() {
       cp -v config/* ${mingw_w64_x86_64_prefix}/share/GraphicsMagick-1.4/config/
       
     cd ..
-  else
-    echo "still at hg $new_hg_version GraphicsMagick"
-  fi
+#  else
+#    echo "still at hg $new_hg_version GraphicsMagick"
+#  fi
   cd ..
 #  download_and_unpack_file https://sourceforge.net/code-snapshots/hg/g/gr/graphicsmagick/code/graphicsmagick-code-baae93bf73b8701b03340b6ec0b9aaa4ba961d89.zip graphicsmagick-code-baae93bf73b8701b03340b6ec0b9aaa4ba961d89
 #  cd graphicsmagick-code-baae93bf73b8701b03340b6ec0b9aaa4ba961d89
