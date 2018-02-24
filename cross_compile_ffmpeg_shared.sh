@@ -1044,7 +1044,7 @@ build_dcpomatic() {
 #    sed -i.bak 's!wx-3\.0/wx/msw/wx\.rc!wx-3.1/wx/msw/wx.rc!' platform/windows/dcpomatic_batch.rc
 #    sed -i.bak 's!wx-3\.0/wx/msw/wx\.rc!wx-3.1/wx/msw/wx.rc!' platform/windows/dcpomatic_server.rc
 #    sed -i.bak 's!wx-3\.0/wx/msw/wx\.rc!wx-3.1/wx/msw/wx.rc!' platform/windows/dcpomatic_kdm.rc
-    export CFLAGS="-fpermissive"
+    export CFLAGS="-fpermissive -DBOOST_ASIO_DISABLE_STD_FUTURE=1"
     do_configure "configure WINRC=x86_64-w64-mingw32-windres CXX=x86_64-w64-mingw32-g++ -v -pp --prefix=${mingw_w64_x86_64_prefix} --target-windows --check-cxx-compiler=gxx --disable-tests --enable-debug" "./waf"
     ./waf build || exit 1
     ./waf install || exit 1
@@ -3163,7 +3163,7 @@ build_mkvtoolnix() {
     export LD=x86_64-w64-mingw32-ld
     export AR=x86_64-w64-mingw32-ar
     export CXX=x86_64-w64-mingw32-g++
-    apply_patch file://${top_dir}/mkvtoolnix-qt5-2.patch
+    #apply_patch file://${top_dir}/mkvtoolnix-qt5-2.patch
     rm -vf src/info/sys_windows.cpp
     generic_configure "--with-boost=${mingw_w64_x86_64_prefix} --with-boost-system=boost_system-mt --with-boost-filesystem=boost_filesystem-mt --with-boost-date-time=boost_date_time-mt --with-boost-regex=boost_regex-mt --enable-qt --enable-static-qt=no --disable-static-qt --enable-optimization"
     # Now we must prevent inclusion of sys_windows.cpp because our build uses shared libraries,
@@ -4360,9 +4360,9 @@ build_mplayer() {
 build_mp4box() { # like build_gpac
   # This script only builds the gpac_static lib plus MP4Box. Other tools inside
   # specify revision until this works: https://sourceforge.net/p/gpac/discussion/287546/thread/72cf332a/
-  do_svn_checkout https://svn.code.sf.net/p/gpac/code/trunk/gpac mp4box_gpac
-  cd mp4box_gpac
-    apply_patch file://${top_dir}/mp4box-dashcast.patch
+  do_svn_checkout https://github.com/gpac/gpac.git mp4box_gpac
+  cd mp4box_gpac/trunk
+#    apply_patch file://${top_dir}/mp4box-dashcast.patch
   # are these tweaks needed? If so then complain to the mp4box people about it?
   # sed -i "s/has_dvb4linux=\"yes\"/has_dvb4linux=\"no\"/g" configure
   # sed -i "s/`uname -s`/MINGW32/g" configure
@@ -4401,7 +4401,7 @@ build_mp4box() { # like build_gpac
 #  cp ./bin/gcc/MP4Box ./bin/gcc/MP4Box.exe # it doesn't name it .exe? That feels broken somehow...
 #  echo "built $(readlink -f ./bin/gcc/MP4Box.exe)"
 #  cp ./bin/gcc/MP4Box.exe $mingw_w64_x86_64_prefix/bin/MP4Box.exe
-  cd ..
+  cd ../..
 }
 
 build_pango() {

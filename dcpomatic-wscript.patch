@@ -4,7 +4,7 @@
                                         '-D__STDC_FORMAT_MACROS',
                                         '-msse',
                                         '-fno-strict-aliasing',
-+                                       '-fpermissive',
++                                       '-fpermissive', '-DBOOST_ASIO_DISABLE_STD_FUTURE=1',
                                         '-Wall',
                                         '-Wno-attributes',
                                         '-Wextra',
