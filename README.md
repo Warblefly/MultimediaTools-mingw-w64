@@ -46,8 +46,8 @@ dnf install SDL-devel SDL2-devel ant asciidoc autoconf-archive autogen bash biso
 6. cd into the top directory of the git tree.
 7. Read the top of ./build_script, and edit the location to which scp should copy your binary archive.
 8. Execute ./build_script, and give it the password for your scp when prompted.
-9. Wait for a long, long time. On an eight-core i7 at 4.5GHz with 16GB RAM and solid states drives, the compile takes about two days.
-10. The archive you can copy and unpack has been placed in the root of your build tree and has been sent by scp to the webserver of your choice.
+9. Wait for a long, long time. On an eight-core i7 at 4.5GHz with 16GB RAM and solid state drives, the compile takes about two days.
+10. The archive you can copy and unpack has been placed in the root of your build tree and has been sent by scp to the webserver of your choice. Note that the scp copy will only succeed if you have already used ssh to login to the remote server under the username you're using.
 11. To recompile only the packages that have been updated, simply run the script again. You may need manually to clear out mpv, vim and vim_console
 
 
