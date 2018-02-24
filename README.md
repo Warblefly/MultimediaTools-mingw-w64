@@ -37,21 +37,22 @@ You might also want to play with the defaults for the mpv player, in %APPDATA%\R
 
 # How To Compile
 0. Compiling is becoming increasingly difficult. Source packages are constantly being updated (for which we rejoice, of course), and I am keeping up with these changes quite well. However, some changes that might break compilation go un-noticed because I only accomplish a completely clean build about once a month. Otherwise, packages such as GCC and QT-5.7 remain old. This does not affect the latest and greatest versions of ffmpeg, mpv, vim/gvim, x264, x265 and their associated libraries that are all compiled from development sources.
-1. Ensure your development requirement is adequate. I now develop on Windows 10 Anniversary Edition "Bash on Ubuntu for Windows". It reports its distribution version as Ubuntu 16.04.1 
+1. Ensure your development requirement is adequate. I now develop on a Docker container, using Fedora Latest. 
 2. Update everything.
-3. Install the pre-requisites. On Ubuntu, you can execute this command, and you will need all of these packages:
-sudo apt-get install gcc g++ vim subversion make automake texinfo gyp bison flex libsdl1.2-dev ant python-dev python3-dev gtk-doc-tools xmlto pxz autogen asciidoc libtool-bin gperf pax mercurial cvs yasm cmake sshpass help2man jdk xutils-dev gobject-introspection libgdk-pixbuf2.0-dev nsis
-4. Clone my package from git (see the address at the top of this page).
-5. cd into the top directory of the git tree.
-6. Read the top of ./build_script, and edit the location to which scp should copy your binary archive.
-7. Execute ./build_script, and give it the password for your scp when prompted.
-8. Wait for a long, long time. On an eight-core i7 at 4.5GHz with 16GB RAM and solid states drives, the compile takes about two days.
-9. The archive you can copy and unpack has been placed in the root of your build tree and has been sent by scp to the webserver of your choice.
-10. To recompile only the packages that have been updated, simply run the script again. You may need manually to clear out mpv, vim and vim_console
+3. Install the pre-requisites. On Fedora 27, you can execute this command, and you will need all of these packages:
+dnf install SDL-devel SDL2-devel ant asciidoc autoconf-archive autogen bash bison bzip2 bzr cmake cvs diffutils dnf dnf-yum docbook2X ed fedora-release gcc-c++ gdk-pixbuf2-devel gengetopt git gperf gtk-doc gtk-update-icon-cache gyp intltool langpacks-en libtasn1-tools libtool lua mercurial mingw32-nsis mm-common nasm passwd patchutils pax pxz python2-devel ragel rootfiles rsync rubygem-json rubygem-rake rubygem-ronn sassc sshpass sssd-client subversion sudo tar vim-enhanced vim-minimal wget xmlto yasm 
+4. Link an executable, thus: ln -s /usr/bin/db2x_docbook2man /usr/bin/docbook2x-man
+5. Clone my package from git (see the address at the top of this page).
+6. cd into the top directory of the git tree.
+7. Read the top of ./build_script, and edit the location to which scp should copy your binary archive.
+8. Execute ./build_script, and give it the password for your scp when prompted.
+9. Wait for a long, long time. On an eight-core i7 at 4.5GHz with 16GB RAM and solid states drives, the compile takes about two days.
+10. The archive you can copy and unpack has been placed in the root of your build tree and has been sent by scp to the webserver of your choice.
+11. To recompile only the packages that have been updated, simply run the script again. You may need manually to clear out mpv, vim and vim_console
 
 
 # Tools Included
-With these scripts, you can compile binaries, ready to run on 64-bit Windows. Many libraries are included. Here are some of the executables that link to these libraries.
+With these scripts, you can compile binaries, ready to run on 64-bit Windows. Many libraries are included. Here are some of the executables that link to these libraries. THIS LIST IS OUT OF DATE.
 
 * libfdk_aac
   * aac-enc — simple AAC encoder including HE-AACv2 and two low-delay versions of the codec
