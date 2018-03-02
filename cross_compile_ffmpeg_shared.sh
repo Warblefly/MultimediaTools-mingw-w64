@@ -932,7 +932,7 @@ build_opencv() {
     apply_patch file://${top_dir}/opencv-boost-thread.patch
     apply_patch file://${top_dir}/opencv-wrong-slash.patch
     apply_patch file://${top_dir}/opencv-location.patch
-    mkdir -v build
+    mkdir -pv build
     cd build
       do_cmake ".. -DWITH_IPP=OFF -DWITH_EIGEN=ON -DWITH_VFW=ON -DWITH_DSHOW=ON -DOPENCV_ENABLE_NONFREE=ON -DWITH_GTK=ON -DWITH_WIN32UI=ON -DWITH_DIRECTX=ON -DBUILD_SHARED_LIBS=ON -DBUILD_opencv_apps=ON -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_JASPER=OFF -DBUILD_JPEG=OFF -DBUILD_OPENEXR=OFF -DBUILD_PNG=OFF -DBUILD_TIFF=OFF -DBUILD_ZLIB=OFF -DENABLE_SSE41=ON -DENABLE_SSE42=ON -DWITH_WEBP=OFF -DBUILD_EXAMPLES=ON -DINSTALL_C_EXAMPLES=ON -DWITH_OPENGL=ON -DINSTALL_PYTHON_EXAMPLES=ON -DCMAKE_CXX_FLAGS=-DMINGW_HAS_SECURE_API=1 -DCMAKE_C_FLAGS=-DMINGW_HAS_SECURE_API=1 -DOPENCV_LINKER_LIBS=boost_thread-mt;boost_system-mt -DCMAKE_VERBOSE=ON -DINSTALL_TO_MANGLED_PATHS=OFF" && ${top_dir}/correct_headers.sh
       sed -i.bak "s|DBL_EPSILON|2.2204460492503131E-16|g" modules/imgproc/include/opencv2/imgproc/types_c.h
@@ -1079,7 +1079,7 @@ build_libxavs() {
 }
 
 build_libpng() {
-  download_and_unpack_file http://download.sourceforge.net/libpng/libpng-1.6.34.tar.xz libpng-1.6.34
+  download_and_unpack_file "https://github.com/glennrp/libpng-releases/blob/master/libpng-1.6.34.tar.xz?raw=true" libpng-1.6.34
   cd libpng-1.6.34
     # DBL_EPSILON 21 Feb 2015 starts to come back "undefined". I have NO IDEA why.
     grep -lr DBL_EPSILON contrib | xargs sed -i "s| DBL_EPSILON| 2.2204460492503131E-16|g"
@@ -1092,8 +1092,8 @@ build_libpng() {
 
 build_libopenjpeg() {
 # FFmpeg doesn't yet take Openjpeg 2 so we compile version 1 here.
-  download_and_unpack_file http://downloads.sourceforge.net/project/openjpeg.mirror/1.5.2/openjpeg-1.5.2.tar.gz openjpeg-1.5.2
-  cd openjpeg-1.5.2
+  download_and_unpack_file https://github.com/uclouvain/openjpeg/archive/version.1.5.2.tar.gz openjpeg-version.1.5.2
+  cd openjpeg-version.1.5.2
     # The CMakeFile include forces /usr/include, which is no use for Mingw builds at all.
 #    sed  -i.bak "s|-I/usr/include||" applications/mj2/CMakeFiles/extract_j2k_from_mj2.dir/includes_C.rsp
     # export CFLAGS="$CFLAGS -DOPJ_STATIC" # see https://github.com/rdp/ffmpeg-windows-build-helpers/issues/37
@@ -1274,7 +1274,7 @@ build_libgsm() {
   # not do_make here since this actually fails [in error]
   make CC=${cross_prefix}gcc AR=${cross_prefix}ar RANLIB=${cross_prefix}ranlib INSTALL_ROOT=${mingw_w64_x86_64_prefix}
   cp lib/libgsm.a $mingw_w64_x86_64_prefix/lib || exit 1
-  mkdir -p $mingw_w64_x86_64_prefix/include/gsm
+  mkdir -vp $mingw_w64_x86_64_prefix/include/gsm
   cp inc/gsm.h $mingw_w64_x86_64_prefix/include/gsm || exit 1
   cd ..
 }
@@ -1522,11 +1522,11 @@ build_dvdbackup() {
 }
 
 build_libopencore() {
-  generic_download_and_install http://sourceforge.net/projects/opencore-amr/files/opencore-amr/opencore-amr-0.1.3.tar.gz/download opencore-amr-0.1.3
+  generic_download_and_install https://launchpad.net/ubuntu/+archive/primary/+files/opencore-amr_0.1.3.orig.tar.gz opencore-amr-0.1.3
   cd opencore-amr-0.1.3
     
   cd ..
-  generic_download_and_install http://sourceforge.net/projects/opencore-amr/files/vo-amrwbenc/vo-amrwbenc-0.1.3.tar.gz/download vo-amrwbenc-0.1.3
+  generic_download_and_install https://launchpad.net/ubuntu/+archive/primary/+files/vo-amrwbenc_0.1.3.orig.tar.gz vo-amrwbenc-0.1.3
   cd vo-amrwbenc-0.1.3
     
   cd ..
@@ -1959,7 +1959,7 @@ build_liba52() {
 
 build_p11kit() {
 #  generic_download_and_install https://p11-glue.freedesktop.org/releases/p11-kit-0.23.2.tar.gz p11-kit-0.23.2
-  do_git_checkout https://github.com/p11-glue/p11-kit.git p11-kit
+  do_git_checkout https://github.com/p11-glue/p11-kit.git p11-kit d8acebf175d727a3e146956fb362c30e7fdec9df
   cd p11-kit
     generic_configure_make_install
   cd ..
@@ -2445,7 +2445,7 @@ build_tesseract() {
     export CXXFLAGS="${old_cxxflags}"
   cd ..
     # Fetch the training data
-  mkdir tessdata
+  mkdir -pv tessdata
   cd tessdata
     if [ ! -f tessdata.downloaded ]; then
       curl --location https://github.com/tesseract-ocr/tessdata/raw/master/osd.traineddata > osd.traineddata
@@ -2463,7 +2463,7 @@ build_freetype() {
   download_and_unpack_file http://download.savannah.gnu.org/releases/freetype/freetype-2.8.1.tar.bz2 freetype-2.8.1
   cd freetype-2.8.1
   # Need to make a directory for the build library
-  mkdir lib
+  mkdir -pv lib
   generic_configure "--with-png=yes --host=x86_64-w64-mingw32 --build=x86_64-redhat-linux"
 #  cd src/tools
 #    "/usr/bin/gcc -v apinames.c -o apinames.exe"
@@ -2525,7 +2525,7 @@ build_sdl() {
     
   cd ..
   export CFLAGS="${hold_cflags}" # and reset it
-  mkdir temp
+  mkdir -pv temp
   cd temp # so paths will work out right
     local prefix=$(basename $cross_prefix)
     local bin_dir=$(dirname $cross_prefix)
@@ -2603,7 +2603,7 @@ build_sdl2_image() {
 build_OpenCL() {
   do_git_checkout https://github.com/KhronosGroup/OpenCL-ICD-Loader.git OpenCL-ICD-Loader 6849f617e991e8a46eebf746df43032175f263b3
   cd OpenCL-ICD-Loader
-    mkdir -v inc/CL
+    mkdir -pv inc/CL
     cp -v ${mingw_w64_x86_64_prefix}/include/CL/* inc/CL/
     do_cmake
     do_make
@@ -2865,7 +2865,7 @@ build_mediainfo() {
 #		7za x ../mediainfo.7z
 #		rm ../mediainfo.7z
                 if [[ ! -d mediainfo ]]; then
-		  mkdir mediainfo
+		  mkdir -pv mediainfo
 		fi
 		cd mediainfo
 		do_svn_checkout http://svn.code.sf.net/p/mediainfo/code/MediaInfo/trunk MediaInfo
@@ -3083,7 +3083,7 @@ build_twolame() {
 }
 
 build_regex() {
-  download_and_unpack_file "http://sourceforge.net/projects/mingw/files/Other/UserContributed/regex/mingw-regex-2.5.1/mingw-libgnurx-2.5.1-src.tar.gz/download" mingw-libgnurx-2.5.1
+  download_and_unpack_file "http://download2.nust.na/pub4/sourceforge/m/mi/mingw/Other/UserContributed/regex/mingw-regex-2.5.1/mingw-libgnurx-2.5.1-src.tar.gz" mingw-libgnurx-2.5.1
   cd mingw-libgnurx-2.5.1
     # Patch for static version
     generic_configure
@@ -3102,7 +3102,7 @@ build_regex() {
 }
 
 build_boost() { 
-  download_and_unpack_file "http://sourceforge.net/projects/boost/files/boost/1.66.0/boost_1_66_0.tar.bz2/download" boost_1_66_0
+  download_and_unpack_file "https://dl.bintray.com/boostorg/release/1.66.0/source/boost_1_66_0.tar.bz2" boost_1_66_0
   cd boost_1_66_0
     cd libs/serialization
       apply_patch file://${top_dir}/boost-codecvt.patch 
@@ -3402,6 +3402,26 @@ build_libarchive() {
 
 build_pkg-config() {
   cp -v /usr/bin/pkg-config ${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config
+}
+
+build_opusfile() {
+  do_git_checkout https://github.com/xiph/opusfile.git opusfile
+  cd opusfile
+    if [[ ! -f "configure" ]]; then
+      ./autogen.sh
+    fi
+    generic_configure_make_install
+  cd ..
+}
+
+build_libopusenc() {
+  do_git_checkout https://github.com/xiph/libopusenc.git libopusenc
+  cd libopusenc
+    if [[ ! -f "configure" ]]; then
+      ./autogen.sh
+    fi
+    generic_configure_make_install
+  cd ..
 }
 
 build_opustools() {
@@ -3951,7 +3971,7 @@ build_codec2() {
   do_svn_checkout https://svn.code.sf.net/p/freetel/code/codec2/branches/0.7 0.7
   cd 0.7
 #    apply_patch file://${top_dir}/codec2-CMakeFiles.txt.patch
-    mkdir -v build
+    mkdir -pv build
     cd build
       echo "Environment print-out:"
       env
@@ -4475,7 +4495,7 @@ build_angle() {
         apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-angleproject-git/angleproject-include-import-library-and-use-def-file.patch
         apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-angleproject-git/0001-static-build-workaround.patch
         apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-angleproject-git/0002-redist.patch
-        mkdir build-x86_64
+        mkdir -pv build-x86_64
         cd build-x86_64
           export CXX=x86_64-w64-mingw32-g++
           export AR=x86_64-w64-mingw32-ar
@@ -4560,7 +4580,7 @@ build_pngcrush() {
 build_eigen() {
   download_and_unpack_file http://bitbucket.org/eigen/eigen/get/3.3.4.tar.bz2 eigen-eigen-5a0156e40feb
   cd eigen-eigen-5a0156e40feb
-    mkdir -v build
+    mkdir -pv build
     cd build 
       export FC=${cross_prefix}gfortran
       do_cmake ..
@@ -4617,7 +4637,7 @@ build_aom() {
     export CXX=x86_64-w64-mingw32-g++
     apply_patch file://${top_dir}/aom-pthread.patch
 #    do_configure "--target=x86_64-win64-gcc --prefix=${mingw_w64_x86_64_prefix} --enable-webm-io --enable-pic --enable-multithread --enable-runtime-cpu-detect --enable-postproc --enable-av1 --enable-lowbitdepth --disable-unit-tests"
-    mkdir -v ../aom_build
+    mkdir -pv ../aom_build
     cd ../aom_build
       do_cmake ../aom/. "-DAOM_TARGET_CPU=x86_64 -DCMAKE_TOOLCHAIN_FILE=../aom/build/cmake/toolchains/x86_64-mingw-gcc.cmake"
       do_make
@@ -4646,7 +4666,7 @@ build_libdash() {
       # We need to install manually
       cp -vf bin/libdash.dll ${mingw_w64_x86_64_prefix}/bin/libdash.dll
       cp -vf bin/libdash.dll.a ${mingw_w64_x86_64_prefix}/lib/libdash.dll.a
-      mkdir -v  ${mingw_w64_x86_64_prefix}/include/libdash
+      mkdir -pv  ${mingw_w64_x86_64_prefix}/include/libdash
       cp -vf libdash/include/*h  ${mingw_w64_x86_64_prefix}/include/libdash/
       cd qtsampleplayer
         do_cmake && ${top_dir}/correct_headers.sh
@@ -4708,7 +4728,7 @@ build_libidn() {
 build_cmark() {
   do_git_checkout https://github.com/commonmark/cmark.git cmark
   cd cmark
-    mkdir build
+    mkdir -pv build
     cd build
     do_cmake .. "-DCMARK_STATIC=OFF -DCMARK_SHARED=ON"
       do_make
@@ -4818,8 +4838,45 @@ build_jasper() {
     
   cd ..
 }
-
 build_graphicsmagick() {
+  local old_hg_version
+  if [[ -d GM ]]; then
+    cd GM
+      echo "doing hg pull -u GM"
+      old_hg_version=`hg --debug id -i`
+     hg pull -u || exit 1
+     hg update || exit 1 # guess you need this too if no new changes are brought down [what the...]
+  else
+    hg clone http://hg.code.sf.net/p/graphicsmagick/code GM || exit 1
+    cd GM
+      old_hg_version=none-yet
+  fi
+  mkdir -pv build
+
+  local new_hg_version=`hg --debug id -i`
+  if [[ "$old_hg_version" != "$new_hg_version" ]]; then
+    echo "got upstream hg changes, forcing rebuild...GraphicsMagick"
+    apply_patch file://${top_dir}/graphicmagick-mingw64.patch
+    cd build
+      rm already*
+#      generic_download_and_install ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020150919.tar.xz GraphicsMagick-1.4.020150919 "--host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-magick-compat --disable-shared --enable-static --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix}/include CPPFLAGS=-I${mingw_w64_x86_64_prefix}" 
+#      do_configure "--host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-magick-compat --disable-shared --enable-static --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix}/include CPPFLAGS=-I${mingw_w64_x86_64_prefix}" "../configure"
+      # Add extra libraries to those required to link with libGraphicsMagick
+      sed -i.bak 's/Libs: -L\${libdir} -lGraphicsMagick/Libs: -L${libdir} -lGraphicsMagick -lfreetype -lbz2 -lz -llcms2 -lpthread -lpng16 -ltiff -lgdi32 -lgdiplus -ljpeg -lwebp -ljasper/' ../magick/GraphicsMagick.pc.in
+      # References to a libcorelib are not needed. The library doesn't exist on my platform
+      sed -i.bak 's/-lcorelib//' ../magick/GraphicsMagick.pc.in
+      do_configure "--with-magick-plus-plus --disable-static --enable-shared --host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-broken-coders --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix} CPPFLAGS=-I${mingw_w64_x86_64_prefix}" "../configure"
+      do_make_install || exit 1
+      cp -v config/* ${mingw_w64_x86_64_prefix}/share/GraphicsMagick-1.4/config/
+      do_make_clean
+    cd ..
+  else
+    echo "still at hg $new_hg_version GraphicsMagick"
+  fi
+  cd ..
+}
+
+#build_graphicsmagick() {
 #  local old_hg_version
 #  if [[ -d GM ]]; then
 #    cd GM
@@ -4832,29 +4889,29 @@ build_graphicsmagick() {
 #    cd GM
 #      old_hg_version=none-yet
 #  fi
-  download_and_unpack_file ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020180218.tar.xz GraphicsMagick-1.4.020180218
-  cd GraphicsMagick-1.4.020180218
-    mkdir build
+#  download_and_unpack_file ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020180218.tar.xz GraphicsMagick-1.4.020180218
+#  cd GraphicsMagick-1.4.020180218
+#    mkdir build
 #
 #  local new_hg_version=`hg --debug id -i`
 #  if [[ "$old_hg_version" != "$new_hg_version" ]]; then
 #    echo "got upstream hg changes, forcing rebuild...GraphicsMagick"
-    apply_patch file://${top_dir}/graphicmagick-mingw64.patch
-    cd build
+#    apply_patch file://${top_dir}/graphicmagick-mingw64.patch
+#    cd build
 #      rm already*
       # Add extra libraries to those required to link with libGraphicsMagick
-      sed -i.bak 's/Libs: -L\${libdir} -lGraphicsMagick/Libs: -L${libdir} -lGraphicsMagick -lfreetype -lbz2 -lz -llcms2 -lpthread -lpng16 -ltiff -lgdi32 -lgdiplus -ljpeg -lwebp -ljasper/' ../magick/GraphicsMagick.pc.in
+#      sed -i.bak 's/Libs: -L\${libdir} -lGraphicsMagick/Libs: -L${libdir} -lGraphicsMagick -lfreetype -lbz2 -lz -llcms2 -lpthread -lpng16 -ltiff -lgdi32 -lgdiplus -ljpeg -lwebp -ljasper/' ../magick/GraphicsMagick.pc.in
       # References to a libcorelib are not needed. The library doesn't exist on my platform
-      sed -i.bak 's/-lcorelib//' ../magick/GraphicsMagick.pc.in
-      do_configure "--with-magick-plus-plus --enable-magick-compat --without-modules --with-fpx --disable-static --enable-shared --host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-broken-coders --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix} CPPFLAGS=-I${mingw_w64_x86_64_prefix}" "../configure"
-      do_make_install || exit 1
-      cp -v config/* ${mingw_w64_x86_64_prefix}/share/GraphicsMagick-1.4/config/
+#      sed -i.bak 's/-lcorelib//' ../magick/GraphicsMagick.pc.in
+#      do_configure "--with-magick-plus-plus --enable-magick-compat --without-modules --with-fpx --disable-static --enable-shared --host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-broken-coders --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix} CPPFLAGS=-I${mingw_w64_x86_64_prefix}" "../configure"
+#      do_make_install || exit 1
+#      cp -v config/* ${mingw_w64_x86_64_prefix}/share/GraphicsMagick-1.4/config/
       
-    cd ..
+#    cd ..
 #  else
 #    echo "still at hg $new_hg_version GraphicsMagick"
 #  fi
-  cd ..
+#  cd ..
 #  download_and_unpack_file https://sourceforge.net/code-snapshots/hg/g/gr/graphicsmagick/code/graphicsmagick-code-baae93bf73b8701b03340b6ec0b9aaa4ba961d89.zip graphicsmagick-code-baae93bf73b8701b03340b6ec0b9aaa4ba961d89
 #  cd graphicsmagick-code-baae93bf73b8701b03340b6ec0b9aaa4ba961d89
 #    mkdir -v build
@@ -4868,7 +4925,7 @@ build_graphicsmagick() {
 #      cp -v config/* ${mingw_w64_x86_64_prefix}/share/GraphicsMagick-1.4/config/
 #    cd ..
 #  cd ..
-}
+#}
 
 build_get_iplayer() {
   # This isn't really "building" - just downloading the latest Perl script from Github
@@ -4885,6 +4942,16 @@ build_libdecklink() {
   cp -v ${top_dir}/DeckLinkAPIVersion.h $mingw_w64_x86_64_prefix/include/DeckLinkAPIVersion.h  || exit 1
 #  fi
 }
+
+build_ffmpegnv() {
+  do_git_checkout https://git.videolan.org/git/ffmpeg/nv-codec-headers.git nv-codec-headers
+  cd nv-codec-headers
+    sed -i.bak "s!PREFIX = /usr/local!PREFIX = ${mingw_w64_x86_64_prefix}!" Makefile
+    do_make
+    do_make_install
+  cd ..
+}
+
 
 build_ffmpeg() {
   local type=$1
@@ -5205,6 +5272,8 @@ build_dependencies() {
   build_aom
   build_asdcplib-cth
   build_cmark
+  build_opusfile
+  build_libopusenc
 }
 
 build_apps() {
@@ -5243,6 +5312,7 @@ build_apps() {
 #  build_rsync
   build_dvdbackup
   build_codec2
+  build_ffmpegnv
   if [[ $build_ffmpeg_shared = "y" ]]; then
     build_ffmpeg ffmpeg shared
   fi
