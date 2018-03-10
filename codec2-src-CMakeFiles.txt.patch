@@ -1,0 +1,20 @@
+--- src/CMakeLists.txt.orig	2018-03-09 07:28:16.747352900 +0000
++++ src/CMakeLists.txt	2018-03-09 07:28:53.451738200 +0000
+@@ -158,7 +158,7 @@
+ # when crosscompiling we need a native executable
+ if(CMAKE_CROSSCOMPILING)
+     include(ExternalProject)
+-    ExternalProject_Add(codec2_native
++    ExternalProject_Add(codec2_native2
+        SOURCE_DIR ${CMAKE_SOURCE_DIR}
+        BUILD_COMMAND $(MAKE) generate_wideband_map
+        INSTALL_COMMAND ${CMAKE_COMMAND} -E copy src/generate_wideband_map ${CMAKE_CURRENT_BINARY_DIR}
+@@ -166,7 +166,7 @@
+     add_executable(generate_wideband_map IMPORTED)
+     set_target_properties(generate_wideband_map PROPERTIES
+         IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/generate_wideband_map)
+-    add_dependencies(generate_wideband_map codec2_native)
++    add_dependencies(generate_wideband_map codec2_native2)
+ else(CMAKE_CROSSCOMPILING)
+ # Build code generator binaries. These do not get installed.
+     # generate_codebook

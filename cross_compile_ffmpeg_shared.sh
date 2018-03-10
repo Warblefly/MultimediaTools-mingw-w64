@@ -957,7 +957,7 @@ build_opencv() {
 }
 
 build_cunit() {
-  generic_download_and_install https://downloads.sourceforge.net/project/cunit/CUnit/2.1-3/CUnit-2.1-3.tar.bz2 CUnit-2.1-3 "--disable-shared --enable-static"
+  generic_download_and_install https://github.com/Linaro/libcunit/releases/download/2.1-3/CUnit-2.1-3.tar.bz2 CUnit-2.1-3 "--disable-shared --enable-static"
   cd CUnit-2.1-3
     
   cd ..
@@ -1026,8 +1026,8 @@ build_opendcp() {
 }
 
 build_dcpomatic() {
-  do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic # a1f9c20f7f1cb7811504bf092360dee92de93b0a
-#  download_and_unpack_file https://dcpomatic.com/downloads/2.11.3/dcpomatic-2.11.3.tar.bz2 dcpomatic-2.11.3
+  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic v2.11.72
+#  download_and_unpack_file https://dcpomatic.com/downloads/2.11.72/dcpomatic-2.11.72.tar.bz2 dcpomatic-2.11.72
   cd dcpomatic
     apply_patch file://${top_dir}/dcpomatic-wscript.patch
     apply_patch file://${top_dir}/dcpomatic-audio_ring_buffers.h.patch
@@ -2164,7 +2164,7 @@ build_libssh() {
 
 build_asdcplib-cth() {
    # Use brance cth because this is the version the writer works on, and has modified
-  do_git_checkout https://github.com/cth103/asdcplib-cth.git asdcplib-cth cth
+  do_git_checkout git://git.carlh.net/git/asdcplib-cth.git asdcplib-cth cth
 #  download_and_unpack_file http://carlh.net/downloads/asdcplib-cth/libasdcp-cth-0.1.1.tar.bz2 libasdcp-cth-0.1.1
   cd asdcplib-cth
     export PKG_CONFIG_PATH=${mingw_w64_x86_64_prefix}/lib/pkgconfig
@@ -2196,8 +2196,8 @@ build_asdcplib-cth() {
 build_libdcp() {
   # Branches are slightly askew. 1.0 is where development takes place
 #  do_git_checkout https://github.com/cth103/libdcp.git libdcp  1.0
-  do_git_checkout https://github.com/cth103/libdcp.git libdcp
-#  download_and_unpack_file http://carlh.net/downloads/libdcp/libdcp-1.3.4.tar.bz2 libdcp-1.3.4
+  do_git_checkout git://git.carlh.net/git/libdcp.git libdcp
+#  download_and_unpack_file http://carlh.net/downloads/libdcp/libdcp-1.5.1.tar.bz2 libdcp-1.5.1
   cd libdcp
     # M_PI is required. This is a quick way of defining it
     sed -i.bak 's/M_PI/3.14159265358979323846/' examples/make_dcp.cc
@@ -2206,6 +2206,7 @@ build_libdcp() {
     #sed -i.bak "s/boost_lib_suffix = '-mt'/boost_lib_suffix = ''/" test/wscript
 #    apply_patch file://${top_dir}/libdcp-libxml.patch
     apply_patch file://${top_dir}/libdcp-boost.patch
+#    apply_patch_p1 "http://main.carlh.net/gitweb/?p=libdcp.git;a=patch;h=730ba2273b136ad5a3bfc1a185d69e6cc50a65af"
     export CXX=x86_64-w64-mingw32-g++
     do_configure "configure -v -pp --prefix=${mingw_w64_x86_64_prefix} --target-windows --check-cxx-compiler=gxx --enable-debug --disable-tests" "./waf" # --disable-gcov
     ./waf build || exit 1
@@ -2213,7 +2214,7 @@ build_libdcp() {
     unset CXX
         # The installation puts the pkgconfig file and the DLL import file in the wrong place
     cp -v build/libdcp-1.0.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig
-    sed -i.bak 's/1\.4\.4devel/1.4.4/' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/libdcp-1.0.pc
+    #sed -i.bak 's/1\.4\.4devel/1.4.4/' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/libdcp-1.0.pc
     cp -v build/libdcp.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig/libdcp.pc
     cp -v build/src/libdcp.dll.a ${mingw_w64_x86_64_prefix}/lib
     cd ${mingw_w64_x86_64_prefix}/include
@@ -3333,7 +3334,8 @@ build_gtk() {
     generic_configure_make_install
   cd ..
 #  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/gtk+/3.22/gtk+-3.22.21.tar.xz gtk+-3.22.21 # was .19
-  do_git_checkout https://github.com/GNOME/gtk.git gtk gtk-3-22
+  do_git_checkout git://gitlab.gnome.org/GNOME/gtk.git gtk gtk-3-22
+#  do_git_checkout http://github.com/GNOME/gtk.git gtk gtk-3-22
   touch ${mingw_w64_x86_64_prefix}/share/icons/hicolor/.icon-theme.cache
   cd gtk
 #    orig_cpu_count=$cpu_count
@@ -3694,7 +3696,7 @@ build_cairomm() {
 #    
 #    export ACLOCAL_PATH=${orig_aclocalpath}
 #  cd ..
-  download_and_unpack_file http://cairographics.org/releases/cairomm-1.12.2.tar.gz cairomm-1.12.2
+  download_and_unpack_file https://ftp.osuosl.org/pub/blfs/conglomeration/cairomm/cairomm-1.12.2.tar.gz cairomm-1.12.2
   cd cairomm-1.12.2
     generic_configure_make_install "--with-boost"
     
@@ -3968,14 +3970,18 @@ build_codec2() {
   unset CXX
   unset LD
   unset LDFLAGS
-  do_svn_checkout https://svn.code.sf.net/p/freetel/code/codec2/branches/0.7 0.7
-  cd 0.7
+  do_git_checkout https://github.com/svn2github/Codec2-dev.git codec2-dev
+  mkdir build-codec-2-mingw
+  cd codec2-dev
+    apply_patch file://${top_dir}/codec2-src-CMakeFiles.txt.patch
 #    apply_patch file://${top_dir}/codec2-CMakeFiles.txt.patch
-    mkdir -pv build
-    cd build
+  cd ..
+  cd build-codec-2-mingw
+    #mkdir -pv build
+    #cd build
       echo "Environment print-out:"
       env
-      do_cmake .. "-DCMAKE_BUILD_TYPE=Release -DINSTALL_EXAMPLES=ON"
+      do_cmake ../codec2-dev "-DINSTALL_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Release -DUNITTEST=OFF"
       do_make
       cd src
         cp -v *exe ${mingw_w64_x86_64_prefix}/bin/
@@ -3983,7 +3989,7 @@ build_codec2() {
         cp -v *dll.a ${mingw_w64_x86_64_prefix}/lib/
       cd ..
       
-    cd ..
+    #cd ..
   cd ..
 }
 
@@ -4276,10 +4282,10 @@ build_libxml++ () {
 }
 
 build_libexif() {
-  download_and_unpack_file http://kent.dl.sourceforge.net/project/libexif/libexif/0.6.21/libexif-0.6.21.tar.gz libexif-0.6.21
-  cd libexif-0.6.21
+  do_git_checkout https://github.com/libexif/libexif.git libexif
+  cd libexif
     # We need to update autotools because a check is needed for JPEG files > 2GB
-    rm configure
+    #rm configure
     generic_configure_make_install
     
   cd ..
@@ -4454,7 +4460,7 @@ build_mimedb() {
 }
 
 build_qjackctl() {
-  do_git_checkout http://git.code.sf.net/p/qjackctl/code qjackctl
+  do_git_checkout https://github.com/rncbc/qjackctl.git qjackctl
   cd qjackctl
     apply_patch file://${top_dir}/qjackctl-MainForm.patch
     generic_configure_make_install "LIBS=-lportaudio --enable-xunique=no" # enable-jack-version=yes

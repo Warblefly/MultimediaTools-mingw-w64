@@ -138,3 +138,14 @@
  
    return 0
  }
+--- mingw-w64-build.orig	2018-03-03 10:27:25.650282100 +0000
++++ mingw-w64-build	2018-03-03 10:27:44.333390600 +0000
+@@ -82,7 +82,7 @@
+   cd "$src" || error_exit
+ 
+   echo "downloading mingw-w64-git" >&3
+-  git clone --depth 1 git://git.code.sf.net/p/mingw-w64/mingw-w64 "mingw-w64-git" || error_exit
++  git clone --depth 1 https://github.com/mirror/mingw-w64.git "mingw-w64-git" || error_exit
+ 
+   local urls=(
+     "http://ftp.gnu.org/gnu/binutils/binutils-$v_binutils.tar.bz2"
