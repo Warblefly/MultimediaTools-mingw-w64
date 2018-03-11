@@ -2971,7 +2971,7 @@ build_exiv2() {
 }
 
 build_bmx() {
-  do_git_checkout git://git.code.sf.net/p/bmxlib/bmx bmxlib-bmx # 723e48
+  do_git_checkout https://notabug.org/RiCON/bmx.git bmxlib-bmx # 723e48
   cd bmxlib-bmx
     sed -i.bak 's/) -version-info/) -no-undefined -version-info/' src/Makefile.am
 #    apply_patch file://${top_dir}/bmxlib-bmx-apps-writers-Makefile-am.patch
@@ -3334,8 +3334,8 @@ build_gtk() {
     generic_configure_make_install
   cd ..
 #  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/gtk+/3.22/gtk+-3.22.21.tar.xz gtk+-3.22.21 # was .19
-  do_git_checkout git://gitlab.gnome.org/GNOME/gtk.git gtk gtk-3-22
-#  do_git_checkout http://github.com/GNOME/gtk.git gtk gtk-3-22
+
+  do_git_checkout http://github.com/GNOME/gtk.git gtk gtk-3-22
   touch ${mingw_w64_x86_64_prefix}/share/icons/hicolor/.icon-theme.cache
   cd gtk
 #    orig_cpu_count=$cpu_count

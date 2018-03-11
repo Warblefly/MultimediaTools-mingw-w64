@@ -50,122 +50,6 @@
  
  ##################################################
  # colord module
---- gtk/Makefile.am.orig	2017-11-18 08:42:13.525190800 +0000
-+++ gtk/Makefile.am	2017-11-18 08:43:31.472476500 +0000
-@@ -1491,56 +1491,8 @@
- 
- include $(top_srcdir)/build/Makefile.msvcproj
- 
--if HAVE_INTROSPECTION
--# Introspection Items for MSVC
--MSVC_INTROSPECT_GIRS = Gtk-3.0.gir
--
--GTK_MSVC_GIR_CFLAGS =						\
--	$(GTK_BASE_CFLAGS_DEFINES)				\
--	-DGTK_LIBDIR=\\\"/dummy/lib\\\"				\
--	-DGTK_DATADIR=\\\"/dummy/share\\\"			\
--	-DGTK_DATA_PREFIX=\\\"/dummy\\\"			\
--	-DGTK_SYSCONFDIR=\\\"/dummy/etc\\\"			\
--	-DGTK_HOST=\\\"'$$$$(AT_PLAT)'-pc-vs'$$$$(VSVER)'\\\"	\
--	-DGTK_PRINT_BACKENDS=\\\"file\\\"			\
--	-DINCLUDE_IM_am_et			\
--	-DINCLUDE_IM_cedilla			\
--	-DINCLUDE_IM_cyrillic_translit		\
--	-DINCLUDE_IM_ime			\
--	-DINCLUDE_IM_inuktitu			\
--	-DINCLUDE_IM_ipa			\
--	-DINCLUDE_IM_multipress			\
--	-DINCLUDE_IM_thai			\
--	-DINCLUDE_IM_ti_er			\
--	-DINCLUDE_IM_ti_et			\
--	-DINCLUDE_IM_viqr			\
--	-DGTK_TEXT_USE_INTERNAL_UNSUPPORTED_API	\
--	-I../.. -I../../gtk -I../../gdk
--
--INTROSPECTION_INTERMEDIATE_ITEMS = \
--	$(top_builddir)/build/win32/Gtk-3.0.gir.msvc.introspect		\
--	$(top_builddir)/build/win32/Gtk_3_0_gir_list
--
--Gtk_3_0_gir_MSVC_FILES =		\
--	$(introspected_pub_headers)	\
--	$(gtk_base_c_sources)		\
--	$(gtk_os_win32_c_sources)	\
--	gtktypebuiltins.h		\
--	gtktypebuiltins.c
--
--Gtk_3_0_gir_MSVC_EXPORT_PACKAGES = $(Gtk_3_0_gir_EXPORT_PACKAGES)
--Gtk_3_0_gir_MSVC_INCLUDE_GIRS = Atk-1.0
--Gtk_3_0_gir_MSVC_LIBS = gtk-3.0 gdk-3.0
--Gtk_3_0_gir_MSVC_CFLAGS = $(GTK_MSVC_GIR_CFLAGS)
--Gtk_3_0_gir_MSVC_SCANNERFLAGS = --warn-all --add-include-path=. --include-uninstalled=./Gdk-3.0.gir
--
--include $(top_srcdir)/build/Makefile.msvc-introspection
--
--else
- INTROSPECTION_INTERMEDIATE_ITEMS =
- 
--endif
--
- dist-hook: \
- 	$(top_builddir)/build/win32/vs9/gtk-3.vcproj	\
- 	$(top_builddir)/build/win32/vs9/gtk-3.headers	\
-@@ -1564,56 +1516,6 @@
- 	  rm -f $(MAINTAINERCLEANFILES); \
- 	fi
- 
--if HAVE_INTROSPECTION
--introspected_pub_headers = $(filter-out %private.h gtktextdisplay.h gtktextlayout.h gtkx.h, $(gtkinclude_HEADERS) $(a11yinclude_HEADERS) $(deprecatedinclude_HEADERS))
--
--introspection_files = \
--    $(introspected_pub_headers) \
--    $(filter-out %win32.c, $(gtk_base_c_sources)) \
--    gtkprintoperation-unix.c \
--    gtktypebuiltins.h \
--    gtktypebuiltins.c
--
--if USE_X11
--introspection_files += \
--    gtksocket.c \
--    gtkplug.c
--endif
--
--include $(INTROSPECTION_MAKEFILE)
--INTROSPECTION_SCANNER_ENV = CC="$(CC)"
--INTROSPECTION_COMPILER_ARGS = \
--	--includedir=$(srcdir) \
--	--includedir=. \
--	--includedir=../gdk
--
--Gtk-3.0.gir: $(INTROSPECTION_SCANNER) libgtk-3.la $(top_builddir)/gdk/Gdk-3.0.gir Makefile
--Gtk_3_0_gir_SCANNERFLAGS = 			\
--	--warn-all				\
--	--add-include-path=$(top_builddir)/gdk	\
--	--include-uninstalled=$(top_builddir)/gdk/Gdk-3.0.gir
--Gtk_3_0_gir_INCLUDES = Atk-1.0
--if USE_X11
--Gtk_3_0_gir_SCANNERFLAGS += --add-include-path=$(top_builddir)/gdk/x11
--Gtk_3_0_gir_INCLUDES += xlib-2.0
--endif
--Gtk_3_0_gir_CFLAGS = \
--		$(AM_CPPFLAGS) \
--		-DGTK_TEXT_USE_INTERNAL_UNSUPPORTED_API
--Gtk_3_0_gir_FILES = $(introspection_files)
--Gtk_3_0_gir_LIBS = libgtk-3.la $(top_builddir)/gdk/libgdk-3.la
--Gtk_3_0_gir_EXPORT_PACKAGES = gtk+-3.0
--INTROSPECTION_GIRS = Gtk-3.0.gir
--
--girdir = $(datadir)/gir-1.0
--gir_DATA = $(INTROSPECTION_GIRS)
--
--typelibsdir = $(libdir)/girepository-1.0
--typelibs_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
--
--CLEANFILES += $(gir_DATA) $(typelibs_DATA)
--endif
--
- #
- # Installed tools
- #
 --- gdk/Makefile.am.orig	2017-11-18 08:44:16.500118300 +0000
 +++ gdk/Makefile.am	2017-11-18 08:45:41.754412200 +0000
 @@ -1,15 +1,5 @@
@@ -402,3 +286,120 @@
  
  SUBDIRS =	\
  	vs9 	\
+--- gtk/Makefile.am.orig	2018-03-10 22:36:51.238405800 +0000
++++ gtk/Makefile.am	2018-03-10 22:40:19.177308700 +0000
+@@ -1492,56 +1492,8 @@
+ 
+ include $(top_srcdir)/build/Makefile.msvcproj
+ 
+-if HAVE_INTROSPECTION
+-# Introspection Items for MSVC
+-MSVC_INTROSPECT_GIRS = Gtk-3.0.gir
+-
+-GTK_MSVC_GIR_CFLAGS =						\
+-	$(GTK_BASE_CFLAGS_DEFINES)				\
+-	-DGTK_LIBDIR=\\\"/dummy/lib\\\"				\
+-	-DGTK_DATADIR=\\\"/dummy/share\\\"			\
+-	-DGTK_DATA_PREFIX=\\\"/dummy\\\"			\
+-	-DGTK_SYSCONFDIR=\\\"/dummy/etc\\\"			\
+-	-DGTK_HOST=\\\"'$$$$(AT_PLAT)'-pc-vs'$$$$(VSVER)'\\\"	\
+-	-DGTK_PRINT_BACKENDS=\\\"file\\\"			\
+-	-DINCLUDE_IM_am_et			\
+-	-DINCLUDE_IM_cedilla			\
+-	-DINCLUDE_IM_cyrillic_translit		\
+-	-DINCLUDE_IM_ime			\
+-	-DINCLUDE_IM_inuktitu			\
+-	-DINCLUDE_IM_ipa			\
+-	-DINCLUDE_IM_multipress			\
+-	-DINCLUDE_IM_thai			\
+-	-DINCLUDE_IM_ti_er			\
+-	-DINCLUDE_IM_ti_et			\
+-	-DINCLUDE_IM_viqr			\
+-	-DGTK_TEXT_USE_INTERNAL_UNSUPPORTED_API	\
+-	-I../.. -I../../gtk -I../../gdk
+-
+-INTROSPECTION_INTERMEDIATE_ITEMS = \
+-	$(top_builddir)/build/win32/Gtk-3.0.gir.msvc.introspect		\
+-	$(top_builddir)/build/win32/Gtk_3_0_gir_list
+-
+-Gtk_3_0_gir_MSVC_FILES =		\
+-	$(introspected_pub_headers)	\
+-	$(gtk_base_c_sources)		\
+-	$(gtk_os_win32_c_sources)	\
+-	gtktypebuiltins.h		\
+-	gtktypebuiltins.c
+-
+-Gtk_3_0_gir_MSVC_EXPORT_PACKAGES = $(Gtk_3_0_gir_EXPORT_PACKAGES)
+-Gtk_3_0_gir_MSVC_INCLUDE_GIRS = Atk-1.0
+-Gtk_3_0_gir_MSVC_LIBS = gtk-3.0 gdk-3.0
+-Gtk_3_0_gir_MSVC_CFLAGS = $(GTK_MSVC_GIR_CFLAGS)
+-Gtk_3_0_gir_MSVC_SCANNERFLAGS = --warn-all --add-include-path=. --include-uninstalled=./Gdk-3.0.gir
+-
+-include $(top_srcdir)/build/Makefile.msvc-introspection
+-
+-else
+ INTROSPECTION_INTERMEDIATE_ITEMS =
+ 
+-endif
+-
+ dist-hook: \
+ 	$(top_builddir)/build/win32/vs9/gtk-3.vcproj	\
+ 	$(top_builddir)/build/win32/vs9/gtk-3.headers	\
+@@ -1565,57 +1517,6 @@
+ 	  rm -f $(MAINTAINERCLEANFILES); \
+ 	fi
+ 
+-if HAVE_INTROSPECTION
+-introspected_pub_headers = $(filter-out %private.h gtktextdisplay.h gtktextlayout.h gtkx.h, $(gtkinclude_HEADERS) $(a11yinclude_HEADERS) $(deprecatedinclude_HEADERS))
+-
+-introspection_files = \
+-    $(introspected_pub_headers) \
+-    $(filter-out %win32.c, $(gtk_base_c_sources)) \
+-    gtkprintoperation-unix.c \
+-    gtktypebuiltins.h \
+-    gtktypebuiltins.c
+-
+-if USE_X11
+-introspection_files += \
+-    gtksocket.c \
+-    gtkplug.c
+-endif
+-
+-include $(INTROSPECTION_MAKEFILE)
+-INTROSPECTION_SCANNER_ENV = CC="$(CC)"
+-INTROSPECTION_COMPILER_ARGS = \
+-	--includedir=$(srcdir) \
+-	--includedir=. \
+-	--includedir=../gdk
+-
+-Gtk-3.0.gir: $(INTROSPECTION_SCANNER) libgtk-3.la $(top_builddir)/gdk/Gdk-3.0.gir Makefile
+-Gtk_3_0_gir_SCANNERFLAGS = 			\
+-	--warn-all				\
+-	--add-include-path=$(top_builddir)/gdk	\
+-	--include-uninstalled=$(top_builddir)/gdk/Gdk-3.0.gir
+-Gtk_3_0_gir_INCLUDES = Atk-1.0
+-Gtk_3_0_gir_C_INCLUDES = gtk/gtk.h gtk/gtk-a11y.h
+-if USE_X11
+-Gtk_3_0_gir_SCANNERFLAGS += --add-include-path=$(top_builddir)/gdk/x11
+-Gtk_3_0_gir_INCLUDES += xlib-2.0
+-Gtk_3_0_gir_C_INCLUDES += gtk/gtkx.h
+-endif
+-Gtk_3_0_gir_CFLAGS = \
+-		$(AM_CPPFLAGS) \
+-		-DGTK_TEXT_USE_INTERNAL_UNSUPPORTED_API
+-Gtk_3_0_gir_FILES = $(introspection_files)
+-Gtk_3_0_gir_LIBS = libgtk-3.la $(top_builddir)/gdk/libgdk-3.la
+-Gtk_3_0_gir_EXPORT_PACKAGES = gtk+-3.0
+-INTROSPECTION_GIRS = Gtk-3.0.gir
+-
+-girdir = $(datadir)/gir-1.0
+-gir_DATA = $(INTROSPECTION_GIRS)
+-
+-typelibsdir = $(libdir)/girepository-1.0
+-typelibs_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
+-
+-CLEANFILES += $(gir_DATA) $(typelibs_DATA)
+-endif
+ 
+ #
+ # Installed tools
