@@ -857,8 +857,10 @@ build_mlt() {
 }
 
 build_DJV() {
-  do_git_checkout git://git.code.sf.net/p/djv/git DJV
-  cd DJV
+  download_and_unpack_file http://gallery.johnwarburton.net/djv-git-a7104da34d8a273de457b3225f77de35ccb4a63e.tar.xz djv-git-a7104da34d8a273de457b3225f77de35ccb4a63e
+
+  #do_git_checkout git://git.code.sf.net/p/djv/git DJV
+  cd djv-git-a7104da34d8a273de457b3225f77de35ccb4a63e
     # Patch to get around Mingw-w64's difficult-to-follow handling of strerror_s()
     apply_patch file://${top_dir}/djv-djvFileInfo.cpp.patch
     # Patch to use g++ equivalents of possibly missing environment manipulation functions
@@ -1026,7 +1028,7 @@ build_opendcp() {
 }
 
 build_dcpomatic() {
-  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic v2.11.72
+  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic  v2.13.0
 #  download_and_unpack_file https://dcpomatic.com/downloads/2.11.72/dcpomatic-2.11.72.tar.bz2 dcpomatic-2.11.72
   cd dcpomatic
     apply_patch file://${top_dir}/dcpomatic-wscript.patch
@@ -1044,7 +1046,7 @@ build_dcpomatic() {
 #    sed -i.bak 's!wx-3\.0/wx/msw/wx\.rc!wx-3.1/wx/msw/wx.rc!' platform/windows/dcpomatic_batch.rc
 #    sed -i.bak 's!wx-3\.0/wx/msw/wx\.rc!wx-3.1/wx/msw/wx.rc!' platform/windows/dcpomatic_server.rc
 #    sed -i.bak 's!wx-3\.0/wx/msw/wx\.rc!wx-3.1/wx/msw/wx.rc!' platform/windows/dcpomatic_kdm.rc
-    export CFLAGS="-fpermissive -DBOOST_ASIO_DISABLE_STD_FUTURE=1"
+    export CFLAGS="-fpermissive" # -DBOOST_ASIO_DISABLE_STD_FUTURE=1"
     do_configure "configure WINRC=x86_64-w64-mingw32-windres CXX=x86_64-w64-mingw32-g++ -v -pp --prefix=${mingw_w64_x86_64_prefix} --target-windows --check-cxx-compiler=gxx --disable-tests --enable-debug" "./waf"
     ./waf build || exit 1
     ./waf install || exit 1
@@ -2356,7 +2358,7 @@ build_vamp-sdk() {
 }
 
 build_librubberband() {
-  download_and_unpack_file http://mirrors.buyvm.net/ubuntu/pool/universe/r/rubberband/rubberband_1.8.1.orig.tar.bz2 rubberband-1.8.1
+  download_and_unpack_file https://code.breakfastquay.com/attachments/download/34/rubberband-1.8.1.tar.bz2 rubberband-1.8.1
   cd rubberband-1.8.1
 ##     sed -i.bak 's/:= ar/:= x86_64-w64-mingw32-ar/' Makefile.in
 #     sed -i.bak 's#:= bin/rubberband#:= bin/rubberband.exe#' Makefile.in
@@ -2404,7 +2406,7 @@ build_libgpg-error() {
 #  download_and_unpack_file ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-1.22.tar.bz2 libgpg-error-1.22
   do_git_checkout git://git.gnupg.org/libgpg-error.git libgpg-error
   cd libgpg-error
-    apply_patch file://${top_dir}/gpg-error-pid.patch
+#    apply_patch file://${top_dir}/gpg-error-pid.patch
 #    rm po/ro.* # The Romanian translation causes Cygwin's iconv to loop. This is a Cygwin bug.
     generic_configure_make_install "--disable-doc" # "--prefix=${mingw_compiler_path/}" # This is so gpg-error-config can be seen by other programs
   cd ..
@@ -2829,8 +2831,10 @@ build_lame() {
 }
 
 build_libMXFpp() {
-  do_git_checkout git://git.code.sf.net/p/bmxlib/libmxfpp bmxlib-libmxfpp
-  cd bmxlib-libmxfpp
+  download_and_unpack_file http://gallery.johnwarburton.net/bmxlib-libmxfpp-dd71b1723670edea23252ee6f206df1241013381.tar.xz bmxlib-libmxfpp-dd71b1723670edea23252ee6f206df1241013381
+  cd bmxlib-libmxfpp-dd71b1723670edea23252ee6f206df1241013381
+#  do_git_checkout https://git.code.sf.net/p/bmxlib/libmxfpp bmxlib-libmxfpp
+#  cd bmxlib-libmxfpp
   sed -i.bak 's/) -version-info/) -no-undefined -version-info/' libMXF++/Makefile.am
   sed -i.bak 's/= -version-info/= -no-undefined -version-info/' examples/D10MXFOP1AWriter/Makefile.am
   sed -i.bak 's/= -version-info/= -no-undefined -version-info/' examples/OPAtomReader/Makefile.am
@@ -4203,7 +4207,7 @@ build_1394camera() {
 }
 
 build_libdc1394() {
-  do_git_checkout git://libdc1394.git.sourceforge.net/gitroot/libdc1394/libdc1394/ libdc1394
+  do_git_checkout https://github.com/astraw/dc1394.git libdc1394
   cd libdc1394/libdc1394
     generic_configure_make_install
     
@@ -4882,6 +4886,23 @@ build_graphicsmagick() {
   cd ..
 }
 
+build_graphicsmagicksnapshot() {
+  download_and_unpack_file http://ftp.icm.edu.pl/pub/unix/graphics/GraphicsMagick/snapshots/GraphicsMagick-1.4.020180315.tar.xz GraphicsMagick-1.4.020180315
+  cd GraphicsMagick-1.4.020180315
+    apply_patch file://${top_dir}/graphicmagick-mingw64.patch
+    mkdir -pv build
+    cd build
+      sed -i.bak 's/Libs: -L\${libdir} -lGraphicsMagick/Libs: -L${libdir} -lGraphicsMagick -lfreetype -lbz2 -lz -llcms2 -lpthread -lpng16 -ltiff -lgdi32 -lgdiplus -ljpe
+  g -lwebp -ljasper/' ../magick/GraphicsMagick.pc.in
+      # References to a libcorelib are not needed. The library doesn't exist on my platform
+      sed -i.bak 's/-lcorelib//' ../magick/GraphicsMagick.pc.in
+      do_configure "--with-magick-plus-plus --disable-static --enable-shared --host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-broken-coders --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix} CPPFLAGS=-I${mingw_w64_x86_64_prefix}" "../configure"
+      do_make_install || exit 1
+      cp -v config/* ${mingw_w64_x86_64_prefix}/share/GraphicsMagick-1.4/config/
+    cd ..
+  cd ..
+}
+
 #build_graphicsmagick() {
 #  local old_hg_version
 #  if [[ -d GM ]]; then
@@ -5272,7 +5293,7 @@ build_dependencies() {
   build_rtaudio
   build_gtk2
   build_gtk
-  build_graphicsmagick
+  build_graphicsmagicksnapshot
 #  build_eigen
   build_libdv
   build_aom
@@ -5338,7 +5359,7 @@ build_apps() {
     build_vlc # NB requires ffmpeg static as well, at least once...so put this last :)
   fi
   build_cuetools
-  build_graphicsmagick
+#  build_graphicsmagicksnapshot
   build_libdcp # Now needs graphicsmagick
   build_libsub
   build_wx
