@@ -1576,7 +1576,7 @@ build_rsync() {
 }
 
 build_libjpeg_turbo() {
-  do_git_checkout https://github.com/libjpeg-turbo/libjpeg-turbo libjpeg-turbo
+  do_git_checkout https://github.com/libjpeg-turbo/libjpeg-turbo libjpeg-turbo 1.5.x
   cd libjpeg-turbo
 #    apply_patch file://${top_dir}/libjpeg-turbo-simd-yasm.patch
     do_cmake "-DENABLE_STATIC=FALSE -DENABLE_SHARED=TRUE"
