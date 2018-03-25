@@ -40,7 +40,7 @@ You might also want to play with the defaults for the mpv player, in %APPDATA%\R
 1. Ensure your development requirement is adequate. I now develop on a Docker container, using Fedora Latest. 
 2. Update everything.
 3. Install the pre-requisites. On Fedora 27, you can execute this command, and you will need all of these packages:
-dnf install SDL-devel SDL2-devel ant asciidoc autoconf-archive autogen bash bison bzip2 bzr cmake cvs diffutils dnf dnf-yum docbook2X ed fedora-release gcc-c++ gdk-pixbuf2-devel gengetopt git gperf gtk-doc gtk-update-icon-cache gyp intltool langpacks-en libtasn1-tools libtool lua mercurial mingw32-nsis mm-common nasm passwd patchutils pax pxz python2-devel ragel rootfiles rsync rubygem-json rubygem-rake rubygem-ronn sassc sshpass sssd-client subversion sudo tar vim-enhanced vim-minimal wget xmlto yasm 
+dnf install SDL-devel SDL2-devel ant asciidoc autoconf-archive autogen bash bison bzip2 bzr cmake cvs diffutils dnf dnf-yum docbook2X ed fedora-release gcc-c++ gdk-pixbuf2-devel gengetopt git gperf gtk-doc gtk-update-icon-cache gyp intltool langpacks-en libsamplerate-devel libtasn1-tools libtool lua mercurial mingw32-nsis mm-common nasm passwd patchutils pax pxz python2-devel ragel rootfiles rsync rubygem-json rubygem-rake rubygem-ronn sassc speex-devel speexdsp-devel sshpass sssd-client subversion sudo tar vim-enhanced vim-minimal wget xmlto yasm 
 4. Link an executable, thus: ln -s /usr/bin/db2x_docbook2man /usr/bin/docbook2x-man
 5. Clone my package from git (see the address at the top of this page).
 6. cd into the top directory of the git tree.
