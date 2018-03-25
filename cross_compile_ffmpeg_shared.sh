@@ -651,7 +651,7 @@ build_libx265() {
 #    apply_patch file://${top_dir}/x265-headers-revert.patch
   cd ..
   cd x265/source
-    local cmake_params="-DENABLE_SHARED=ON -DENABLE_STATIC=OFF -DENABLE_HDR10_PLUS=ON -DENABLE_ASSEMBLY=ON"
+    local cmake_params="-DENABLE_SHARED=ON -DENABLE_STATIC=OFF -DENABLE_HDR10_PLUS=ON -DENABLE_ASSEMBLY=ON -DHIGH_BIT_DEPTH=1"
     #if [[ $high_bitdepth == "y" ]]; then
     #  cmake_params="$cmake_params -DHIGH_BIT_DEPTH=ON -DMAIN12=ON" # Enable 10 bits (main10) and 12 bits (???) per pixels profiles.
     #  if grep "DHIGH_BIT_DEPTH=0" CMakeFiles/cli.dir/flags.make; then
@@ -673,7 +673,7 @@ build_libx265() {
   cd ../..
   # We must remove the x265.exe executable because FFmpeg gets linked against it. I do not understand this.
   # Furthermore, this makes x265.exe as an executable completely unuseable.
-  cp -v ${mingw_w64_x86_64_prefix}/bin/libx265.dll ${mingw_w64_x86_64_prefix}/bin/x265.exe
+#  cp -v ${mingw_w64_x86_64_prefix}/bin/libx265.dll ${mingw_w64_x86_64_prefix}/bin/x265.exe
 }
 
 #x264_profile_guided=y
@@ -5243,7 +5243,7 @@ build_dependencies() {
   build_portaudio_without_jack
   build_jack
   build_portaudio_with_jack
-  build_openblas # Not until we make a Fortran compiler
+#  build_openblas # Not until we make a Fortran compiler
   build_opencv
   build_frei0r
   build_liba52
