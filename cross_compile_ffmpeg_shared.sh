@@ -1254,7 +1254,7 @@ build_doxygen() {
 build_libflite() {
 #  download_and_unpack_file http://www.speech.cs.cmu.edu/flite/packed/flite-1.4/flite-1.4-release.tar.bz2 flite-1.4-release
 #  cd flite-1.4-release
-   download_and_unpack_file http://www.festvox.org/flite/packed/flite-2.0/flite-2.0.0-release.tar.bz2 flite-2.0.0-release
+   download_and_unpack_file http://download.sipxcom.org/pub/sipXecs/libs/flite-2.0.0-release.tar.bz2 flite-2.0.0-release
    cd flite-2.0.0-release
 #     apply_patch file://${top_dir}/flite_64.diff
      sed -i.bak "s|i386-mingw32-|$cross_prefix|" configure*
@@ -4353,7 +4353,7 @@ build_vlc() {
     export LIVE555_CFLAGS="-I${mingw_w64_x86_64_prefix}/include/liveMedia -I${mingw_w64_x86_64_prefix}/include/UsageEnvironment -I${mingw_w64_x86_64_prefix}/include/BasicUsageEnvironment -I${mingw_w64_x86_64_prefix}/include/groupsock"
     export DSM_LIBS="-lws2_32 -ldsm"
     export BUILDCC=/usr/bin/gcc
-    generic_configure_make_install "--enable-qt --disable-x264 --disable-asdcp --disable-ncurses --disable-dbus --disable-sdl --disable-telx --disable-silent-rules JACK_LIBS=-ljack JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib LIVE555_LIBS=-llivemedia ASDCP_LIBS=lasdcp ASDCP_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/asdcp"
+    generic_configure_make_install "--enable-qt --disable-asdcp --disable-ncurses --disable-dbus --disable-sdl --disable-telx --disable-silent-rules JACK_LIBS=-ljack JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib LIVE555_LIBS=-llivemedia ASDCP_LIBS=lasdcp ASDCP_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/asdcp"
     # X264 is disabled because of an API change. We ought to be able to re-enable it when vlc has caught up.
 
   cd ..
