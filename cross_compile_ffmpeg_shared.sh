@@ -860,10 +860,11 @@ build_mlt() {
 }
 
 build_DJV() {
-  download_and_unpack_file http://gallery.johnwarburton.net/djv-git-a7104da34d8a273de457b3225f77de35ccb4a63e.tar.xz djv-git-a7104da34d8a273de457b3225f77de35ccb4a63e
+#  download_and_unpack_file http://gallery.johnwarburton.net/djv-git-a7104da34d8a273de457b3225f77de35ccb4a63e.tar.xz djv-git-a7104da34d8a273de457b3225f77de35ccb4a63e
 
-  #do_git_checkout git://git.code.sf.net/p/djv/git DJV
-  cd djv-git-a7104da34d8a273de457b3225f77de35ccb4a63e
+  do_git_checkout git://git.code.sf.net/p/djv/git DJV
+  cd DJV
+#  cd djv-git-a7104da34d8a273de457b3225f77de35ccb4a63e
     # Patch to get around Mingw-w64's difficult-to-follow handling of strerror_s()
     apply_patch file://${top_dir}/djv-djvFileInfo.cpp.patch
     # Patch to use g++ equivalents of possibly missing environment manipulation functions
@@ -4330,6 +4331,7 @@ build_netcdf() {
   do_git_checkout https://github.com/Unidata/netcdf-c.git netcdf-c
   cd netcdf-c
     apply_patch file://${top_dir}/netcdf-shared.patch
+    apply_patch file://${top_dir}/netcdf-mingw.patch
     generic_configure_make_install "--enable-dll --disable-netcdf4"
   cd ..
 #  generic_download_and_install ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-4.5.0.tar.gz netcdf-4.5.0 "--enable-dll --disable-netcdf4"
@@ -5362,7 +5364,7 @@ build_apps() {
     build_vlc # NB requires ffmpeg static as well, at least once...so put this last :)
   fi
   build_cuetools
-#  build_graphicsmagicksnapshot
+  build_graphicsmagick
   build_libdcp # Now needs graphicsmagick
   build_libsub
   build_wx
