@@ -862,7 +862,7 @@ build_mlt() {
 build_DJV() {
 #  download_and_unpack_file http://gallery.johnwarburton.net/djv-git-a7104da34d8a273de457b3225f77de35ccb4a63e.tar.xz djv-git-a7104da34d8a273de457b3225f77de35ccb4a63e
 
-  do_git_checkout git://git.code.sf.net/p/djv/git DJV
+  do_git_checkout https://github.com/sobotka/djv-view.git DJV ffmpeg-fixes
   cd DJV
 #  cd djv-git-a7104da34d8a273de457b3225f77de35ccb4a63e
     # Patch to get around Mingw-w64's difficult-to-follow handling of strerror_s()
@@ -2107,13 +2107,13 @@ build_libaacplus() {
 }
 
 build_openssl() {
-  download_and_unpack_file ftp://ftp.openssl.org/source/openssl-1.0.2n.tar.gz openssl-1.0.2n
+  download_and_unpack_file ftp://ftp.openssl.org/source/openssl-1.0.2o.tar.gz openssl-1.0.2o
 #  download_and_unpack_file https://www.openssl.org/source/openssl-1.1.0f.tar.gz openssl-1.1.0f
   # When the manpages are written, they need somewhere to go otherwise there is an error.
   mkdir -pv ${mingw_w64_x86_64_prefix}/include/openssl
   mkdir -pv ${mingw_w64_x86_64_prefix}/lib/engines
   mkdir -pv ${mingw_w64_x86_64_prefix}/ssl/misc
-  cd openssl-1.0.2n
+  cd openssl-1.0.2o
   env
   # apply_patch file://${top_dir}/openssl-1.1.0f.patch
   #export cross="${cross_prefix}"
@@ -2598,8 +2598,8 @@ build_sdl2() {
 
 build_sdl2_image() {
 #  do_git_checkout https://github.com/SDL-mirror/SDL_image.git SDL_image
-  download_and_unpack_file  https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.0.2.tar.gz SDL2_image-2.0.2
-  cd SDL2_image-2.0.2
+  download_and_unpack_file  https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.0.3.tar.gz SDL2_image-2.0.3
+  cd SDL2_image-2.0.3
     rm -v aclocal.m4 Makefile.in configure
     do_configure "--host=x86_64-w64-mingw32 --target=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-shared --enable-static"
     do_make_install "V=1"
@@ -5027,7 +5027,7 @@ build_ffmpeg() {
 #  apply_patch_p1 file://${top_dir}/ffmpeg-decklink-teletext-1-reverse.patch
 #  apply_patch_p1 file://${top_dir}/ffmpeg-decklink-teletext-2-reverse.patch
 
-  config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --disable-doc --enable-libxml2 --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-libmysofa --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libvpx --enable-libilbc --enable-libwavpack --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --enable-d3d11va --enable-nvenc --enable-libopencv --enable-libzmq --enable-nonfree --enable-libfdk-aac --enable-libflite --enable-decoder=aac --enable-runtime-cpudetect --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts --extra-cflags=$CFLAGS" # other possibilities: --enable-w32threads --enable-libflite
+  config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --disable-doc --enable-libxml2 --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-libmysofa --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libvpx --enable-libilbc --enable-libwavpack --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --enable-d3d11va --enable-nvenc --enable-libopencv --enable-libzmq --enable-nonfree --enable-libfdk-aac --enable-libflite --enable-decoder=aac --enable-libaom --enable-runtime-cpudetect --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts --extra-cflags=$CFLAGS" # other possibilities: --enable-w32threads --enable-libflite
   # sed -i 's/openjpeg-1.5/openjpeg-2.1/' configure # change library path for updated libopenjpeg
   export PKG_CONFIG="pkg-config" # --static
   export LDFLAGS="" # "-static"
