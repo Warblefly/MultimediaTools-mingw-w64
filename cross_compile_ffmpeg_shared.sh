@@ -735,13 +735,13 @@ build_librtmp() {
 }
 
 build_qt() {
-  export QT_VERSION="5.10.0"
+  export QT_VERSION="5.10.1"
   export QT_SOURCE="qt-source"
   export QT_BUILD="qt-build"
 #  orig_cpu_count=$cpu_count
 #  export cpu_count=1
   if [ ! -f qt.built ]; then
-    download_and_unpack_file http://download.qt.io/official_releases/qt/5.10/5.10.0/single/qt-everywhere-src-5.10.0.tar.xz "qt-everywhere-src-${QT_VERSION}"
+    download_and_unpack_file http://download.qt.io/official_releases/qt/5.10/5.10.1/single/qt-everywhere-src-5.10.1.tar.xz "qt-everywhere-src-${QT_VERSION}"
     cd "qt-everywhere-src-${QT_VERSION}"
 #      apply_patch file://${top_dir}/qt-permissive.patch
     apply_patch file://${top_dir}/qt5-skip-mapboxglnative.patch
@@ -753,7 +753,7 @@ build_qt() {
       echo "QMAKE_LINK_OBJECT_SCRIPT = object_script" >> qtbase/mkspecs/win32-g++/qmake.conf
     cd ..
     cd "${QT_BUILD}"
-      do_configure "-xplatform win32-g++ -prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -opensource  -qt-freetype -confirm-license -accessibility -nomake examples -nomake tests -skip qtwebglplugin -release -strip -openssl -opengl dynamic -device-option CROSS_COMPILE=$cross_prefix -device-option PKG_CONFIG=${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config -no-use-gold-linker -D MINGW_HAS_SECURE_API -D _WIN32_IE=0x0A00 -v -skip qtactiveqt" "../qt-everywhere-src-${QT_VERSION}/configure" # "noclean" # -skip qtactiveqt
+      do_configure "-xplatform win32-g++ -prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -opensource  -qt-freetype -confirm-license -accessibility -nomake examples -nomake tests -skip qtwebglplugin -release -strip -openssl -opengl dynamic -device-option CROSS_COMPILE=$cross_prefix -device-option PKG_CONFIG=${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config -no-static -shared -no-use-gold-linker -D MINGW_HAS_SECURE_API -D _WIN32_IE=0x0A00 -v -skip qtactiveqt" "../qt-everywhere-src-${QT_VERSION}/configure" # "noclean" # -skip qtactiveqt
       # For sone reason, the compiler doesn't set the include path properly!
       do_make || exit 1
       do_make_install || exit 1
@@ -763,7 +763,7 @@ build_qt() {
     # therefore be changed to point to the release libraries.
     /usr/bin/python3 ${top_dir}/fix-Qt-non-debug.py ${mingw_w64_x86_64_prefix}/lib/pkgconfig
     touch "qt.built"
-    rm -rf $QT_SOURCE $QT_BUILD
+#    rm -rf $QT_SOURCE $QT_BUILD
     # QT's build tree takes up over 24GB of space. We don't need to see this again because
     # we're not using a frequently-updated Git version
 #    echo "Removing QT-${QT_VERSION} build tree..."
@@ -1441,6 +1441,81 @@ build_jack() {
       touch jack.built
     fi
   cd ..
+
+
+build_sord() {
+   do_git_checkout http://git.drobilla.net/sord.git sord
+   cd sord
+     export AR=x86_64-w64-mingw32-ar
+     export CC=x86_64-w64-mingw32-gcc
+     export CXX=x86_64-w64-mingw32-g++
+     export CXXFLAGS_ORIG=${CXXFLAGS}
+     export CXXFLAGS=-DMINGW_HAS_SECURE_API=1
+     do_configure "configure --prefix=${mingw_w64_x86_64_prefix} -ppp" "./waf"
+     ./waf build || exit 1
+     ./waf install || exit 1
+   cd ..
+
+
+}
+
+build_sratom() {
+  do_git_checkout http://git.drobilla.net/sratom.git sratom
+  cd sratom
+    export AR=x86_64-w64-mingw32-ar
+    export CC=x86_64-w64-mingw32-gcc
+    export CXX=x86_64-w64-mingw32-g++
+    export CXXFLAGS_ORIG=${CXXFLAGS}
+    export CXXFLAGS=-DMINGW_HAS_SECURE_API=1
+    do_configure "configure --prefix=${mingw_w64_x86_64_prefix} -ppp" "./waf"
+    ./waf build || exit 1
+    ./waf install || exit 1
+  cd ..
+}			      }
+
+build_serd() {
+  do_git_checkout http://git.drobilla.net/serd.git serd
+  cd serd
+    export AR=x86_64-w64-mingw32-ar
+    export CC=x86_64-w64-mingw32-gcc
+    export CXX=x86_64-w64-mingw32-g++
+    export CXXFLAGS_ORIG=${CXXFLAGS}
+    export CXXFLAGS=-DMINGW_HAS_SECURE_API=1
+    do_configure "configure --prefix=${mingw_w64_x86_64_prefix} -ppp" "./waf"
+    ./waf build || exit 1
+    ./waf install || exit 1
+  cd ..
+
+
+
+}
+build_lv2() {
+
+  do_git_checkout https://github.com/drobilla/lv2.git lv2
+  cd lv2
+    export AR=x86_64-w64-mingw32-ar
+    export CC=x86_64-w64-mingw32-gcc
+    export CXX=x86_64-w64-mingw32-g++
+    export CXXFLAGS_ORIG=${CXXFLAGS}
+    export CXXFLAGS=-DMINGW_HAS_SECURE_API=1
+    do_configure "configure --prefix=${mingw_w64_x86_64_prefix} -ppp" "./waf"
+    ./waf build || exit 1
+    ./waf install || exit 1
+  cd ..
+}
+
+build_lilv() {
+  do_git_checkout http://git.drobilla.net/lilv.git lilv
+  cd lilv
+    export AR=x86_64-w64-mingw32-ar
+    export CC=x86_64-w64-mingw32-gcc
+    export CXX=x86_64-w64-mingw32-g++
+    export CXXFLAGS_ORIG=${CXXFLAGS}
+    export CXXFLAGS=-DMINGW_HAS_SECURE_API=1
+    do_configure "configure --prefix=${mingw_w64_x86_64_prefix} -ppp" "./waf"
+    ./waf build || exit 1
+    ./waf install || exit 1
+  cd ..
 }
 
 
@@ -1636,8 +1711,8 @@ build_libspeexdsp() {
 }
 
 build_libtheora() {
-  original_cpu_count=$cpu_count
-  cpu_count=1 # can't handle it
+#  original_cpu_count=$cpu_count
+#  cpu_count=1 # can't handle it
 #  download_and_unpack_file http://downloads.xiph.org/releases/theora/libtheora-1.2.0alpha1.tar.gz libtheora-1.2.0alpha1
 #  cd libtheora-1.2.0alpha1
 #    download_config_files
@@ -1656,7 +1731,7 @@ build_libtheora() {
 
     cd ..
   #generic_download_and_install http://downloads.xiph.org/releases/theora/libtheora-1.2.0alpha1.tar.gz libtheora-1.2.0alpha1
-  cpu_count=$original_cpu_count
+#  cpu_count=$original_cpu_count
 }
 
 build_libfribidi() {
@@ -3696,7 +3771,7 @@ build_mmcommon() {
 build_cairomm() {
 #  download_and_unpack_file http://cairographics.org/releases/cairomm-1.15.3.tar.gz cairomm-1.15.3
 #  do_git_checkout git://git.cairographics.org/git/cairomm cairomm v1.15.5
-  cd cairomm
+#  cd cairomm
 #    apply_patch file://${top_dir}/cairomm-win32_surface.patch
 #    orig_aclocalpath=${ACLOCAL_PATH}
 #    export ACLOCAL_PATH="/usr/local/share/aclocal"
@@ -3908,7 +3983,7 @@ build_loudness-scanner() {
 #    apply_patch file://${top_dir}/ebur128-CMakeLists.txt-private.patch
     apply_patch file://${top_dir}/loudness-scanner-ffmpeg.patch
     sed -i.bak 's/avcodec_alloc_frame/av_frame_alloc/' scanner/inputaudio/ffmpeg/input_ffmpeg.c
-    do_cmake "-DENABLE_INTERNAL_QUEUE_H=ON"
+    do_cmake "-DENABLE_INTERNAL_QUEUE_H=ON -DCMAKE_POLICY_DEFAULT_CMP0020=NEW -DGTK2_GDKCONFIG_INCLUDE_DIR=${mingw_w64_x86_64_prefix}/include/gtk-2.0/ -DDISABLE_QT5=ON -DDISABLE_GTK=ON"
     sed -i.bak 's/-isystem /-I/g' scanner/scanner-tag/CMakeFiles/scanner-tag.dir/includes_CXX.rsp
     sed -i.bak 's/-isystem /-I/g' scanner/scanner-drop-qt/CMakeFiles/loudness-drop-qt5.dir/includes_CXX.rsp
     do_make "VERBOSE=1"
@@ -4355,7 +4430,7 @@ build_vlc() {
     export LIVE555_CFLAGS="-I${mingw_w64_x86_64_prefix}/include/liveMedia -I${mingw_w64_x86_64_prefix}/include/UsageEnvironment -I${mingw_w64_x86_64_prefix}/include/BasicUsageEnvironment -I${mingw_w64_x86_64_prefix}/include/groupsock"
     export DSM_LIBS="-lws2_32 -ldsm"
     export BUILDCC=/usr/bin/gcc
-    generic_configure_make_install "--enable-qt --disable-asdcp --disable-ncurses --disable-dbus --disable-sdl --disable-telx --disable-silent-rules JACK_LIBS=-ljack JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib LIVE555_LIBS=-llivemedia ASDCP_LIBS=lasdcp ASDCP_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/asdcp"
+    generic_configure_make_install "--enable-qt --disable-aom --disable-asdcp --disable-ncurses --disable-dbus --disable-sdl --disable-telx --disable-silent-rules JACK_LIBS=-ljack JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib LIVE555_LIBS=-llivemedia ASDCP_LIBS=lasdcp ASDCP_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/asdcp"
     # X264 is disabled because of an API change. We ought to be able to re-enable it when vlc has caught up.
 
   cd ..
@@ -4549,6 +4624,10 @@ build_libepoxy() {
 #  cd ..
 }
 
+build_librsvg() {
+  generic_download_and_install https://download.gnome.org/sources/librsvg/2.42/librsvg-2.42.3.tar.xz librsvg-2.42.3 "--disable-introspection"
+}
+
 build_cuetools() {
   do_git_checkout https://github.com/svend/cuetools.git cuetools
   cd cuetools
@@ -4572,6 +4651,10 @@ build_dbus() {
   cd dbus-1.12.2
 
   cd ..
+}
+
+build_libcroco() {
+  generic_download_and_install https://ftp.gnome.org/pub/GNOME/sources/libcroco/0.6/libcroco-0.6.12.tar.xz libcroco-0.6.12
 }
 
 build_lash() {
@@ -4892,8 +4975,8 @@ build_graphicsmagick() {
 }
 
 build_graphicsmagicksnapshot() {
-  download_and_unpack_file http://ftp.icm.edu.pl/pub/unix/graphics/GraphicsMagick/snapshots/GraphicsMagick-1.4.020180315.tar.xz GraphicsMagick-1.4.020180315
-  cd GraphicsMagick-1.4.020180315
+  download_and_unpack_file ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020180406.tar.xz GraphicsMagick-1.4.020180406
+  cd GraphicsMagick-1.4.020180406
     apply_patch file://${top_dir}/graphicmagick-mingw64.patch
     mkdir -pv build
     cd build
@@ -4993,7 +5076,7 @@ build_ffmpeg() {
 
   # FFmpeg + libav compatible options
   # add libpsapi to enable libdlfcn for Windows to work, thereby enabling frei0r plugins
-  local extra_configure_opts="--enable-libsoxr --enable-fontconfig --enable-libass --enable-libbluray --enable-iconv --enable-libtwolame --enable-libzvbi --enable-libcaca --enable-libmodplug --extra-libs=-lstdc++ --extra-libs=-lpsapi --enable-opengl --extra-libs=-lz --extra-libs=-lpng --enable-libvidstab --enable-decklink --extra-libs=-loleaut32 --enable-libcdio --enable-libzimg --enable-chromaprint --enable-libsnappy --enable-libx265 --logfile=/dev/tty"
+  local extra_configure_opts="--enable-libsoxr --enable-fontconfig --enable-libass --enable-libbluray --enable-iconv --enable-libtwolame --enable-libzvbi --enable-libcaca --enable-libmodplug --extra-libs=-lstdc++ --extra-libs=-lpsapi --enable-opengl --extra-libs=-lz --extra-libs=-lpng --enable-libvidstab --enable-decklink --extra-libs=-loleaut32 --enable-libcdio --enable-libzimg --enable-chromaprint --enable-libsnappy --enable-libx265 --enable-lv2 --logfile=/dev/tty"
 
 # The -Wno-narrowing is because libutvideo triggers a compiler strictness with the narrowing of a constant inside a curly-bracketed declaration
   extra_configure_opts="$extra_configure_opts --extra-cflags=$CFLAGS --extra-version=COMPILED_BY_JohnWarburton --extra-cxxflags=-Wno-narrowing" # extra-cflags is not needed, but adds it to the console output which I lke
@@ -5250,6 +5333,11 @@ build_dependencies() {
   build_frei0r
   build_liba52
   build_leptonica
+  build_serd
+  build_sord
+  build_lv2
+  build_sratom
+  build_lilv
   build_pixman
   build_libssh
   build_sdl2_image
@@ -5257,12 +5345,15 @@ build_dependencies() {
   build_angle
   build_cairo
   build_cairomm
-  build_pango
-  build_pangomm
+#  build_pango
+#  build_pangomm
   build_icu
   build_harfbuzz
+  build_pango
+  build_pangomm
   build_iculehb
   build_icu_with_iculehb
+  build_libcroco
   # build_lash
   build_tesseract
   if [[ "$non_free" = "y" ]]; then
@@ -5293,13 +5384,14 @@ build_dependencies() {
   build_libiberty
   build_libspatialaudio
   build_libidn
+#  build_librsvg
 #  build_gobject_introspection
   build_libepoxy
   build_rtaudio
   build_gtk2
   build_gtk
   build_graphicsmagicksnapshot
-#  build_eigen
+  build_eigen
   build_libdv
   build_aom
   build_asdcplib-cth
@@ -5364,7 +5456,7 @@ build_apps() {
     build_vlc # NB requires ffmpeg static as well, at least once...so put this last :)
   fi
   build_cuetools
-  build_graphicsmagick
+#  build_graphicsmagick
   build_libdcp # Now needs graphicsmagick
   build_libsub
   build_wx

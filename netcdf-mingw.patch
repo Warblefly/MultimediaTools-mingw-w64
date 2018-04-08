@@ -1,0 +1,11 @@
+--- libdispatch/dwinpath.c.orig	2018-03-27 20:16:58.355878800 +0000
++++ libdispatch/dwinpath.c	2018-03-27 20:17:57.662931700 +0000
+@@ -155,7 +155,7 @@
+ makeabsolute(const char* relpath)
+ {
+     char* path = NULL;
+-#ifdef _MSC_VER
++#if defined (_MSC_VER) || defined(__MINGW32__)
+     path = _fullpath(NULL,relpath,8192);
+ #else
+     path = realpath(relpath, NULL);
