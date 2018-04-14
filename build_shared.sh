@@ -477,11 +477,14 @@ File /nonfatal /r "./lib/frei0r-1/*.*"
 setOutPath "$INSTDIR\lib\gpac"
 File /nonfatal /r "./lib/gpac/*.*"
 
+setOutPath "$INSTDIR\lib\GraphicsMagick-1.4"
+File /nonfatal /r "./lib/GraphicsMagick-1.4/*.*"
+
 setOutPath "$INSTDIR\plugins"
 File /nonfatal /r "./plugins/*.*"
 
 setOutPath "$INSTDIR\share"
-File /nonfatal /r /x doc /x man /x gtk-doc "./share/*.*"
+File /nonfatal /r /x doc /x man /x gtk-doc /x jack-audio-connection-kit "./share/*.*"
 
 setOutPath "$INSTDIR\doc"
 File /nonfatal /r *./doc/*.*"
@@ -502,6 +505,9 @@ ${EnvVarUpdate} $0 TERMINFO "A" "HKCU" "$INSTDIR\share\terminfo"
 ${EnvVarUpdate} $0 VIMRUNTIME "A" "HKCU" "$INSTDIR\share\vim"
 ${EnvVarUpdate} $0 GDK_PIXBUF_MODULE_FILE "A" "HKCU" "$INSTDIR\lib\gdk-pixbuf-2.0\2.10.0\loaders.cache"
 ${EnvVarUpdate} $0 VLC_PLUGIN_PATH "A" "HKCU" "$INSTDIR\lib\vlc"
+${EnvVarUpdate} $0 MAGICK_CONFIGURE_PATH "A" "HKCU" "$INSTDIR\lib\GraphicsMagick-1.4\config\"
+${EnvVarUpdate} $0 MAGICK_CODER_MODULE_PATH "A" "HKCU" "$INSTDIR\lib\GraphicsMagick-1.4\modules-Q8\coders\"
+${EnvVarUpdate} $0 MAGICK_FILTER_MODULE_PATH "A" "HKCU" "$INSTDIR\lib\GraphicsMagick-1.4\modules-Q8\filters\"
 
 ; Set up the GTK loader cache
 

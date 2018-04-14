@@ -9,8 +9,8 @@
 +v_binutils="2.29.1"
 +v_gcc="7.3.0"
  v_gmp="6.1.2"
- v_mpfr="3.1.666666"
- v_mpc="1.0.3"
+ v_mpfr="4.0.1"
+ v_mpc="1.1.0"
 @@ -86,7 +86,7 @@
  
    local urls=(
@@ -20,15 +20,6 @@
      "http://ftp.gnu.org/gnu/gmp/gmp-$v_gmp.tar.xz"
      "http://ftp.gnu.org/gnu/mpfr/mpfr-$v_mpfr.tar.xz"
      "http://ftp.gnu.org/gnu/mpc/mpc-$v_mpc.tar.gz"
-@@ -97,7 +97,7 @@
-     local archive="${url##*/}"
-     local c
-     echo "downloading $archive" >&3
--    wget -nv "$url" || error_exit
-+    wget "$url" || error_exit
-     echo "extracting $archive" >&3
-     case "${archive##*.}" in
-       gz) c=z ;;
 @@ -139,18 +139,18 @@
  
    clean_build "$bld/binutils"

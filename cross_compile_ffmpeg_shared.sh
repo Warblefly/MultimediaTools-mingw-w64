@@ -4322,7 +4322,7 @@ build_glibmm() {
   export GLIBMM_LIBS="-lgobject-2.0 -lgmodule-2.0 -lglib-2.0 -lboost_system-mt -lsigc-2.0 -lboost_thread-mt"
   export GIOMM_LIBS="-lgio-2.0 -lgobject-2.0 -lgmodule-2.0 -lglib-2.0 -lboost_system-mt -lsigc-2.0"
   export NOCONFIGURE=1
-  download_and_unpack_file http://ftp.heanet.ie/mirrors/ftp.gnome.org/sources/glibmm/2.50/glibmm-2.50.1.tar.xz glibmm-2.50.1
+  download_and_unpack_file https://ftp.gnome.org/pub/GNOME/sources/glibmm/2.50/glibmm-2.50.1.tar.xz glibmm-2.50.1
   cd glibmm-2.50.1
     apply_patch file://${top_dir}/glibmm-mutex.patch
     generic_configure_make_install "--disable-silent-rules"
@@ -4430,7 +4430,7 @@ build_vlc() {
     export LIVE555_CFLAGS="-I${mingw_w64_x86_64_prefix}/include/liveMedia -I${mingw_w64_x86_64_prefix}/include/UsageEnvironment -I${mingw_w64_x86_64_prefix}/include/BasicUsageEnvironment -I${mingw_w64_x86_64_prefix}/include/groupsock"
     export DSM_LIBS="-lws2_32 -ldsm"
     export BUILDCC=/usr/bin/gcc
-    generic_configure_make_install "--enable-qt --disable-aom --disable-asdcp --disable-ncurses --disable-dbus --disable-sdl --disable-telx --disable-silent-rules JACK_LIBS=-ljack JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib LIVE555_LIBS=-llivemedia ASDCP_LIBS=lasdcp ASDCP_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/asdcp"
+    generic_configure_make_install "--enable-qt --disable-aom --disable-vpx --disable-asdcp --disable-ncurses --disable-dbus --disable-sdl --disable-telx --disable-silent-rules JACK_LIBS=-ljack JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib LIVE555_LIBS=-llivemedia ASDCP_LIBS=lasdcp ASDCP_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/asdcp"
     # X264 is disabled because of an API change. We ought to be able to re-enable it when vlc has caught up.
 
   cd ..
@@ -4963,10 +4963,10 @@ build_graphicsmagick() {
       sed -i.bak 's/Libs: -L\${libdir} -lGraphicsMagick/Libs: -L${libdir} -lGraphicsMagick -lfreetype -lbz2 -lz -llcms2 -lpthread -lpng16 -ltiff -lgdi32 -lgdiplus -ljpeg -lwebp -ljasper/' ../magick/GraphicsMagick.pc.in
       # References to a libcorelib are not needed. The library doesn't exist on my platform
       sed -i.bak 's/-lcorelib//' ../magick/GraphicsMagick.pc.in
-      do_configure "--with-magick-plus-plus --disable-static --enable-shared --host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-broken-coders --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix} CPPFLAGS=-I${mingw_w64_x86_64_prefix}" "../configure"
+      do_configure "--with-magick-plus-plus --disable-static --enable-magick-compat --enable-shared --with-modules --host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-broken-coders --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix} CPPFLAGS=-I${mingw_w64_x86_64_prefix}" "../configure"
       do_make_install || exit 1
-      cp -v config/* ${mingw_w64_x86_64_prefix}/share/GraphicsMagick-1.4/config/
-      do_make_clean
+      # cp -v config/* ${mingw_w64_x86_64_prefix}/share/GraphicsMagick-1.4/config/
+      # do_make_clean
     cd ..
   else
     echo "still at hg $new_hg_version GraphicsMagick"
@@ -5390,7 +5390,7 @@ build_dependencies() {
   build_rtaudio
   build_gtk2
   build_gtk
-  build_graphicsmagicksnapshot
+  build_graphicsmagick
   build_eigen
   build_libdv
   build_aom
