@@ -3261,6 +3261,10 @@ build_mkvtoolnix() {
     export LD=${old_LD}
     export CXX=${old_CXX}
     #    export LDFLAGS=${orig_ldflags}
+    # To run the program, mkvtoolnix-gui expects to see the 'magic' file from 'file'
+    # in its bin directory.
+    mkdir -vp ${mingw_w64_x86_64_prefix}/bin/share/misc
+    cp -v ${mingw_w64_x86_64_prefix}/share/misc/magic.mgc ${mingw_w64_x86_64_prefix}/bin/share/misc/magic.mgc
   cd ..
 }
 
@@ -4963,8 +4967,10 @@ build_graphicsmagick() {
       sed -i.bak 's/Libs: -L\${libdir} -lGraphicsMagick/Libs: -L${libdir} -lGraphicsMagick -lfreetype -lbz2 -lz -llcms2 -lpthread -lpng16 -ltiff -lgdi32 -lgdiplus -ljpeg -lwebp -ljasper/' ../magick/GraphicsMagick.pc.in
       # References to a libcorelib are not needed. The library doesn't exist on my platform
       sed -i.bak 's/-lcorelib//' ../magick/GraphicsMagick.pc.in
+      export ac_cv_path_xml2_config=${mingw_w64_x86_64_prefix}/bin/xml2-config
       do_configure "--with-magick-plus-plus --disable-static --enable-magick-compat --enable-shared --with-modules --host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-broken-coders --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix} CPPFLAGS=-I${mingw_w64_x86_64_prefix}" "../configure"
       do_make_install || exit 1
+      unset ac_cv_path_xml2_config
       # cp -v config/* ${mingw_w64_x86_64_prefix}/share/GraphicsMagick-1.4/config/
       # do_make_clean
     cd ..
