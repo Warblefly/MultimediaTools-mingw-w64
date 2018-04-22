@@ -4268,19 +4268,11 @@ build_locked_sstream() {
 }
 
 build_libebml() {
-  do_git_checkout https://github.com/Matroska-Org/libebml.git libebml
-  cd libebml
-    generic_configure_make_install
-
-  cd ..
+  generic_download_and_install https://dl.matroska.org/downloads/libebml/libebml-1.3.5.tar.xz libebml-1.3.5
 }
 
 build_libmatroska() {
-  do_git_checkout https://github.com/Matroska-Org/libmatroska.git libmatroska
-  cd libmatroska
-    generic_configure_make_install
-
-  cd ..
+  generic_download_and_install https://dl.matroska.org/downloads/libmatroska/libmatroska-1.4.8.tar.xz libmatroska-1.4.8
 }
 
 build_1394camera() {
@@ -4434,7 +4426,7 @@ build_vlc() {
     export LIVE555_CFLAGS="-I${mingw_w64_x86_64_prefix}/include/liveMedia -I${mingw_w64_x86_64_prefix}/include/UsageEnvironment -I${mingw_w64_x86_64_prefix}/include/BasicUsageEnvironment -I${mingw_w64_x86_64_prefix}/include/groupsock"
     export DSM_LIBS="-lws2_32 -ldsm"
     export BUILDCC=/usr/bin/gcc
-    generic_configure_make_install "--enable-qt --disable-aom --disable-vpx --disable-asdcp --disable-ncurses --disable-dbus --disable-sdl --disable-telx --disable-silent-rules JACK_LIBS=-ljack JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib LIVE555_LIBS=-llivemedia ASDCP_LIBS=lasdcp ASDCP_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/asdcp"
+    generic_configure_make_install "--enable-qt --disable-vpx --disable-asdcp --disable-ncurses --disable-dbus --disable-sdl --disable-telx --disable-silent-rules JACK_LIBS=-ljack JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib LIVE555_LIBS=-llivemedia ASDCP_LIBS=lasdcp ASDCP_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/asdcp"
     # X264 is disabled because of an API change. We ought to be able to re-enable it when vlc has caught up.
 
   cd ..
