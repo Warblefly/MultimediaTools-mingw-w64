@@ -2952,10 +2952,10 @@ build_mediainfo() {
 		  mkdir -pv mediainfo
 		fi
 		cd mediainfo
-		do_svn_checkout http://svn.code.sf.net/p/mediainfo/code/MediaInfo/trunk MediaInfo
+	       	do_svn_checkout http://svn.code.sf.net/p/mediainfo/code/MediaInfo/trunk MediaInfo
 		do_svn_checkout http://svn.code.sf.net/p/mediainfo/code/MediaInfoLib/trunk MediaInfoLib
 		do_svn_checkout http://svn.code.sf.net/p/zenlib/code/ZenLib/trunk ZenLib
-                # Overcome a case-sensitivity issue
+		# Overcome a case-sensitivity issue
                 sed -i.bak 's/Windows.h/windows.h/' MediaInfoLib/Source/MediaInfo/Reader/Reader_File.h
 		sed -i.bak 's/Windows.h/windows.h/' MediaInfoLib/Source/MediaInfo/Reader/Reader_File.cpp
 		sed -i.bak '/#include <windows.h>/ a\#include <time.h>' ZenLib/Source/ZenLib/Ztring.cpp
@@ -3842,7 +3842,8 @@ build_libffi() {
 }
 
 build_ilmbase() {
-  do_git_checkout https://github.com/openexr/openexr.git openexr develop
+  do_git_checkout https://github.com/openexr/openexr.git openexr 9f23bcc60b9786ffd5d97800750b953313080c87
+  # Problem with threads in latest code that checks for c++14 standard
   cd openexr/IlmBase
     # IlmBase is written expecting that some of its binaries will be run during compilation.
     # In a cross-compiling environment, this more difficult to do than I know how.
@@ -3858,7 +3859,6 @@ build_ilmbase() {
       apply_patch file://${top_dir}/ilmbase-ilmthread-Makefile.am.patch
     cd ..
     generic_configure_make_install "--enable-shared --enable-large-stack"
-
   cd ../..
 }
 
@@ -4419,14 +4419,17 @@ build_vlc() {
     unset CFLAGS
     unset CXXFLAGS
     export LIBS="-lwinmm"
+    export CFLAGS="-fpermissive"
+    export CXXFLAGS="-fpermissive"
     apply_patch file://${top_dir}/vlc-qt5.patch
     apply_patch file://${top_dir}/vlc-more-static.patch
     apply_patch file://${top_dir}/vlc-dll-dirs.patch
 #    apply_patch file://${top_dir}/vlc-aom.patch
     export LIVE555_CFLAGS="-I${mingw_w64_x86_64_prefix}/include/liveMedia -I${mingw_w64_x86_64_prefix}/include/UsageEnvironment -I${mingw_w64_x86_64_prefix}/include/BasicUsageEnvironment -I${mingw_w64_x86_64_prefix}/include/groupsock"
     export DSM_LIBS="-lws2_32 -ldsm"
+    export AOM_LIBS="-laom -lpthread -lm"
     export BUILDCC=/usr/bin/gcc
-    generic_configure_make_install "--enable-qt --disable-vpx --disable-asdcp --disable-ncurses --disable-dbus --disable-sdl --disable-telx --disable-silent-rules JACK_LIBS=-ljack JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib LIVE555_LIBS=-llivemedia ASDCP_LIBS=lasdcp ASDCP_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/asdcp"
+    generic_configure_make_install "--enable-qt --disable-opencv --disable-vpx --disable-asdcp --disable-ncurses --disable-dbus --disable-sdl --disable-telx --disable-silent-rules JACK_LIBS=-ljack JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib LIVE555_LIBS=-llivemedia ASDCP_LIBS=lasdcp ASDCP_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/asdcp"
     # X264 is disabled because of an API change. We ought to be able to re-enable it when vlc has caught up.
 
   cd ..
@@ -4729,7 +4732,7 @@ build_aom() {
     export LD=x86_64-w64-mingw32-ld
     export AR=x86_64-w64-mingw32-ar
     export CXX=x86_64-w64-mingw32-g++
-    apply_patch file://${top_dir}/aom-pthread.patch
+#    apply_patch file://${top_dir}/aom-pthread.patch
 #    do_configure "--target=x86_64-win64-gcc --prefix=${mingw_w64_x86_64_prefix} --enable-webm-io --enable-pic --enable-multithread --enable-runtime-cpu-detect --enable-postproc --enable-av1 --enable-lowbitdepth --disable-unit-tests"
     mkdir -pv ../aom_build
     cd ../aom_build
@@ -4973,17 +4976,19 @@ build_graphicsmagick() {
 }
 
 build_graphicsmagicksnapshot() {
-  download_and_unpack_file ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020180406.tar.xz GraphicsMagick-1.4.020180406
-  cd GraphicsMagick-1.4.020180406
+  download_and_unpack_file ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020180430.tar.xz GraphicsMagick-1.4.020180430
+  cd GraphicsMagick-1.4.020180430
     apply_patch file://${top_dir}/graphicmagick-mingw64.patch
     mkdir -pv build
     cd build
       sed -i.bak 's/Libs: -L\${libdir} -lGraphicsMagick/Libs: -L${libdir} -lGraphicsMagick -lfreetype -lbz2 -lz -llcms2 -lpthread -lpng16 -ltiff -lgdi32 -lgdiplus -ljpe
   g -lwebp -ljasper/' ../magick/GraphicsMagick.pc.in
-      # References to a libcorelib are not needed. The library doesn't exist on my platform
-      sed -i.bak 's/-lcorelib//' ../magick/GraphicsMagick.pc.in
-      do_configure "--with-magick-plus-plus --disable-static --enable-shared --host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-broken-coders --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix} CPPFLAGS=-I${mingw_w64_x86_64_prefix}" "../configure"
+      # References to a libcorelib are not needed. The library doesn't exist on my platformi
+      export ac_cv_path_xml2_config=${mingw_w64_x86_64_prefix}/bin/xml2-config
+      do_configure "--with-magick-plus-plus --disable-static --enable-magick-compat --enable-shared --with-modules --host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-broken-coders --without-x
+ LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix} CPPFLAGS=-I${mingw_w64_x86_64_prefix}" "../configure"
       do_make_install || exit 1
+      unset ac_cv_path_xml2_config 
       cp -v config/* ${mingw_w64_x86_64_prefix}/share/GraphicsMagick-1.4/config/
     cd ..
   cd ..
@@ -5388,7 +5393,7 @@ build_dependencies() {
   build_rtaudio
   build_gtk2
   build_gtk
-  build_graphicsmagick
+  build_graphicsmagicksnapshot
   build_eigen
   build_libdv
   build_aom

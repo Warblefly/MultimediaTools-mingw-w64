@@ -9,3 +9,14 @@
      path = _fullpath(NULL,relpath,8192);
  #else
      path = realpath(relpath, NULL);
+--- libsrc/memio.c.orig	2018-05-08 22:10:36.407774800 +0000
++++ libsrc/memio.c	2018-05-08 22:10:46.468839300 +0000
+@@ -17,7 +17,7 @@
+ #ifdef HAVE_FCNTL_H
+ #include <fcntl.h>
+ #endif
+-#ifdef _MSC_VER /* Microsoft Compilers */
++#if defined (_MSC_VER) || defined(__MINGW32__) /* Microsoft Compilers */
+ #include <windows.h>
+ #include <winbase.h>
+ #include <io.h>

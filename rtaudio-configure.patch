@@ -8,3 +8,11 @@
 +Libs: -L${libdir} -lpthread -lrtaudio -lole32 -loleaut32 -lwinmm -lksuser -luuid 
  Libs.private: -lpthread
  Cflags: -pthread -I${includedir} @api@
+--- rtaudio.pc.in.orig	2018-05-02 19:46:38.204157000 +0000
++++ rtaudio.pc.in	2018-05-02 19:47:02.765470000 +0000
+@@ -1,4 +1,4 @@
+-prefix=@CMAKE_INSTALL_PREFIX@
++prefix=@prefix@
+ exec_prefix=${prefix}
+ libdir=${exec_prefix}/lib
+ includedir=${prefix}/include/rtaudio        
