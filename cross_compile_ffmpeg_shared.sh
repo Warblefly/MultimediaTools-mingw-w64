@@ -745,6 +745,8 @@ build_qt() {
     cd "qt-everywhere-src-${QT_VERSION}"
 #      apply_patch file://${top_dir}/qt-permissive.patch
     apply_patch file://${top_dir}/qt5-skip-mapboxglnative.patch
+    # Change a type for updates in ANGLE project
+    grep -rl "EGL_PLATFORM_ANGLE_DEVICE_TYPE_WARP_ANGLE" ./ | xargs sed -i.bak 's/EGL_PLATFORM_ANGLE_DEVICE_TYPE_WARP_ANGLE/EGL_PLATFORM_ANGLE_DEVICE_TYPE_D3D_WARP_ANGLE/g'
     cd ..
     mkdir -p "${QT_BUILD}"
     ln -vs "qt-everywhere-src-${QT_VERSION}" "${QT_SOURCE}"
@@ -1067,8 +1069,8 @@ build_gcal() {
 }
 
 build_unbound() {
-  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.7.0 "libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
-  cd unbound-1.7.0
+  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.7.1 "libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
+  cd unbound-1.7.1
 
   cd ..
 }
@@ -3619,18 +3621,19 @@ build_opencl() {
 # Method: get the headers, then (in a later function) build OpenCL.dll from the github source
 # which does NOT contain the headers
   mkdir -p ${mingw_w64_x86_64_prefix}/include/CL && cd ${mingw_w64_x86_64_prefix}/include/CL
-    wget --no-clobber https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/opencl22/CL/cl_d3d10.h \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/opencl22/CL/cl_d3d11.h \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/opencl22/CL/cl_dx9_media_sharing.h \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/opencl22/CL/cl_ext.h \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/opencl22/CL/cl_gl_ext.h \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/opencl22/CL/cl_gl.h \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/opencl22/CL/cl.h \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/opencl22/CL/cl_platform.h \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/opencl22/CL/opencl.h \
+    wget --no-clobber https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/cl_d3d10.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/cl_d3d11.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/cl_dx9_media_sharing.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/cl_ext.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/cl_gl_ext.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/cl_gl.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/cl.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/cl_platform.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/cl_version.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/opencl.h \
 https://www.khronos.org/registry/cl/api/2.1/cl.hpp \
 https://github.com/KhronosGroup/OpenCL-CLHPP/releases/download/v2.0.10/cl2.hpp \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/opencl22/CL/cl_egl.h
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/cl_egl.h
 #  cd -
 #  cd ${top_dir}
 # Use the installed OpenCL.dll to make libOpenCL.a
@@ -4543,7 +4546,7 @@ build_mimedb() {
 }
 
 build_qjackctl() {
-  do_git_checkout https://github.com/rncbc/qjackctl.git qjackctl
+  do_git_checkout https://github.com/rncbc/qjackctl.git qjackctl 568b076f1ddd0fcb18a78828e0e5b833e52fd7a1
   cd qjackctl
     apply_patch file://${top_dir}/qjackctl-MainForm.patch
     generic_configure_make_install "LIBS=-lportaudio --enable-xunique=no" # enable-jack-version=yes
@@ -4558,7 +4561,7 @@ build_angle() {
     # If Angle has been built, then skip the whole process because Git barfs
     if [[ ! -f "angle/already_built_angle" ]]; then
       echo "Angle not built: building from scratch."
-      do_git_checkout https://github.com/google/angle.git angle 9f10b775c9b17f901d940157e43e5a74b75c2708 # 57ce9ea23e
+      do_git_checkout https://github.com/google/angle.git angle #9f10b775c9b17f901d940157e43e5a74b75c2708 # 57ce9ea23e
       cd angle
         # remove .git directory to prevent: No rule to make target '../build-x86_64/.git/index', needed by 'out/Debug/obj/gen/angle/id/commit.h'.
         rm -rvf .git || exit 1
@@ -4570,8 +4573,8 @@ build_angle() {
 #        apply_patch_p1 file://${top_dir}/angle-Remove-copy_scripts-target.patch
 #        apply_patch_p1 file://${top_dir}/angle-Fix-generation-of-commit_id.h.patch
 #        # These are my patches to work around VC-only functions
-        apply_patch file://${top_dir}/angle-string_utils-cpp.patch
-        apply_patch file://${top_dir}/angle-RendererD3D-cpp.patch
+#        apply_patch file://${top_dir}/angle-string_utils-cpp.patch
+#        apply_patch file://${top_dir}/angle-RendererD3D-cpp.patch
 #        apply_patch file://${top_dir}/angle-future.patch
         # executing .bat scripts on Linux is a no-go so make this a no-op
 
@@ -4589,7 +4592,7 @@ build_angle() {
           export CXX=x86_64-w64-mingw32-g++
           export AR=x86_64-w64-mingw32-ar
           old_cxxflags=${CXXFLAGS}
-          export CXXFLAGS="-O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions --param=ssp-buffer-size=4 -std=c++14 -msse2 -DANGLE_STD_ASYNC_WORKERS=ANGLE_DISABLED -DUNICODE -D_UNICODE -I./../src -I./../include -I./../src/common/third_party/numerics"
+          export CXXFLAGS="-O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions --param=ssp-buffer-size=4 -std=c++14 -msse2 -DANGLE_STD_ASYNC_WORKERS=ANGLE_DISABLED -DUNICODE -D_UNICODE -I./../src -I./../include -I./../src/common/third_party/numerics -I./../src/common/third_party/base"
           # Prepare the Makefile
           gyp -D angle_enable_vulkan=0 -D use_ozone=0 -D OS=win -D TARGET=win64 --format make -DMSVS_VERSION="" --depth . -I ../gyp/common.gypi ../src/angle.gyp
           make V=1 LIBS="-lmingw32 -lm -lsetupapi -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -lwinmm -limm32 -lole32 -loleaut32 -lshell32 -lversion -luuid -ld3d9 -ld3d11" -j $cpu_count || exit 1
@@ -5393,7 +5396,7 @@ build_dependencies() {
   build_rtaudio
   build_gtk2
   build_gtk
-  build_graphicsmagicksnapshot
+  build_graphicsmagick
   build_eigen
   build_libdv
   build_aom
