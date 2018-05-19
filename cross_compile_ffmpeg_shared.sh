@@ -4991,7 +4991,7 @@ build_graphicsmagicksnapshot() {
       do_configure "--with-magick-plus-plus --disable-static --enable-magick-compat --enable-shared --with-modules --host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-broken-coders --without-x
  LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix} CPPFLAGS=-I${mingw_w64_x86_64_prefix}" "../configure"
       do_make_install || exit 1
-      unset ac_cv_path_xml2_config 
+      unset ac_cv_path_xml2_config
       cp -v config/* ${mingw_w64_x86_64_prefix}/share/GraphicsMagick-1.4/config/
     cd ..
   cd ..
@@ -5568,6 +5568,9 @@ done
 
 intro # remember to always run the intro, since it adjust pwd
 check_missing_packages
+# Install a decent set of colours for vim. Makes development easier.
+do_git_checkout https://github.com/amix/vimrc.git ~/.vim_runtime
+sh ~/.vim_runtime/install_awesome_vimrc.sh
 install_cross_compiler
 # the header Windows.h needs to appear
 cd ${cur_dir}/x86_64-w64-mingw32/x86_64-w64-mingw32/include
