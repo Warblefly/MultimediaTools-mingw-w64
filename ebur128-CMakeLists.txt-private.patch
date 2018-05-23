@@ -1,43 +1,58 @@
---- ebur128/ebur128/CMakeLists.txt.orig	2016-05-24 10:00:15.526000000 +0000
-+++ ebur128/ebur128/CMakeLists.txt	2016-05-24 10:01:10.391000000 +0000
-@@ -36,29 +36,30 @@
- set(EBUR128_VERSION_MAJOR 1)
- set(EBUR128_VERSION 1.0.1)
+--- ebur128/ebur128/CMakeLists.txt.orig	2018-05-22 21:28:13.354193000 +0000
++++ ebur128/ebur128/CMakeLists.txt	2018-05-22 21:31:23.197763700 +0000
+@@ -27,14 +27,14 @@
  
--add_library(ebur128_static STATIC ebur128.c)
--set_property(TARGET ebur128_static PROPERTY OUTPUT_NAME ebur128)
-+add_library(ebur128_static-ls STATIC ebur128.c)
-+set_property(TARGET ebur128_static-ls PROPERTY OUTPUT_NAME ebur128-ls)
- if(WITH_STATIC_PIC)
--    set_property(TARGET ebur128_static PROPERTY POSITION_INDEPENDENT_CODE ON)
-+    set_property(TARGET ebur128_static-ls PROPERTY POSITION_INDEPENDENT_CODE ON)
+ #### static
+ if(BUILD_STATIC_LIBS)
+-  add_library(ebur128_static STATIC ebur128.c)
++  add_library(ebur128_static-ls STATIC ebur128.c)
+   if(NOT MSVC)
+-    set_property(TARGET ebur128_static PROPERTY OUTPUT_NAME ebur128)
++    set_property(TARGET ebur128_static-ls PROPERTY OUTPUT_NAME ebur128-ls)
+   endif()
  endif()
  
--add_library(ebur128 SHARED ebur128.c)
+ if(WITH_STATIC_PIC)
+-  set_property(TARGET ebur128_static PROPERTY POSITION_INDEPENDENT_CODE ON)
++  set_property(TARGET ebur128_static-ls PROPERTY POSITION_INDEPENDENT_CODE ON)
+ endif()
+ 
+ #### shared
+@@ -44,27 +44,27 @@
+   set(EBUR128_SHARED_SOURCE ${EBUR128_SHARED_SOURCE} ebur128.def)
+ endif()
+ 
+-add_library(ebur128 SHARED ${EBUR128_SHARED_SOURCE})
 -set_target_properties(ebur128 PROPERTIES
-+add_library(ebur128-ls SHARED ebur128.c)
++add_library(ebur128-ls SHARED ${EBUR128_SHARED_SOURCE})
 +set_target_properties(ebur128-ls PROPERTIES
      SOVERSION ${EBUR128_VERSION_MAJOR}
      VERSION ${EBUR128_VERSION})
  
- 
- if(SPEEXDSP_FOUND AND NOT DISABLE_SPEEXDSP)
--    set_property(TARGET ebur128_static APPEND_STRING PROPERTY
-+    set_property(TARGET ebur128_static-ls APPEND_STRING PROPERTY
-         COMPILE_FLAGS " ${SPEEXDSP_CFLAGS}")
--    set_property(TARGET ebur128 APPEND_STRING PROPERTY
-+    set_property(TARGET ebur128-ls APPEND_STRING PROPERTY
-         COMPILE_FLAGS " ${SPEEXDSP_CFLAGS}")
--    target_link_libraries(ebur128 ${SPEEXDSP_LIBRARIES})
-+    target_link_libraries(ebur128-ls ${SPEEXDSP_LIBRARIES})
+ find_library(MATH_LIBRARY m)
+ if(MATH_LIBRARY)
+-  target_link_libraries(ebur128 ${MATH_LIBRARY})
++  target_link_libraries(ebur128-ls ${MATH_LIBRARY})
  endif()
  
- 
- set(SUMMARY_SPEEXDSP_FOUND ${SPEEXDSP_FOUND} CACHE INTERNAL "")
  set(EBUR128_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL "")
  
--install(FILES ebur128.h DESTINATION include)
--install(TARGETS ebur128 ebur128_static DESTINATION lib)
-+# Don't install this because it is a slightly outdated API
-+# install(FILES ebur128.h DESTINATION include)
-+install(TARGETS ebur128-ls ebur128_static-ls DESTINATION lib)
+-install(FILES ebur128.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
++#install(FILES ebur128.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+ if(BUILD_STATIC_LIBS)
+-  install(TARGETS ebur128 ebur128_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
++  install(TARGETS ebur128-ls ebur128_static-ls DESTINATION ${CMAKE_INSTALL_LIBDIR})
+ else()
+-  install(TARGETS ebur128 DESTINATION ${CMAKE_INSTALL_LIBDIR})
++  install(TARGETS ebur128-ls DESTINATION ${CMAKE_INSTALL_LIBDIR})
+ endif()
+ 
+ #### pkg-config
+-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libebur128.pc.cmake
+-               ${CMAKE_CURRENT_BINARY_DIR}/libebur128.pc @ONLY)
+-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/libebur128.pc"
+-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
++#configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libebur128.pc.cmake
++#               ${CMAKE_CURRENT_BINARY_DIR}/libebur128.pc @ONLY)
++#install(FILES "${CMAKE_CURRENT_BINARY_DIR}/libebur128.pc"
++#        DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)

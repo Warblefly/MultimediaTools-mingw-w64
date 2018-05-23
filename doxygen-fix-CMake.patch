@@ -6,9 +6,9 @@
  
 -if (WIN32)
 +if (WIN32 AND MSVC)
-     if(NOT ICONV_DIR)
-       set(ICONV_DIR "${CMAKE_SOURCE_DIR}/winbuild")
-     endif()
+     if (NOT CMAKE_GENERATOR MATCHES "MinGW Makefiles")
+         if (NOT ICONV_DIR)
+             set(ICONV_DIR "${CMAKE_SOURCE_DIR}/winbuild")
 @@ -114,7 +114,7 @@
     link_directories(${CUSTOM_LINK_DIR})
  endif()
