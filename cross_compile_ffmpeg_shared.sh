@@ -1824,6 +1824,37 @@ build_libtheora() {
 #  cpu_count=$original_cpu_count
 }
 
+build_sqlite() {
+    generic_download_and_install https://www.sqlite.org/snapshot/sqlite-snapshot-201805231753.tar.gz sqlite-snapshot-201805231753
+}
+
+build_libfilezilla() {
+do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfilezilla
+    cd libfilezilla
+        export CC=x86_64-w64-mingw32-gcc
+        export CXX=x86_64-w64-mingw32-g++
+        export WINDRES=x86_64-w64-mingw32-windres
+        generic_configure_make_install
+        unset CC
+        unset CXX
+        unset WINDRES
+    cd ..
+}
+
+build_filezilla() {
+do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla
+cd filezilla
+    export CC=x86_64-w64-mingw32-gcc
+    export CXX=x86_64-w64-mingw32-g++
+    export WINDRES=x86_64-w64-mingw32-windres
+    generic_configure_make_install
+    unset CC
+    unset CXX
+    unset WINDRES
+cd ..
+}
+
+
 build_libfribidi() {
   # generic_download_and_install http://fribidi.org/download/fribidi-0.19.5.tar.bz2 fribidi-0.19.5 # got report of still failing?
   #  download_and_unpack_file http://fribidi.org/download/fribidi-0.19.7.tar.bz2 fribidi-0.19.7
@@ -4544,11 +4575,12 @@ build_vlc() {
     apply_patch file://${top_dir}/vlc-more-static.patch
     apply_patch file://${top_dir}/vlc-dll-dirs.patch
 #    apply_patch file://${top_dir}/vlc-aom.patch
+    apply_patch file://${top_dir}/vlc-vpx.patch
     export LIVE555_CFLAGS="-I${mingw_w64_x86_64_prefix}/include/liveMedia -I${mingw_w64_x86_64_prefix}/include/UsageEnvironment -I${mingw_w64_x86_64_prefix}/include/BasicUsageEnvironment -I${mingw_w64_x86_64_prefix}/include/groupsock"
     export DSM_LIBS="-lws2_32 -ldsm"
     export AOM_LIBS="-laom -lpthread -lm"
     export BUILDCC=/usr/bin/gcc
-    generic_configure_make_install "--enable-qt --disable-opencv --disable-vpx --disable-asdcp --disable-ncurses --disable-dbus --disable-sdl --disable-telx --disable-silent-rules JACK_LIBS=-ljack JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib LIVE555_LIBS=-llivemedia ASDCP_LIBS=lasdcp ASDCP_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/asdcp"
+    generic_configure_make_install "--enable-qt --disable-asdcp --disable-opencv --disable-ncurses --disable-dbus --disable-sdl --disable-telx --disable-silent-rules JACK_LIBS=-ljack JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib LIVE555_LIBS=-llivemedia ASDCP_LIBS=lasdcp ASDCP_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/asdcp"
     # X264 is disabled because of an API change. We ought to be able to re-enable it when vlc has caught up.
 
   cd ..
@@ -5412,6 +5444,8 @@ build_dependencies() {
   build_libcddb
   build_libcdio_libcddb # Now build again with cddb support
   build_libcdio-paranoia
+  build_sqlite
+  build_libfilezilla
   build_libvpx
 #  build_vo_aacenc
   build_libdecklink
@@ -5580,6 +5614,7 @@ build_apps() {
 #  build_rsync
   build_dvdbackup
   build_codec2
+  build_filezilla
   build_ffmpegnv
   if [[ $build_ffmpeg_shared = "y" ]]; then
     build_ffmpeg ffmpeg shared
