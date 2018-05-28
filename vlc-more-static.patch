@@ -79,6 +79,6 @@ index e200669..9d724c9 100644
 +#include <dxgi1_4.h>
 +#include <dxgi1_5.h>
 +#include <dxgi1_6.h>
- #include <d3dcompiler.h>
  
  /* avoided until we can pass ISwapchainPanel without c++/cx mode
+ # include <windows.ui.xaml.media.dxinterop.h> */

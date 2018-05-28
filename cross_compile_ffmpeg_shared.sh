@@ -1619,7 +1619,7 @@ build_leptonica() {
 }
 
 build_libpopt() {
-  download_and_unpack_file http://rpm5.org/files/popt/popt-1.16.tar.gz popt-1.16
+  download_and_unpack_file ftp://anduin.linuxfromscratch.org/BLFS/popt/popt-1.16.tar.gz popt-1.16
   cd popt-1.16
     apply_patch file://${top_dir}/popt-get-w32-console-maxcols.patch
     apply_patch file://${top_dir}/popt-no-uid.patch
@@ -1834,24 +1834,33 @@ do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfile
         export CC=x86_64-w64-mingw32-gcc
         export CXX=x86_64-w64-mingw32-g++
         export WINDRES=x86_64-w64-mingw32-windres
-        generic_configure_make_install
+#        export orig_cpu_count=$cpu_count
+#        export cpu_count=1
+        generic_configure_make_install "--disable-shared --enable-static"
+#        generic_download_and_install https://download.filezilla-project.org/libfilezilla/libfilezilla-0.12.2.tar.bz2 libfilezilla-0.12.2 "--disable-shared --enable-static"
         unset CC
         unset CXX
         unset WINDRES
+#        export cpu_count=$orig_cpu_count
     cd ..
 }
 
 build_filezilla() {
 do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla
-cd filezilla
+  cd filezilla
     export CC=x86_64-w64-mingw32-gcc
     export CXX=x86_64-w64-mingw32-g++
     export WINDRES=x86_64-w64-mingw32-windres
+#    export orig_cpu_count=$cpu_count
+#    export cpu_count=1
+    env
     generic_configure_make_install
+#   generic_download_and_install https://download.filezilla-project.org/client/FileZilla_latest_src.tar.bz2 filezilla-3.33.0
     unset CC
     unset CXX
     unset WINDRES
-cd ..
+#   export cpu_count=$orig_cpu_count
+  cd ..
 }
 
 
@@ -2161,7 +2170,7 @@ build_liba52() {
 
 build_p11kit() {
 #  generic_download_and_install https://p11-glue.freedesktop.org/releases/p11-kit-0.23.2.tar.gz p11-kit-0.23.2
-  do_git_checkout https://github.com/p11-glue/p11-kit.git p11-kit # d8acebf175d727a3e146956fb362c30e7fdec9df
+  do_git_checkout https://github.com/p11-glue/p11-kit.git p11-kit 6af8234936f805a9c6dceb29a84e73d40ed4b257
   cd p11-kit
     generic_configure_make_install
   cd ..
@@ -2316,6 +2325,7 @@ build_openssl() {
   # apply_patch file://${top_dir}/openssl-1.1.0f.patch
   #export cross="${cross_prefix}"
   export CROSS_COMPILE="${cross_prefix}"
+  export PERL="/usr/bin/perl"
   #export CC="x86_64-w64-mingw32-gcc"
   #export AR="x86_64-w64-mingw32-ar"
   #export RANLIB="x86_64-w64-mingw32-ranlib"
@@ -2329,6 +2339,7 @@ build_openssl() {
   #fi
   #do_configure "" ./config
   cpu_count=1
+  sleep 3
   do_make # "build_libs"
   do_make "install_sw"
   cpu_count=$original_cpu_count
@@ -2338,6 +2349,7 @@ build_openssl() {
   unset RANLIB
   unset RC
   unset CROSS_COMPILE
+  unset PERL
   # do_cleanup
   cd ..
 }
@@ -2410,6 +2422,7 @@ build_libdcp() {
     #sed -i.bak "s/boost_lib_suffix = '-mt'/boost_lib_suffix = ''/" test/wscript
 #    apply_patch file://${top_dir}/libdcp-libxml.patch
     apply_patch file://${top_dir}/libdcp-boost.patch
+    apply_patch file://${top_dir}/libdcp-gm.patch
 #    apply_patch_p1 "http://main.carlh.net/gitweb/?p=libdcp.git;a=patch;h=730ba2273b136ad5a3bfc1a185d69e6cc50a65af"
     export CXX=x86_64-w64-mingw32-g++
     do_configure "configure -v -pp --prefix=${mingw_w64_x86_64_prefix} --target-windows --check-cxx-compiler=gxx --enable-debug --disable-tests" "./waf" # --disable-gcov
@@ -2610,7 +2623,7 @@ build_libgpg-error() {
   cd libgpg-error
 #    apply_patch file://${top_dir}/gpg-error-pid.patch
 #    rm po/ro.* # The Romanian translation causes Cygwin's iconv to loop. This is a Cygwin bug.
-    generic_configure_make_install "--disable-doc" # "--prefix=${mingw_compiler_path/}" # This is so gpg-error-config can be seen by other programs
+    generic_configure_make_install "CC_FOR_BUILD=gcc --disable-doc" # "--prefix=${mingw_compiler_path/}" # This is so gpg-error-config can be seen by other programs
   cd ..
 }
 
@@ -2619,7 +2632,7 @@ build_libgcrypt() {
   do_git_checkout git://git.gnupg.org/libgcrypt.git libgcrypt
   cd libgcrypt
     apply_patch file://${top_dir}/libgcrypt-pkgconfig.patch
-    generic_configure_make_install "CFLAGS=-DGPGRT_ENABLE_ES_MACROS GPG_ERROR_CONFIG=${mingw_w64_x86_64_prefix}/bin/gpg-error-config --disable-doc"
+    generic_configure_make_install "CC_FOR_BUILD=gcc CFLAGS=-DGPGRT_ENABLE_ES_MACROS GPG_ERROR_CONFIG=${mingw_w64_x86_64_prefix}/bin/gpg-error-config --disable-doc"
     echo "Installing pkg-config file because it's added by us"
     cp -v src/libgcrypt.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig
 #  cd libgcrypt-1.8.1
@@ -4443,6 +4456,8 @@ build_libcxml(){
   cd libcxml
 #    apply_patch file://${top_dir}/libcxml-shared_ptr.patch
     export ORIG_PKG_CONFIG_PATH=$PKG_CONFIG_PATH
+    export CC=${cross_prefix}gcc
+    export CXX=${cross_prefix}g++
     export PKG_CONFIG_PATH="${mingw_w64_x86_64_prefix}/lib/pkgconfig"
     export CXXFLAGS=-fpermissive
     # libdir must be set
@@ -4455,7 +4470,7 @@ build_libcxml(){
     cp -v build/libcxml.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig
     cp -v build/src/libcxml.dll.a ${mingw_w64_x86_64_prefix}/lib
     export PKG_CONFIG_PATH=$ORIG_PKG_CONFIG_PATH
-    unset CXXFLAGS
+    unset CXXFLAGS CC CXX
   cd ..
 }
 
@@ -5614,7 +5629,6 @@ build_apps() {
 #  build_rsync
   build_dvdbackup
   build_codec2
-  build_filezilla
   build_ffmpegnv
   if [[ $build_ffmpeg_shared = "y" ]]; then
     build_ffmpeg ffmpeg shared
@@ -5639,6 +5653,7 @@ build_apps() {
   build_libdcp # Now needs graphicsmagick
   build_libsub
   build_wx
+  build_filezilla
   build_wxsvg
   build_mediainfo
   build_dvdauthor
