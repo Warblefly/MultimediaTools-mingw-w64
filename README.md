@@ -39,9 +39,18 @@ You might also want to play with the defaults for the mpv player, in %APPDATA%\R
 0. Compiling is becoming increasingly difficult. Source packages are constantly being updated (for which we rejoice, of course), and I am keeping up with these changes quite well. However, some changes that might break compilation go un-noticed because I only accomplish a completely clean build about once a month. Otherwise, packages such as GCC and QT-5.7 remain old. This does not affect the latest and greatest versions of ffmpeg, mpv, vim/gvim, x264, x265 and their associated libraries that are all compiled from development sources.
 1. Ensure your development requirement is adequate. I now develop on a Docker container, using Fedora Latest. 
 2. Update everything.
-3. Install the pre-requisites. On Fedora 27, you can execute this command, and you will need all of these packages:
-dnf install SDL-devel SDL2-devel ant asciidoc autoconf-archive autogen bash bison bzip2 bzr cmake cvs diffutils dnf dnf-yum docbook2X ed fedora-release gcc-c++ gdk-pixbuf2-devel gengetopt git gperf gtk-doc gtk-update-icon-cache gyp intltool langpacks-en libsamplerate-devel libtasn1-tools libtool lua make mercurial meson mingw32-nsis mm-common nasm passwd patchutils pax pxz python2-devel ragel rootfiles rsync rubygem-json rubygem-rake rubygem-ronn sassc speex-devel speexdsp-devel sshpass sssd-client subversion sudo tar vim-enhanced vim-minimal wget wxBase-devel xmlto yasm 
-4. Link an executable, thus: ln -s /usr/bin/db2x_docbook2man /usr/bin/docbook2x-man
+3. Install the pre-requisites. On Debian running under Windows, you can do this.
+
+First, upgrade your system to Debian Stretch:
+'''
+sed -i 's/stretch/buster/g' /etc/apt/sources.list
+'''
+
+Then, after upgrading everything, pull in the packages you'll need. There are a lot of them.
+'''
+apt install libsdl1.2debian libsdl1.2-dev libsdl2-2.0 libsdl2-dev ant asciidoc autoconf autoconf-archive autogen autopoint bison bzr cmake curl cvs docbook2x ed flex g++-8 libgdk-pixbuf2.0-dev gengetopt git gperf gtk-doc-tools gtk-update-icon-cache gyp intltool libsamplerate-dev libtasn1-bin librhash0 libtool libtool-bin lua5.3 mercurial meson nsis mm-common nasm openjdk-8-jdk patchutils pax pxz python-dev ragel rsync ruby-json rake-compiler ruby-ronn sassc libspeex-dev libspeexdsp-dev sshpass sssd-tools subversion libwxbase3.0-dev wx-common yasm
+'''
+4. Link an executable, thus: ln -s /usr/bin/luac5.3 /usr/bin/luac
 5. Clone my package from git (see the address at the top of this page).
 6. cd into the top directory of the git tree.
 7. Read the top of ./build_script, and edit the location to which scp should copy your binary archive.
