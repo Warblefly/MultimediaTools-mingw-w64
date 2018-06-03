@@ -2643,7 +2643,8 @@ build_libgcrypt() {
 }
 
 build_tesseract() {
-  do_git_checkout https://github.com/tesseract-ocr/tesseract tesseract
+  do_git_checkout https://github.com/tesseract-ocr/tesseract tesseract a2e72f258a3bd6811cae226a01802d891407409f
+  # Problem with latest tree and FFmpeg. Should be fixed soon
 #  download_and_unpack_file https://github.com/tesseract-ocr/tesseract/archive/3.05.00dev.tar.gz tesseract-3.05.00dev
   cd tesseract
 #    apply_patch file://${top_dir}/tesseract-thread.patch
@@ -2878,13 +2879,14 @@ build_mpv() {
     unset CC
     unset LD
     env
-    do_configure "configure -v -pp --prefix=${mingw_w64_x86_64_prefix} --enable-win32-internal-pthreads --disable-x11 --disable-debug-build --enable-sdl2 --enable-libmpv-shared --disable-libmpv-static" "./waf"
+    do_configure "configure -v -pp --prefix=${mingw_w64_x86_64_prefix} --enable-dvdread --enable-dvdnav --enable-cdda --enable-win32-internal-pthreads --disable-x11 --disable-debug-build --enable-sdl2 --enable-libmpv-shared --disable-libmpv-static" "./waf"
     # In this cross-compile for Windows, we keep the Python script up-to-date and therefore
     # must call it directly by its full name, because mpv can only explore for executables
     # with the .exe suffix.
-    sed -i.bak 's/path = "youtube-dl"/path = "youtube-dl.py"/' player/lua/ytdl_hook.lua
-    sed -i.bak 's/mp.find_config_file("youtube-dl")/mp.find_config_file("youtube-dl.py")/' player/lua/ytdl_hook.lua
-    sed -i.bak 's/  ytdl.path, "--no-warnings"/  "python.exe", ytdl.path, "--no-warnings"/' player/lua/ytdl_hook.lua
+    #sed -i.bak 's/path = "youtube-dl"/path = "youtube-dl.py"/' player/lua/ytdl_hook.lua
+    #sed -i.bak 's/mp.find_config_file("youtube-dl" .. exesuf)/mp.find_config_file("youtube-dl.py")/' player/lua/ytdl_hook.lua
+    #sed -i.bak 's/  ytdl.path, "--no-warnings"/  "python.exe", ytdl.path, "--no-warnings"/' player/lua/ytdl_hook.lua
+    #apply_patch file://${top_dir}/mpv-ytdl.patch
     ./waf build || exit 1
     ./waf install || exit 1
     mkdir -pv ${mingw_w64_x86_64_prefix}/share/mpv
