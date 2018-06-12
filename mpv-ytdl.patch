@@ -1,0 +1,36 @@
+--- player/lua/ytdl_hook.lua.orig	2018-06-03 18:06:51.326671500 +0100
++++ player/lua/ytdl_hook.lua	2018-06-03 18:07:30.246106600 +0100
+@@ -443,7 +443,7 @@
+         local ytdl_mcd = mp.find_config_file("youtube-dl" .. exesuf)
+         if not (ytdl_mcd == nil) then
+             msg.verbose("found youtube-dl at: " .. ytdl_mcd)
+-            ytdl.path = ytdl_mcd
++            ytdl.path = "C:\\Users\\john\\AppData\\Roaming\\mpv\\youtube-dl.exe"
+         end
+         ytdl.searched = true
+     end
+--- player/lua/ytdl_hook.lua.orig	2018-06-03 19:23:29.946941800 +0100
++++ player/lua/ytdl_hook.lua	2018-06-03 19:28:49.909539800 +0100
+@@ -510,14 +510,15 @@
+ 
+     if (es < 0) or (json == nil) or (json == "") then
+         local err = "youtube-dl failed: "
+-        if result.error and result.error == "init" then
+-            err = err .. "not found or not enough permissions"
+-        elseif not result.killed_by_us then
+-            err = err .. "unexpected error ocurred"
+-        else
+-            err = string.format("%s returned '%d'", err, es)
+-        end
++        --if result.error and result.error == "init" then
++        --    err = err .. "not found or not enough permissions"
++        --elseif not result.killed_by_us then
++        --    err = err .. "unexpected error ocurred"
++        --else
++        err = string.format("%s returned '%d'", err, es)
++        --end
+         msg.error(err)
++        msg.error(json)
+         return
+     end
+ 

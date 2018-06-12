@@ -488,6 +488,8 @@ do_cmake() {
     echo cmake $source_dir $extra_args -DBUILD_SHARED_LIB=1 -DBUILD_STATIC_LIBS=0 -DENABLE_STATIC_RUNTIME=0 -DENABLE_SHARED_RUNTIME=1 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_RANLIB=${cross_prefix}ranlib -DCMAKE_C_COMPILER=${cross_prefix}gcc -DCMAKE_CXX_COMPILER=${cross_prefix}g++ -DCMAKE_Fortran_COMPILER:FILEPATH=${cross_prefix}gfortran -DCMAKE_RC_COMPILER=${cross_prefix}windres -DCMAKE_INSTALL_PREFIX=$mingw_w64_x86_64_prefix || exit 1
     cmake $source_dir $extra_args -DBUILD_SHARED_LIBS=1 -DBUILD_STATIC_LIBS=0 -DENABLE_STATIC_RUNTIME=0 -DENABLE_SHARED_RUNTIME=1 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_RANLIB=${cross_prefix}ranlib -DCMAKE_C_COMPILER=${cross_prefix}gcc -DCMAKE_CXX_COMPILER=${cross_prefix}g++ -DCMAKE_RC_COMPILER=${cross_prefix}windres -DCMAKE_INSTALL_PREFIX=$mingw_w64_x86_64_prefix || exit 1
     touch $touch_name || exit 1
+    unset CMAKE_INCLUDE_PATH
+    unset CMAKE_PREFIX_PATH
   fi
 }
 
@@ -653,9 +655,26 @@ do_ninja_and_ninja_install() {
     local touch_name=$(get_small_touchfile_name already_ran_make_install "$extra_ninja_options")
     if [ ! -f $touch_name ]; then
         echo "ninja installing $(pwd) as $ PATH=$PATH ninja -C build install $extra_make_options"
-        ninja -C build install || exit 1
+        ninja install || exit 1
         touch $touch_name || exit 1
     fi
+}
+
+
+do_ninja() {
+       local extra_make_options=" -j $cpu_count"
+       local cur_dir2=$(pwd)
+       local touch_name=$(get_small_touchfile_name already_ran_make "${extra_make_options}")
+
+       if [ ! -f $touch_name ]; then
+          echo
+          echo "ninja-ing $cur_dir2 as $ PATH=$PATH ninja "${extra_make_options}"
+          echo
+          ninja "${extra_make_options} || exit 1
+          touch $touch_name || exit 1 # only touch if the build was OK
+       else
+          echo "already did ninja $(basename "$cur_dir2")"
+       fi
 }
 
 do_make_and_make_install() {
@@ -1987,7 +2006,8 @@ build_libbluray() {
     # Overcome invalid detection of MSVC when using MinGW
     apply_patch file://${top_dir}/libudfread-udfread-c.patch
     cd ../..
-    generic_configure_make_install #"--disable-bdjava"
+    #apply_patch file://${top_dir}/libbluray-java.patch
+    generic_configure_make_install "--disable-silent-rules" #"--disable-bdjava"
 
   cd ..
   sed -i.bak 's/-lbluray.*$/-lbluray -lxml2 -lws2_32/' "$PKG_CONFIG_PATH/libbluray.pc" # This is for mpv not linking against the right libraries
@@ -2016,6 +2036,7 @@ build_icu() {
     cd icu_native
       #apply_patch file://${top_dir}/icu_native-xlocale.patch
       cd source
+      env
       # These might be set. They shouldn't be.
         unset AR
         unset LD
@@ -2879,7 +2900,7 @@ build_mpv() {
     unset CC
     unset LD
     env
-    do_configure "configure -v -pp --prefix=${mingw_w64_x86_64_prefix} --enable-dvdread --enable-dvdnav --enable-cdda --enable-win32-internal-pthreads --disable-x11 --disable-debug-build --enable-sdl2 --enable-libmpv-shared --disable-libmpv-static" "./waf"
+    do_configure "configure -v -pp --prefix=${mingw_w64_x86_64_prefix} --enable-dvdread --enable-dvdnav --enable-cdda --disable-x11 --disable-debug-build --enable-sdl2 --enable-libmpv-shared --disable-libmpv-static" "./waf"
     # In this cross-compile for Windows, we keep the Python script up-to-date and therefore
     # must call it directly by its full name, because mpv can only explore for executables
     # with the .exe suffix.
@@ -3358,7 +3379,7 @@ build_boost() {
 #      ./b2 --prefix=${mingw_w64_x86_64_prefix} -j 2 --ignore-site-config --user-config=user-config.jam address-model=64 architecture=x86 binary-format=pe link=shared --runtime-link=shared --target-os=windows threadapi=win32 threading=multi toolset=gcc-mingw --layout=tagged --disable-icu cxxflags='-std=c++11' --with-system --with-filesystem --with-regex --with-date_time install || exit 1
 #      ./b2 -a -d+2 --debug-configuration --prefix=${mingw_w64_x86_64_prefix} variant=release target-os=windows toolset=gcc-mingw address-model=64 link=shared runtime-link=shared threading=multi threadapi=win32 architecture=x86 binary-format=pe --with-system --with-filesystem --with-regex --with-date_time --with-thread --with-test --user-config=user-config.jam install || exit 1
 #      ./b2 -a -d+2 --debug-configuration --prefix=${mingw_w64_x86_64_prefix} variant=debug target-os=windows toolset=gcc-mingw address-model=64 link=shared runtime-link=shared threading=multi threadapi=win32 architecture=x86 binary-format=pe boost.locale.winapi=on boost.locale.std=on boost.locale.icu=on boost.locale.iconv=on boost.locale.posix=off --with-locale --user-config=user-config.jam install || exit 1
-      ./b2 -a -j ${cpu_count}  --prefix=${mingw_w64_x86_64_prefix} variant=release target-os=windows toolset=gcc-mingw abi=ms address-model=64 link=shared runtime-link=shared threading=multi threadapi=win32 architecture=x86 binary-format=pe --without-python --without-serialization --layout=tagged --user-config=user-config.jam install || exit 1 # boost.locale.winapi=on boost.locale.std=on boost.locale.icu=on boost.locale.iconv=on boost.locale.posix=off --user-config=user-config.jam install || exit 1
+      ./b2 -a -j ${cpu_count}  --prefix=${mingw_w64_x86_64_prefix} variant=release target-os=windows toolset=gcc-mingw abi=ms address-model=64 link=shared,static runtime-link=shared threading=multi threadapi=win32 architecture=x86 binary-format=pe --without-python --without-serialization --layout=tagged --user-config=user-config.jam install || exit 1 # boost.locale.winapi=on boost.locale.std=on boost.locale.icu=on boost.locale.iconv=on boost.locale.posix=off --user-config=user-config.jam install || exit 1
       touch -- "$touch_name"
     else
       echo "Already built and installed Boost libraries"
@@ -4131,7 +4152,7 @@ build_loudness-scanner() {
     # Rename internal copy of libebur128 because of slight differences
     # update some code for latest FFmpeg
     apply_patch file://${top_dir}/ebur128-CMakeLists.txt-private.patch
-    apply_patch file://${top_dir}/loudness-scanner-ffmpeg.patch
+    #apply_patch file://${top_dir}/loudness-scanner-ffmpeg.patch
     sed -i.bak 's/avcodec_alloc_frame/av_frame_alloc/' scanner/inputaudio/ffmpeg/input_ffmpeg.c
     do_cmake_static "-DENABLE_INTERNAL_QUEUE_H=ON -DCMAKE_VERBOSE_MAKEFILE=1 -DCMAKE_POLICY_DEFAULT_CMP0020=NEW -DGTK2_GDKCONFIG_INCLUDE_DIR=${mingw_w64_x86_64_prefix}/include/gtk-2.0/ -DDISABLE_QT5=ON"
     sed -i.bak 's/-isystem /-I/g' scanner/scanner-tag/CMakeFiles/scanner-tag.dir/includes_CXX.rsp
@@ -4732,7 +4753,7 @@ build_mimedb() {
 }
 
 build_qjackctl() {
-  do_git_checkout https://github.com/rncbc/qjackctl.git qjackctl 568b076f1ddd0fcb18a78828e0e5b833e52fd7a1
+  do_git_checkout https://github.com/rncbc/qjackctl.git qjackctl # 568b076f1ddd0fcb18a78828e0e5b833e52fd7a1
   cd qjackctl
     apply_patch file://${top_dir}/qjackctl-MainForm.patch
     generic_configure_make_install "LIBS=-lportaudio --enable-xunique=no" # enable-jack-version=yes
@@ -4742,12 +4763,79 @@ build_qjackctl() {
   cd ..
 }
 
+build_spirvtools() {
+do_git_checkout https://github.com/KhronosGroup/SPIRV-Headers.git SPIRV-Headers # 3ce3e49d73b8abbf2ffe33f829f941fb2a40f552
+do_git_checkout https://github.com/KhronosGroup/SPIRV-Tools.git SPIRV-Tools # fe2fbee294a8ad4434f828a8b4d99eafe9aac88c
+    cd SPIRV-Tools
+        ln -svf ../../SPIRV-Headers external
+        # apply_patch file://${top_dir}/SPIRV-Tools-shared.patch
+        do_cmake_static "-DCMAKE_BUILD_TYPE=Release -DCMAKE_VERBOSE_MAKEFILE=ON"
+        do_make
+        do_make_install
+    cd ..
+}
+
+build_glslang() {
+    do_git_checkout https://github.com/KhronosGroup/glslang.git glslang 32d3ec319909fcad0b2b308fe1635198773e8316
+    #download_and_unpack_file https://github.com/KhronosGroup/glslang/archive/6.2.2596.tar.gz glslang-6.2.2596
+    cd glslang #-6.2.2596
+        #apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-glslang/001-install-missing-dll.patch
+        apply_patch file://${top_dir}/glslang-threads.patch
+    #    apply_patch file://${top_dir}/glslang-shared.patch
+        do_cmake_static "-DCMAKE_BUILD_TYPE=Release -DCMAKE_VERBOSE_MAKEFILE=YES"
+        do_make "V=1"
+        do_make_install
+    cd ..
+}
+
+build_shaderc() {
+    do_git_checkout https://github.com/google/shaderc.git shaderc # be8e0879750303a1de09385465d6b20ecb8b380d
+    cd shaderc
+        export spirv-tools_SOURCE_DIR=${top_dir}/x86_64/SPIRV-Tools/
+        export glslang_SOURCE_DIR=${top_dir}/x86_64/glslang/
+        export shaderc_SOURCE_DIR=${top_dir}/x86_64/shaderc/
+        apply_patch file://${top_dir}/shaderc.patch
+        mkdir build
+        do_cmake_static "-GNinja -DSHADERC_SKIP_TESTS=ON -DCMAKE_VERBOSE_MAKEFILE=YES " #-DSHADERC_ENABLE_SHARED_CRT=ON" # -DSHADERC_ENABLE_SHARED_CRT=ON"
+        apply_patch file://${top_dir}/shaderc-build.patch
+        do_ninja_and_ninja_install "V=1"
+#        do_make_install
+    cd ..
+}
+
+
+build_vulkan() {
+    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Loader/archive/sdk-1.1.73.0.tar.gz Vulkan-Loader-sdk-1.1.73.0
+    cd Vulkan-Loader-sdk-1.1.73.0
+        apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-vulkan/001-build-fix.patch
+        apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-vulkan/002-proper-def-files-for-32bit.patch
+        apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-vulkan/003-generate-pkgconfig-files.patch
+        apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-vulkan/004-installation-commands.patch
+        apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-vulkan/005-mingw-dll-name.patch
+        apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-vulkan/006-skip-commit-create.patch
+        echo "#define SPIRV_TOOLS_COMMIT_ID \"8d8a71278bf9e83dd0fb30d5474386d30870b74d\"" > spirv_tools_commit_id.h
+        cp -fv spirv_tools_commit_id.h loader/
+        # Missing defines are already added to MinGW by our scripts earlier in the build process.
+        export CFLAGS="-D_WIN32_WINNT=0x0A00 -D__STDC_FORMAT_MACROS"
+        export CPPFLAGS="-D_WIN32_WINNT=0x0A00 -D__STDC_FORMAT_MACROS"
+        export CXXFLAGS="-D_WIN32_WINNT=0x0600 -D__USE_MINGW_ANSI_STDIO -D__STDC_FORMAT_MACROS -fpermissive"
+        do_cmake "-DCMAKE_BUILD_TYPE=Release -DBUILD_DEMOS=OFF -DBUILD_TESTS=OFF -DDISABLE_BUILD_PATH_DECORATION=ON -DDISABLE_BUILDTGT_DIR_DECORATION=ON"
+        apply_patch file://${top_dir}/vulkan-threads.patch
+        do_make
+        do_make_install
+        unset CFLAGS
+        unset CPPFLAGS
+        unset CXXFLAGS
+    cd ..
+}
+
+
 build_angle() {
-#  do_git_checkout https://chromium.googlesource.com/angle/angle angle dd1b0c485561e0ce825a9426d7e223b4e158a358 # 57ce9ea23e54e7beb0526502bdf9094d1ddfde68 # 9f09037b073a7481bc5d94984a26b7c9d3427b16
+#  do_git_checkout https://chromium.googlesource.com/angle/angle angle # dd1b0c485561e0ce825a9426d7e223b4e158a358 # 57ce9ea23e54e7beb0526502bdf9094d1ddfde68 # 9f09037b073a7481bc5d94984a26b7c9d3427b16
     # If Angle has been built, then skip the whole process because Git barfs
     if [[ ! -f "angle/already_built_angle" ]]; then
       echo "Angle not built: building from scratch."
-      do_git_checkout https://github.com/google/angle.git angle #9f10b775c9b17f901d940157e43e5a74b75c2708 # 57ce9ea23e
+      do_git_checkout https://github.com/google/angle.git angle fa7cc9da878b1eba4df568084b97a981e046709c
       cd angle
         # remove .git directory to prevent: No rule to make target '../build-x86_64/.git/index', needed by 'out/Debug/obj/gen/angle/id/commit.h'.
         rm -rvf .git || exit 1
@@ -4769,7 +4857,7 @@ build_angle() {
         # provide a file to export symbols declared in ShaderLang.h as part of libGLESv2.dll
         # (required to build Qt WebKit which uses shader interface)
     #    cp ${top_dir}/angle-entry_points_shader.cpp src/libGLESv2/entry_points_shader.cpp
-        apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-angleproject-git/0000-build-fix.patch
+        apply_patch_p1 file://${top_dir}/0000-build-fix.patch
         apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-angleproject-git/angleproject-include-import-library-and-use-def-file.patch
         apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-angleproject-git/0001-static-build-workaround.patch
         apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-angleproject-git/0002-redist.patch
@@ -5537,6 +5625,10 @@ build_dependencies() {
   build_libssh
   build_sdl2_image
 #  build_mmcommon
+  build_spirvtools
+  build_glslang
+  build_shaderc
+  build_vulkan
   build_angle
   build_cairo
   build_cairomm
@@ -5766,6 +5858,8 @@ install_cross_compiler
 # the header Windows.h needs to appear
 cd ${cur_dir}/x86_64-w64-mingw32/x86_64-w64-mingw32/include
   ln -s windows.h Windows.h
+  ln -s winsock2.h WinSock2.h
+  ln -s cfgmgr32.h Cfgmgr32.h
   ln -s devpkey.h Devpkey.h
   ln -s uiviewsettingsinterop.h UIViewSettingsInterop.h
 cd -

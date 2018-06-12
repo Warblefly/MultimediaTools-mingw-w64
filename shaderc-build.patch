@@ -1,0 +1,31 @@
+--- build.ninja.orig	2018-06-10 21:58:21.247202800 +0100
++++ build.ninja	2018-06-10 21:59:53.499330500 +0100
+@@ -364,7 +364,7 @@
+ 
+ build libshaderc/libshaderc_shared.dll libshaderc/libshaderc_shared.dll.a: CXX_SHARED_LIBRARY_LINKER__shaderc_shared libshaderc/CMakeFiles/shaderc_shared.dir/src/shaderc.cc.obj | libshaderc_util/libshaderc_util.a || libshaderc_util/libshaderc_util.a
+   LINK_FLAGS = -static -static-libgcc -static-libstdc++
+-  LINK_LIBRARIES = -lglslang -lSPIRV-Tools-opt -lOSDependent -lOGLCompiler -lglslang -lpthread libshaderc_util/libshaderc_util.a -lSPIRV -lSPIRV-Tools -lHLSL -lglslang -lOSDependent -lOGLCompiler -lglslang -lOSDependent -lOGLCompiler -lSPIRV-Tools-opt -lpthread -lSPIRV -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
++  LINK_LIBRARIES = -lSPIRV-Tools -lHLSL -lglslang -lSPIRV-Tools-opt -lOSDependent -lOGLCompiler -lglslang -lpthread libshaderc_util/libshaderc_util.a -lSPIRV -lSPIRV-Tools -lHLSL -lglslang -lOSDependent -lOGLCompiler -lglslang -lOSDependent -lOGLCompiler -lSPIRV-Tools-opt -lpthread -lSPIRV -lSPIRV-Tools -lHLSL -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
+   OBJECT_DIR = libshaderc/CMakeFiles/shaderc_shared.dir
+   POST_BUILD = :
+   PRE_LINK = :
+@@ -502,7 +502,7 @@
+ 
+ build glslc/glslc.exe: CXX_EXECUTABLE_LINKER__glslc_exe glslc/CMakeFiles/glslc_exe.dir/src/main.cc.obj | glslc/libglslc.a libshaderc_util/libshaderc_util.a libshaderc/libshaderc.a libshaderc_util/libshaderc_util.a || build-version glslc/libglslc.a libshaderc/libshaderc.a libshaderc_util/libshaderc_util.a
+   LINK_FLAGS = -static -static-libgcc -static-libstdc++
+-  LINK_LIBRARIES = -lHLSL glslc/libglslc.a libshaderc_util/libshaderc_util.a libshaderc/libshaderc.a -lHLSL libshaderc_util/libshaderc_util.a -lHLSL -lSPIRV-Tools-opt -lSPIRV-Tools -lglslang -lOSDependent -lOGLCompiler -lglslang -lOSDependent -lOGLCompiler -lSPIRV -lpthread -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
++  LINK_LIBRARIES = -lHLSL glslc/libglslc.a libshaderc_util/libshaderc_util.a libshaderc/libshaderc.a -lHLSL libshaderc_util/libshaderc_util.a -lHLSL -lSPIRV-Tools-opt -lSPIRV-Tools -lglslang -lOSDependent -lOGLCompiler -lglslang -lHLSL -lOSDependent -lOGLCompiler -lSPIRV -lHLSL -lpthread -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
+   OBJECT_DIR = glslc/CMakeFiles/glslc_exe.dir
+   POST_BUILD = :
+   PRE_LINK = :
+--- build.ninja.orig	2018-06-10 22:04:46.992094200 +0100
++++ build.ninja	2018-06-10 22:05:38.851562800 +0100
+@@ -364,7 +364,7 @@
+ 
+ build libshaderc/libshaderc_shared.dll libshaderc/libshaderc_shared.dll.a: CXX_SHARED_LIBRARY_LINKER__shaderc_shared libshaderc/CMakeFiles/shaderc_shared.dir/src/shaderc.cc.obj | libshaderc_util/libshaderc_util.a || libshaderc_util/libshaderc_util.a
+   LINK_FLAGS = -static -static-libgcc -static-libstdc++
+-  LINK_LIBRARIES = -lSPIRV-Tools -lHLSL -lglslang -lSPIRV-Tools-opt -lOSDependent -lOGLCompiler -lglslang -lpthread libshaderc_util/libshaderc_util.a -lSPIRV -lSPIRV-Tools -lHLSL -lglslang -lOSDependent -lOGLCompiler -lglslang -lOSDependent -lOGLCompiler -lSPIRV-Tools-opt -lpthread -lSPIRV -lSPIRV-Tools -lHLSL -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
++  LINK_LIBRARIES = -lSPIRV-Tools -lHLSL -lSPIRV-Tools-opt -lglslang -lSPIRV-Tools-opt -lOSDependent -lOGLCompiler -lglslang -lpthread libshaderc_util/libshaderc_util.a -lSPIRV -lSPIRV-Tools -lHLSL -lglslang -lOSDependent -lOGLCompiler -lglslang -lOSDependent -lOGLCompiler -lSPIRV-Tools-opt -lpthread -lSPIRV -lSPIRV-Tools -lHLSL -lSPIRV-Tools-opt -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
+   OBJECT_DIR = libshaderc/CMakeFiles/shaderc_shared.dir
+   POST_BUILD = :
+   PRE_LINK = :

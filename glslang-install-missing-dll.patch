@@ -1,0 +1,14 @@
+--- StandAlone/CMakeLists.txt.orig	2018-06-04 21:21:02.304015300 +0100
++++ StandAlone/CMakeLists.txt	2018-06-04 21:21:31.345615600 +0100
+@@ -44,9 +44,9 @@
+ 
+     install(TARGETS spirv-remap
+             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+-            
++
+     if(BUILD_SHARED_LIBS)
+         install(TARGETS glslang-default-resource-limits
+-                LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
++            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+     endif()
+ endif(ENABLE_GLSLANG_INSTALL)
