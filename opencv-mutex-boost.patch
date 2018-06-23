@@ -1,22 +1,43 @@
---- modules/objdetect/src/detection_based_tracker.cpp.orig	2016-05-10 13:51:36.777000000 +0000
-+++ modules/objdetect/src/detection_based_tracker.cpp	2016-05-10 14:50:53.310000000 +0000
-@@ -52,9 +52,16 @@
+--- modules/objdetect/src/detection_based_tracker.cpp.orig	2018-06-16 15:51:34.649584900 +0100
++++ modules/objdetect/src/detection_based_tracker.cpp	2018-06-16 15:53:22.467156600 +0100
+@@ -45,9 +45,17 @@
+ 
  #include "opencv2/core/utility.hpp"
  
- #ifdef USE_STD_THREADS
 -#include <thread>
 -#include <mutex>
 -#include <condition_variable>
 +#include <boost/thread.hpp>
 +
 +namespace std {
-+  using boost::mutex;
-+  using boost::recursive_mutex;
-+  using boost::lock_guard;
-+  using boost::condition_variable;
-+  using boost::unique_lock;
-+  using boost::thread;
++    using boost::mutex;
++    using boost::recursive_mutex;
++    using boost::lock_guard;
++    using boost::condition_variable;
++    using boost::unique_lock;
++    using boost::thread;
 +}
- #else
- #include <pthread.h>
- #endif
++
+ 
+ #if defined(DEBUG) || defined(_DEBUG)
+ #undef DEBUGLOGS
+--- modules/core/include/opencv2/core/utility.hpp.orig	2018-06-16 16:04:31.245290000 +0100
++++ modules/core/include/opencv2/core/utility.hpp	2018-06-16 16:06:33.735678200 +0100
+@@ -58,7 +58,16 @@
+ 
+ #include <functional>
+ 
+-#include <mutex>  // std::mutex, std::lock_guard
++#include <boost/thread.hpp>  // std::mutex, std::lock_guard
++
++namespace std {
++    using boost::mutex;
++    using boost::recursive_mutex;
++    using boost::lock_guard;
++    using boost::condition_variable;
++    using boost::unique_lock;
++    using boost::thread;
++}
+ 
+ namespace cv
+ {

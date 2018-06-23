@@ -1,0 +1,22 @@
+--- src/filter/facebl0r/facebl0r.cpp.orig	2018-06-21 21:46:54.498114800 +0100
++++ src/filter/facebl0r/facebl0r.cpp	2018-06-21 21:47:11.029436400 +0100
+@@ -17,7 +17,7 @@
+ 
+ #include <stdio.h>
+ #include <stdlib.h>
+-#include <opencv/cv.h>
++#include <opencv/cv.hpp>
+ #include <opencv/highgui.h>
+ 
+ #include <frei0r.hpp>
+--- src/filter/facebl0r/CMakeLists.txt.orig	2018-06-21 21:55:25.633716600 +0100
++++ src/filter/facebl0r/CMakeLists.txt	2018-06-21 21:55:47.677301600 +0100
+@@ -7,7 +7,7 @@
+ 
+ include_directories (${OpenCV_INCLUDE_DIR})
+ link_directories (${OpenCV_LIBRARY_DIRS})
+-LINK_LIBRARIES(${OpenCV_LIBS} ${OpenCV_LIBRARIES})
++LINK_LIBRARIES(${OpenCV_LIBS} ${OpenCV_LIBRARIES} boost_system-mt)
+ 
+ add_library (${TARGET}  MODULE ${SOURCES})
+ set_target_properties (${TARGET} PROPERTIES PREFIX "")

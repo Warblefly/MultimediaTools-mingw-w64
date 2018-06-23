@@ -48,7 +48,7 @@ sed -i 's/stretch/buster/g' /etc/apt/sources.list
 
 Then, after upgrading everything, pull in the packages you'll need. There are a lot of them.
 ```
-apt install libsdl1.2debian libsdl1.2-dev libsdl2-2.0 libsdl2-dev ant asciidoc autoconf autoconf-archive autogen autopoint bison bzr cmake curl cvs docbook2x ed flex g++-8 libgdk-pixbuf2.0-dev gengetopt git gperf gtk-doc-tools gtk-update-icon-cache gyp intltool libsamplerate-dev libtasn1-bin librhash0 libtool libtool-bin lua5.3 mercurial meson nsis mm-common nasm openjdk-8-jdk patchutils pax pxz python-dev ragel rsync ruby-json rake-compiler ruby-ronn sassc libspeex-dev libspeexdsp-dev sshpass sssd-tools subversion libwxbase3.0-dev wx-common yasm
+apt install extra-cmake-modules libsdl1.2debian libsdl1.2-dev libsdl2-2.0 libsdl2-dev ant asciidoc autoconf autoconf-archive autogen autopoint bison bzr cmake curl cvs docbook2x ed flex g++-8 libgdk-pixbuf2.0-dev gengetopt git gperf gtk-doc-tools gtk-update-icon-cache gyp intltool libsamplerate-dev libtasn1-bin librhash0 libtool libtool-bin lua5.3 mercurial meson nsis mm-common nasm openjdk-8-jdk patchutils pax pxz python-dev ragel rsync ruby-json rake-compiler ruby-ronn sassc libspeex-dev libspeexdsp-dev sshpass sssd-tools subversion libwxbase3.0-dev wx-common xutils-dev yasm
 ```
 4. Link an executable, thus: ln -s /usr/bin/luac5.3 /usr/bin/luac
 5. Clone my package from git (see the address at the top of this page).

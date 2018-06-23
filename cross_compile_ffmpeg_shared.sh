@@ -655,7 +655,7 @@ do_ninja_and_ninja_install() {
     local touch_name=$(get_small_touchfile_name already_ran_make_install "$extra_ninja_options")
     if [ ! -f $touch_name ]; then
         echo "ninja installing $(pwd) as $ PATH=$PATH ninja -C build install $extra_make_options"
-        ninja install || exit 1
+        ninja -C build install || exit 1
         touch $touch_name || exit 1
     fi
 }
@@ -668,9 +668,9 @@ do_ninja() {
 
        if [ ! -f $touch_name ]; then
           echo
-          echo "ninja-ing $cur_dir2 as $ PATH=$PATH ninja "${extra_make_options}"
+          echo "ninja-ing $cur_dir2 as $ PATH=$PATH ninja -C build "${extra_make_options}"
           echo
-          ninja "${extra_make_options} || exit 1
+          ninja -C build "${extra_make_options} || exit 1
           touch $touch_name || exit 1 # only touch if the build was OK
        else
           echo "already did ninja $(basename "$cur_dir2")"
@@ -822,17 +822,34 @@ build_librtmp() {
   cd ..
 }
 
+build_pthread_stubs() {
+    do_git_checkout git://anongit.freedesktop.org/xcb/pthread-stubs pthread-stubs
+    cd pthread-stubs
+        generic_configure_make_install
+    cd ..
+}
+
+build_drm() {
+    do_git_checkout git://anongit.freedesktop.org/mesa/drm drm
+    cd drm
+        generic_configure_make_install
+    cd ..
+}
+
+
 build_qt() {
-  export QT_VERSION="5.10.1"
+  export QT_VERSION="5.11.1"
   export QT_SOURCE="qt-source"
   export QT_BUILD="qt-build"
 #  orig_cpu_count=$cpu_count
 #  export cpu_count=1
   if [ ! -f qt.built ]; then
-    download_and_unpack_file http://download.qt.io/official_releases/qt/5.10/5.10.1/single/qt-everywhere-src-5.10.1.tar.xz "qt-everywhere-src-${QT_VERSION}"
+    download_and_unpack_file http://download.qt.io/official_releases/qt/5.11/5.11.1/single/qt-everywhere-src-5.11.1.tar.xz "qt-everywhere-src-${QT_VERSION}"
     cd "qt-everywhere-src-${QT_VERSION}"
 #      apply_patch file://${top_dir}/qt-permissive.patch
     apply_patch file://${top_dir}/qt5-skip-mapboxglnative.patch
+    apply_patch file://${top_dir}/qt-pkg-config.patch
+    apply_patch file://${top_dir}/qt-include.patch
     # Change a type for updates in ANGLE project
     grep -rl "EGL_PLATFORM_ANGLE_DEVICE_TYPE_WARP_ANGLE" ./ | xargs sed -i.bak 's/EGL_PLATFORM_ANGLE_DEVICE_TYPE_WARP_ANGLE/EGL_PLATFORM_ANGLE_DEVICE_TYPE_D3D_WARP_ANGLE/g'
     cd ..
@@ -843,7 +860,10 @@ build_qt() {
       echo "QMAKE_LINK_OBJECT_SCRIPT = object_script" >> qtbase/mkspecs/win32-g++/qmake.conf
     cd ..
     cd "${QT_BUILD}"
-      do_configure "-xplatform win32-g++ -prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -opensource  -qt-freetype -confirm-license -accessibility -nomake examples -nomake tests -skip qtwebglplugin -release -strip -openssl -opengl dynamic -device-option CROSS_COMPILE=$cross_prefix -device-option PKG_CONFIG=${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config -no-static -shared -no-use-gold-linker -D MINGW_HAS_SECURE_API -D _WIN32_IE=0x0A00 -v -skip qtactiveqt" "../qt-everywhere-src-${QT_VERSION}/configure" # "noclean" # -skip qtactiveqt
+      export PKG_CONFIG=${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config
+      export PKG_CONFIG_LIBDIR=${mingw_w64_x86_64_prefix}/lib/pkgconfig
+      export PKG_CONFIG_SYSROOT_DIR=${mingw_w64_x86_64_prefix}/
+      do_configure "-xplatform win32-g++ -prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -opensource  -qt-freetype -confirm-license -accessibility -nomake examples -nomake tests -skip qtwebglplugin -release -strip -openssl -opengl dynamic -device-option CROSS_COMPILE=$cross_prefix -force-pkg-config -device-option PKG_CONFIG=x86_64-w64-mingw32-pkg-config -device-option PKG_CONFIG_LIBDIR=${mingw_w64_x86_64_prefix}/lib/pkgconfig -device-option PKG_CONFIG_SYSROOT_DIR=${mingw_w64_x86_64_prefix} -pkg-config -webengine-proprietary-codecs -no-static -shared -no-use-gold-linker -D MINGW_HAS_SECURE_API -D _WIN32_IE=0x0A00 -v -skip qtactiveqt" "../qt-everywhere-src-${QT_VERSION}/configure" # "noclean" # -skip qtactiveqt
       # For sone reason, the compiler doesn't set the include path properly!
       do_make || exit 1
       do_make_install || exit 1
@@ -862,18 +882,270 @@ build_qt() {
       # The Qt libraries are sometimes searched for in the wrong place. So let's copythem
       # to where they're sometimes expected
   else
+
     echo "Skipping QT build... already completed."
     # Remove the debug versions of libQt5 libraries
     rm -v ${mingw_w64_x86_64_prefix}/bin/Qt5*d.dll
   fi
+  ln -sv ${mingw_w64_x86_64_prefix}/include/QtCore/5.11.1/QtCore/private ${mingw_w64_x86_64_prefix}/include/QtCore/private
   ln -sv ${mingw_w64_x86_64_prefix}/bin/Qt*.dll ${mingw_w64_x86_64_prefix}/../bin
   ln -sv ${mingw_w64_x86_64_prefix}/plugins ${mingw_w64_x86_64_prefix}/../plugins
   unset QT_VERSION
   unset QT_SOURCE
   unset QT_BUILD
 #  export cpu_count=$orig_cpu_count
+  unset PKG_CONFIG
 }
 
+build_kf5_config() {
+    download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kconfig-5.46.0.tar.xz kconfig-5.46.0
+    cd kconfig-5.46.0
+        do_cmake
+        ${top_dir}/correct_headers.sh
+        do_make
+        do_make_install
+    cd ..
+}
+
+build_kf5_coreaddons() {
+    download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kcoreaddons-5.46.0.tar.xz kcoreaddons-5.46.0
+    cd kcoreaddons-5.46.0
+        do_cmake
+        ${top_dir}/correct_headers.sh
+        do_make
+        do_make_install
+    cd ..
+}
+
+build_kf5_itemmodels() {
+     download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kitemmodels-5.46.0.tar.xz kitemmodels-5.46.0
+     cd kitemmodels-5.46.0
+         do_cmake
+         ${top_dir}/correct_headers.sh
+         do_make
+         do_make_install
+     cd ..
+ }
+
+build_kf5_itemviews() {
+	download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kitemviews-5.46.0.tar.xz kitemviews-5.46.0
+        cd kitemviews-5.46.0
+            do_cmake
+            ${top_dir}/correct_headers.sh
+            do_make
+            do_make_install
+        cd ..
+}
+
+build_kf5_codecs() {
+      download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kcodecs-5.46.0.tar.xz kcodecs-5.46.0
+          cd kcodecs-5.46.0
+              do_cmake
+              ${top_dir}/correct_headers.sh
+              do_make
+              do_make_install
+          cd ..
+}
+
+
+build_kf5_guiaddons() {
+       download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kguiaddons-5.46.0.tar.xz kguiaddons-5.46.0
+           cd kguiaddons-5.46.0
+               do_cmake
+               ${top_dir}/correct_headers.sh
+               do_make
+               do_make_install
+           cd ..
+}
+
+build_kf5_i18n() {
+      download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/ki18n-5.46.0.tar.xz ki18n-5.46.0
+          cd ki18n-5.46.0
+              do_cmake
+              ${top_dir}/correct_headers.sh
+              do_make
+              do_make_install
+          cd ..
+}
+
+build_kf5_widgetsaddons() {
+      download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kwidgetsaddons-5.46.0.tar.xz kwidgetsaddons-5.46.0
+          cd kwidgetsaddons-5.46.0
+              do_cmake
+              ${top_dir}/correct_headers.sh
+              do_make
+              do_make_install
+          cd ..
+}
+
+build_kf5_configwidgets() {
+     download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kconfigwidgets-5.46.0.tar.xz kconfigwidgets-5.46.0
+         cd kconfigwidgets-5.46.0
+             apply_patch file://${top_dir}/kconfigwidgets-cross.patch
+             do_cmake
+             ${top_dir}/correct_headers.sh
+             do_make
+             do_make_install
+         cd ..
+}
+
+build_kf5_auth() {
+      download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kauth-5.46.0.tar.xz kauth-5.46.0
+          cd kauth-5.46.0
+              do_cmake
+              ${top_dir}/correct_headers.sh
+              do_make
+              do_make_install
+          cd ..
+ }
+
+build_kf5_archive() {
+        download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/karchive-5.46.0.tar.xz karchive-5.46.0
+            cd karchive-5.46.0
+                do_cmake
+                ${top_dir}/correct_headers.sh
+                do_make
+                do_make_install
+            cd ..
+ }
+
+build_kf5_iconthemes() {
+       download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kiconthemes-5.46.0.tar.xz kiconthemes-5.46.0
+           cd kiconthemes-5.46.0
+               do_cmake
+               ${top_dir}/correct_headers.sh
+               do_make
+               do_make_install
+           cd ..
+}
+
+build_kf5_completion() {
+     download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kcompletion-5.46.0.tar.xz kcompletion-5.46.0
+     cd kcompletion-5.46.0
+         do_cmake
+         ${top_dir}/correct_headers.sh
+         do_make
+         do_make_install
+     cd ..
+}
+
+build_kf5_windowsystem() {
+      download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kwindowsystem-5.46.0.tar.xz kwindowsystem-5.46.0
+      cd kwindowsystem-5.46.0
+          do_cmake
+          ${top_dir}/correct_headers.sh
+          do_make
+          do_make_install
+      cd ..
+}
+
+build_kf5_crash() {
+      download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kcrash-5.46.0.tar.xz kcrash-5.46.0
+      cd kcrash-5.46.0
+          do_cmake
+          ${top_dir}/correct_headers.sh
+          do_make
+          do_make_install
+      cd ..
+}
+
+build_kf5_dbusaddons() {
+      download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kdbusaddons-5.46.0.tar.xz kdbusaddons-5.46.0
+      cd kdbusaddons-5.46.0
+          do_cmake
+          ${top_dir}/correct_headers.sh
+          do_make
+          do_make_install
+      cd ..
+}
+
+build_kf5_service() {
+      download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kservice-5.46.0.tar.xz kservice-5.46.0
+      cd kservice-5.46.0
+          do_cmake "-DBUILD_TESTING=OFF"
+          ${top_dir}/correct_headers.sh
+          do_make
+          do_make_install
+      cd ..
+}
+
+build_kf5_sonnet() {
+      download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/sonnet-5.46.0.tar.xz sonnet-5.46.0
+      cd sonnet-5.46.0
+          do_cmake
+          ${top_dir}/correct_headers.sh
+          do_make
+          do_make_install
+      cd ..
+}
+
+build_kf5_textwidgets() {
+     download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/ktextwidgets-5.46.0.tar.xz ktextwidgets-5.46.0
+     cd ktextwidgets-5.46.0
+         do_cmake
+         ${top_dir}/correct_headers.sh
+         do_make
+         do_make_install
+     cd ..
+}
+
+build_kf5_attica() {
+      download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/attica-5.46.0.tar.xz attica-5.46.0
+      cd attica-5.46.0
+          do_cmake
+          ${top_dir}/correct_headers.sh
+          do_make
+          do_make_install
+      cd ..
+}
+
+build_kf5_globalaccel() {
+       download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kglobalaccel-5.46.0.tar.xz kglobalaccel-5.46.0
+       cd kglobalaccel-5.46.0
+           do_cmake
+           ${top_dir}/correct_headers.sh
+           do_make
+           do_make_install
+       cd ..
+ }
+
+build_kf5_xmlgui() {
+    download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kxmlgui-5.46.0.tar.xz kxmlgui-5.46.0
+    cd kxmlgui-5.46.0
+        #apply_patch file://${top_dir}/kxmlgui-header.patch
+        do_cmake # "-DCMAKE_INCLUDE_PATH=${mingw_w64_x86_64_prefix}/include/QtCore/5.10.1 -DCMAKE_VERBOSE_MAKEFILE=1"
+        ${top_dir}/correct_headers.sh
+        do_make "V=1"
+        do_make_install
+    cd ..
+}
+
+build_kf5_solid() {
+     download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/solid-5.46.0.tar.xz solid-5.46.0
+     cd solid-5.46.0
+         do_cmake
+         ${top_dir}/correct_headers.sh
+         do_make "V=1"
+         do_make_install
+     cd ..
+}
+
+build_kf5_threadweaver() {
+      download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/threadweaver-5.46.0.tar.xz threadweaver-5.46.0
+      cd threadweaver-5.46.0
+          do_cmake
+          ${top_dir}/correct_headers.sh
+          do_make "V=1"
+          do_make_install
+      cd ..
+}
+
+build_digikam() {
+	do_git_checkout git://anongit.kde.org/digikam.git digikam
+    cd digikam
+      do_cmake "-DENABLE_QWEBENGINE:BOOL=ON -DDIGIKAMSC_COMPILE_PO=OFF -DDIGIKAMSC_COMPILE_DOC=OFF"
+	cd ..
+}
 
 #build_qt() {
 ## This is quite a minimal installation to try to shorten a VERY long compile.
@@ -1016,7 +1288,7 @@ build_openblas() {
 }
 
 build_opencv() {
-  do_git_checkout https://github.com/opencv/opencv.git "opencv" 2.4
+  do_git_checkout https://github.com/opencv/opencv.git "opencv" # 2.4
   cd opencv
   # This is only used for a couple of frei0r filters. Surely we can switch off more options than this?
   # WEBP is switched off because it triggers a Cmake bug that removes #define-s of EPSILON and variants
@@ -1024,10 +1296,11 @@ build_opencv() {
   # NOT YET: CMAKE_LIBRARY_PATH needs to find the installed Qt5 libraries
   # Because MinGW has no native Posix threads, we use the Boost emulation and must link the Boost libraries
 
-#    apply_patch file://${top_dir}/opencv-mutex-boost.patch
+    apply_patch file://${top_dir}/opencv-mutex-boost.patch
     apply_patch file://${top_dir}/opencv-boost-thread.patch
-    apply_patch file://${top_dir}/opencv-wrong-slash.patch
+#    apply_patch file://${top_dir}/opencv-wrong-slash.patch
     apply_patch file://${top_dir}/opencv-location.patch
+    apply_patch file://${top_dir}/opencv-strict.patch
     mkdir -pv build
     cd build
       do_cmake ".. -DWITH_IPP=OFF -DWITH_EIGEN=ON -DWITH_VFW=ON -DWITH_DSHOW=ON -DOPENCV_ENABLE_NONFREE=ON -DWITH_GTK=ON -DWITH_WIN32UI=ON -DWITH_DIRECTX=ON -DBUILD_SHARED_LIBS=ON -DBUILD_opencv_apps=ON -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_JASPER=OFF -DBUILD_JPEG=OFF -DBUILD_OPENEXR=OFF -DBUILD_PNG=OFF -DBUILD_TIFF=OFF -DBUILD_ZLIB=OFF -DENABLE_SSE41=ON -DENABLE_SSE42=ON -DWITH_WEBP=OFF -DBUILD_EXAMPLES=ON -DINSTALL_C_EXAMPLES=ON -DWITH_OPENGL=ON -DINSTALL_PYTHON_EXAMPLES=ON -DCMAKE_CXX_FLAGS=-DMINGW_HAS_SECURE_API=1 -DCMAKE_C_FLAGS=-DMINGW_HAS_SECURE_API=1 -DOPENCV_LINKER_LIBS=boost_thread-mt;boost_system-mt -DCMAKE_VERBOSE=ON -DINSTALL_TO_MANGLED_PATHS=OFF" && ${top_dir}/correct_headers.sh
@@ -1157,8 +1430,8 @@ build_gcal() {
 }
 
 build_unbound() {
-  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.7.1 "libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
-  cd unbound-1.7.1
+  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.7.2 "libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
+  cd unbound-1.7.2
 
   cd ..
 }
@@ -1638,7 +1911,7 @@ build_leptonica() {
 }
 
 build_libpopt() {
-  download_and_unpack_file ftp://anduin.linuxfromscratch.org/BLFS/popt/popt-1.16.tar.gz popt-1.16
+  download_and_unpack_file https://fossies.org/linux/misc/popt-1.16.tar.gz popt-1.16
   cd popt-1.16
     apply_patch file://${top_dir}/popt-get-w32-console-maxcols.patch
     apply_patch file://${top_dir}/popt-no-uid.patch
@@ -1836,7 +2109,7 @@ build_libtheora() {
       # ...ldd: .libs/libtheoradec-1.dll.def:3: syntax error
       sed -i -e 's#\r##g' win32/xmingw32/libtheoradec-all.def
       sed -i -e 's#\r##g' win32/xmingw32/libtheoraenc-all.def
-      generic_configure_make_install
+      generic_configure_make_install "--disable-examples" # Without this, one-time builds fail
 
     cd ..
   #generic_download_and_install http://downloads.xiph.org/releases/theora/libtheora-1.2.0alpha1.tar.gz libtheora-1.2.0alpha1
@@ -1873,6 +2146,7 @@ do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla
 #    export orig_cpu_count=$cpu_count
 #    export cpu_count=1
     env
+    apply_patch file://{$top_dir}/filezilla-install.patch
     generic_configure_make_install
 #   generic_download_and_install https://download.filezilla-project.org/client/FileZilla_latest_src.tar.bz2 filezilla-3.33.0
     unset CC
@@ -2376,7 +2650,7 @@ build_openssl() {
 }
 
 build_libssh() {
-  download_and_unpack_file https://red.libssh.org/attachments/download/218/libssh-0.7.5.tar.xz libssh-0.7.5
+  download_and_unpack_file https://sources.voidlinux.eu/libssh-0.7.5/libssh-0.7.5.tar.bz2 libssh-0.7.5
 #  do_git_checkout git://git.libssh.org/projects/libssh.git libssh
   export CMAKE_INCLUDE_PATH=${mingw_w64_x86_64_prefix}/include
   mkdir libssh_build
@@ -3538,6 +3812,10 @@ build_frei0r() {
     apply_patch file://${top_dir}/frei0r-partik0l.cpp.patch
     # The next patch fixes a compilation problem due to curly brackets
     apply_patch file://${top_dir}/frei0r-facedetect.cpp-brackets.patch
+    # This inserts boost_system-mt library which is missed off the list
+    apply_patch file://${top_dir}/frei0r-boost.patch
+    # This uses the c++ interface, not the c interface
+    apply_patch file://${top_dir}/frei0r-facebl0r.patch
     # These are ALWAYS compiled as DLLs... there is no static library model in frei0r
     # The facedetect filters don't work because there's something wrong in the way frei0r calls into opencv.
     # If you want to debug this, please add -DCMAKE_BUILD_TYPE=Debug, otherwise important parameters are optimized out
@@ -4796,8 +5074,10 @@ build_shaderc() {
         export shaderc_SOURCE_DIR=${top_dir}/x86_64/shaderc/
         apply_patch file://${top_dir}/shaderc.patch
         mkdir build
-        do_cmake_static "-GNinja -DSHADERC_SKIP_TESTS=ON -DCMAKE_VERBOSE_MAKEFILE=YES " #-DSHADERC_ENABLE_SHARED_CRT=ON" # -DSHADERC_ENABLE_SHARED_CRT=ON"
+        cd build
+        do_cmake_static ".." "-GNinja -DSHADERC_SKIP_TESTS=ON -DCMAKE_VERBOSE_MAKEFILE=YES " #-DSHADERC_ENABLE_SHARED_CRT=ON" # -DSHADERC_ENABLE_SHARED_CRT=ON"
         apply_patch file://${top_dir}/shaderc-build.patch
+        cd ..
         do_ninja_and_ninja_install "V=1"
 #        do_make_install
     cd ..
@@ -5390,7 +5670,7 @@ build_ffmpeg() {
 #  apply_patch_p1 file://${top_dir}/ffmpeg-decklink-teletext-1-reverse.patch
 #  apply_patch_p1 file://${top_dir}/ffmpeg-decklink-teletext-2-reverse.patch
 
-  config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --disable-doc --enable-libxml2 --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-libmysofa --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libvpx --enable-libilbc --enable-libwavpack --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --enable-d3d11va --enable-nvenc --enable-libopencv --enable-libzmq --enable-nonfree --enable-libfdk-aac --enable-libflite --enable-decoder=aac --enable-libaom --enable-runtime-cpudetect --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts --extra-cflags=$CFLAGS" # other possibilities: --enable-w32threads --enable-libflite
+  config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --disable-doc --enable-libxml2 --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-libmysofa --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libvpx --enable-libilbc --enable-libwavpack --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --enable-d3d11va --enable-nvenc --enable-libzmq --enable-nonfree --enable-libfdk-aac --enable-libflite --enable-decoder=aac --enable-libaom --enable-runtime-cpudetect --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts --extra-cflags=$CFLAGS" # other possibilities: --enable-w32threads --enable-libflite
   # sed -i 's/openjpeg-1.5/openjpeg-2.1/' configure # change library path for updated libopenjpeg
   export PKG_CONFIG="pkg-config" # --static
   export LDFLAGS="" # "-static"
@@ -5623,6 +5903,8 @@ build_dependencies() {
   build_lilv
   build_pixman
   build_libssh
+  #build_pthread_stubs
+  #build_drm
   build_sdl2_image
 #  build_mmcommon
   build_spirvtools
@@ -5715,6 +5997,31 @@ build_apps() {
   build_fdkaac-commandline
 #  build_cdrecord
   build_qt
+  #build_kf5_config
+  #build_kf5_coreaddons
+  #build_kf5_itemmodels
+  #build_kf5_itemviews
+  #build_kf5_auth
+  #build_kf5_codecs
+  #build_kf5_guiaddons
+  #build_kf5_i18n
+  #build_kf5_widgetsaddons
+  #build_kf5_configwidgets
+  #build_kf5_archive
+  #build_kf5_iconthemes
+  #build_kf5_completion
+  #build_kf5_windowsystem
+  #build_kf5_crash
+  #build_kf5_dbusaddons
+  #build_kf5_service
+  #build_kf5_sonnet
+  #build_kf5_textwidgets
+  #build_kf5_attica
+  #build_kf5_globalaccel
+  #build_kf5_xmlgui
+  #build_kf5_solid
+  #build_kf5_threadweaver
+  #build_digikam
   build_youtube-dl
   build_mjpegtools
 # build_qt5
@@ -5861,6 +6168,7 @@ cd ${cur_dir}/x86_64-w64-mingw32/x86_64-w64-mingw32/include
   ln -s winsock2.h WinSock2.h
   ln -s cfgmgr32.h Cfgmgr32.h
   ln -s devpkey.h Devpkey.h
+  ln -s shlobj.h ShlObj.h
   ln -s uiviewsettingsinterop.h UIViewSettingsInterop.h
 cd -
 cd ${cur_dir}/x86_64-w64-mingw32/x86_64-w64-mingw32/lib

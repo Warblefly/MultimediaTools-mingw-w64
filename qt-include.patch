@@ -1,0 +1,11 @@
+--- qtbase/mkspecs/common/gcc-base.conf.orig	2018-06-19 22:20:08.375715400 +0100
++++ qtbase/mkspecs/common/gcc-base.conf	2018-06-19 22:20:36.023309000 +0100
+@@ -46,7 +46,7 @@
+ QMAKE_CFLAGS_SHLIB         += $$QMAKE_CFLAGS_PIC
+ QMAKE_CFLAGS_STATIC_LIB    += $$QMAKE_CFLAGS_PIC
+ QMAKE_CFLAGS_APP           += $$QMAKE_CFLAGS_PIC
+-QMAKE_CFLAGS_ISYSTEM        = -isystem
++QMAKE_CFLAGS_ISYSTEM        = -I
+ QMAKE_CFLAGS_YACC          += -Wno-unused -Wno-parentheses
+ QMAKE_CFLAGS_HIDESYMS      += -fvisibility=hidden
+ QMAKE_CFLAGS_EXCEPTIONS_OFF += -fno-exceptions

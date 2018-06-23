@@ -1,0 +1,11 @@
+--- src/kswitchlanguagedialog_p.cpp.orig	2018-06-16 12:47:34.745075500 +0100
++++ src/kswitchlanguagedialog_p.cpp	2018-06-16 12:48:03.747803500 +0100
+@@ -32,7 +32,7 @@
+ #include <QStandardPaths>
+ #include <QDebug>
+ #if QT_VERSION >= QT_VERSION_CHECK(5, 9, 0)
+-#include <private/qlocale_p.h>
++#include <QtCore/5.10.1/QtCore/private/qlocale_p.h>
+ #endif
+ 
+ #include "kswitchlanguagedialog_p.h"

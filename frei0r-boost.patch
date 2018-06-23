@@ -1,0 +1,11 @@
+--- src/filter/facedetect/CMakeLists.txt.orig	2018-06-21 21:38:54.473776600 +0100
++++ src/filter/facedetect/CMakeLists.txt	2018-06-21 21:39:12.060135500 +0100
+@@ -7,7 +7,7 @@
+ 
+ include_directories (${OpenCV_INCLUDE_DIR})
+ link_directories (${OpenCV_LIBRARY_DIRS})
+-LINK_LIBRARIES(${OpenCV_LIBS} ${OpenCV_LIBRARIES})
++LINK_LIBRARIES(${OpenCV_LIBS} ${OpenCV_LIBRARIES} boost_system-mt)
+ 
+ add_library (${TARGET}  MODULE ${SOURCES})
+ set_target_properties (${TARGET} PROPERTIES PREFIX "")
