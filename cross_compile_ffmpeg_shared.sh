@@ -4519,6 +4519,10 @@ build_codec2() {
         cp -v *exe ${mingw_w64_x86_64_prefix}/bin/
         cp -v *dll ${mingw_w64_x86_64_prefix}/bin/
         cp -v *dll.a ${mingw_w64_x86_64_prefix}/lib/
+        mkdir -vp ${mingw_w64_x86_64_prefix}/include/codec2
+        cd ../../codec2-dev/src
+        cp -v golay23.h codec2.h codec2_fdmdv.h codec2_cohpsk.h codec2_fm.h codec2_odfm.h fsk.h codec2_fifo.h comp.h comp_prim.h modem_stats.h kiss_fft.h freedv_api.h varicode.h freedv_api_internal.h ${mingw_w64_x86_64_prefix}/include/codec2
+        cp -v ../../build-codec-2-mingw/codec2/version.h ${mingw_w64_x86_64_prefix}/include/codec2/version.h
       cd ..
 
     #cd ..
@@ -5670,7 +5674,7 @@ build_ffmpeg() {
 #  apply_patch_p1 file://${top_dir}/ffmpeg-decklink-teletext-1-reverse.patch
 #  apply_patch_p1 file://${top_dir}/ffmpeg-decklink-teletext-2-reverse.patch
 
-  config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --disable-doc --enable-libxml2 --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-libmysofa --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libvpx --enable-libilbc --enable-libwavpack --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --enable-d3d11va --enable-nvenc --enable-libzmq --enable-nonfree --enable-libfdk-aac --enable-libflite --enable-decoder=aac --enable-libaom --enable-runtime-cpudetect --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts --extra-cflags=$CFLAGS" # other possibilities: --enable-w32threads --enable-libflite
+  config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --disable-doc --enable-libxml2 --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-libmysofa --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-libcodec2 --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libvpx --enable-libilbc --enable-libwavpack --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --enable-d3d11va --enable-nvenc --enable-libzmq --enable-nonfree --enable-libfdk-aac --enable-libflite --enable-decoder=aac --enable-libaom --enable-libndi_newtek --enable-runtime-cpudetect --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts --extra-cflags=$CFLAGS" # other possibilities: --enable-w32threads --enable-libflite
   # sed -i 's/openjpeg-1.5/openjpeg-2.1/' configure # change library path for updated libopenjpeg
   export PKG_CONFIG="pkg-config" # --static
   export LDFLAGS="" # "-static"
@@ -5705,6 +5709,12 @@ build_dvdstyler() {
   cd DVDStyker-3.0b1
 
   cd ..
+}
+
+build_NDI_headers() {
+    cd ${mingw_w64_x86_64_prefix}
+      tar xvvf ${top_dir}/NDI-NewTek.tar.xz
+    cd -
 }
 
 find_all_build_exes() {
@@ -5808,6 +5818,7 @@ build_dependencies() {
   build_libtiff
   build_zimg # Image format conversion library for FFmpeg and others
   build_libexif # For manipulating EXIF data
+  build_NDI_headers
   build_libxvid
   build_libxavs
   build_libsoxr
