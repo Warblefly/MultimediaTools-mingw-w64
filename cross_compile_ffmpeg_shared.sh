@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+!/usr/bin/env bash
 
 
 
@@ -235,8 +235,8 @@ update_to_desired_git_branch_or_revision() {
    pushd $to_dir
    cd $to_dir
       echo "git checkout $desired_branch"
-      git checkout "$desired_branch" || exit 1 # if this fails, nuke the directory first...
-      git merge "$desired_branch" || exit 1 # this would be if they want to checkout a revision number, not a branch...
+      GIT_TRACE=2 GIT_CURL_VERBOSE=1 git checkout "$desired_branch" || exit 1 # if this fails, nuke the directory first...
+      GIT_TRACE=2 GIT_CURL_VERBOSE=1 git merge "$desired_branch" || exit 1 # this would be if they want to checkout a revision number, not a branch...
    popd # in case it's a cd to ., don't want to cd to .. here...since sometimes we call it with a '.'
   fi
 }
@@ -253,7 +253,7 @@ do_git_checkout() {
     echo "Downloading (via git clone) $to_dir"
     rm -rf $to_dir.tmp # just in case it was interrupted previously...
     # prevent partial checkouts by renaming it only after success
-    git clone $repo_url $to_dir.tmp || exit 1
+    GIT_TRACE=2 GIT_CURL_VERBOSE=1 git clone $repo_url $to_dir.tmp || exit 1
     mv $to_dir.tmp $to_dir
     echo "done downloading $to_dir"
     update_to_desired_git_branch_or_revision $to_dir $desired_branch
@@ -264,14 +264,14 @@ do_git_checkout() {
     if [[ -z $desired_branch ]]; then
       if [[ $git_get_latest = "y" ]]; then
         echo "Updating to latest $to_dir version... $desired_branch"
-        git pull
+        GIT_TRACE=2 GIT_CURL_VERBOSE=1 git pull
       else
         echo "not doing git get latest pull for latest code $to_dir"
       fi
     else
       if [[ $git_get_latest = "y" ]]; then
         echo "Doing git fetch $to_dir in case it affects the desired branch [$desired_branch]"
-        git fetch
+        GIT_TRACE=2 GIT_CURL_VERBOSE=1 git fetch
       else
         echo "not doing git fetch $to_dir to see if it affected desired branch [$desired_branch]"
       fi
@@ -1190,7 +1190,7 @@ build_googletest() {
 }
 
 build_mlt() {
-  do_git_checkout http://github.com/mltframework/mlt.git mlt # 18b8609
+  do_git_checkout https://github.com/mltframework/mlt.git mlt # 18b8609
   cd mlt
 #    apply_patch file://${top_dir}/mlt-mingw-sandbox.patch
     export CXX=x86_64-w64-mingw32-g++
@@ -1770,7 +1770,7 @@ build_portaudio_without_jack() {
 }
 
 build_jack() {
-  do_git_checkout git://github.com/jackaudio/jack2.git jack2
+  do_git_checkout https://github.com/jackaudio/jack2.git jack2
 #  download_and_unpack_file https://dl.dropboxusercontent.com/u/28869550/jack-1.9.10.tar.bz2 jack-1.9.10
   cd jack2
     if [ ! -f "jack.built" ] ; then
@@ -2017,7 +2017,7 @@ build_win32_pthreads() {
 }
 
 build_libdlfcn() {
-  do_git_checkout git://github.com/dlfcn-win32/dlfcn-win32.git dlfcn-win32
+  do_git_checkout https://github.com/dlfcn-win32/dlfcn-win32.git dlfcn-win32
   cd dlfcn-win32
     ./configure --enable-shared --enable-static --cross-prefix=$cross_prefix --prefix=$mingw_w64_x86_64_prefix
     do_make_install
@@ -2050,7 +2050,7 @@ build_libjpeg_turbo() {
 }
 
 build_libogg() {
-  do_git_checkout https://git.xiph.org/ogg.git ogg
+  do_git_checkout http://github.org/xiph/ogg.git ogg
   cd ogg
     generic_configure_make_install
 
@@ -2075,7 +2075,7 @@ build_libvorbis() {
 }
 
 build_libspeex() {
-  do_git_checkout https://git.xiph.org/speex.git speex
+  do_git_checkout https://github.com/xiph/speex.git speex
   cd speex
     generic_configure_make_install "LIBS=-lwinmm --enable-binaries"
 
@@ -2084,7 +2084,7 @@ build_libspeex() {
 }
 
 build_libspeexdsp() {
-  do_git_checkout https://git.xiph.org/speexdsp.git speexdsp
+  do_git_checkout https://github.com/speexdsp.git speexdsp
   cd speexdsp
     generic_configure_make_install
 
@@ -3567,7 +3567,7 @@ build_libmodplug() {
 
 build_libcaca() {
   local cur_dir2=$(pwd)/libcaca
-#  do_git_checkout git://github.com/cacalabs/libcaca libcaca
+#  do_git_checkout https://github.com/cacalabs/libcaca libcaca
   download_and_unpack_file http://caca.zoy.org/raw-attachment/wiki/libcaca/libcaca-0.99.beta19.tar.gz libcaca-0.99.beta19
   cd libcaca-0.99.beta19
   # vsnprintf is defined both in libcaca and by mingw-w64-4.0.1 so we'll keep the system definition
@@ -3760,7 +3760,7 @@ build_poppler() {
 }
 
 build_SWFTools() {
-  do_git_checkout git://github.com/matthiaskramm/swftools swftools
+  do_git_checkout https://github.com/matthiaskramm/swftools swftools
   cd swftools
     download_config_files # The version of config.guess is too old here.
     export DISABLEPDF2SWF=true
@@ -3866,7 +3866,7 @@ build_gtk() {
   cd ..
 #  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/gtk+/3.22/gtk+-3.22.21.tar.xz gtk+-3.22.21 # was .19
 
-  do_git_checkout http://github.com/GNOME/gtk.git gtk gtk-3-22
+  do_git_checkout https://github.com/GNOME/gtk.git gtk gtk-3-22
   touch ${mingw_w64_x86_64_prefix}/share/icons/hicolor/.icon-theme.cache
   cd gtk
 #    orig_cpu_count=$cpu_count
@@ -4571,6 +4571,19 @@ build_libtasn1() {
 #  cd libtasn1
 #    generic_configure_make_install
 #  cd ..
+}
+
+build_aubio() {
+    # We need our own version of Waf, specially compiled
+    mkdir aubio_build
+        cd aubio_build
+        wget https://waf.io/waf-2.0.1.tar.bz2
+        tar xvvf waf-2.0.1.tar.bz2
+        cd waf-2.0.1
+        NOCLIMB=1 python waf-light --tools=c_emscripten
+        cd ..
+    cp waf-2.0.1/waf .
+    cd ..
 }
 
 build_libdsm() {
@@ -6054,6 +6067,7 @@ build_apps() {
   build_ffms2
   build_mp4box
   build_libdash
+  build_aubio
   build_mpv
   build_opendcp # Difficult at the moment. Development tree doesn't compile under its own procedures
   # build_opencv # We place it here because opencv has an interface to FFmpeg
