@@ -1,0 +1,21 @@
+--- src/util.c.orig	2018-07-12 21:16:09.048740100 +0100
++++ src/util.c	2018-07-12 21:17:17.002940900 +0100
+@@ -39,9 +39,8 @@
+ #    include <io.h>
+ #    define F_OK 0
+ #    define mkdir(path, flags) _mkdir(path)
+-#    if defined(_MSC_VER) && _MSC_VER <= 1400
+ /** Implement 'CreateSymbolicLink()' for MSVC 8 or earlier */
+-extern "C" BOOLEAN WINAPI
++BOOLEAN WINAPI
+ CreateSymbolicLink(LPCTSTR linkpath, LPCTSTR targetpath, DWORD flags)
+ {
+ 	typedef BOOLEAN (WINAPI* PFUNC)(LPCTSTR, LPCTSTR, DWORD);
+@@ -50,7 +49,6 @@
+ 	                                  "CreateSymbolicLinkA");
+ 	return pfn ? pfn(linkpath, targetpath, flags) : 0;
+ }
+-#    endif
+ #else
+ #    include <dirent.h>
+ #    include <limits.h>

@@ -235,8 +235,8 @@ update_to_desired_git_branch_or_revision() {
    pushd $to_dir
    cd $to_dir
       echo "git checkout $desired_branch"
-      GIT_TRACE=2 GIT_CURL_VERBOSE=1 git checkout "$desired_branch" || exit 1 # if this fails, nuke the directory first...
-      GIT_TRACE=2 GIT_CURL_VERBOSE=1 git merge "$desired_branch" || exit 1 # this would be if they want to checkout a revision number, not a branch...
+      git checkout "$desired_branch" || exit 1 # if this fails, nuke the directory first...
+      git merge "$desired_branch" || exit 1 # this would be if they want to checkout a revision number, not a branch...
    popd # in case it's a cd to ., don't want to cd to .. here...since sometimes we call it with a '.'
   fi
 }
@@ -253,7 +253,7 @@ do_git_checkout() {
     echo "Downloading (via git clone) $to_dir"
     rm -rf $to_dir.tmp # just in case it was interrupted previously...
     # prevent partial checkouts by renaming it only after success
-    GIT_TRACE=2 GIT_CURL_VERBOSE=1 git clone $repo_url $to_dir.tmp || exit 1
+    git clone $repo_url $to_dir.tmp || exit 1
     mv $to_dir.tmp $to_dir
     echo "done downloading $to_dir"
     update_to_desired_git_branch_or_revision $to_dir $desired_branch
@@ -264,14 +264,14 @@ do_git_checkout() {
     if [[ -z $desired_branch ]]; then
       if [[ $git_get_latest = "y" ]]; then
         echo "Updating to latest $to_dir version... $desired_branch"
-        GIT_TRACE=2 GIT_CURL_VERBOSE=1 git pull
+        git pull
       else
         echo "not doing git get latest pull for latest code $to_dir"
       fi
     else
       if [[ $git_get_latest = "y" ]]; then
         echo "Doing git fetch $to_dir in case it affects the desired branch [$desired_branch]"
-        GIT_TRACE=2 GIT_CURL_VERBOSE=1 git fetch
+        git fetch
       else
         echo "not doing git fetch $to_dir to see if it affected desired branch [$desired_branch]"
       fi
@@ -1430,8 +1430,8 @@ build_gcal() {
 }
 
 build_unbound() {
-  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.7.2 "libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
-  cd unbound-1.7.2
+  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.7.3 "libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
+  cd unbound-1.7.3
 
   cd ..
 }
@@ -1893,6 +1893,7 @@ build_lilv() {
     export CXXFLAGS_ORIG=${CXXFLAGS}
     export CXXFLAGS=-DMINGW_HAS_SECURE_API=1
     do_configure "configure --prefix=${mingw_w64_x86_64_prefix} -ppp" "./waf"
+    apply_patch file://${top_dir}/lilv-mingw.patch
     ./waf build || exit 1
     ./waf install || exit 1
   cd ..
@@ -2050,7 +2051,7 @@ build_libjpeg_turbo() {
 }
 
 build_libogg() {
-  do_git_checkout http://github.org/xiph/ogg.git ogg
+  do_git_checkout http://github.com/xiph/ogg.git ogg
   cd ogg
     generic_configure_make_install
 
@@ -2084,7 +2085,7 @@ build_libspeex() {
 }
 
 build_libspeexdsp() {
-  do_git_checkout https://github.com/speexdsp.git speexdsp
+  do_git_checkout https://github.com/xiph/speexdsp.git speexdsp
   cd speexdsp
     generic_configure_make_install
 
@@ -2829,9 +2830,11 @@ build_ladspa() {
 }
 
 build_libfftw() {
-  generic_download_and_install http://www.fftw.org/fftw-3.3.7.tar.gz fftw-3.3.7 "--with-our-malloc16 --with-windows-f77-mangling --enable-threads --with-combined-threads --enable-portable-binary --enable-sse2 --with-incoming-stack-boundary=2"
-  cd fftw-3.3.7
-
+#  generic_download_and_install http://www.fftw.org/fftw-3.3.7.tar.gz fftw-3.3.7 "--with-our-malloc16 --with-windows-f77-mangling --enable-threads --with-combined-threads --enable-portable-binary --enable-sse2 --with-incoming-stack-boundary=2"
+  download_and_unpack_file http://www.fftw.org/fftw-3.3.8.tar.gz fftw-3.3.8
+  cd fftw-3.3.8
+      apply_patch file://${top_dir}/fftw-thread.patch
+      generic_configure_make_install "--with-our-malloc16 --with-windows-f77-mangling --enable-threads --with-combined-threads --enable-portable-binary --enable-sse2 --with-incoming-stack-boundary=2"
   cd ..
 }
 
@@ -3449,7 +3452,7 @@ build_libiberty() {
 }
 
 build_live555() {
-  download_and_unpack_file http://www.live555.com/liveMedia/public/live555-latest.tar.gz live
+  download_and_unpack_file https://download.videolan.org/pub/contrib/live555/live.2018.04.25.tar.gz live # http://www.live555.com/liveMedia/public/live555-latest.tar.gz live
   cd live
     export CC=x86_64-w64-mingw32-gcc
     export LD=x86_64-w64-mingw32-ld
@@ -4371,7 +4374,7 @@ build_mjpegtools() {
     apply_patch file://${top_dir}/lavtools-Makefile.am.patch
     rm -v lavtools/Makefile.in
     rm -v configure
-    generic_configure_make_install "LIBS=-lpthread --without-x --without-gtk"
+    generic_configure_make_install "LIBS=-lpthread --without-x --without-gtk SDL_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/SDL"
 
   cd ..
 }
@@ -4575,15 +4578,23 @@ build_libtasn1() {
 
 build_aubio() {
     # We need our own version of Waf, specially compiled
-    mkdir aubio_build
+    do_git_checkout https://git.aubio.org/aubio/aubio aubio
+    cd aubio
+        mkdir aubio_build
         cd aubio_build
-        wget https://waf.io/waf-2.0.1.tar.bz2
-        tar xvvf waf-2.0.1.tar.bz2
-        cd waf-2.0.1
-        NOCLIMB=1 python waf-light --tools=c_emscripten
+            wget https://waf.io/waf-2.0.1.tar.bz2
+            tar xvvf waf-2.0.1.tar.bz2
+            cd waf-2.0.1
+                NOCLIMB=1 python waf-light --tools=c_emscripten
+            cd ..
         cd ..
-    cp waf-2.0.1/waf .
+    cp -v aubio_build/waf-2.0.1/waf .
+    rm -rvf aubio_build
+    do_configure "configure AR=x86_64-w64-mingw32-ar PKGCONFIG=x86_64-w64-mingw32-pkg-config WINRC=x86_64-w64-mingw32-windres CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ -v -pp --prefix=${mingw_w64_x86_64_prefix} --enable-double --disable-fftw3f --enable-fftw3 --with-target-platform=win64 --disable-jack" "./waf"
+    ./waf build || exit 1
+    ./waf install || exit 1
     cd ..
+
 }
 
 build_libdsm() {

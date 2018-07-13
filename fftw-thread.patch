@@ -1,0 +1,10 @@
+--- fftw.pc.in.orig	2018-07-08 22:04:23.719578600 +0100
++++ fftw.pc.in	2018-07-08 22:04:41.834395600 +0100
+@@ -6,6 +6,6 @@
+ Name: FFTW
+ Description: fast Fourier transform library
+ Version: @VERSION@
+-Libs: -L${libdir} -lfftw3@PREC_SUFFIX@ @LIBQUADMATH@
++Libs: -L${libdir} -lfftw3@PREC_SUFFIX@ -lpthread @LIBQUADMATH@
+ Libs.private: -lm
+ Cflags: -I${includedir}
