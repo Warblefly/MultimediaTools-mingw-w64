@@ -3213,13 +3213,47 @@ build_atomicparsley() {
   unset ac_cv_func_malloc_0_nonnull
 }
 
+build_gstreamer() {
+    do_git_checkout https://github.com/GStreamer/gstreamer.git gstreamer
+    cd gstreamer
+        mkdir -vp tests/examples/controller/include # to work around a bad include directory
+        generic_configure_make_install "--disable-silent-rules"
+    cd ..
+    do_git_checkout https://github.com/GStreamer/gst-plugins-base.git gst-plugins-base
+    cd gst-plugins-base
+        mkdir -vp gst-libs/gst/video/include
+        mkdir -vp gst-libs/gst/tag/include
+        mkdir -vp ext/gl/include
+        mkdir -vp ext/pango/include
+        mkdir -vp tests/examples/audio/include
+        mkdir -vp tests/examples/gio/include
+        mkdir -vp tests/examples/playback/include
+        mkdir -vp tests/examples/gl/generic/include
+        mkdir -vp tests/examples/gl/gtk/include
+        mkdir -vp tests/examples/overlay/include
+        mkdir -vp tests/examples/seek/include
+        mkdir -vp tests/examples/gl/gtk/filternovideooverlay/include
+        mkdir -vp tests/examples/gl/gtk/filtervideooverlay/include
+        mkdir -vp tests/examples/snapshot/include
+        mkdir -vp tests/examples/gl/gtk/fxtest/include
+        mkdir -vp tests/examples/gl/gtk/switchvideooverlay/include
+        mkdir -vp tests/examples/gl/gtk/3dvideo/include
+        generic_configure_make_install
+    cd ..
+}
+
+build_audacity() {
+    do_git_checkout https://github.com/audacity/audacity audacity
+}
+
+
 build_wx() {
   do_git_checkout https://github.com/wxWidgets/wxWidgets.git wxWidgets WX_3_0_BRANCH
 #  download_and_unpack_file https://github.com/wxWidgets/wxWidgets/archive/v3.0.2.tar.gz wxWidgets-3.0.2
   cd wxWidgets
 #    apply_patch_p1 https://github.com/wxWidgets/wxWidgets/commit/73e9e18ea09ffffcaac50237def0d9728a213c02.patch
 #    rm -v configure
-    generic_configure_make_install "--with-opengl --with-msw --with-libpng=sys --with-libjpeg=sys --with-libtiff=sys --with-regex=yes --with-zlib=yes --enable-graphics_ctx --enable-webview --enable-mediactrl --disable-official_build"
+    generic_configure_make_install "--without-opengl  --enable-checklst --with-regex=yes --with-msw --with-libpng=sys --with-libjpeg=sys --with-libtiff=sys --with-zlib=yes --enable-graphics_ctx --enable-webview --enable-mediactrl --disable-official_build" # --with-regex=yes
 
     # wx-config needs to be visible to this script when compiling
     cp -v ${mingw_w64_x86_64_prefix}/bin/wx-config ${mingw_w64_x86_64_prefix}/../bin/wx-config
@@ -3229,6 +3263,19 @@ build_wx() {
     cd -
     cp -v ${mingw_w64_x86_64_prefix}/lib/wx*dll ${mingw_w64_x86_64_prefix}/bin
   cd ..
+  #do_git_checkout https://github.com/wxWidgets/wxWidgets.git wxWidgetsLATEST
+#  download_and_unpack_file https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxWidgets-3.1.1.tar.bz2 wxWidgets-3.1.1
+#  cd wxWidgets-3.1.1
+#  cd wxWidgetsLATEST
+#    generic_configure_make_install "--disable-option-checking --with-gtk=2" # "--with-libpng=sys --with-libjpeg=sys --disable-mslu --enable-unicode --with-regex=builtin --disable-precomp-headers --with-libtiff=sys --with-regex=yes --with-zlib=yes --enable-webview --enable-mediactrl --disable-option-checking --with-gtk=2 --enable-monolithic"
+    # wx-config needs to be visible to this script when compiling
+#    cp -v ${mingw_w64_x86_64_prefix}/bin/wx-config ${mingw_w64_x86_64_prefix}/../bin/wx-config
+    # wxWidgets doesn't include the DLL run-time libraries in the right place.
+#    cd ${mingw_w64_x86_64_prefix}/lib
+#      for filename in ./libwx*dll.a; do cp -v "./$filename" "./$(echo $filename | sed -e 's/-x86_64-w64-mingw32//g')";  done
+#    cd -
+#    cp -v ${mingw_w64_x86_64_prefix}/lib/wx*dll ${mingw_w64_x86_64_prefix}/bin
+#  cd ..
 }
 
 build_libsndfile() {
@@ -6089,11 +6136,13 @@ build_apps() {
 #  build_graphicsmagick
   build_libdcp # Now needs graphicsmagick
   build_libsub
+  build_gstreamer
   build_wx
   build_filezilla
   build_wxsvg
   build_mediainfo
   build_dvdauthor
+#  build_audacity
   build_mlt # Framework, but relies on FFmpeg, Qt, and many other libraries we've built.
   build_movit
   build_DJV # Requires FFmpeg libraries
