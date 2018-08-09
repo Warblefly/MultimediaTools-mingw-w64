@@ -4,22 +4,13 @@
  #
  
  v_script="4.0.1"
--v_binutils="2.29.1"
--v_gcc="7.3.0"
-+v_binutils="2.29.1"
-+v_gcc="7.3.0"
+-v_binutils="2.31git"
+-v_gcc="7svn"
++v_binutils="2.31git"
++v_gcc="7svn"
  v_gmp="6.1.2"
  v_mpfr="4.0.1"
  v_mpc="1.1.0"
-@@ -86,7 +86,7 @@
- 
-   local urls=(
-     "http://ftp.gnu.org/gnu/binutils/binutils-$v_binutils.tar.bz2"
--    "http://ftp.gnu.org/gnu/gcc/gcc-$v_gcc/gcc-$v_gcc.tar.xz"
-+    "http://ftp.gnu.org/gnu/gcc/gcc-$v_gcc/gcc-$v_gcc.tar.xz"
-     "http://ftp.gnu.org/gnu/gmp/gmp-$v_gmp.tar.xz"
-     "http://ftp.gnu.org/gnu/mpfr/mpfr-$v_mpfr.tar.xz"
-     "http://ftp.gnu.org/gnu/mpc/mpc-$v_mpc.tar.gz"
 @@ -139,18 +139,18 @@
  
    clean_build "$bld/binutils"
@@ -27,13 +18,13 @@
 -  "../../src/binutils-$v_binutils/configure" --prefix="$prefix" --disable-shared \
 -    --enable-static --with-sysroot="$prefix" --target="$host" \
 +  "../../src/binutils-$v_binutils/configure" --prefix="$prefix" --enable-shared \
-+    --disable-static --with-sysroot="$prefix" --target="$host" \
-     --disable-multilib --disable-nls || error_exit
++    --enable-static --with-sysroot="$prefix" --target="$host" \
+     --disable-multilib --disable-nls --enable-lto --disable-werror || error_exit
    echo "building binutils" >&3
    make -j $cpus || error_exit
    echo "installing binutils" >&3
 -  make install || error_exit
-+  make install-strip || error_exit
++  make install || error_exit
  
    clean_build "$bld/mingw-w64"
    echo "configuring mingw-w64-headers" >&3
