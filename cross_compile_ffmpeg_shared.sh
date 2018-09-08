@@ -38,7 +38,8 @@ yes_no_sel () {
 }
 
 check_missing_packages () {
-  local check_packages=('cmp' 'bzip2' 'rsync' 'sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint' 'pxz' 'wget' 'zip' 'xmlto' 'gtkdocize' 'python-config' 'ant' 'sdl-config' 'sdl2-config' 'gyp' 'mm-common-prepare' 'sassc' 'nasm' 'ragel' 'gengetopt' 'asn1Parser' 'ronn' 'docbook2x-man' 'intltool-update' 'gtk-update-icon-cache' 'gdk-pixbuf-csource' 'interdiff' 'luac' 'makensis')
+  local check_packages=('cmp' 'bzip2' 'rsync' 'sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint' 'pxz' 'wget' 'zip' 'xmlto' 'gtkdocize' 'python-config' 'ant' 'sdl-config' 'sdl2-config' 'gyp' 'mm-common-prepare' 'sassc' 'nasm' 'ragel' 'gengetopt' 'asn1Parser' 'ronn' 'docbook2x-man'
+  'intltool-update' 'gtk-update-icon-cache' 'gdk-pixbuf-csource' 'interdiff' 'orcc' 'luac' 'makensis')
   for package in "${check_packages[@]}"; do
     type -P "$package" >/dev/null || missing_packages=("$package" "${missing_packages[@]}")
   done
@@ -2209,7 +2210,7 @@ build_orc() {
 }
 
 build_libxml2() {
-  do_git_checkout git://git.gnome.org/libxml2 libxml2
+  do_git_checkout https://github.com/GNOME/libxml2.git libxml2
 #  download_and_unpack_file ftp://xmlsoft.org/libxml2/libxml2-2.9.4.tar.gz libxml2-2.9.4
   cd libxml2
     # Remove libxml2 autogen because it sets variables that interfere with our cross-compile
@@ -2223,7 +2224,7 @@ build_libxml2() {
 }
 
 build_libxslt() {
-  do_git_checkout git://git.gnome.org/libxslt libxslt
+  do_git_checkout https://github.com/GNOME/libxslt.git libxslt
 #  cd libxslt-1.1.28/libxslt
 #      apply_patch https://raw.githubusercontent.com/Warblefly/multimediaWin64/master/libxslt-security.c.patch
 #    cd ..
@@ -2278,7 +2279,7 @@ build_libbdplus() {
 }
 
 build_libbluray() {
-  do_git_checkout git://git.videolan.org/libbluray.git libbluray
+  do_git_checkout git://git.videolan.org/libbluray.git libbluray e0bfb98d042d0c907fa8a78f8fa2e3c3515d5ff9
   cd libbluray
     git submodule init
     git submodule update
@@ -2811,7 +2812,7 @@ build_libnvenc() {
 
 build_fdk_aac() {
   #generic_download_and_install http://sourceforge.net/projects/opencore-amr/files/fdk-aac/fdk-aac-0.1.0.tar.gz/download fdk-aac-0.1.0
-  do_git_checkout https://github.com/mstorsjo/fdk-aac.git fdk-aac_git
+  do_git_checkout https://github.com/mstorsjo/fdk-aac.git fdk-aac_git e45ae429b9ca8f234eb861338a75b2d89cde206a
   cd fdk-aac_git
     if [[ ! -f "configure" ]]; then
       autoreconf -fiv || exit 1
@@ -4647,6 +4648,24 @@ build_libtasn1() {
 #  cd ..
 }
 
+build_ocaml() {
+  do_git_checkout https://github.com/ocaml/ocaml.git ocaml 4.07
+    cd ocaml
+        git submodule init
+        git submodule update
+        apply_patch file://${top_dir}/ocaml.patch
+        cp config/m-nt.h byterun/caml/m.h
+        cp config/s-nt.h byterun/caml/s.h
+        cp config/Makefile.mingw64 config/Makefile
+        # do_configure "--host x86_64-w64-mingw32 --target x86_64-w64-mingw32 --prefix ${mingw_w64_x86_64_prefix}"
+        do_make "-f Makefile.nt flexdll -j1"
+        do_make "-f Makefile.nt bootstrap -j1"
+        do_make "-f Makefile.nt world.opt -j1"
+        do_make "-f Makefile.nt flexlink.opt -j1"
+        do_make_install "-f Makefile.nt"
+    cd ..
+}
+
 build_aubio() {
     # We need our own version of Waf, specially compiled
     do_git_checkout https://git.aubio.org/aubio/aubio aubio
@@ -4940,6 +4959,24 @@ build_libzip() {
     do_make
     do_make_install
   cd ..
+}
+
+build_uchardet() {
+do_git_checkout git://anongit.freedesktop.org/uchardet/uchardet uchardet
+    cd uchardet
+        do_cmake "-DTARGET_ARCHITECTURE=x86"
+        do_make
+        do_make_install
+    cd ..
+}
+
+build_flacon() {
+    do_git_checkout https://github.com/flacon/flacon.git flacon
+        cd flacon
+        do_cmake && ${top_dir}/correct_headers.sh
+        do_make
+        do_make_install
+    cd ..
 }
 
 build_exif() {
@@ -5452,6 +5489,14 @@ build_harfbuzz() {
   cd ..
 }
 
+build_pulseaudio() {
+  download_and_unpack_file https://freedesktop.org/software/pulseaudio/releases/pulseaudio-12.2.tar.xz pulseaudio-12.2
+    cd pulseaudio-12.2
+        apply_patch file://${top_dir}/pulseaudio-size.patch
+        generic_configure_make_install "LIBS=-lintl --enable-orc --enable-waveout --disable-silent-rules -disable-gsettings --disable-dbus"
+    cd ..
+}
+
 build_iculehb() {
   do_git_checkout https://github.com/behdad/icu-le-hb.git icu-le-hb
   cd icu-le-hb
@@ -5496,6 +5541,14 @@ build_xz() {
     generic_configure_make_install
 
   cd ..
+}
+
+build_libjson() {
+do_git_checkout https://github.com/json-c/json-c.git json-c
+    cd json-c
+        generic_configure_make_install "--enable-threading"
+        ln -vs ${mingw_w64_x86_64_prefix}/lib/pkgconfig/json-c.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig/json.pc
+    cd ..
 }
 
 build_libMXF() {
@@ -5871,6 +5924,7 @@ build_dependencies() {
   build_libflite # too big for the ffmpeg distro...
   build_sdl # needed for ffplay to be created
   build_sdl2
+  build_uchardet
   build_libopus
   build_libopencore
   build_libogg
@@ -6000,6 +6054,7 @@ build_dependencies() {
 #  build_openblas # Not until we make a Fortran compiler
   build_opencv
   build_frei0r
+  build_libjson
   build_liba52
   build_leptonica
   build_serd
@@ -6096,6 +6151,7 @@ build_apps() {
 #  if [[ $build_mp4box = "y" ]]; then
 #    build_mp4box
 #  fi
+#  build_ocaml
   build_exiv2
 #  build_cdrecord # NOTE: just now, cdrecord doesn't work on 64-bit mingw. It scans the emulated SCSI bus but no more.
 #  build_cdrkit # No. Still not compiled in MinGW
@@ -6150,6 +6206,7 @@ build_apps() {
   build_mp4box
   build_libdash
   build_aubio
+  build_pulseaudio
   build_mpv
   build_opendcp # Difficult at the moment. Development tree doesn't compile under its own procedures
   # build_opencv # We place it here because opencv has an interface to FFmpeg
@@ -6173,6 +6230,7 @@ build_apps() {
   build_DJV # Requires FFmpeg libraries
   build_qjackctl
 #  build_jackmix
+  build_flacon
   build_get_iplayer
   build_dcpomatic
   build_loudness-scanner
