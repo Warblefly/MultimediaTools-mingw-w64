@@ -1,0 +1,14 @@
+--- src/pulse/fork-detect.c.orig	2018-09-08 19:51:53.023397400 +0100
++++ src/pulse/fork-detect.c	2018-09-08 19:52:24.231629500 +0100
+@@ -36,9 +36,9 @@
+      * gtk/libcanberra/pulseaudio. This is really bad style. We
+      * however have to deal with this cleanly, so we try to detect the
+      * forks making sure all our calls fail cleanly after the fork. */
+-
++#if 0
+     pa_assert_cc(sizeof(pa_atomic_t) >= sizeof(pid_t));
+-
++#endif
+     for (;;) {
+         pid_t stored_pid = (pid_t) pa_atomic_load(&pid);
+ 

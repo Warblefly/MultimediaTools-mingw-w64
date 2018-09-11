@@ -1,0 +1,26 @@
+--- libarchive/archive_cryptor.c.orig	2018-09-09 15:39:06.041511400 +0100
++++ libarchive/archive_cryptor.c	2018-09-09 15:41:29.915928200 +0100
+@@ -51,13 +51,10 @@
+     size_t salt_len, unsigned rounds, uint8_t *derived_key,
+     size_t derived_key_len)
+ {
+-	CCKeyDerivationPBKDF(kCCPBKDF2, (const char *)pw,
+-	    pw_len, salt, salt_len, kCCPRFHmacAlgSHA1, rounds,
+-	    derived_key, derived_key_len);
+ 	return 0;
+ }
+ 
+-#elif defined(_WIN32) && !defined(__CYGWIN__) && defined(HAVE_BCRYPT_H)
++#elif 0 && defined(_WIN32) && !defined(__CYGWIN__) && defined(HAVE_BCRYPT_H)
+ #ifdef _MSC_VER
+ #pragma comment(lib, "Bcrypt.lib")
+ #endif
+@@ -85,7 +82,7 @@
+ 	return (BCRYPT_SUCCESS(status)) ? 0: -1;
+ }
+ 
+-#elif defined(HAVE_LIBNETTLE) && defined(HAVE_NETTLE_PBKDF2_H)
++#elif 0 && defined(HAVE_LIBNETTLE) && defined(HAVE_NETTLE_PBKDF2_H)
+ 
+ static int
+ pbkdf2_sha1(const char *pw, size_t pw_len, const uint8_t *salt,
