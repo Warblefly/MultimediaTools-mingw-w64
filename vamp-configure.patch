@@ -72,3 +72,21 @@
 -Libs: -L${libdir} -lvamp-hostsdk -ldl
 +Libs: -L${libdir} -lvamp-hostsdk
  Cflags: -I${includedir} 
+--- Makefile.in.orig	2018-09-12 21:46:01.857065900 +0100
++++ Makefile.in	2018-09-12 21:46:44.955447700 +0100
+@@ -225,13 +225,13 @@
+ 		$(HOSTDIR)/vamp-simple-host.o
+ 
+ HOST_TARGET	= \
+-		$(HOSTDIR)/vamp-simple-host
++		$(HOSTDIR)/vamp-simple-host.exe
+ 
+ RDFGEN_OBJECTS	= \
+ 		$(RDFGENDIR)/vamp-rdf-template-generator.o
+ 
+ RDFGEN_TARGET	= \
+-		$(RDFGENDIR)/vamp-rdf-template-generator
++		$(RDFGENDIR)/vamp-rdf-template-generator.exe
+ 
+ sdk:		sdkstatic $(SDK_DYNAMIC) $(HOSTSDK_DYNAMIC)
+ 

@@ -1,0 +1,11 @@
+--- Makefile.in.orig	2018-09-14 22:14:38.034000500 +0100
++++ Makefile.in	2018-09-14 22:14:59.128319000 +0100
+@@ -40,7 +40,7 @@
+ VAMP_LDFLAGS		:= -shared -Wl,-Bsymbolic -Wl,--version-script=vamp/vamp-plugin.map
+ LADSPA_LDFLAGS		:= -shared -Wl,-Bsymbolic -Wl,--version-script=ladspa/ladspa-plugin.map
+ 
+-PROGRAM_TARGET 		:= bin/rubberband
++PROGRAM_TARGET 		:= bin/rubberband.exe
+ STATIC_TARGET  		:= lib/$(LIBNAME).a
+ DYNAMIC_TARGET 		:= bin/$(DYNAMIC_LIBNAME)
+ IMPL_TARGET    		:= lib/$(IMP_LIBNAME)

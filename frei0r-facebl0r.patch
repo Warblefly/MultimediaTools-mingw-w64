@@ -1,14 +1,3 @@
---- src/filter/facebl0r/facebl0r.cpp.orig	2018-06-21 21:46:54.498114800 +0100
-+++ src/filter/facebl0r/facebl0r.cpp	2018-06-21 21:47:11.029436400 +0100
-@@ -17,7 +17,7 @@
- 
- #include <stdio.h>
- #include <stdlib.h>
--#include <opencv/cv.h>
-+#include <opencv/cv.hpp>
- #include <opencv/highgui.h>
- 
- #include <frei0r.hpp>
 --- src/filter/facebl0r/CMakeLists.txt.orig	2018-06-21 21:55:25.633716600 +0100
 +++ src/filter/facebl0r/CMakeLists.txt	2018-06-21 21:55:47.677301600 +0100
 @@ -7,7 +7,7 @@
@@ -20,3 +9,16 @@
  
  add_library (${TARGET}  MODULE ${SOURCES})
  set_target_properties (${TARGET} PROPERTIES PREFIX "")
+--- src/filter/facebl0r/facebl0r.cpp.orig	2018-09-13 08:20:47.944205300 +0100
++++ src/filter/facebl0r/facebl0r.cpp	2018-09-13 08:21:16.369515000 +0100
+@@ -17,8 +17,8 @@
+ 
+ #include <stdio.h>
+ #include <stdlib.h>
+-#include <opencv/cv.h>
+-#include <opencv/highgui.h>
++#include <opencv2/opencv.hpp>
++#include <opencv2/highgui.hpp>
+ 
+ #include <frei0r.hpp>
+ #include <frei0r_math.h>

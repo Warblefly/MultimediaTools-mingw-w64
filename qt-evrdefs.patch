@@ -1,0 +1,29 @@
+--- qtmultimedia/src/plugins/common/evr/evrdefs.h.orig	2018-09-19 19:17:41.863432400 +0100
++++ qtmultimedia/src/plugins/common/evr/evrdefs.h	2018-09-19 19:18:18.138604400 +0100
+@@ -83,6 +83,7 @@
+ #define MF_E_TRANSFORM_NEED_MORE_INPUT ((HRESULT)0xC00D6D72L)
+ #endif
+ 
++#if 0
+ #ifdef __GNUC__
+ typedef struct MFVideoNormalizedRect {
+     float left;
+@@ -91,6 +92,7 @@
+     float bottom;
+ } MFVideoNormalizedRect;
+ #endif
++#endif
+ 
+ #include <initguid.h>
+ 
+--- qtmultimedia/src/multimedia/configure.json.orig	2018-09-19 19:50:05.442146000 +0100
++++ qtmultimedia/src/multimedia/configure.json	2018-09-19 19:51:45.885711500 +0100
+@@ -34,7 +34,7 @@
+             "label": "DirectShow",
+             "test": "directshow",
+             "sources": [
+-                { "libs": "-lstrmiids -ldmoguids -luuid -lmsdmo -lole32 -loleaut32" }
++                { "libs": "-lamstrmid -lstrmiids -ldmoguids -luuid -lmsdmo -lole32 -loleaut32" }
+             ]
+         },
+         "gstreamer_0_10": {

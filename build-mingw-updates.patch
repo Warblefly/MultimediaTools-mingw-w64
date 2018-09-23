@@ -1,133 +1,31 @@
---- mingw-w64-build.orig	2017-12-21 22:17:10.067247266 +0000
-+++ mingw-w64-build	2017-12-21 22:28:21.512080095 +0000
-@@ -17,8 +17,8 @@
- #
- 
- v_script="4.0.1"
--v_binutils="2.31git"
--v_gcc="7svn"
-+v_binutils="2.31git"
-+v_gcc="7svn"
- v_gmp="6.1.2"
- v_mpfr="4.0.1"
- v_mpc="1.1.0"
-@@ -139,18 +139,18 @@
- 
-   clean_build "$bld/binutils"
-   echo "configuring binutils" >&3
--  "../../src/binutils-$v_binutils/configure" --prefix="$prefix" --disable-shared \
--    --enable-static --with-sysroot="$prefix" --target="$host" \
-+  "../../src/binutils-$v_binutils/configure" --prefix="$prefix" --enable-shared \
-+    --enable-static --with-sysroot="$prefix" --target="$host" \
-     --disable-multilib --disable-nls --enable-lto --disable-werror || error_exit
-   echo "building binutils" >&3
-   make -j $cpus || error_exit
-   echo "installing binutils" >&3
--  make install || error_exit
-+  make install || error_exit
- 
-   clean_build "$bld/mingw-w64"
-   echo "configuring mingw-w64-headers" >&3
-   "../../src/mingw-w64-git/mingw-w64-headers/configure" --build="$build" \
--    --host="$host" --prefix="$prefix/$host" --enable-secure-api || error_exit
-+    --host="$host" --prefix="$prefix/$host" --enable-secure-api --enable-idl || error_exit
-   echo "installing mingw-w64-headers" >&3
-   make install || error_exit
-   cd "$prefix" || error_exit
-@@ -158,28 +158,78 @@
- 
-   clean_build "$bld/gcc"
+--- mingw-w64-build.orig	2018-09-11 21:56:02.489912900 +0100
++++ mingw-w64-build	2018-09-11 21:57:13.362719700 +0100
+@@ -159,7 +159,7 @@
    echo "configuring gcc" >&3
--  "../../src/gcc-$v_gcc/configure" --target="$host" --disable-shared \
--    --enable-static --disable-multilib --prefix="$prefix" \
+   "../../src/gcc-$v_gcc/configure" --target="$host" --disable-shared \
+     --enable-static --disable-multilib --prefix="$prefix" \
 -    --enable-languages=c,c++ --disable-nls || error_exit
-+  "../../src/gcc-$v_gcc/configure" --target="$host" --enable-shared \
-+    --enable-static --disable-multilib --prefix="$prefix" \
-+    --enable-languages=c,c++,fortran  --enable-libstdcxx-threads --disable-nls || error_exit
++    --enable-languages=c,c++,fortran --disable-nls || error_exit
    echo "running 'make-gcc' for gcc" >&3
    make -j $cpus all-gcc || error_exit
    echo "running 'install-gcc' for gcc" >&3
--  make install-gcc || error_exit
-+  make install-strip-gcc || error_exit
+--- mingw-w64-build.orig	2018-09-18 15:09:28.486392400 +0100
++++ mingw-w64-build	2018-09-18 15:12:04.986413200 +0100
+@@ -17,7 +17,7 @@
+ #
  
-   clean_build "$bld/mingw-w64"
-   echo "configuring mingw-w64-crt" >&3
-   "../../src/mingw-w64-git/mingw-w64-crt/configure" --build="$build" --host="$host" \
--    --prefix="$prefix/$host" --with-sysroot="$prefix/$host"
-+    --prefix="$prefix/$host" --disable-lib32 --enable-lib64 --disable-libarm32 \
-+    --disable-libarm64 --enable-experimental --with-sysroot="$prefix/$host"
-   echo "building mingw-w64-crt" >&3
-   make -j $cpus || error_exit
-   echo "installing mingw-w64-crt" >&3
--  make install || error_exit
-+  make install-strip || error_exit
- 
-   cd "$bld/gcc" || error_exit
-   echo "building gcc" >&3
-   make -j $cpus || error_exit
-   echo "installing gcc" >&3
--  make install || error_exit
-+  make install-strip || error_exit
-+
-+  clean_build "$bld/mingw-w64"
-+  echo "configuring mingw-w64-tools/gendef"
-+  "../../src/mingw-w64-git/mingw-w64-tools/gendef/configure" --build="$build" --host="$host" \
-+  --prefix="$prefix/$host" --with-sysroot="$prefix/$host" || error_exit
-+  echo "building mingw-w64-tools/gendef"
-+  make -j $cpus || error_exit
-+  echo "installing mingw-w64-tools/gendef"
-+  make install-strip || error_exit
-+
-+  clean_build "$bld/mingw-w64"
-+  echo "configuring mingw-w64-tools/genidl"
-+  "../../src/mingw-w64-git/mingw-w64-tools/genidl/configure" --build="$build" --host="$host" \
-+  --prefix="$prefix/$host" --with-sysroot="$prefix/$host" || error_exit
-+  echo "building mingw-w64-tools/genidl"
-+  make -j $cpus || error_exit
-+  echo "installing mingw-w64-tools/genidl"
-+  make install-strip || error_exit
-+
-+  clean_build "$bld/mingw-w64"
-+  echo "configuring mingw-w64-tools/genlib"
-+  "../../src/mingw-w64-git/mingw-w64-tools/genlib/configure" --build="$build" --host="$host" \
-+  --prefix="$prefix/$host" --with-sysroot="$prefix/$host" || error_exit
-+  echo "building mingw-w64-tools/genlib"
-+  make -j $cpus || error_exit
-+  echo "installing mingw-w64-tools/genlib"
-+  make install-strip || error_exit
-+
-+  clean_build "$bld/mingw-w64"
-+  echo "configuring mingw-w64-tools/genpeimg"
-+  "../../src/mingw-w64-git/mingw-w64-tools/genpeimg/configure" --build="$build" --host="$host" \
-+  --prefix="$prefix/$host" --with-sysroot="$prefix/$host" || error_exit
-+  echo "building mingw-w64-tools/genpeimg"
-+  make -j $cpus || error_exit
-+  echo "installing mingw-w64-tools/genpeimg"
-+  make install-strip || error_exit
-+
-+  clean_build "$bld/mingw-w64"
-+  echo "configuring mingw-w64-tools/widl"
-+  export ac_cv_func_malloc_0_nonnull=yes
-+  export ac_cv_func_realloc_0_nonnull=yes
-+  "../../src/mingw-w64-git/mingw-w64-tools/widl/configure" --build="$build" --host="$host" \
-+   --prefix="$prefix/$host" --with-sysroot="$prefix/$host" || error_exit
-+  echo "building mingw-w64-tools/widl"
-+  make -j $cpus || error_exit
-+  echo "installing mingw-w64-tools/widl"
-+  make install-strip || error_exit
-+  unset ac_cv_func_malloc_0_nonnull
-+  unset ac_cv_func_realloc_0_nonnull
- 
-   return 0
- }
---- mingw-w64-build.orig	2018-03-03 10:27:25.650282100 +0000
-+++ mingw-w64-build	2018-03-03 10:27:44.333390600 +0000
-@@ -82,7 +82,7 @@
+ v_script="4.0.1"
+-v_mingww64="5git"
++v_mingww64="git"
+ v_binutils="2.31git"
+ v_gcc="8svn"
+ v_gmp="6.1.2"
+@@ -83,7 +83,7 @@
    cd "$src" || error_exit
  
-   echo "downloading mingw-w64-git" >&3
--  git clone --depth 1 git://git.code.sf.net/p/mingw-w64/mingw-w64 "mingw-w64-git" || error_exit
-+  git clone --depth 1 https://github.com/mirror/mingw-w64.git "mingw-w64-git" || error_exit
+   echo "downloading mingw-w64" >&3
+-  git clone --depth 1 -b v5.x git://git.code.sf.net/p/mingw-w64/mingw-w64 mingw-w64-$v_mingww64 || error_exit
++  git clone --depth 1 git://git.code.sf.net/p/mingw-w64/mingw-w64 mingw-w64-$v_mingww64 || error_exit
  
-   local urls=(
-     "http://ftp.gnu.org/gnu/binutils/binutils-$v_binutils.tar.bz2"
+   echo "downloading binutils" >&3
+   git clone --depth 1 -b binutils-2_31-branch --single-branch git://sourceware.org/git/binutils-gdb.git binutils-$v_binutils || error_exit

@@ -854,6 +854,7 @@ build_qt() {
     apply_patch file://${top_dir}/qt5-skip-mapboxglnative.patch
     apply_patch file://${top_dir}/qt-pkg-config.patch
     apply_patch file://${top_dir}/qt-include.patch
+    apply_patch file://${top_dir}/qt-evrdefs.patch
     # Change a type for updates in ANGLE project
     grep -rl "EGL_PLATFORM_ANGLE_DEVICE_TYPE_WARP_ANGLE" ./ | xargs sed -i.bak 's/EGL_PLATFORM_ANGLE_DEVICE_TYPE_WARP_ANGLE/EGL_PLATFORM_ANGLE_DEVICE_TYPE_D3D_WARP_ANGLE/g'
     cd ..
@@ -1207,15 +1208,16 @@ build_mlt() {
     # libavformat.dll is linked against. These we obtain by reading libavformat.pc
     # from the pkgconfig directory
     avformat_ldextra=`pkg-config --static --libs-only-l libavformat`
+    apply_patch file://${top_dir}/mlt-melt.patch
 #    do_configure "--prefix=${mingw_w64_x86_64_prefix} --enable-gpl --enable-gpl3 --disable-gtk2 --target-os=mingw --target-arch=x86_64 --libdir=${mingw_w64_x86_64_prefix}/bin/lib --datadir=${mingw_w64_x86_64_prefix}/bin/share --mandir=${mingw_w64_x86_64_prefix}/share/man --avformat-swscale --avformat-ldextra=${avformat_ldextra}"
-    generic_configure_make_install "--enable-gpl --enable-gpl3 --target-os=mingw --target-arch=x86_64 --prefix=${mingw_w64_x86_64_prefix} --libdir=${mingw_w64_x86_64_prefix}/bin/lib --datadir=${mingw_w64_x86_64_prefix}/bin/share --mandir=${mingw_w64_x86_64_prefix}/share/man"
+    generic_configure_make_install "LIBS=-lole32 --enable-gpl --enable-gpl3 --target-os=mingw --target-arch=x86_64 --prefix=${mingw_w64_x86_64_prefix} --libdir=${mingw_w64_x86_64_prefix}/bin/lib --datadir=${mingw_w64_x86_64_prefix}/bin/share --mandir=${mingw_w64_x86_64_prefix}/share/man"
 #    apply_patch file://${top_dir}/mlt-rtaudio.patch
 #    do_make
 #    do_make_install
     # The Makefiles don't use Autotools, and put the binaries in the wrong places with
     # no executable extension for 'melt.exe'
     # Also, the paths are not correct for Windows execution. So we must move things
-    mv -v ${mingw_w64_x86_64_prefix}/melt ${mingw_w64_x86_64_prefix}/bin/melt.exe
+    mv -v ${mingw_w64_x86_64_prefix}/melt.exe ${mingw_w64_x86_64_prefix}/bin/melt.exe
     mv -v ${mingw_w64_x86_64_prefix}/libmlt* ${mingw_w64_x86_64_prefix}/bin/
 
     unset CXX
@@ -1292,7 +1294,7 @@ build_openblas() {
 }
 
 build_opencv() {
-  do_git_checkout https://github.com/opencv/opencv.git "opencv" # 2.4
+  do_git_checkout https://github.com/opencv/opencv.git "opencv" 3.4 # 2.4
   cd opencv
   # This is only used for a couple of frei0r filters. Surely we can switch off more options than this?
   # WEBP is switched off because it triggers a Cmake bug that removes #define-s of EPSILON and variants
@@ -1435,8 +1437,8 @@ build_gcal() {
 }
 
 build_unbound() {
-  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.7.3 "libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
-  cd unbound-1.7.3
+  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.8.0 "CFLAGS=-O1 libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
+  cd unbound-1.8.0
 
   cd ..
 }
@@ -1512,7 +1514,7 @@ build_libvpx() {
     apply_patch file://${top_dir}/libvpx-vp8-common-threading-h-mingw.patch
   fi
   export CROSS="$cross_prefix"
-  do_configure "--target=x86_64-win64-gcc --prefix=$mingw_w64_x86_64_prefix --disable-unit-tests --disable-encode-perf-tests --disable-decode-perf-tests --enable-vp9-temporal-denoising --enable-postproc --enable-vp9-postproc --enable-multithread --enable-error-concealment --enable-runtime-cpu-detect --enable-webm-io --enable-libyuv"
+  do_configure "--target=x86_64-win64-gcc --prefix=$mingw_w64_x86_64_prefix --disable-unit-tests --disable-encode-perf-tests --disable-decode-perf-tests --enable-vp9-temporal-denoising --enable-postproc --enable-vp9-postproc --enable-multithread --enable-error-concealment --enable-runtime-cpu-detect --enable-webm-io --enable-libyuv  --disable-avx512 --enable-multi-res-encoding"
 #    do_configure "--extra-cflags=-DPTW32_STATIC_LIB --target=x86_64-win64-gcc --prefix=$mingw_w64_x86_64_prefix --enable-static --disable-shared --disable-unit-tests --disable-encode-perf-tests --disable-decode-perf-tests --enable-vp10 --enable-vp10-encoder --enable-vp10-decoder --enable-vp9-highbitdepth --enable-vp9-temporal-denoising --enable-postproc --enable-vp9-postproc"
     # libvpx only supports static building on MinGW platform
 #    do_configure "--target=x86_64-win64-gcc --prefix=$mingw_w64_x86_64_prefix --enable-static --disable-unit-tests --disable-encode-perf-tests --disable-decode-perf-tests --enable-vp9-temporal-denoising --enable-postproc --enable-vp9-postproc --enable-multithread" # --enable-vp10 --enable-vp10-encoder --enable-vp10-decoder"
@@ -1792,6 +1794,7 @@ build_jack() {
       ./waf install || exit 1
       # The Jack development libraries are now in /bin. They should be in /lib
       cp -v ${mingw_w64_x86_64_prefix}/bin/libjack*.dll.a ${mingw_w64_x86_64_prefix}/lib/
+      cp -v ${mingw_w64_x86_64_prefix}/bin/jack*.dll.a ${mingw_w64_x86_64_prefix}/lib/
       # The Jack development libraries are, strangely, placed into a subdirectory of lib
 #      echo "Placing the Jack development libraries in the expected place..."
 #      cp -v ${mingw_w64_x86_64_prefix}/lib/jack/*dll.a ${mingw_w64_x86_64_prefix}/lib
@@ -1898,7 +1901,7 @@ build_lilv() {
     export CXXFLAGS_ORIG=${CXXFLAGS}
     export CXXFLAGS=-DMINGW_HAS_SECURE_API=1
     do_configure "configure --prefix=${mingw_w64_x86_64_prefix} -ppp" "./waf"
-    apply_patch file://${top_dir}/lilv-mingw.patch
+    #apply_patch file://${top_dir}/lilv-mingw.patch
     ./waf build || exit 1
     ./waf install || exit 1
   cd ..
@@ -2154,7 +2157,7 @@ do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla
 #    export cpu_count=1
     #env
     apply_patch file://{$top_dir}/filezilla-install.patch
-    generic_configure_make_install
+    generic_configure_make_install "--disable-dependency-tracking"
 #   generic_download_and_install https://download.filezilla-project.org/client/FileZilla_latest_src.tar.bz2 filezilla-3.33.0
     unset CC
     unset CXX
@@ -2254,7 +2257,7 @@ build_libxmlsec() {
     #env
     rm autogen.sh
 #    generic_configure_make_install "LIBS=-lgcrypt --disable-silent-rules GCRYPT_LIBS=-lgcrypt --with-gcrypt=${mingw_w64_x86_64_prefix} --disable-silent-rules --enable-docs=no"
-    generic_configure_make_install "LIBS=-lcrypt32 CFLAGS=-DGPGRT_ENABLE_ES_MACROS --disable-silent-rules --enable-docs=no"
+    generic_configure_make_install "LIBS=-lcrypt32 CFLAGS=-DGPGRT_ENABLE_ES_MACROS --disable-silent-rules --enable-docs=no --disable-mscng"
 
 
 #    unset LIBS
@@ -2279,7 +2282,7 @@ build_libbdplus() {
 }
 
 build_libbluray() {
-  do_git_checkout git://git.videolan.org/libbluray.git libbluray e0bfb98d042d0c907fa8a78f8fa2e3c3515d5ff9
+  do_git_checkout git://git.videolan.org/libbluray.git libbluray  #e0bfb98d042d0c907fa8a78f8fa2e3c3515d5ff9
   cd libbluray
     git submodule init
     git submodule update
@@ -2463,7 +2466,7 @@ build_autogen() {
 
 build_liba52() {
   export CFLAGS=-std=gnu89
-  generic_download_and_install http://liba52.sourceforge.net/files/a52dec-snapshot.tar.gz a52dec-0.7.5-cvs
+  generic_download_and_install https://ba.mirror.garr.it/mirrors/OpenBSD/distfiles/a52dec-snapshot.tar.gz a52dec-0.7.5-cvs
   cd a52dec-0.7.5-cvs
 
   cd ..
@@ -2515,7 +2518,7 @@ build_libnettle() {
 }
 
 build_bzlib2() {
-  download_and_unpack_file http://www.bzip.org/1.0.6/bzip2-1.0.6.tar.gz bzip2-1.0.6
+  download_and_unpack_file https://web.archive.org/web/20180624184806/http://www.bzip.org/1.0.6/bzip2-1.0.6.tar.gz bzip2-1.0.6
   cd bzip2-1.0.6
     if [ ! -f bzip2.built ]; then
   # These are MinGW autotools files
@@ -2664,6 +2667,7 @@ build_libssh() {
   cd libssh-0.7.5
 #    apply_patch file://${top_dir}/libssh-win32.patch
 #    apply_patch file://${top_dir}/libssh-ctx-fix.patch
+     apply_patch file://${top_dir}/libssh-zlib.patch
   cd ..
   cd libssh_build
     local touch_name=$(get_small_touchfile_name already_ran_cmake "$extra_args")
@@ -2879,8 +2883,8 @@ build_vamp-sdk() {
 }
 
 build_librubberband() {
-  download_and_unpack_file https://code.breakfastquay.com/attachments/download/34/rubberband-1.8.1.tar.bz2 rubberband-1.8.1
-  cd rubberband-1.8.1
+  download_and_unpack_file https://code.breakfastquay.com/attachments/download/34/rubberband-1.8.2.tar.bz2 rubberband-1.8.2
+  cd rubberband-1.8.2
 ##     sed -i.bak 's/:= ar/:= x86_64-w64-mingw32-ar/' Makefile.in
 #     sed -i.bak 's#:= bin/rubberband#:= bin/rubberband.exe#' Makefile.in
 #     export SNDFILE_LIBS="-lsndfile -lspeex -logg -lspeexdsp -lFLAC -lvorbisenc -lvorbis -logg -lvorbisfile -logg -lFLAC++ -lsndfile"
@@ -2893,10 +2897,11 @@ build_librubberband() {
      # Need to force static linkers to link other libraries that rubberband depends on
 #     sed -i.bak 's/-lrubberband/-lrubberband -lsamplerate -lfftw3 -lstdc++/' "$PKG_CONFIG_PATH/rubberband.pc"
 #     export cpu_count=$original_cpu_count
-    apply_patch file://${top_dir}/rubberband-mingw-shared.patch
+    apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-rubberband/01-mingw-shared.patch
+    apply_patch file://${top_dir}/rubberband-exe.patch
     generic_configure_make_install
 
-    mv -v ${mingw_w64_x86_64_prefix}/bin/rubberband ${mingw_w64_x86_64_prefix}/bin/rubberband.exe
+    #mv -v ${mingw_w64_x86_64_prefix}/bin/rubberband.exe ${mingw_w64_x86_64_prefix}/bin/rubberband.exe
   cd ..
 }
 
@@ -2925,7 +2930,7 @@ build_iconvgettext() {
 build_libgpg-error() {
   # We remove one of the .po files due to a bug in Cygwin's iconv that causes it to loop when converting certain character encodings
 #  download_and_unpack_file ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-1.22.tar.bz2 libgpg-error-1.22
-  do_git_checkout git://git.gnupg.org/libgpg-error.git libgpg-error
+  do_git_checkout git://git.gnupg.org/libgpg-error.git libgpg-error 78b679a778ddf37b8952f1808fd8c52cc8163f17
   cd libgpg-error
 #    apply_patch file://${top_dir}/gpg-error-pid.patch
 #    rm po/ro.* # The Romanian translation causes Cygwin's iconv to loop. This is a Cygwin bug.
@@ -3225,7 +3230,7 @@ build_gstreamer() {
     do_git_checkout https://github.com/GStreamer/gstreamer.git gstreamer
     cd gstreamer
         mkdir -vp tests/examples/controller/include # to work around a bad include directory
-        generic_configure_make_install "--disable-silent-rules"
+        generic_configure_make_install "--disable-silent-rules --disable-fatal-warnings"
     cd ..
     do_git_checkout https://github.com/GStreamer/gst-plugins-base.git gst-plugins-base
     cd gst-plugins-base
@@ -3246,7 +3251,7 @@ build_gstreamer() {
         mkdir -vp tests/examples/gl/gtk/fxtest/include
         mkdir -vp tests/examples/gl/gtk/switchvideooverlay/include
         mkdir -vp tests/examples/gl/gtk/3dvideo/include
-        generic_configure_make_install
+        generic_configure_make_install "--disable-fatal-warnings"
     cd ..
 }
 
@@ -3811,7 +3816,8 @@ build_fdkaac-commandline() {
 }
 
 build_poppler() {
-  do_git_checkout git://git.freedesktop.org/git/poppler/poppler poppler poppler-0.67.0
+#  do_git_checkout git://git.freedesktop.org/git/poppler/poppler poppler poppler-0.67.0
+  do_git_checkout https://anongit.freedesktop.org/git/poppler/poppler.git poppler poppler-0.68.0
   cd poppler
     sed -i.bak 's!string\.h!sec_api/string_s.h!' test/perf-test.cc
     #sed -i.bak 's/noinst_PROGRAMS += perf-test/noinst_PROGRAMS += /' test/Makefile.am
@@ -3876,18 +3882,18 @@ build_SWFTools() {
 #}
 
 build_frei0r() {
-  do_git_checkout https://github.com/ddennedy/frei0r.git frei0r
+  do_git_checkout https://github.com/dyne/frei0r.git frei0r
   cd frei0r
     # The next three patches cope with the missing definition of M_PI
-    apply_patch file://${top_dir}/frei0r-lightgraffiti.cpp.patch
-    apply_patch file://${top_dir}/frei0r-vignette.cpp.patch
-    apply_patch file://${top_dir}/frei0r-partik0l.cpp.patch
+  #  apply_patch file://${top_dir}/frei0r-lightgraffiti.cpp.patch
+  #  apply_patch file://${top_dir}/frei0r-vignette.cpp.patch
+  #  apply_patch file://${top_dir}/frei0r-partik0l.cpp.patch
     # The next patch fixes a compilation problem due to curly brackets
-    apply_patch file://${top_dir}/frei0r-facedetect.cpp-brackets.patch
+  #  apply_patch file://${top_dir}/frei0r-facedetect.cpp-brackets.patch
     # This inserts boost_system-mt library which is missed off the list
-    apply_patch file://${top_dir}/frei0r-boost.patch
+  #  apply_patch file://${top_dir}/frei0r-boost.patch
     # This uses the c++ interface, not the c interface
-    apply_patch file://${top_dir}/frei0r-facebl0r.patch
+  #  apply_patch file://${top_dir}/frei0r-facebl0r.patch
     # These are ALWAYS compiled as DLLs... there is no static library model in frei0r
     # The facedetect filters don't work because there's something wrong in the way frei0r calls into opencv.
     # If you want to debug this, please add -DCMAKE_BUILD_TYPE=Debug, otherwise important parameters are optimized out
@@ -3989,20 +3995,23 @@ build_libchromaprint() {
   do_git_checkout https://github.com/acoustid/chromaprint.git chromaprint # 29ace183de7fb4f83a44afb29b3d5c6a641fb917
   cd chromaprint
 #    apply_patch file://${top_dir}/chromaprint-vector.patch
-    do_cmake "-DWITH_FFTW3=ON -DBUILD_EXAMPLES=OFF -DBUILD_SHARED_LIBS=ON"
+    do_cmake "-DWITH_FFTW3=ON -DFFT_LIB=fftw3 -DBUILD_EXAMPLES=OFF -DBUILD_SHARED_LIBS=ON -DWITH_AVFFT=OFF -DUSE_AVFFT=OFF"
     do_make_install
 
   cd ..
 }
 
 build_libarchive() {
-  do_git_checkout https://github.com/libarchive/libarchive.git libarchive
-  cd libarchive
-    cp ${top_dir}/ZlibResult.cmake .
-    do_cmake "-DENABLE_LZO=ON -DENABLE_TAR_SHARED=ON -DENABLE_CPIO_SHARED=ON -DENABLE_CAT_SHARED=ON -CZlibResult.cmake"
-    do_make_install
-
-  cd ..
+    #download_and_unpack_file https://libarchive.org/downloads/libarchive-3.3.3.tar.gz libarchive-3.3.3
+    #cd libarchive-3.3.3
+    do_git_checkout https://github.com/libarchive/libarchive.git libarchive
+    cd libarchive
+        apply_patch file://${top_dir}/libarchive.patch
+        generic_configure_make_install
+    #cp ${top_dir}/ZlibResult.cmake .
+    #do_cmake "-DENABLE_LZO=ON -DENABLE_TAR_SHARED=ON -DENABLE_CPIO_SHARED=ON -DENABLE_CAT_SHARED=ON -CZlibResult.cmake"
+    #do_make_install
+    cd ..
 }
 
 build_pkg-config() {
@@ -4563,7 +4572,7 @@ build_smake() { # This enables build of cdrtools. Jorg Schilling uses his own ma
 
 
 build_zimg() {
-  do_git_checkout https://github.com/sekrit-twc/zimg.git zimg # e6069fa9e883e0e637e0dd2023d444a07b4dc73c
+  do_git_checkout https://github.com/sekrit-twc/zimg.git zimg 799f91c403f562a26d8bf8ce757051abbf5c8cd6 # e6069fa9e883e0e637e0dd2023d444a07b4dc73c
   cd zimg
     sed -i.bak 's/Windows\.h/windows.h/' src/testcommon/mmap.cpp
     generic_configure_make_install "--enable-x86simd"
@@ -4613,8 +4622,9 @@ build_lzo() {
 }
 
 build_dvbpsi() {
-  do_git_checkout https://anonscm.debian.org/git/pkg-multimedia/libdvbpsi.git libdvbpsi
+  do_git_checkout http://git.videolan.org/git/libdvbpsi.git libdvbpsi
   cd libdvbpsi
+    apply_patch file://${top_dir}/libdvbpsi.patch
     generic_configure_make_install
 
   cd ..
@@ -4767,13 +4777,13 @@ build_pcre() {
 }
 
 build_glib() {
-  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/glib/2.56/glib-2.56.1.tar.xz glib-2.56.1 # Was 2.53.1
+  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/glib/2.58/glib-2.58.0.tar.xz glib-2.58.0 # Was 2.53.1
   export orig_cpu=$cpu_count
   export cpu_count=1
-  cd glib-2.56.1
+  cd glib-2.58.0
     export glib_cv_long_long_format=I64
     export glib_cv_stack_grows=no
-    apply_patch file://${top_dir}/glib-no-tests.patch
+  #  apply_patch file://${top_dir}/glib-no-tests.patch
     rm aclocal.m4
     # Work around mingw-w64 lacking strerror_s()
 #    sed -i.bak 's/strerror_s (buf, sizeof (buf), errnum);/strerror_r (errno, buf, sizeof (buf);/' glib/gstrfuncs.c
@@ -4900,8 +4910,8 @@ build_glibmm() {
   export GLIBMM_LIBS="-lgobject-2.0 -lgmodule-2.0 -lglib-2.0 -lboost_system-mt -lsigc-2.0 -lboost_thread-mt"
   export GIOMM_LIBS="-lgio-2.0 -lgobject-2.0 -lgmodule-2.0 -lglib-2.0 -lboost_system-mt -lsigc-2.0"
   export NOCONFIGURE=1
-  download_and_unpack_file https://ftp.gnome.org/pub/GNOME/sources/glibmm/2.50/glibmm-2.50.1.tar.xz glibmm-2.50.1
-  cd glibmm-2.50.1
+  download_and_unpack_file https://ftp.gnome.org/pub/GNOME/sources/glibmm/2.56/glibmm-2.56.0.tar.xz glibmm-2.56.0
+  cd glibmm-2.56.0
     apply_patch file://${top_dir}/glibmm-mutex.patch
     generic_configure_make_install "--disable-silent-rules"
 
@@ -4970,6 +4980,15 @@ do_git_checkout git://anongit.freedesktop.org/uchardet/uchardet uchardet
     cd ..
 }
 
+build_zstd() {
+    do_git_checkout https://github.com/facebook/zstd.git zstd
+    cd zstd/build/cmake
+        do_cmake
+        do_make
+        do_make_install
+    cd ../../..
+}
+
 build_flacon() {
     do_git_checkout https://github.com/flacon/flacon.git flacon
         cd flacon
@@ -5032,7 +5051,7 @@ build_vlc() {
     export DSM_LIBS="-lws2_32 -ldsm"
     export AOM_LIBS="-laom -lpthread -lm"
     export BUILDCC=/usr/bin/gcc
-    generic_configure_make_install "--enable-qt --disable-gst-decode --disable-asdcp --disable-opencv --disable-ncurses --disable-dbus --disable-sdl --disable-telx --disable-silent-rules JACK_LIBS=-ljack JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib LIVE555_LIBS=-llivemedia ASDCP_LIBS=lasdcp ASDCP_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/asdcp"
+    generic_configure_make_install "--enable-qt --disable-dvbpsi --disable-gst-decode --disable-asdcp --disable-opencv --disable-ncurses --disable-dbus --disable-sdl --disable-telx --disable-silent-rules --disable-pulse JACK_LIBS=-ljack JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib LIVE555_LIBS=-llivemedia ASDCP_LIBS=lasdcp ASDCP_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/asdcp"
     # X264 is disabled because of an API change. We ought to be able to re-enable it when vlc has caught up.
 
   cd ..
@@ -5093,8 +5112,8 @@ build_mplayer() {
 build_mp4box() { # like build_gpac
   # This script only builds the gpac_static lib plus MP4Box. Other tools inside
   # specify revision until this works: https://sourceforge.net/p/gpac/discussion/287546/thread/72cf332a/
-  do_svn_checkout https://github.com/gpac/gpac.git mp4box_gpac
-  cd mp4box_gpac/trunk
+  do_git_checkout https://github.com/gpac/gpac.git mp4box_gpac
+  cd mp4box_gpac
 #    apply_patch file://${top_dir}/mp4box-dashcast.patch
   # are these tweaks needed? If so then complain to the mp4box people about it?
   # sed -i "s/has_dvb4linux=\"yes\"/has_dvb4linux=\"no\"/g" configure
@@ -5110,7 +5129,7 @@ build_mp4box() { # like build_gpac
 #  sed -i.bak 's/	$(MAKE) installdylib/#	$(MAKE) installdylib/' Makefile
 #  sed -i.bak 's/-DDIRECTSOUND_VERSION=0x0500/-DDIRECTSOUND_VERSION=0x0800/' src/Makefile
 #  generic_configure_make_install "--verbose --static-mp4box --enable-static-bin --target-os=MINGW32 --cross-prefix=x86_64-w64-mingw32- --prefix=${mingw_w64_x86_64_prefix} --static-mp4box --extra-libs=-lz --enable-all --enable-ffmpeg"
-    generic_configure_make_install "--enable-ipv6 --verbose --target-os=MINGW32 --cross-prefix=x86_64-w64-mingw32- --prefix=${mingw_w64_x86_64_prefix} --extra-libs=-lz --enable-all --enable-ffmpeg"
+    generic_configure_make_install "--enable-ipv6 --verbose --target-os=MINGW32 --cross-prefix=x86_64-w64-mingw32- --prefix=${mingw_w64_x86_64_prefix} --extra-libs=-lz --enable-all --enable-ffmpeg --disable-pulseaudio"
 
   # All the modules need moving into the main binary directory for GPAC's default configuration file to be correct.
     mv -fv ${mingw_w64_x86_64_prefix}/lib/gpac/* ${mingw_w64_x86_64_prefix}/bin
@@ -5134,7 +5153,7 @@ build_mp4box() { # like build_gpac
 #  cp ./bin/gcc/MP4Box ./bin/gcc/MP4Box.exe # it doesn't name it .exe? That feels broken somehow...
 #  echo "built $(readlink -f ./bin/gcc/MP4Box.exe)"
 #  cp ./bin/gcc/MP4Box.exe $mingw_w64_x86_64_prefix/bin/MP4Box.exe
-  cd ../..
+  cd ..
 }
 
 build_pango() {
@@ -5167,10 +5186,10 @@ build_mimedb() {
 }
 
 build_qjackctl() {
-  do_git_checkout https://github.com/rncbc/qjackctl.git qjackctl # 568b076f1ddd0fcb18a78828e0e5b833e52fd7a1
+  do_git_checkout https://github.com/rncbc/qjackctl.git qjackctl b2ae94121d368bb2498a3fa09173e99263fe8c39 # 568b076f1ddd0fcb18a78828e0e5b833e52fd7a1
   cd qjackctl
     apply_patch file://${top_dir}/qjackctl-MainForm.patch
-    generic_configure_make_install "LIBS=-lportaudio --enable-xunique=no" # enable-jack-version=yes
+    generic_configure_make_install "LIBS=-lportaudio --enable-xunique=no --disable-alsa-seq" # enable-jack-version=yes
     # make install doesn't work
     cp -vf src/release/qjackctl.exe ${mingw_w64_x86_64_prefix}/bin
 
@@ -5179,11 +5198,11 @@ build_qjackctl() {
 
 build_spirvtools() {
 do_git_checkout https://github.com/KhronosGroup/SPIRV-Headers.git SPIRV-Headers # 3ce3e49d73b8abbf2ffe33f829f941fb2a40f552
-do_git_checkout https://github.com/KhronosGroup/SPIRV-Tools.git SPIRV-Tools # fe2fbee294a8ad4434f828a8b4d99eafe9aac88c
+do_git_checkout https://github.com/KhronosGroup/SPIRV-Tools.git SPIRV-Tools # 2d9a325264e3fc81317acc0a68a098f0546c352d # fe2fbee294a8ad4434f828a8b4d99eafe9aac88c
     cd SPIRV-Tools
         ln -svf ../../SPIRV-Headers external
         # apply_patch file://${top_dir}/SPIRV-Tools-shared.patch
-        do_cmake_static "-DCMAKE_BUILD_TYPE=Release -DCMAKE_VERBOSE_MAKEFILE=ON"
+        do_cmake_static "-DCMAKE_BUILD_TYPE=Release -DCMAKE_VERBOSE_MAKEFILE=ON -DSPIRV_WERROR=OFF"
         do_make
         do_make_install
     cd ..
@@ -5251,7 +5270,7 @@ build_angle() {
     # If Angle has been built, then skip the whole process because Git barfs
     if [[ ! -f "angle/already_built_angle" ]]; then
       echo "Angle not built: building from scratch."
-      do_git_checkout https://github.com/google/angle.git angle fa7cc9da878b1eba4df568084b97a981e046709c
+      do_git_checkout https://github.com/google/angle.git angle 76c1d14b8e212db9822a6398343a344ff9028298 # fa7cc9da878b1eba4df568084b97a981e046709c
       cd angle
         # remove .git directory to prevent: No rule to make target '../build-x86_64/.git/index', needed by 'out/Debug/obj/gen/angle/id/commit.h'.
         rm -rvf .git || exit 1
@@ -5494,6 +5513,10 @@ build_pulseaudio() {
     cd pulseaudio-12.2
         apply_patch file://${top_dir}/pulseaudio-size.patch
         generic_configure_make_install "LIBS=-lintl --enable-orc --enable-waveout --disable-silent-rules -disable-gsettings --disable-dbus"
+        # Main library is in wrong place for our paths
+        cp -vf ${mingw_w64_x86_64_prefix}/lib/pulseaudio/*dll ${mingw_w64_x86_64_prefix}/bin
+        cp -vf ${mingw_w64_x86_64_prefix}/lib/pulse-12.2/bin/*dll ${mingw_w64_x86_64_prefix}/bin
+        cp -vf ${mingw_w64_x86_64_prefix}/lib/bin/*dll ${mingw_w64_x86_64_prefix}/bin
     cd ..
 }
 
@@ -5783,7 +5806,7 @@ build_ffmpegnv() {
 build_ffmpeg() {
   local type=$1
   local shared=$2
-  local git_url="https://github.com/FFmpeg/FFmpeg.git" # "https://github.com/mpv-player/ffmpeg-mpv.git"
+  local git_url="https://git.ffmpeg.org/ffmpeg.git" # "https://github.com/mpv-player/ffmpeg-mpv.git"
   local output_dir="ffmpeg_git"
 
   # FFmpeg + libav compatible options
@@ -5821,6 +5844,7 @@ build_ffmpeg() {
 #  apply_patch file://${top_dir}/lavfi-vfstack-reverse.patch
 #  apply_patch_p1 file://${top_dir}/ffmpeg-decklink-teletext-1-reverse.patch
 #  apply_patch_p1 file://${top_dir}/ffmpeg-decklink-teletext-2-reverse.patch
+  apply_patch file://${top_dir}/ffmpeg-bs2b.patch
 
   config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --disable-doc --enable-libxml2 --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-libmysofa --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-libcodec2 --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libvpx --enable-libilbc --enable-libwavpack --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --enable-d3d11va --enable-nvenc --enable-libzmq --enable-nonfree --enable-libfdk-aac --enable-libflite --enable-decoder=aac --enable-libaom --enable-libndi_newtek --enable-runtime-cpudetect --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts --extra-cflags=$CFLAGS" # other possibilities: --enable-w32threads --enable-libflite
   # sed -i 's/openjpeg-1.5/openjpeg-2.1/' configure # change library path for updated libopenjpeg
@@ -6019,6 +6043,7 @@ build_dependencies() {
   build_libxml++
   build_libcxml
   build_dbus
+  build_zstd
   build_libarchive
   build_jasper # JPEG2000 codec for GraphicsMagick among others
   build_atk
@@ -6072,7 +6097,7 @@ build_dependencies() {
   build_glslang
   build_shaderc
   build_vulkan
-  build_angle
+  #build_angle
   build_cairo
   build_cairomm
 #  build_pango

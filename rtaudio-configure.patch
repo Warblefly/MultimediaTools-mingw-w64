@@ -1,18 +1,10 @@
---- rtaudio.pc.in.orig	2017-12-10 10:54:53.837857707 +0000
-+++ rtaudio.pc.in	2017-12-10 10:56:17.573049223 +0000
+--- rtaudio.pc.in.orig	2018-09-17 20:22:58.546824800 +0100
++++ rtaudio.pc.in	2018-09-17 20:23:17.365593200 +0100
 @@ -7,6 +7,6 @@
  Description: RtAudio - a set of C++ classes that provide a common API for realtime audio input/output
  Version: @PACKAGE_VERSION@
  Requires: @req@ 
 -Libs: -L${libdir} -lrtaudio
-+Libs: -L${libdir} -lpthread -lrtaudio -lole32 -loleaut32 -lwinmm -lksuser -luuid 
++Libs: -L${libdir} -lrtaudio -lwinmm -lole32 -lksuser -luuid
  Libs.private: -lpthread
  Cflags: -pthread -I${includedir} @api@
---- rtaudio.pc.in.orig	2018-05-02 19:46:38.204157000 +0000
-+++ rtaudio.pc.in	2018-05-02 19:47:02.765470000 +0000
-@@ -1,4 +1,4 @@
--prefix=@CMAKE_INSTALL_PREFIX@
-+prefix=@prefix@
- exec_prefix=${prefix}
- libdir=${exec_prefix}/lib
- includedir=${prefix}/include/rtaudio        

@@ -1,0 +1,11 @@
+--- src/CMakeLists.txt.orig	2018-09-13 21:20:54.659129200 +0100
++++ src/CMakeLists.txt	2018-09-13 21:21:12.169669400 +0100
+@@ -16,7 +16,7 @@
+ if (WIN32)
+   set(LIBSSH_LINK_LIBRARIES
+     ${LIBSSH_LINK_LIBRARIES}
+-    ws2_32
++    z ws2_32
+   )
+ endif (WIN32)
+ 
