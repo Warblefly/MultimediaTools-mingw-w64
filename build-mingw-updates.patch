@@ -29,3 +29,23 @@
  
    echo "downloading binutils" >&3
    git clone --depth 1 -b binutils-2_31-branch --single-branch git://sourceware.org/git/binutils-gdb.git binutils-$v_binutils || error_exit
+--- mingw-w64-build.orig	2018-09-28 14:53:27.452643200 +0100
++++ mingw-w64-build	2018-09-28 14:55:32.780794000 +0100
+@@ -149,7 +149,7 @@
+   clean_build "$bld/mingw-w64"
+   echo "configuring mingw-w64-headers" >&3
+   "../../src/mingw-w64-$v_mingww64/mingw-w64-headers/configure" --build="$build" \
+-    --host="$host" --prefix="$prefix/$host" --enable-secure-api || error_exit
++    --host="$host" --prefix="$prefix/$host" --enable-sdk=all --enable-secure-api || error_exit
+   echo "installing mingw-w64-headers" >&3
+   make install || error_exit
+   cd "$prefix" || error_exit
+@@ -168,7 +168,7 @@
+   clean_build "$bld/mingw-w64"
+   echo "configuring mingw-w64-crt" >&3
+   "../../src/mingw-w64-$v_mingww64/mingw-w64-crt/configure" --build="$build" --host="$host" \
+-    --prefix="$prefix/$host" --with-sysroot="$prefix/$host"
++    --prefix="$prefix/$host" --with-sysroot="$prefix/$host" --enable-lib64 --disable-lib32 --disable-libarm32 --disable-libarm64
+   echo "building mingw-w64-crt" >&3
+   make -j $cpus || error_exit
+   echo "installing mingw-w64-crt" >&3

@@ -188,13 +188,17 @@ install_cross_compiler() {
     ln -s evr9.h Evr9.h
     ln -s mferror.h Mferror.h
 #    cp -v ${top_dir}/dxgi*.h .
-    apply_patch file://${top_dir}/d3d11.h.patch
+#    apply_patch file://${top_dir}/d3d11.h.patch
     apply_patch file://${top_dir}/cfgmgr32.h.patch
     apply_patch file://${top_dir}/devpkey.h.patch
     apply_patch file://${top_dir}/sal.h.patch
 #    apply_patch file://${top_dir}/dxgitype-missing.patch
-#    apply_patch file://${top_dir}/dxgi1_3.h.patch
-     cp -v ${top_dir}/dxgi1_6.h .
+#     cp -v ${top_dir}/dxgi1_3.h .
+#     apply_patch file://${top_dir}/dxgi1_3.h.patch
+#     cp -v ${top_dir}/dxgi1_6.h .
+#     cp -v ${top_dir}/dxgi1_4.h .
+# This is needed for vlc, and is still missing in trunk mingw-w64
+    apply_patch file://${top_dir}/mingw-w64-headers-processor_format.patch
   cd ../../..
   if [ -d x86_64-w64-mingw32 ]; then
     touch x86_64-w64-mingw32/compiler.done
@@ -2155,7 +2159,7 @@ do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfile
 }
 
 build_filezilla() {
-do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla 8878
+do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla #8878
   cd filezilla
     export CC=x86_64-w64-mingw32-gcc
     export CXX=x86_64-w64-mingw32-g++
@@ -2667,11 +2671,11 @@ build_openssl() {
 }
 
 build_libssh() {
-  download_and_unpack_file https://sources.voidlinux.eu/libssh-0.7.5/libssh-0.7.5.tar.bz2 libssh-0.7.5
+  download_and_unpack_file https://www.libssh.org/files/0.8/libssh-0.8.3.tar.xz libssh-0.8.3
 #  do_git_checkout git://git.libssh.org/projects/libssh.git libssh
   export CMAKE_INCLUDE_PATH=${mingw_w64_x86_64_prefix}/include
   mkdir libssh_build
-  cd libssh-0.7.5
+  cd libssh-0.8.3
 #    apply_patch file://${top_dir}/libssh-win32.patch
 #    apply_patch file://${top_dir}/libssh-ctx-fix.patch
      apply_patch file://${top_dir}/libssh-zlib.patch
@@ -2680,9 +2684,9 @@ build_libssh() {
     local touch_name=$(get_small_touchfile_name already_ran_cmake "$extra_args")
     if [ ! -f $touch_name ]; then
       export ZLIB_ROOT_DIR=${mingw_w64_x86_64_prefix}
-      echo doing cmake in ../libssh-0.7.5 with PATH=$PATH  with extra_args=$extra_args like this:
-      echo cmake ../libssh-0.7.5 -DCMAKE_C_FLAGS=-DGPGRT_ENABLE_ES_MACROS -DENABLE_STATIC_RUNTIME=0 -DENABLE_SHARED_RUNTIME=1 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_RANLIB=${cross_prefix}ranlib -DCMAKE_C_COMPILER=${cross_prefix}gcc -DCMAKE_CXX_COMPILER=${cross_prefix}g++ -DCMAKE_RC_COMPILER=${cross_prefix}windres -DCMAKE_INSTALL_PREFIX=$mingw_w64_x86_64_prefix -DWITH_GCRYPT=ON $extra_args || exit 1
-      cmake ../libssh-0.7.5 -DCMAKE_C_FLAGS=-DGPGRT_ENABLE_ES_MACROS -DENABLE_STATIC_RUNTIME=0 -DENABLE_SHARED_RUNTIME=1 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_RANLIB=${cross_prefix}ranlib -DCMAKE_C_COMPILER=${cross_prefix}gcc -DCMAKE_CXX_COMPILER=${cross_prefix}g++ -DCMAKE_RC_COMPILER=${cross_prefix}windres -DCMAKE_INSTALL_PREFIX=$mingw_w64_x86_64_prefix -DWITH_GCRYPT=ON $extra_args || exit 1
+      echo doing cmake in ../libssh-0.8.3 with PATH=$PATH  with extra_args=$extra_args like this:
+      echo cmake ../libssh-0.8.3 -DCMAKE_C_FLAGS=-DGPGRT_ENABLE_ES_MACROS -DENABLE_STATIC_RUNTIME=0 -DENABLE_SHARED_RUNTIME=1 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_RANLIB=${cross_prefix}ranlib -DCMAKE_C_COMPILER=${cross_prefix}gcc -DCMAKE_CXX_COMPILER=${cross_prefix}g++ -DCMAKE_RC_COMPILER=${cross_prefix}windres -DCMAKE_INSTALL_PREFIX=$mingw_w64_x86_64_prefix -DWITH_GCRYPT=ON $extra_args || exit 1
+      cmake ../libssh-0.8.3 -DCMAKE_C_FLAGS=-DGPGRT_ENABLE_ES_MACROS -DENABLE_STATIC_RUNTIME=0 -DENABLE_SHARED_RUNTIME=1 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_RANLIB=${cross_prefix}ranlib -DCMAKE_C_COMPILER=${cross_prefix}gcc -DCMAKE_CXX_COMPILER=${cross_prefix}g++ -DCMAKE_RC_COMPILER=${cross_prefix}windres -DCMAKE_INSTALL_PREFIX=$mingw_w64_x86_64_prefix -DWITH_GCRYPT=ON $extra_args || exit 1
       do_make
       do_make_install
 
@@ -3709,8 +3713,8 @@ build_regex() {
 }
 
 build_boost() {
-  download_and_unpack_file "https://dl.bintray.com/boostorg/release/1.67.0/source/boost_1_67_0.tar.bz2" boost_1_67_0
-  cd boost_1_67_0
+  download_and_unpack_file "https://dl.bintray.com/boostorg/release/1.68.0/source/boost_1_68_0.tar.bz2" boost_1_68_0
+  cd boost_1_68_0
     cd libs/serialization
       apply_patch file://${top_dir}/boost-codecvt.patch
     cd ../..
@@ -3793,11 +3797,11 @@ build_mkvtoolnix() {
 }
 
 build_gavl() {
-  do_svn_checkout svn://svn.code.sf.net/p/gmerlin/code/trunk/gavl gavl
-  cd gavl
-    generic_configure_make_install "--enable-shared=yes"
-
-  cd ..
+#  generic_download_and_install https://downloads.sourceforge.net/project/gmerlin/gavl/1.4.0/gavl-1.4.0.tar.gz gavl-1.4.0 "--enable-shared=yes"
+ do_svn_checkout svn://svn.code.sf.net/p/gmerlin/code/trunk/gavl gavl 5412
+ cd gavl
+   generic_configure_make_install "--enable-shared=yes"
+ cd ..
 }
 
 build_gomp() {
@@ -5054,6 +5058,7 @@ build_vlc() {
     apply_patch file://${top_dir}/vlc-dll-dirs.patch
 #    apply_patch file://${top_dir}/vlc-aom.patch
     apply_patch file://${top_dir}/vlc-vpx.patch
+    apply_patch file://${top_dir}/vlc-d3d11-deinterlace.patch
     export LIVE555_CFLAGS="-I${mingw_w64_x86_64_prefix}/include/liveMedia -I${mingw_w64_x86_64_prefix}/include/UsageEnvironment -I${mingw_w64_x86_64_prefix}/include/BasicUsageEnvironment -I${mingw_w64_x86_64_prefix}/include/groupsock"
     export DSM_LIBS="-lws2_32 -ldsm"
     export AOM_LIBS="-laom -lpthread -lm"
@@ -5229,7 +5234,7 @@ build_glslang() {
 }
 
 build_shaderc() {
-    do_git_checkout https://github.com/google/shaderc.git shaderc # be8e0879750303a1de09385465d6b20ecb8b380d
+    do_git_checkout https://github.com/google/shaderc.git shaderc a2c044c44d68c31014210f9b37a682d118c40388 # be8e0879750303a1de09385465d6b20ecb8b380d
     cd shaderc
         export spirv-tools_SOURCE_DIR=${top_dir}/x86_64/SPIRV-Tools/
         export glslang_SOURCE_DIR=${top_dir}/x86_64/glslang/
