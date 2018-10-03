@@ -1,0 +1,11 @@
+--- src/daemon/daemon.conf.in.orig	2018-09-30 11:53:03.490356900 +0100
++++ src/daemon/daemon.conf.in	2018-09-30 11:53:58.395949500 +0100
+@@ -45,7 +45,7 @@
+ ; dl-search-path = (depends on architecture)
+ 
+ ; load-default-script-file = yes
+-; default-script-file = @PA_DEFAULT_CONFIG_DIR@/default.pa
++; default-script-file = "C:\Program Files\ffmpeg\etc\default.pa"
+ 
+ ; log-target = auto
+ ; log-level = notice

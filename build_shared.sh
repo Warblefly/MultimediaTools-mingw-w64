@@ -488,7 +488,10 @@ setOutPath "$INSTDIR\share"
 File /nonfatal /r /x doc /x man /x gtk-doc /x jack-audio-connection-kit "./share/*.*"
 
 setOutPath "$INSTDIR\doc"
-File /nonfatal /r *./doc/*.*"
+File /nonfatal /r "./doc/*.*"
+
+setOutPath "$INSTDIR\etc"
+File /nonfatal /r "./etc/*.*"
 
 setOutPath "$LOCALAPPDATA\fontconfig"
 File /nonfatal fonts.conf
