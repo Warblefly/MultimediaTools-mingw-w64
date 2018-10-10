@@ -30,3 +30,14 @@
  #ifdef HAVE_FCNTL_H
  #include <fcntl.h>
  #endif
+--- libdap2/dapcvt.c.orig	2018-10-05 11:49:19.931093900 +0100
++++ libdap2/dapcvt.c	2018-10-05 11:51:30.289632900 +0100
+@@ -5,7 +5,7 @@
+ #include "config.h"
+ #include "dapincludes.h"
+ 
+-#ifdef _MSC_VER
++#if defined (_MSC_VER) || defined(__MINGW32__)
+ #include <crtdbg.h>
+ #include <math.h>
+ #endif
