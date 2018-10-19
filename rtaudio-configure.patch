@@ -5,6 +5,6 @@
  Version: @PACKAGE_VERSION@
  Requires: @req@ 
 -Libs: -L${libdir} -lrtaudio
-+Libs: -L${libdir} -lrtaudio -lwinmm -lole32 -lksuser -luuid
++Libs: -L${libdir} -lrtaudio -lwinmm -lole32 -lksuser -lmfplat -lmfuuid -lwmcodecdspuuid -luuid
  Libs.private: -lpthread
  Cflags: -pthread -I${includedir} @api@
