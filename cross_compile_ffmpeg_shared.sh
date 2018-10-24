@@ -3775,7 +3775,7 @@ build_mkvtoolnix() {
     export CXX=x86_64-w64-mingw32-g++
     #apply_patch file://${top_dir}/mkvtoolnix-qt5-2.patch
     #rm -vf src/info/sys_windows.cpp
-    generic_configure "--with-boost=${mingw_w64_x86_64_prefix} --with-boost-system=boost_system-mt --with-boost-filesystem=boost_filesystem-mt --with-boost-date-time=boost_date_time-mt --with-boost-regex=boost_regex-mt --enable-qt --enable-static-qt=no --disable-static-qt --disable-static --enable-optimization"
+    generic_configure "--with-boost=${mingw_w64_x86_64_prefix} --with-boost-system=boost_system-mt --with-boost-filesystem=boost_filesystem-mt --with-boost-date-time=boost_date_time-mt --with-boost-regex=boost_regex-mt --enable-qt --enable-static-qt=no --disable-static-qt --disable-static --enable-optimization=no --enable-debug=yes"
     # Now we must prevent inclusion of sys_windows.cpp because our build uses shared libraries,
     # and this piece of code unfortunately tries to pull in a static version of the Windows Qt
     # platform library libqwindows.a
@@ -5053,6 +5053,7 @@ build_vlc() {
     export CXXFLAGS="-fpermissive"
     apply_patch file://${top_dir}/vlc-qt5.patch
     apply_patch file://${top_dir}/vlc-more-static.patch
+    apply_patch file://${top_dir}/vlc-dxgi.patch
     apply_patch file://${top_dir}/vlc-dll-dirs.patch
 #    apply_patch file://${top_dir}/vlc-aom.patch
     apply_patch file://${top_dir}/vlc-vpx.patch
