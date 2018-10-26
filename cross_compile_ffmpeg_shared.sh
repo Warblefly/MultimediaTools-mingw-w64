@@ -2260,8 +2260,8 @@ build_libxmlsec() {
   do_git_checkout https://github.com/lsh123/xmlsec.git xmlsec
   cd xmlsec
     apply_patch file://${top_dir}/xmlsec1-x509.patch
-#    export GCRYPT_LIBS=-lgcrypt
-#    export LIBS=-lgcrypt
+    export GCRYPT_LIBS=-lgcrypt
+    export LIBS=-lgcrypt
     CFLAGS_ORIG=${CFLAGS}
     #env
     rm autogen.sh
@@ -2269,8 +2269,8 @@ build_libxmlsec() {
     generic_configure_make_install "LIBS=-lcrypt32 CFLAGS=-DGPGRT_ENABLE_ES_MACROS --disable-silent-rules --enable-docs=no --disable-mscng"
 
 
-#    unset LIBS
-#    unset GCRYPT_LIBS
+    unset LIBS
+    unset GCRYPT_LIBS
   cd ..
 }
 
@@ -2951,10 +2951,10 @@ build_libgcrypt() {
 #  generic_download_and_install ftp://ftp.gnupg.org/gcrypt/libgcrypt/libgcrypt-1.8.1.tar.gz libgcrypt-1.8.1 "GPG_ERROR_CONFIG=${mingw_w64_x86_64_prefix}/bin/gpg-error-config"
   do_git_checkout git://git.gnupg.org/libgcrypt.git libgcrypt
   cd libgcrypt
-    apply_patch file://${top_dir}/libgcrypt-pkgconfig.patch
+    # apply_patch file://${top_dir}/libgcrypt-pkgconfig.patch
     generic_configure_make_install "CC_FOR_BUILD=gcc CFLAGS=-DGPGRT_ENABLE_ES_MACROS GPG_ERROR_CONFIG=${mingw_w64_x86_64_prefix}/bin/gpg-error-config --disable-doc"
-    echo "Installing pkg-config file because it's added by us"
-    cp -v src/libgcrypt.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig
+#    echo "Installing pkg-config file because it's added by us"
+#    cp -v src/libgcrypt.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig
 #  cd libgcrypt-1.8.1
 #    do_cleanup
 #  cd ..
