@@ -5061,6 +5061,7 @@ build_vlc() {
     apply_patch file://${top_dir}/vlc-aom.patch
     apply_patch file://${top_dir}/vlc-vpx.patch
     apply_patch file://${top_dir}/vlc-d3d11-deinterlace.patch
+    apply_patch file://${top_dir}/vlc-stack.patch
     export LIVE555_CFLAGS="-I${mingw_w64_x86_64_prefix}/include/liveMedia -I${mingw_w64_x86_64_prefix}/include/UsageEnvironment -I${mingw_w64_x86_64_prefix}/include/BasicUsageEnvironment -I${mingw_w64_x86_64_prefix}/include/groupsock"
     export DSM_LIBS="-lws2_32 -ldsm"
     export AOM_LIBS="-laom -lpthread -lm"
