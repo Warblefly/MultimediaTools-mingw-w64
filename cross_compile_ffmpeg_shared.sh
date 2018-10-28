@@ -2939,7 +2939,7 @@ build_iconvgettext() {
 build_libgpg-error() {
   # We remove one of the .po files due to a bug in Cygwin's iconv that causes it to loop when converting certain character encodings
 #  download_and_unpack_file ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-1.22.tar.bz2 libgpg-error-1.22
-  do_git_checkout git://git.gnupg.org/libgpg-error.git libgpg-error 78b679a778ddf37b8952f1808fd8c52cc8163f17
+  do_git_checkout git://git.gnupg.org/libgpg-error.git libgpg-error # 78b679a778ddf37b8952f1808fd8c52cc8163f17
   cd libgpg-error
 #    apply_patch file://${top_dir}/gpg-error-pid.patch
 #    rm po/ro.* # The Romanian translation causes Cygwin's iconv to loop. This is a Cygwin bug.
@@ -2949,16 +2949,18 @@ build_libgpg-error() {
 
 build_libgcrypt() {
 #  generic_download_and_install ftp://ftp.gnupg.org/gcrypt/libgcrypt/libgcrypt-1.8.1.tar.gz libgcrypt-1.8.1 "GPG_ERROR_CONFIG=${mingw_w64_x86_64_prefix}/bin/gpg-error-config"
-  do_git_checkout git://git.gnupg.org/libgcrypt.git libgcrypt
+  do_git_checkout git://git.gnupg.org/libgcrypt.git libgcrypt # 86e5e06a97ae13b8bbf6923ecc76e02b9c429b46
   cd libgcrypt
+  export holding_path="${PATH}"
+  export PATH="/usr/bin:/bin:${top_dir}/sandbox/x86_64-w64-mingw32/bin"
     # apply_patch file://${top_dir}/libgcrypt-pkgconfig.patch
-    generic_configure_make_install "CC_FOR_BUILD=gcc CFLAGS=-DGPGRT_ENABLE_ES_MACROS GPG_ERROR_CONFIG=${mingw_w64_x86_64_prefix}/bin/gpg-error-config --disable-doc"
+    generic_configure_make_install "CC_FOR_BUILD=gcc CFLAGS=-DGPGRT_ENABLE_ES_MACROS GPG_ERROR_CONFIG=${mingw_w64_x86_64_prefix}/bin/gpg-error-config GPGRT_CONFIG=${mingw_w64_x86_64_prefix}/bin/gpgrt-config --disable-doc"
 #    echo "Installing pkg-config file because it's added by us"
 #    cp -v src/libgcrypt.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig
 #  cd libgcrypt-1.8.1
 #    do_cleanup
 #  cd ..
-
+  export PATH="${holding_path}"
   cd ..
 }
 
@@ -3774,8 +3776,9 @@ build_mkvtoolnix() {
     export AR=x86_64-w64-mingw32-ar
     export CXX=x86_64-w64-mingw32-g++
     #apply_patch file://${top_dir}/mkvtoolnix-qt5-2.patch
+    apply_patch file://${top_dir}/mkvtoolnix-stack.patch
     #rm -vf src/info/sys_windows.cpp
-    generic_configure "--with-boost=${mingw_w64_x86_64_prefix} --with-boost-system=boost_system-mt --with-boost-filesystem=boost_filesystem-mt --with-boost-date-time=boost_date_time-mt --with-boost-regex=boost_regex-mt --enable-qt --enable-static-qt=no --disable-static-qt --disable-static --enable-optimization=no --enable-debug=yes"
+    generic_configure "--with-boost=${mingw_w64_x86_64_prefix} --with-boost-system=boost_system-mt --with-boost-filesystem=boost_filesystem-mt --with-boost-date-time=boost_date_time-mt --with-boost-regex=boost_regex-mt --enable-qt --enable-static-qt=no --disable-static-qt --disable-static --enable-optimization=yes --enable-debug=no"
     # Now we must prevent inclusion of sys_windows.cpp because our build uses shared libraries,
     # and this piece of code unfortunately tries to pull in a static version of the Windows Qt
     # platform library libqwindows.a
@@ -5055,7 +5058,7 @@ build_vlc() {
     apply_patch file://${top_dir}/vlc-more-static.patch
     apply_patch file://${top_dir}/vlc-dxgi.patch
     apply_patch file://${top_dir}/vlc-dll-dirs.patch
-#    apply_patch file://${top_dir}/vlc-aom.patch
+    apply_patch file://${top_dir}/vlc-aom.patch
     apply_patch file://${top_dir}/vlc-vpx.patch
     apply_patch file://${top_dir}/vlc-d3d11-deinterlace.patch
     export LIVE555_CFLAGS="-I${mingw_w64_x86_64_prefix}/include/liveMedia -I${mingw_w64_x86_64_prefix}/include/UsageEnvironment -I${mingw_w64_x86_64_prefix}/include/BasicUsageEnvironment -I${mingw_w64_x86_64_prefix}/include/groupsock"

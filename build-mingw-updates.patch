@@ -5,7 +5,7 @@
    "../../src/gcc-$v_gcc/configure" --target="$host" --disable-shared \
      --enable-static --disable-multilib --prefix="$prefix" \
 -    --enable-languages=c,c++ --disable-nls || error_exit
-+    --enable-languages=c,c++,fortran --disable-nls || error_exit
++    --enable-shared --enable-languages=c,c++,fortran --disable-nls || error_exit
    echo "running 'make-gcc' for gcc" >&3
    make -j $cpus all-gcc || error_exit
    echo "running 'install-gcc' for gcc" >&3
