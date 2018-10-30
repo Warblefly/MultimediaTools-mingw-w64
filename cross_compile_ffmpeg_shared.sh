@@ -1727,7 +1727,7 @@ build_gdb() {
 #    cd readline
 #    generic_configure_make_install
 #   cd ..
-  generic_configure_make_install "--with-system-readline"
+  generic_configure_make_install "--with-system-readline --enable-tui --enable-plugins --with-expat --with-lzma"
 
   cd ..
   unset LIBS
@@ -3262,7 +3262,7 @@ build_gstreamer() {
         mkdir -vp tests/examples/gl/gtk/fxtest/include
         mkdir -vp tests/examples/gl/gtk/switchvideooverlay/include
         mkdir -vp tests/examples/gl/gtk/3dvideo/include
-        generic_configure_make_install "--disable-fatal-warnings"
+        generic_configure_make_install "--disable-fatal-warnings --disable-examples"
     cd ..
 }
 
@@ -3897,9 +3897,9 @@ build_frei0r() {
   do_git_checkout https://github.com/dyne/frei0r.git frei0r
   cd frei0r
     # The next three patches cope with the missing definition of M_PI
-  #  apply_patch file://${top_dir}/frei0r-lightgraffiti.cpp.patch
-  #  apply_patch file://${top_dir}/frei0r-vignette.cpp.patch
-  #  apply_patch file://${top_dir}/frei0r-partik0l.cpp.patch
+    apply_patch file://${top_dir}/frei0r-lightgraffiti.cpp.patch
+    apply_patch file://${top_dir}/frei0r-vignette.cpp.patch
+    apply_patch file://${top_dir}/frei0r-partik0l.cpp.patch
     # The next patch fixes a compilation problem due to curly brackets
   #  apply_patch file://${top_dir}/frei0r-facedetect.cpp-brackets.patch
     # This inserts boost_system-mt library which is missed off the list
@@ -4819,6 +4819,13 @@ download_and_unpack_file http://ftp.gnome.org/pub/GNOME/sources/atk/2.29/atk-2.2
   cd ..
 }
 
+build_libplacebo() {
+  do_git_checkout https://github.com/haasn/libplacebo.git libplacebo
+  cd libplacebo
+    generic_meson_ninja_install
+  cd ..
+}
+
 build_gdk_pixbuf() {
   download_and_unpack_file http://ftp.gnome.org/pub/GNOME/sources/gdk-pixbuf/2.36/gdk-pixbuf-2.36.12.tar.xz gdk-pixbuf-2.36.12 "--with-libjasper --disable-glibtest --enable-always-build-tests=no --enable-relocations --with-included-loaders=yes --build=x86_64-unknown-linux-gnu"
 #  do_git_checkout https://git.gnome.org/browse/gdk-pixbuf gdk-pixbuf
@@ -5224,7 +5231,7 @@ do_git_checkout https://github.com/KhronosGroup/SPIRV-Tools.git SPIRV-Tools # 2d
 }
 
 build_glslang() {
-    do_git_checkout https://github.com/KhronosGroup/glslang.git glslang 32d3ec319909fcad0b2b308fe1635198773e8316
+    do_git_checkout https://github.com/KhronosGroup/glslang.git glslang # 32d3ec319909fcad0b2b308fe1635198773e8316
     #download_and_unpack_file https://github.com/KhronosGroup/glslang/archive/6.2.2596.tar.gz glslang-6.2.2596
     cd glslang #-6.2.2596
         #apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-glslang/001-install-missing-dll.patch
@@ -5237,7 +5244,7 @@ build_glslang() {
 }
 
 build_shaderc() {
-    do_git_checkout https://github.com/google/shaderc.git shaderc a2c044c44d68c31014210f9b37a682d118c40388 # be8e0879750303a1de09385465d6b20ecb8b380d
+    do_git_checkout https://github.com/google/shaderc.git shaderc # a2c044c44d68c31014210f9b37a682d118c40388 # be8e0879750303a1de09385465d6b20ecb8b380d
     cd shaderc
         export spirv-tools_SOURCE_DIR=${top_dir}/x86_64/SPIRV-Tools/
         export glslang_SOURCE_DIR=${top_dir}/x86_64/glslang/
@@ -6249,6 +6256,7 @@ build_apps() {
   build_aubio
   build_pulseaudio
   build_mpv
+  build_libplacebo
   build_opendcp # Difficult at the moment. Development tree doesn't compile under its own procedures
   # build_opencv # We place it here because opencv has an interface to FFmpeg
   if [[ $build_vlc = "y" ]]; then
