@@ -616,7 +616,7 @@ download_and_unpack_bz2file() {
 
 generic_meson() {
     local extra_configure_options="$1"
-    mkdir build
+    mkdir -pv build
     do_meson "--prefix=${mingw_w64_x86_64_prefix} --libdir=${mingw_w64_x86_64_prefix}/lib --buildtype release --strip --default-library shared --cross-file ${top_dir}/meson-cross.mingw.txt $extra_configure_options . build"
 }
 
@@ -5522,9 +5522,10 @@ build_synaesthesia() {
 }
 
 build_harfbuzz() {
-  download_and_unpack_file https://www.freedesktop.org/software/harfbuzz/release/harfbuzz-1.7.6.tar.bz2 harfbuzz-1.7.6
+  download_and_unpack_file https://www.freedesktop.org/software/harfbuzz/release/harfbuzz-2.1.0.tar.bz2 harfbuzz-2.1.0
+#  download_and_unpack_file https://www.freedesktop.org/software/harfbuzz/release/harfbuzz-1.7.6.tar.bz2 harfbuzz-1.7.6
 #  do_git_checkout https://github.com/behdad/harfbuzz.git harfbuzz
-  cd harfbuzz-1.7.6
+  cd harfbuzz-2.1.0
     generic_configure_make_install
 
   cd ..
