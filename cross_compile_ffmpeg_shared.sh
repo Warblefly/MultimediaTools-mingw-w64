@@ -846,13 +846,13 @@ build_drm() {
 
 
 build_qt() {
-  export QT_VERSION="5.11.1"
+  export QT_VERSION="5.11.2"
   export QT_SOURCE="qt-source"
   export QT_BUILD="qt-build"
 #  orig_cpu_count=$cpu_count
 #  export cpu_count=1
   if [ ! -f qt.built ]; then
-    download_and_unpack_file http://download.qt.io/official_releases/qt/5.11/5.11.1/single/qt-everywhere-src-5.11.1.tar.xz "qt-everywhere-src-${QT_VERSION}"
+    download_and_unpack_file http://download.qt.io/official_releases/qt/5.11/5.11.2/single/qt-everywhere-src-5.11.2.tar.xz "qt-everywhere-src-${QT_VERSION}"
     cd "qt-everywhere-src-${QT_VERSION}"
 #      apply_patch file://${top_dir}/qt-permissive.patch
     apply_patch file://${top_dir}/qt5-skip-mapboxglnative.patch
@@ -1343,7 +1343,7 @@ build_cunit() {
 }
 
 build_libspatialaudio() {
-  do_git_checkout https://github.com/videolabs/libspatialaudio.git libspatialaudio  5420ba0c660236bd319da94fe9bec7d38c13705b
+  do_git_checkout https://github.com/videolabs/libspatialaudio.git libspatialaudio 5420ba0c660236bd319da94fe9bec7d38c13705b
   cd libspatialaudio
     apply_patch file://${top_dir}/libspatialaudio-install.patch
     do_cmake "-DCMAKE_SHARED_LINKER_FLAGS=-lz -DCMAKE_VERBOSE_MAKEFILE=ON"
@@ -4972,7 +4972,7 @@ build_libxml++ () {
 }
 
 build_libexif() {
-  do_git_checkout https://github.com/libexif/libexif.git libexif
+  do_git_checkout https://github.com/libexif/libexif.git libexif a459ed1dca57612ef13880e8d78037db2f089f13
   cd libexif
     # We need to update autotools because a check is needed for JPEG files > 2GB
     #rm configure
