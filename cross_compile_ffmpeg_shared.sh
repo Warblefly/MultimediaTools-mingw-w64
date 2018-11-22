@@ -1406,7 +1406,7 @@ build_opendcp() {
 }
 
 build_dcpomatic() {
-  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic # 4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
+  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
 #  download_and_unpack_file https://dcpomatic.com/downloads/2.11.72/dcpomatic-2.11.72.tar.bz2 dcpomatic-2.11.72
   cd dcpomatic
 #    apply_patch file://${top_dir}/dcpomatic-wscript.patch
@@ -4130,7 +4130,8 @@ build_libdv() {
 build_asdcplib() {
   export CXXFLAGS=-DKM_WIN32
   export CFLAGS=-DKM_WIN32
-  download_and_unpack_file http://download.cinecert.com/asdcplib/asdcplib-2.7.19.tar.gz asdcplib-2.7.19
+  download_and_unpack_file https://download.videolan.org/contrib/asdcplib/asdcplib-2.7.19.tar.gz asdcplib-2.7.19
+  #download_and_unpack_file http://download.cinecert.com/asdcplib/asdcplib-2.10.31.tar.gz asdcplib-2.10.31
   cd asdcplib-2.7.19
     rm configure
     #env
@@ -5264,12 +5265,12 @@ build_shaderc() {
 build_vulkan() {
     download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Loader/archive/sdk-1.1.73.0.tar.gz Vulkan-Loader-sdk-1.1.73.0
     cd Vulkan-Loader-sdk-1.1.73.0
-        apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-vulkan/001-build-fix.patch
-        apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-vulkan/002-proper-def-files-for-32bit.patch
-        apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-vulkan/003-generate-pkgconfig-files.patch
-        apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-vulkan/004-installation-commands.patch
-        apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-vulkan/005-mingw-dll-name.patch
-        apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-vulkan/006-skip-commit-create.patch
+        apply_patch_p1 file://${top_dir}/001-build-fix.patch
+        apply_patch_p1 file://${top_dir}/002-proper-def-files-for-32bit.patch
+        apply_patch_p1 file://${top_dir}/003-generate-pkgconfig-files.patch
+        apply_patch_p1 file://${top_dir}/004-installation-commands.patch
+        apply_patch_p1 file://${top_dir}/005-mingw-dll-name.patch
+        apply_patch file://${top_dir}/006-commit.patch
         echo "#define SPIRV_TOOLS_COMMIT_ID \"8d8a71278bf9e83dd0fb30d5474386d30870b74d\"" > spirv_tools_commit_id.h
         cp -fv spirv_tools_commit_id.h loader/
         # Missing defines are already added to MinGW by our scripts earlier in the build process.
