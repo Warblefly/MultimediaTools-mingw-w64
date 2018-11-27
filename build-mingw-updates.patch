@@ -49,3 +49,45 @@
    echo "building mingw-w64-crt" >&3
    make -j $cpus || error_exit
    echo "installing mingw-w64-crt" >&3
+@@--- mingw-w64-build.orig	2018-11-23 10:47:34.778519900 +0000
+@@+++ mingw-w64-build	2018-11-23 10:50:02.977004000 +0000
+@@ -89,7 +89,7 @@
+@@   git clone --depth 1 -b binutils-2_31-branch --single-branch git://sourceware.org/git/binutils-gdb.git binutils-$v_binutils || error_exit
+@@ 
+@@   echo "downloading gcc" >&3
+@@-  svn co svn://gcc.gnu.org/svn/gcc/branches/gcc-8-branch gcc-$v_gcc || error_exit
+@@+  svn co svn://gcc.gnu.org/svn/gcc/trunk gcc-$v_gcc || error_exit
+@@ 
+@@   local urls=(
+@@     "https://ftp.gnu.org/gnu/gmp/gmp-$v_gmp.tar.xz"
+@@--- mingw-w64-build.orig	2018-11-23 13:10:34.495530200 +0000
+@@+++ mingw-w64-build	2018-11-23 13:11:07.913024600 +0000
+@@ -19,7 +19,7 @@
+@@ v_script="4.0.1"
+@@ v_mingww64="git"
+@@ v_binutils="2.31git"
+@@-v_gcc="8svn"
+@@+v_gcc="trunk"
+@@ v_gmp="6.1.2"
+@@ v_mpfr="4.0.1"
+@@ v_mpc="1.1.0"
+@@--- mingw-w64-build.orig	2018-11-23 14:10:13.808222600 +0000
+@@+++ mingw-w64-build	2018-11-23 14:10:27.317552300 +0000
+@@ -161,7 +161,7 @@
+@@     --enable-static --disable-multilib --prefix="$prefix" \
+@@     --enable-shared --enable-languages=c,c++,fortran --disable-nls || error_exit
+@@   echo "running 'make-gcc' for gcc" >&3
+@@-  make -j $cpus all-gcc || error_exit
+@@+  make -j 1 all-gcc || error_exit
+@@   echo "running 'install-gcc' for gcc" >&3
+@@   make install-gcc || error_exit
+@@ 
+@@ -176,7 +176,7 @@
+@@ 
+@@   cd "$bld/gcc" || error_exit
+@@   echo "building gcc" >&3
+@@-  make -j $cpus || error_exit
+@@+  make -j 1 || error_exit
+@@   echo "installing gcc" >&3
+@@   make install || error_exit
+@@ 
