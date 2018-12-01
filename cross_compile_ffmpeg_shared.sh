@@ -2136,7 +2136,7 @@ build_libtheora() {
 }
 
 build_sqlite() {
-    generic_download_and_install https://www.sqlite.org/snapshot/sqlite-snapshot-201805231753.tar.gz sqlite-snapshot-201805231753
+    generic_download_and_install https://www.sqlite.org/snapshot/sqlite-snapshot-201811291200.tar.gz sqlite-snapshot-201811291200
 }
 
 build_libfilezilla() {
@@ -4691,7 +4691,8 @@ build_ocaml() {
 
 build_aubio() {
     # We need our own version of Waf, specially compiled
-    do_git_checkout https://git.aubio.org/aubio/aubio aubio
+    # Tests have been added to aubio but don't work when cross-compiled
+    do_git_checkout https://git.aubio.org/aubio/aubio aubio d94afb37f953f5d7cad9881dac42bff1e3b66f9c
     cd aubio
         mkdir aubio_build
         cd aubio_build
@@ -4703,7 +4704,7 @@ build_aubio() {
         cd ..
     cp -v aubio_build/waf-2.0.1/waf .
     rm -rvf aubio_build
-    do_configure "configure AR=x86_64-w64-mingw32-ar PKGCONFIG=x86_64-w64-mingw32-pkg-config WINRC=x86_64-w64-mingw32-windres CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ -v -pp --prefix=${mingw_w64_x86_64_prefix} --enable-double --disable-fftw3f --enable-fftw3 --with-target-platform=win64 --disable-jack" "./waf"
+    do_configure "configure AR=x86_64-w64-mingw32-ar PKGCONFIG=x86_64-w64-mingw32-pkg-config WINRC=x86_64-w64-mingw32-windres CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ -v -pp --prefix=${mingw_w64_x86_64_prefix} --enable-double --disable-fftw3f --enable-fftw3 --with-target-platform=win64 --disable-jack --disable-tests --notests" "./waf"
     ./waf build || exit 1
     ./waf install || exit 1
     cd ..
@@ -4768,7 +4769,7 @@ build_makemkv() { # THIS IS NOT WORKING - MAKEMKV NEEDS MORE THAN MINGW OFFERS
 }
 
 build_gettext() {
-  do_git_checkout https://git.savannah.gnu.org/git/gettext.git gettext
+  do_git_checkout https://git.savannah.gnu.org/git/gettext.git gettext 5ed70829a2a78b38f8fddf3543a34f9f22ea110e
   cd gettext
     generic_configure "CFLAGS=-O2 CXXFLAGS=-O2 LIBS=-lpthread"
     cd gettext-runtime/intl
@@ -5410,8 +5411,10 @@ build_pngcrush() {
 }
 
 build_eigen() {
-  download_and_unpack_file http://bitbucket.org/eigen/eigen/get/3.3.4.tar.bz2 eigen-eigen-5a0156e40feb
-  cd eigen-eigen-5a0156e40feb
+  do_git_checkout https://github.com/eigenteam/eigen-git-mirror.git eigen-git-mirror
+#  download_and_unpack_file http://bitbucket.org/eigen/eigen/get/3.3.5.tar.bz2 eigen-eigen-b3f3d4950030
+#  cd eigen-eigen-b3f3d4950030
+    cd eigen-git-mirror
     mkdir -pv build
     cd build
       export FC=${cross_prefix}gfortran
@@ -5437,6 +5440,7 @@ build_movit() {
   cd movit
     apply_patch file://${top_dir}/movit-ffs.patch
     apply_patch file://${top_dir}/movit-call_once.patch # Revert thread use not available
+    apply_patch file://${top_dir}/movit-resample.patch # GCC and Eigen don't get on here
     export GTEST_DIR=../googletest/googletest
     old_CFLAGS=${CFLAGS}
     old_CXXFLAGS=${CXXFLAGS}
