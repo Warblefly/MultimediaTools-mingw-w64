@@ -5440,7 +5440,7 @@ build_movit() {
   cd movit
     apply_patch file://${top_dir}/movit-ffs.patch
     apply_patch file://${top_dir}/movit-call_once.patch # Revert thread use not available
-    apply_patch file://${top_dir}/movit-resample.patch # GCC and Eigen don't get on here
+    #apply_patch file://${top_dir}/movit-resample.patch # GCC and Eigen don't get on here
     export GTEST_DIR=../googletest/googletest
     old_CFLAGS=${CFLAGS}
     old_CXXFLAGS=${CXXFLAGS}
