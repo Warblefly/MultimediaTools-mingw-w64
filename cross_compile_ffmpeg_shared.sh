@@ -1406,7 +1406,7 @@ build_opendcp() {
 }
 
 build_dcpomatic() {
-  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
+  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
 #  download_and_unpack_file https://dcpomatic.com/downloads/2.11.72/dcpomatic-2.11.72.tar.bz2 dcpomatic-2.11.72
   cd dcpomatic
 #    apply_patch file://${top_dir}/dcpomatic-wscript.patch
@@ -1442,7 +1442,7 @@ build_gcal() {
 }
 
 build_unbound() {
-  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.8.1 "CFLAGS=-O1 libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
+  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.8.2 "CFLAGS=-O1 libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
 }
 
 build_libxavs() {
@@ -1619,7 +1619,7 @@ build_lsdvd() {
 }
 
 build_doxygen() {
-  download_and_unpack_file http://ftp.stack.nl/pub/users/dimitri/doxygen-1.8.14.src.tar.gz doxygen-1.8.14
+  download_and_unpack_file http://doxygen.nl/files/doxygen-1.8.14.src.tar.gz doxygen-1.8.14
   cd doxygen-1.8.14
 #    sed -i.bak 's/WIN32/MSVC/' CMakeLists.txt
 #    sed -i.bak 's/if (win_static/if (win_static AND MSVC/' CMakeLists.txt
@@ -4475,8 +4475,8 @@ build_mjpegtools() {
 
 build_file() {
   # Also contains libmagic
-  do_git_checkout https://github.com/file/file.git file_native edb7f0d6c23852f799f5f919cb44131307e98e2c
-  do_git_checkout https://github.com/file/file.git file edb7f0d6c23852f799f5f919cb44131307e98e2c
+  do_git_checkout https://github.com/file/file.git file_native #edb7f0d6c23852f799f5f919cb44131307e98e2c
+  do_git_checkout https://github.com/file/file.git file #edb7f0d6c23852f799f5f919cb44131307e98e2c
   # We use the git version of file and libmagic, which is updated more
   # often than distributions track. File requires its own binary to compile
   # its list of magic numbers. Therefore, because we are cross-compiling,
@@ -5440,7 +5440,7 @@ build_movit() {
   cd movit
     apply_patch file://${top_dir}/movit-ffs.patch
     apply_patch file://${top_dir}/movit-call_once.patch # Revert thread use not available
-    #apply_patch file://${top_dir}/movit-resample.patch # GCC and Eigen don't get on here
+    apply_patch file://${top_dir}/movit-resample.patch # GCC and Eigen don't get on here
     export GTEST_DIR=../googletest/googletest
     old_CFLAGS=${CFLAGS}
     old_CXXFLAGS=${CXXFLAGS}
@@ -5527,10 +5527,10 @@ build_synaesthesia() {
 }
 
 build_harfbuzz() {
-  download_and_unpack_file https://www.freedesktop.org/software/harfbuzz/release/harfbuzz-2.1.0.tar.bz2 harfbuzz-2.1.0
+  download_and_unpack_file https://www.freedesktop.org/software/harfbuzz/release/harfbuzz-2.1.3.tar.bz2 harfbuzz-2.1.3
 #  download_and_unpack_file https://www.freedesktop.org/software/harfbuzz/release/harfbuzz-1.7.6.tar.bz2 harfbuzz-1.7.6
 #  do_git_checkout https://github.com/behdad/harfbuzz.git harfbuzz
-  cd harfbuzz-2.1.0
+  cd harfbuzz-2.1.3
     generic_configure_make_install
 
   cd ..
