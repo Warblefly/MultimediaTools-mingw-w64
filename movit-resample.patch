@@ -1,0 +1,11 @@
+--- Makefile.in.orig	2018-12-05 09:42:27.126770400 +0000
++++ Makefile.in	2018-12-05 09:42:38.538698800 +0000
+@@ -67,7 +67,7 @@
+ TESTED_EFFECTS += mix_effect
+ TESTED_EFFECTS += overlay_effect
+ TESTED_EFFECTS += padding_effect
+-TESTED_EFFECTS += resample_effect
++#TESTED_EFFECTS += resample_effect
+ TESTED_EFFECTS += dither_effect
+ TESTED_EFFECTS += deconvolution_sharpen_effect
+ TESTED_EFFECTS += fft_pass_effect
