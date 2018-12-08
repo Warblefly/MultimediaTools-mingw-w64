@@ -1,0 +1,25 @@
+--- loader/CMakeLists.txt.orig	2018-12-08 09:44:11.593126300 +0000
++++ loader/CMakeLists.txt	2018-12-08 09:44:26.004617300 +0000
+@@ -224,7 +224,7 @@
+         target_link_libraries(vulkan OneCoreUAP.lib LIBCMT.LIB LIBCMTD.LIB LIBVCRUNTIME.LIB LIBUCRT.LIB)
+         set_target_properties(vulkan PROPERTIES LINK_FLAGS "/NODEFAULTLIB")
+     else()
+-        target_link_libraries(vulkan Cfgmgr32)
++        target_link_libraries(vulkan cfgmgr32)
+     endif()
+ 
+     add_dependencies(vulkan generate_helper_files loader_gen_files loader_asm_gen_files)
+--- loader/loader.c.orig	2018-12-08 09:44:59.577033000 +0000
++++ loader/loader.c	2018-12-08 09:45:30.799023000 +0000
+@@ -60,9 +60,9 @@
+ #include "murmurhash.h"
+ 
+ #if defined(_WIN32)
+-#include <Cfgmgr32.h>
++#include <cfgmgr32.h>
+ #include <initguid.h>
+-#include <Devpkey.h>
++#include <devpkey.h>
+ #endif
+ 
+ // This is a CMake generated file with #defines for any functions/includes

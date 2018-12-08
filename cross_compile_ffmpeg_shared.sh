@@ -1214,7 +1214,7 @@ build_mlt() {
     avformat_ldextra=`pkg-config --static --libs-only-l libavformat`
     apply_patch file://${top_dir}/mlt-melt.patch
 #    do_configure "--prefix=${mingw_w64_x86_64_prefix} --enable-gpl --enable-gpl3 --disable-gtk2 --target-os=mingw --target-arch=x86_64 --libdir=${mingw_w64_x86_64_prefix}/bin/lib --datadir=${mingw_w64_x86_64_prefix}/bin/share --mandir=${mingw_w64_x86_64_prefix}/share/man --avformat-swscale --avformat-ldextra=${avformat_ldextra}"
-    generic_configure_make_install "LIBS=-lole32 --enable-gpl --enable-gpl3 --target-os=mingw --target-arch=x86_64 --prefix=${mingw_w64_x86_64_prefix} --libdir=${mingw_w64_x86_64_prefix}/bin/lib --datadir=${mingw_w64_x86_64_prefix}/bin/share --mandir=${mingw_w64_x86_64_prefix}/share/man"
+    generic_configure_make_install "LIBS=-lole32 --enable-gpl --enable-gpl3 --target-os=mingw --target-arch=x86_64 --prefix=${mingw_w64_x86_64_prefix} --libdir=${mingw_w64_x86_64_prefix}/bin/lib --datadir=${mingw_w64_x86_64_prefix}/bin/share --mandir=${mingw_w64_x86_64_prefix}/share/man --disable-opengl"
 #    apply_patch file://${top_dir}/mlt-rtaudio.patch
 #    do_make
 #    do_make_install
@@ -3751,7 +3751,7 @@ build_boost() {
 }
 
 build_mkvtoolnix() {
-  do_git_checkout https://gitlab.com/mbunkus/mkvtoolnix mkvtoolnix
+  do_git_checkout https://gitlab.com/mbunkus/mkvtoolnix mkvtoolnix 16772170030715717341c3d5460d3d1fecf501a4
 #    download_and_unpack_file https://mkvtoolnix.download/sources/mkvtoolnix-23.0.0.tar.xz mkvtoolnix-23.0.0
   cd mkvtoolnix
     # Two libraries needed for mkvtoolnix
@@ -3894,7 +3894,7 @@ build_SWFTools() {
 #}
 
 build_frei0r() {
-  do_git_checkout https://github.com/dyne/frei0r.git frei0r
+  do_git_checkout https://github.com/dyne/frei0r.git frei0r # 4b363c644e505ce34c79b27d2d664713cbb3dbaa
   cd frei0r
     # The next three patches cope with the missing definition of M_PI
     apply_patch file://${top_dir}/frei0r-lightgraffiti.cpp.patch
@@ -3910,8 +3910,8 @@ build_frei0r() {
     # The facedetect filters don't work because there's something wrong in the way frei0r calls into opencv.
     # If you want to debug this, please add -DCMAKE_BUILD_TYPE=Debug, otherwise important parameters are optimized out
     do_cmake "-DOpenCV_DIR=${OpenCV_DIR} -DOpenCV_INCLUDE_DIR=${OpenCV_INCLUDE_DIR} -DCMAKE_CXX_FLAGS=-std=c++14 -DCMAKE_VERBOSE_MAKEFILE=YES"
-    do_cmake "-DCMAKE_CXX_FLAGS=-std=c++14 -DCMAKE_VERBOSE_MAKEFILE=YES"
-    do_make_install "-j1"
+    # do_cmake "-DCMAKE_CXX_FLAGS=-std=c++14 -DCMAKE_VERBOSE_MAKEFILE=YES"
+    do_make_install #  "-j1"
 
   cd ..
 }
@@ -4822,8 +4822,9 @@ download_and_unpack_file http://ftp.gnome.org/pub/GNOME/sources/atk/2.29/atk-2.2
 }
 
 build_libplacebo() {
-  do_git_checkout https://github.com/haasn/libplacebo.git libplacebo
+  do_git_checkout https://github.com/haasn/libplacebo.git libplacebo 08b45ede97262d73778f1bee40ac845702e240d4 # 5198e1564c5f2900b7b1f98561b6323d27bd78bb
   cd libplacebo
+    #apply_patch file://${top_dir}/libplacebo-win32.patch
     generic_meson_ninja_install
   cd ..
 }
@@ -5264,22 +5265,35 @@ build_shaderc() {
 
 
 build_vulkan() {
-    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Loader/archive/sdk-1.1.73.0.tar.gz Vulkan-Loader-sdk-1.1.73.0
-    cd Vulkan-Loader-sdk-1.1.73.0
-        apply_patch_p1 file://${top_dir}/001-build-fix.patch
-        apply_patch_p1 file://${top_dir}/002-proper-def-files-for-32bit.patch
-        apply_patch_p1 file://${top_dir}/003-generate-pkgconfig-files.patch
-        apply_patch_p1 file://${top_dir}/004-installation-commands.patch
-        apply_patch_p1 file://${top_dir}/005-mingw-dll-name.patch
-        apply_patch file://${top_dir}/006-commit.patch
-        echo "#define SPIRV_TOOLS_COMMIT_ID \"8d8a71278bf9e83dd0fb30d5474386d30870b74d\"" > spirv_tools_commit_id.h
-        cp -fv spirv_tools_commit_id.h loader/
+
+    #download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Loader/archive/sdk-1.1.73.0.tar.gz Vulkan-Loader-sdk-1.1.73.0
+    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Headers/archive/sdk-1.1.92.0.tar.gz Vulkan-Headers-sdk-1.1.92.0
+    #cd Vulkan-Loader-sdk-1.1.73.0
+    cd Vulkan-Headers-sdk-1.1.92.0
+        do_cmake
+        do_make
+        do_make_install
+    cd ..
+    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Loader/archive/sdk-1.1.92.1.tar.gz Vulkan-Loader-sdk-1.1.92.1
+    cd Vulkan-Loader-sdk-1.1.92.1
+        #apply_patch_p1 file://${top_dir}/001-build-fix.patch
+        #apply_patch_p1 file://${top_dir}/002-proper-def-files-for-32bit.patch
+        #apply_patch_p1 file://${top_dir}/003-generate-pkgconfig-files.patch
+        #apply_patch_p1 file://${top_dir}/004-installation-commands.patch
+        #apply_patch_p1 file://${top_dir}/005-mingw-dll-name.patch
+        #apply_patch file://${top_dir}/006-commit.patch
+        apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-vulkan-loader/001-build-fix.patch
+        apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-vulkan-loader/002-proper-def-files-for-32bit.patch
+        apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-vulkan-loader/003-generate-pkgconfig-files.patch
+        #echo "#define SPIRV_TOOLS_COMMIT_ID \"8d8a71278bf9e83dd0fb30d5474386d30870b74d\"" > spirv_tools_commit_id.h
+        #cp -fv spirv_tools_commit_id.h loader/
         # Missing defines are already added to MinGW by our scripts earlier in the build process.
         export CFLAGS="-D_WIN32_WINNT=0x0A00 -D__STDC_FORMAT_MACROS"
         export CPPFLAGS="-D_WIN32_WINNT=0x0A00 -D__STDC_FORMAT_MACROS"
-        export CXXFLAGS="-D_WIN32_WINNT=0x0600 -D__USE_MINGW_ANSI_STDIO -D__STDC_FORMAT_MACROS -fpermissive"
-        do_cmake "-DCMAKE_BUILD_TYPE=Release -DBUILD_DEMOS=OFF -DBUILD_TESTS=OFF -DDISABLE_BUILD_PATH_DECORATION=ON -DDISABLE_BUILDTGT_DIR_DECORATION=ON"
-        apply_patch file://${top_dir}/vulkan-threads.patch
+        export CXXFLAGS="-D_WIN32_WINNT=0x0A00 -D__USE_MINGW_ANSI_STDIO -D__STDC_FORMAT_MACROS -fpermissive"
+        do_cmake "-DCMAKE_BUILD_TYPE=Release -DBUILD_DEMOS=OFF -DBUILD_TESTS=OFF" # -DDISABLE_BUILD_PATH_DECORATION=ON -DDISABLE_BUILDTGT_DIR_DECORATION=ON"
+        #apply_patch file://${top_dir}/vulkan-threads.patch
+        apply_patch file://${top_dir}/vulkan-cfgmgr.patch
         do_make
         do_make_install
         unset CFLAGS

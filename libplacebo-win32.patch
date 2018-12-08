@@ -1,0 +1,20 @@
+--- src/vulkan/common.h.orig	2018-12-08 10:24:37.449575900 +0000
++++ src/vulkan/common.h	2018-12-08 10:25:52.396779200 +0000
+@@ -26,6 +26,7 @@
+ 
+ #ifdef _WIN32
+ #define VK_HAVE_WIN32 1
++#include <vulkan/vulkan_win32.h>
+ #endif
+ 
+ // Vulkan allows the optional use of a custom allocator. We don't need one but
+--- src/vulkan/common.h.orig	2018-12-08 11:18:36.976915100 +0000
++++ src/vulkan/common.h	2018-12-08 15:02:04.402388700 +0000
+@@ -26,6 +26,7 @@
+ 
+ #ifdef _WIN32
+ #define VK_HAVE_WIN32 1
++#include <windows.h>
+ #include <vulkan/vulkan_win32.h>
+ #endif
+ 
