@@ -3105,8 +3105,9 @@ build_sdl2() {
 #      old_hg_version=none-yet
 #  fi
 #  mkdir build
-  do_git_checkout https://github.com/SDL-mirror/SDL.git SDL # 48bcdfd8cc3db5b100e06ca9d5cdcedd4b46a35a
-  cd SDL
+#  do_git_checkout https://github.com/SDL-mirror/SDL.git SDL 95ea2ed17787d98978805b7b8990d807bf47e2fd # 9333e80281655d2351913ee2418393af991efd36 # 48bcdfd8cc3db5b100e06ca9d5cdcedd4b46a35a
+  download_and_unpack_file https://www.libsdl.org/release/SDL2-2.0.8.tar.gz SDL2-2.0.8
+  cd SDL2-2.0.8
 #    apply_patch file://${top_dir}/SDL2-prevent-duplicate-scalbln.patch
 #    apply_patch file://${top_dir}/SDL2-stdint.patch
 #    apply_patch file://${top_dir}/sdl2.xinput.patch
@@ -5425,7 +5426,7 @@ build_pngcrush() {
 }
 
 build_eigen() {
-  do_git_checkout https://github.com/eigenteam/eigen-git-mirror.git eigen-git-mirror
+  do_git_checkout https://github.com/eigenteam/eigen-git-mirror.git eigen-git-mirror 54d243db458f88b716deafb5ac1da5d7ffde4a78
 #  download_and_unpack_file http://bitbucket.org/eigen/eigen/get/3.3.5.tar.bz2 eigen-eigen-b3f3d4950030
 #  cd eigen-eigen-b3f3d4950030
     cd eigen-git-mirror
