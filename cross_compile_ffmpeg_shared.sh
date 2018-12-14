@@ -1442,7 +1442,7 @@ build_gcal() {
 }
 
 build_unbound() {
-  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.8.2 "CFLAGS=-O1 libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
+  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.8.3 "CFLAGS=-O1 libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
 }
 
 build_libxavs() {
@@ -4695,6 +4695,7 @@ build_aubio() {
     # Tests have been added to aubio but don't work when cross-compiled
     do_git_checkout https://git.aubio.org/aubio/aubio aubio d94afb37f953f5d7cad9881dac42bff1e3b66f9c
     cd aubio
+    	apply_patch file://${top_dir}/aubio_notests.patch
         mkdir aubio_build
         cd aubio_build
             wget https://waf.io/waf-2.0.1.tar.bz2
@@ -4705,7 +4706,7 @@ build_aubio() {
         cd ..
     cp -v aubio_build/waf-2.0.1/waf .
     rm -rvf aubio_build
-    do_configure "configure AR=x86_64-w64-mingw32-ar PKGCONFIG=x86_64-w64-mingw32-pkg-config WINRC=x86_64-w64-mingw32-windres CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ -v -pp --prefix=${mingw_w64_x86_64_prefix} --enable-double --disable-fftw3f --enable-fftw3 --with-target-platform=win64 --disable-jack --disable-tests --notests" "./waf"
+    do_configure "configure AR=x86_64-w64-mingw32-ar PKGCONFIG=x86_64-w64-mingw32-pkg-config WINRC=x86_64-w64-mingw32-windres CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ -v -pp --prefix=${mingw_w64_x86_64_prefix} --enable-double --disable-fftw3f --enable-fftw3 --with-target-platform=win64 --disable-jack --disable-tests --notests --disable-examples" "./waf"
     ./waf build || exit 1
     ./waf install || exit 1
     cd ..

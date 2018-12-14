@@ -1,0 +1,13 @@
+--- wscript.orig	2018-12-14 11:09:01.611416700 +0000
++++ wscript	2018-12-14 11:09:55.176451100 +0000
+@@ -506,8 +506,8 @@
+             bld.options.testcmd = 'node %s'
+         if bld.options.enable_examples:
+             bld.recurse('examples')
+-        if bld.options.enable_tests:
+-            bld.recurse('tests')
++#        if bld.options.enable_tests:
++#            bld.recurse('tests')
+ 
+     # pkg-config template
+     bld( source = 'aubio.pc.in' )
