@@ -2628,13 +2628,13 @@ build_libaacplus() {
 }
 
 build_openssl() {
-  download_and_unpack_file ftp://ftp.openssl.org/source/openssl-1.0.2o.tar.gz openssl-1.0.2o
+  download_and_unpack_file ftp://ftp.openssl.org/source/openssl-1.0.2q.tar.gz openssl-1.0.2q
 #  download_and_unpack_file https://www.openssl.org/source/openssl-1.1.0f.tar.gz openssl-1.1.0f
   # When the manpages are written, they need somewhere to go otherwise there is an error.
   mkdir -pv ${mingw_w64_x86_64_prefix}/include/openssl
   mkdir -pv ${mingw_w64_x86_64_prefix}/lib/engines
   mkdir -pv ${mingw_w64_x86_64_prefix}/ssl/misc
-  cd openssl-1.0.2o
+  cd openssl-1.0.2q
   #env
   # apply_patch file://${top_dir}/openssl-1.1.0f.patch
   #export cross="${cross_prefix}"
