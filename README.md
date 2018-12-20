@@ -37,36 +37,38 @@ You might also want to play with the defaults for the mpv player, in %APPDATA%\R
 
 # How To Compile
 0. Compiling is becoming increasingly difficult. Source packages are constantly being updated (for which we rejoice, of course), and I am keeping up with these changes quite well. However, some changes that might break compilation go un-noticed because I only accomplish a completely clean build about once a month. Otherwise, packages such as GCC and QT-5.7 remain old. This does not affect the latest and greatest versions of ffmpeg, mpv, vim/gvim, x264, x265 and their associated libraries that are all compiled from development sources.
-1. Ensure your development requirement is adequate. I now develop on a Docker container, using Debian Testing.
+1. Ensure your development requirement is adequate. I now develop on a Docker container, using Debian Testing. Allow Docker to use all your CUPS, 8GB of RAM, and have an 80GB virtual disk.
+
 Launch the container like this (QT compilation generates a security problem under a normal launch):
 ```
-docker run -it --security-opt seccomp=unconfined debian:testing bash
+docker run -it --security-opt seccomp=unconfined --storage-opt size=79G debian:testing bash
 ```
 2. Update everything.
+apt update
+apt upgrade
+
 3. Install the pre-requisites. On Debian running under Windows, you can do this.
 
-First, upgrade your system to Debian Testing:
-
-Then, after upgrading everything, pull in the packages you'll need. There are a lot of them.
-```
 apt install software-properties-common extra-cmake-modules libsdl1.2debian libsdl1.2-dev libsdl2-2.0 libsdl2-dev ant asciidoc autoconf autoconf-archive autogen autopoint bison bzr cmake curl cvs docbook2x ed flex g++ libgdk-pixbuf2.0-dev gengetopt git gperf gtk-doc-tools gtk-update-icon-cache gyp intltool liborc-0.4 libsamplerate-dev libtasn1-bin librhash0 libtool libtool-bin lua5.3 mercurial meson nsis mm-common nasm openjdk-8-jdk patchutils pax pxz python-dev ragel rsync ronn ruby-json rake-compiler ruby-ronn sassc libspeex-dev libspeexdsp-dev ssh sshpass sssd-tools subversion libwxbase3.0-dev wget wx-common xutils-dev yasm
 ```
 Then, switch your Java development kit to an Oracle version. You'll need this to compile libbluray:
-```
-add-apt-repository "deb http://ppa.launchpad.net/webupd8team/java/ubuntu yakkety main"
+
+apt-key adv --keyserver keyserver.ubuntu.com --recv-keys C2518248EEA14886  
 apt update
-apt-key adv --keyserver keyserver.ubuntu.com --recv-keys EEA14886
-apt-get install oracle-java8-installer
-```
+apt upgrade 
+add-apt-repository ppa:webupd8team/java 
+apt update
+apt upgrade
+apt-get install oracle-java8-installer  
 
 4. Link an executable, thus: ln -s /usr/bin/luac5.3 /usr/bin/luac
 5. Clone my package from git (see the address at the top of this page).
 6. cd into the top directory of the git tree.
 7. Read the top of ./build_shared.sh, and edit the location to which scp should copy your binary archive.
 8. Execute ./build_shared.sh, and give it the password for your scp when prompted.
-9. Wait for a long, long time. On an eight-core i7 at 4.5GHz with 16GB RAM and solid state drives, the compile takes a day.
+9. Wait for a long, long time. On an eight-core i7 at 4.5GHz with 16GB RAM and solid state drives, the compile takes six hours.
 10. The archive you can copy and unpack has been placed in the root of your build tree and has been sent by scp to the webserver of your choice. Note that the scp copy will only succeed if you have already used ssh to login to the remote server under the username you're using.
-11. To recompile only the packages that have been updated, simply run the script again. You may need manually to clear out mpv, vim and vim_console
+11. To recompile only the packages that have been updated, simply run the script again. You may need manually to clear out mpv, aom, vim and vim_console
 
 
 
