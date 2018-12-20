@@ -2157,7 +2157,7 @@ do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfile
 }
 
 build_filezilla() {
-do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla #8878
+do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla 9056
   cd filezilla
     export CC=x86_64-w64-mingw32-gcc
     export CXX=x86_64-w64-mingw32-g++
