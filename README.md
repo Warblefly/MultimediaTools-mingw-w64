@@ -1,5 +1,5 @@
 # MultimediaTools W64
-Scripts and patches to cross-compile, for Windows 64-bit, many multimedia utilities, including FFmpeg, Dcp-o-matic, SoX, the mpv player, and all the BBC Avid-compatible MXF utilities. Also includes all Qt5 (version 5.7) libraries that will compile on mingw-w64, GraphicMagick, Poppler-utils (for PDF files) and many, many more. 
+Scripts and patches to cross-compile, for Windows 64-bit, many multimedia utilities, including FFmpeg, Dcp-o-matic, SoX, the mpv player, and all the BBC Avid-compatible MXF utilities. Also includes all Qt5 (version 5.11.2) libraries that will compile on mingw-w64, GraphicMagick, Poppler-utils (for PDF files) and many, many more. 
 
 # How To Install
 
@@ -30,13 +30,13 @@ The installer sets certain environment variables for some facilities to work pro
 
 # After Installing
 
-You will need to run fc-cache.exe as an Administrator, to help fontconfig put a cache of your Windows fonts into a suitable place. I'd make the installer do it for you, but I haven't worked out how to do this yet.
+You may need to run fc-cache.exe as an Administrator, to help fontconfig put a cache of your Windows fonts into a suitable place. I'd make the installer do it for you, but I haven't worked out how to do this yet.
 
 You might also want to play with the defaults for the mpv player, in %APPDATA%\Roaming\mpv (mpv.conf). It's a highly configurable player, and you may want to adjust it manually for best performance in your environment. An example file is included in this distribution in the share directory for mpv. Copy it to where you need it.
 
 
 # How To Compile
-0. Compiling is becoming increasingly difficult. Source packages are constantly being updated (for which we rejoice, of course), and I am keeping up with these changes quite well. However, some changes that might break compilation go un-noticed because I only accomplish a completely clean build about once a month. Otherwise, packages such as GCC and QT-5.7 remain old. This does not affect the latest and greatest versions of ffmpeg, mpv, vim/gvim, x264, x265 and their associated libraries that are all compiled from development sources.
+0. Compiling is becoming increasingly difficult. Source packages are constantly being updated (for which we rejoice, of course), and I am keeping up with these changes quite well. However, some changes that might break compilation go un-noticed because I only accomplish a completely clean build about once a month. Otherwise, packages such as GCC and QT-5.11.2 remain at reasonable recent release levels, with some patches applied. This does not affect the latest and greatest versions of ffmpeg, mpv, vim/gvim, x264, x265 and their associated libraries that are all compiled from development sources.
 1. Ensure your development requirement is adequate. I now develop on a Docker container, using Debian Testing. Allow Docker to use all your CPUs, 8GB of RAM, and have an 80GB virtual disk.
 
 Launch the container like this (QT compilation generates a security problem under a normal launch):
@@ -100,6 +100,7 @@ With these scripts, you can compile binaries, ready to run on 64-bit Windows. Ma
  * soxi — gives information about audio files
  * play — plays and optionally processes audio data using the capabilities of sox
  * rec — records audio data using the capabilities of sox
+* Filezilla, the graphical file transfer utility
 * mjpegtools — many tools for motion JPEG files and DVD creation
  * mpeg2enc — flexible program to encode MPEG2 video streams
  * mplex — multiplexes many types of MPEG streams
@@ -186,6 +187,7 @@ With these scripts, you can compile binaries, ready to run on 64-bit Windows. Ma
  * gio-querymodules — GIO cache creation
  * qdbus — interrogates a D-Bus server
  * qdbusviewer — QT5 application that interrogates a D-Bus server
+* libaom — the moving image compression format under development by Google and others
 * DCP-o-matic
  * dcpomatic2 — a very flexible DCP creation package
  * dcpdiff — compares metadata and content, ignoring timestamps, of two DCPs
