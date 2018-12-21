@@ -2825,7 +2825,7 @@ build_libnvenc() {
 
 build_fdk_aac() {
   #generic_download_and_install http://sourceforge.net/projects/opencore-amr/files/fdk-aac/fdk-aac-0.1.0.tar.gz/download fdk-aac-0.1.0
-  do_git_checkout https://github.com/mstorsjo/fdk-aac.git fdk-aac_git e45ae429b9ca8f234eb861338a75b2d89cde206a
+  do_git_checkout https://github.com/mstorsjo/fdk-aac.git fdk-aac_git # e45ae429b9ca8f234eb861338a75b2d89cde206a
   cd fdk-aac_git
     if [[ ! -f "configure" ]]; then
       autoreconf -fiv || exit 1
