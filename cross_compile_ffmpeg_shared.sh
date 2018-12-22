@@ -2227,7 +2227,7 @@ build_libxml2() {
   cd libxml2
     # Remove libxml2 autogen because it sets variables that interfere with our cross-compile
     rm -v autogen.sh
-    generic_configure_make_install "LIBS=-lws2_32 --without-python"
+    generic_configure_make_install "LIBS=-lws2_32 --without-python --enable-ipv6"
     sed -i.bak 's/-lxml2.*$/-lxml2 -lws2_32/' "$PKG_CONFIG_PATH/libxml-2.0.pc" # Shared applications need Winsock
 #    cp -v ${mingw_w64_x86_64_prefix}/bin/xml2-config ${mingw_w64_x86_64_prefix}/bin/x86_64-w64-mingw32-xml2-config
 
@@ -6399,7 +6399,7 @@ check_missing_packages
 # Install a decent set of colours for vim. Makes development easier.
 #do_git_checkout https://github.com/amix/vimrc.git ~/.vim_runtime
 #chmod +x ~/.vim_runtime/install_awesome_vimrc.sh
-~/.vim_runtime/install_awesome_vimrc.sh
+#~/.vim_runtime/install_awesome_vimrc.sh
 install_cross_compiler
 # the header Windows.h needs to appear
 cd ${cur_dir}/x86_64-w64-mingw32/x86_64-w64-mingw32/include
