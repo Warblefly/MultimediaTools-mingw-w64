@@ -58,7 +58,7 @@ Then, switch your Java development kit to an Oracle version. You'll need this to
 apt-key adv --keyserver keyserver.ubuntu.com --recv-keys C2518248EEA14886  
 apt update
 apt upgrade 
-add-apt-repository ppa:webupd8team/java 
+add-apt-repository -y ppa:webupd8team/java 
 apt update
 apt upgrade
 apt-get install oracle-java8-installer  
