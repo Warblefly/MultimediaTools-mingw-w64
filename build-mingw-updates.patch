@@ -153,3 +153,15 @@
 @@ 
 @@ show_help()
 @@ {
+--- mingw-w64-build.orig	2018-12-22 22:00:57.746578632 +0000
++++ mingw-w64-build	2018-12-22 22:02:17.426116911 +0000
+@@ -89,7 +89,8 @@
+   git clone --depth 1 -b binutils-2_31-branch --single-branch git://sourceware.org/git/binutils-gdb.git binutils-$v_binutils || error_exit
+ 
+   echo "downloading gcc" >&3
+-  svn co svn://gcc.gnu.org/svn/gcc/branches/gcc-8-branch gcc-$v_gcc || error_exit
++  git clone --depth 1 -b gcc-8-branch --single-branch https://github.com/gcc-mirror/gcc.git gcc-$v_gcc || error_exit
++#  svn co svn://gcc.gnu.org/svn/gcc/branches/gcc-8-branch gcc-$v_gcc || error_exit
+ 
+   local urls=(
+     "https://ftp.gnu.org/gnu/gmp/gmp-$v_gmp.tar.xz"

@@ -2222,11 +2222,11 @@ build_orc() {
 }
 
 build_libxml2() {
-  do_git_checkout https://github.com/GNOME/libxml2.git libxml2
-#  download_and_unpack_file ftp://xmlsoft.org/libxml2/libxml2-2.9.4.tar.gz libxml2-2.9.4
-  cd libxml2
+#  do_git_checkout https://github.com/GNOME/libxml2.git libxml2
+  download_and_unpack_file https://github.com/GNOME/libxml2/archive/v2.9.9-rc2.tar.gz libxml2-2.9.9-rc2 
+  cd libxml2-2.9.9-rc2
     # Remove libxml2 autogen because it sets variables that interfere with our cross-compile
-    rm -v autogen.sh
+#    rm -v autogen.sh
     generic_configure_make_install "LIBS=-lws2_32 --without-python --enable-ipv6"
     sed -i.bak 's/-lxml2.*$/-lxml2 -lws2_32/' "$PKG_CONFIG_PATH/libxml-2.0.pc" # Shared applications need Winsock
 #    cp -v ${mingw_w64_x86_64_prefix}/bin/xml2-config ${mingw_w64_x86_64_prefix}/bin/x86_64-w64-mingw32-xml2-config
@@ -2247,7 +2247,7 @@ build_libxslt() {
     sed -i.bak 's/doc \\/ \\/' Makefile.am
     # The Makefile.am forgets that libtool can't build a shared plugin library without -no-undefined
     sed -i.bak 's/xmlsoft_org_xslt_testplugin_la_LDFLAGS = -module -avoid-version -rpath $(plugindir)/xmlsoft_org_xslt_testplugin_la_LDFLAGS = -module -avoid-version -rpath $(plugindir) -no-undefined/' tests/plugins/Makefile.am
-    generic_configure_make_install "--disable-silent-rules --without-python --with-libxml-src=../libxml2"
+    generic_configure_make_install "--disable-silent-rules --without-python --with-libxml-src=../libxml2-2.9.9-rc2"
 
     unset CFLAGS
     unset LIBS
@@ -4586,7 +4586,7 @@ build_smake() { # This enables build of cdrtools. Jorg Schilling uses his own ma
 
 
 build_zimg() {
-  do_git_checkout https://github.com/sekrit-twc/zimg.git zimg 799f91c403f562a26d8bf8ce757051abbf5c8cd6 # e6069fa9e883e0e637e0dd2023d444a07b4dc73c
+  do_git_checkout https://github.com/sekrit-twc/zimg.git zimg # 799f91c403f562a26d8bf8ce757051abbf5c8cd6 # e6069fa9e883e0e637e0dd2023d444a07b4dc73c
   cd zimg
     sed -i.bak 's/Windows\.h/windows.h/' src/testcommon/mmap.cpp
     generic_configure_make_install "--enable-x86simd"
@@ -4977,7 +4977,7 @@ build_libxml++ () {
 }
 
 build_libexif() {
-  do_git_checkout https://github.com/libexif/libexif.git libexif a459ed1dca57612ef13880e8d78037db2f089f13
+  do_git_checkout https://github.com/libexif/libexif.git libexif  #a459ed1dca57612ef13880e8d78037db2f089f13
   cd libexif
     # We need to update autotools because a check is needed for JPEG files > 2GB
     #rm configure
