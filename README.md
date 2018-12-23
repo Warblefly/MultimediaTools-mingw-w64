@@ -37,12 +37,7 @@ You might also want to play with the defaults for the mpv player, in %APPDATA%\R
 
 # How To Compile
 0. Compiling is becoming increasingly difficult. Source packages are constantly being updated (for which we rejoice, of course), and I am keeping up with these changes quite well. However, some changes that might break compilation go un-noticed because I only accomplish a completely clean build about once a month. Otherwise, packages such as GCC and QT-5.11.2 remain at reasonable recent release levels, with some patches applied. This does not affect the latest and greatest versions of ffmpeg, mpv, vim/gvim, x264, x265 and their associated libraries that are all compiled from development sources.
-1. Ensure your development requirement is adequate. I now develop on a Docker container, using Debian Testing. Allow Docker to use all your CPUs, 8GB of RAM, and have an 80GB virtual disk.
-
-Launch the container like this (QT compilation generates a security problem under a normal launch):
-```
-docker run -it --security-opt seccomp=unconfined debian:testing bash
-```
+1. Ensure your development requirement is adequate. I now develop on a virtual machine, using Debian Testing. Allow Docker to use all your CPUs, 8GB of RAM, and have an 80GB virtual disk.
 2. Update everything.
 ```
 apt update
