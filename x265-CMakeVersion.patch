@@ -1,0 +1,11 @@
+--- source/CMakeLists.txt.orig	2019-01-02 16:05:15.234518253 +0000
++++ source/CMakeLists.txt	2019-01-02 16:06:06.757604972 +0000
+@@ -578,6 +578,8 @@
+     string(REPLACE "." ";" VERSION_LIST "${X265_LATEST_TAG}")
+     list(GET VERSION_LIST 0 X265_VERSION_MAJOR)
+     list(GET VERSION_LIST 1 X265_VERSION_MINOR)
++    string(REGEX REPLACE "[^0-9]" "" X265_VERSION_MAJOR "${X265_VERSION_MAJOR}")
++    string(REGEX REPLACE "[^0-9]" "" X265_VERSION_MINOR "${X265_VERSION_MINOR}")
+     set(X265_BRANCH_ID 0) # TODO: 0 - stable, 1 - default or other
+     set(X265_RC_FILE "${CMAKE_CURRENT_BINARY_DIR}/x265.rc")
+     configure_file("${CMAKE_CURRENT_SOURCE_DIR}/x265.rc.in" "${X265_RC_FILE}" @ONLY)

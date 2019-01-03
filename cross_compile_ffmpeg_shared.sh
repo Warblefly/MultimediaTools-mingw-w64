@@ -285,7 +285,7 @@ do_git_checkout() {
     new_git_version=`git rev-parse HEAD`
     if [[ "$old_git_version" != "$new_git_version" ]]; then
      echo "got upstream changes, forcing re-configure."
-     rm -Rv already*
+     rm -v `find ./ -name "already*"`
     else
      echo "this pull got no new upstream changes, not forcing re-configure..."
     fi
@@ -742,8 +742,9 @@ do_cleanup() {
 }
 
 build_libx265() {
-  do_git_checkout https://github.com/videolan/x265.git x265
+  do_git_checkout https://github.com/videolan/x265.git x265 1388601db0d23f8d8c3259886e9fcb747c1d5b52
   cd x265
+    apply_patch file://${top_dir}/x265-CMakeVersion.patch
 #    apply_patch file://${top_dir}/x265-headers-revert.patch
   cd ..
   cd x265/source
@@ -1353,14 +1354,15 @@ build_libspatialaudio() {
 }
 
 build_libmysofa() {
-  do_git_checkout https://github.com/hoene/libmysofa.git libmysofa "Branch_v0.4(Windows)"
+  do_git_checkout https://github.com/hoene/libmysofa.git libmysofa #"Branch_v0.4(Windows)"
   cd libmysofa
 #    apply_patch file://${top_dir}/libmysofa-zlib.patch
     cd src/tests
   #    sed -i.bak 's/CUnit\.h/Cunit\.h/' tests.c
   #    sed -i.bak 's/CUnit\.h/Cunit\.h/' tests.h
     cd ../..
-    do_cmake "-DCMAKE_BUILD_TYPE=Release -DCMAKE_COLOR_MAKEFILE=ON"
+    apply_patch file://${top_dir}/libmysofa-shared.patch
+    do_cmake "-DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_COLOR_MAKEFILE=ON"
     do_make
     do_make_install
 
@@ -2138,6 +2140,16 @@ build_libtheora() {
 build_sqlite() {
     generic_download_and_install https://www.sqlite.org/snapshot/sqlite-snapshot-201811291200.tar.gz sqlite-snapshot-201811291200
 }
+
+build_medialibrary() {
+	do_git_checkout https://code.videolan.org/videolan/medialibrary.git medialibrary
+	cd medialibrary
+		git submodule init
+		git submodule update
+		generic_configure_make_install
+	cd ..
+}
+
 
 build_libfilezilla() {
 do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfilezilla
@@ -5863,13 +5875,13 @@ build_ffmpeg() {
   # can't mix and match --enable-static --enable-shared unfortunately, or the final executable seems to just use shared if the're both present
   if [[ $shared == "shared" ]]; then
     output_dir=${output_dir}_shared
-    do_git_checkout $git_url ${output_dir} # 2f7ca0b94e49c2bfce8bda3f883766101ebd7a9b
+    do_git_checkout $git_url ${output_dir} #f52dd8a55a98418b6301cce4a56d2b73d08b7eea # 2f7ca0b94e49c2bfce8bda3f883766101ebd7a9b
     final_install_dir=`pwd`/${output_dir}.installed
     extra_configure_opts="--enable-shared --disable-static $extra_configure_opts"
     # avoid installing this to system?
     extra_configure_opts="$extra_configure_opts --prefix=$final_install_dir"
   else
-    do_git_checkout $git_url $output_dir # 2f7ca0b94e49c2bfce8bda3f883766101ebd7a9b
+    do_git_checkout $git_url $output_dir #f52dd8a55a98418b6301cce4a56d2b73d08b7eea # 2f7ca0b94e49c2bfce8bda3f883766101ebd7a9b
     extra_configure_opts="--enable-shared --disable-static --disable-debug --disable-stripping $extra_configure_opts" # --pkg-config-flags=--static
   fi
   cd $output_dir
@@ -6198,6 +6210,7 @@ build_dependencies() {
   build_cmark
   build_opusfile
   build_libopusenc
+  build_medialibrary
 }
 
 build_apps() {
