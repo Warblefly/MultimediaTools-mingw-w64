@@ -2146,7 +2146,7 @@ build_medialibrary() {
 	cd medialibrary
 		git submodule init
 		git submodule update
-		generic_configure_make_install
+		generic_configure_make_install "--without-libvlc"
 	cd ..
 }
 
@@ -2234,9 +2234,9 @@ build_orc() {
 }
 
 build_libxml2() {
-#  do_git_checkout https://github.com/GNOME/libxml2.git libxml2
-  download_and_unpack_file https://github.com/GNOME/libxml2/archive/v2.9.9-rc2.tar.gz libxml2-2.9.9-rc2 
-  cd libxml2-2.9.9-rc2
+  do_git_checkout https://github.com/GNOME/libxml2.git libxml2
+#  download_and_unpack_file https://github.com/GNOME/libxml2/archive/v2.9.9-rc2.tar.gz libxml2-2.9.9-rc2 
+  cd libxml2 # -2.9.9-rc2
     # Remove libxml2 autogen because it sets variables that interfere with our cross-compile
 #    rm -v autogen.sh
     generic_configure_make_install "LIBS=-lws2_32 --without-python --enable-ipv6"
@@ -2259,7 +2259,7 @@ build_libxslt() {
     sed -i.bak 's/doc \\/ \\/' Makefile.am
     # The Makefile.am forgets that libtool can't build a shared plugin library without -no-undefined
     sed -i.bak 's/xmlsoft_org_xslt_testplugin_la_LDFLAGS = -module -avoid-version -rpath $(plugindir)/xmlsoft_org_xslt_testplugin_la_LDFLAGS = -module -avoid-version -rpath $(plugindir) -no-undefined/' tests/plugins/Makefile.am
-    generic_configure_make_install "--disable-silent-rules --without-python --with-libxml-src=../libxml2-2.9.9-rc2"
+    generic_configure_make_install "--disable-silent-rules --without-python --with-libxml-src=../libxml2"
 
     unset CFLAGS
     unset LIBS
