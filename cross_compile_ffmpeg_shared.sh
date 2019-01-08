@@ -1739,7 +1739,7 @@ build_readline() {
   do_git_checkout git://git.savannah.gnu.org/readline.git readline
   cd readline
     rm configure
-    apply_patch file://${top_dir}/readline-mingw32.patch
+    #apply_patch file://${top_dir}/readline-mingw32.patch
     generic_configure_make_install "--without-curses"
 
   cd ..
@@ -2951,7 +2951,7 @@ build_iconvgettext() {
 build_libgpg-error() {
   # We remove one of the .po files due to a bug in Cygwin's iconv that causes it to loop when converting certain character encodings
 #  download_and_unpack_file ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-1.22.tar.bz2 libgpg-error-1.22
-  do_git_checkout git://git.gnupg.org/libgpg-error.git libgpg-error # 78b679a778ddf37b8952f1808fd8c52cc8163f17
+  do_git_checkout git://git.gnupg.org/libgpg-error.git libgpg-error 12349de46d241cfbadbdf99773d6cabfcbc97578 # 78b679a778ddf37b8952f1808fd8c52cc8163f17
   cd libgpg-error
 #    apply_patch file://${top_dir}/gpg-error-pid.patch
 #    rm po/ro.* # The Romanian translation causes Cygwin's iconv to loop. This is a Cygwin bug.
@@ -3995,7 +3995,7 @@ build_gtk() {
 }
 
 build_snappy () {
-  do_git_checkout https://github.com/google/snappy.git snappy
+  do_git_checkout https://github.com/google/snappy.git snappy fix_rc
   cd snappy
     # apply_patch file://${top_dir}/snappy-shared-dll.patch
     cp README.md README
