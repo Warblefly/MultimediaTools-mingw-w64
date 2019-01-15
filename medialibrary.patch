@@ -1,0 +1,10 @@
+--- src/utils/Filename.h.orig	2019-01-15 08:22:32.487768516 +0000
++++ src/utils/Filename.h	2019-01-15 08:22:44.611263608 +0000
+@@ -24,6 +24,7 @@
+ 
+ #include <stack>
+ #include <string>
++#include <algorithm>
+ 
+ namespace medialibrary
+ {

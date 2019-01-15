@@ -2146,6 +2146,8 @@ build_medialibrary() {
 	cd medialibrary
 		git submodule init
 		git submodule update
+		# Header not included
+		apply_patch file://${top_dir}/medialibrary.patch
 		generic_configure_make_install "--without-libvlc"
 	cd ..
 }
