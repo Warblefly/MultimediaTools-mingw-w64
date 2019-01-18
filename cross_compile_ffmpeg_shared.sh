@@ -847,13 +847,13 @@ build_drm() {
 
 
 build_qt() {
-  export QT_VERSION="5.11.2"
+  export QT_VERSION="5.12.0"
   export QT_SOURCE="qt-source"
   export QT_BUILD="qt-build"
 #  orig_cpu_count=$cpu_count
 #  export cpu_count=1
   if [ ! -f qt.built ]; then
-    download_and_unpack_file http://download.qt.io/official_releases/qt/5.11/5.11.2/single/qt-everywhere-src-5.11.2.tar.xz "qt-everywhere-src-${QT_VERSION}"
+    download_and_unpack_file http://download.qt.io/official_releases/qt/5.12/5.12.0/single/qt-everywhere-src-5.12.0.tar.xz "qt-everywhere-src-${QT_VERSION}"
     cd "qt-everywhere-src-${QT_VERSION}"
 #      apply_patch file://${top_dir}/qt-permissive.patch
     apply_patch file://${top_dir}/qt5-skip-mapboxglnative.patch
@@ -897,9 +897,10 @@ build_qt() {
     # Remove the debug versions of libQt5 libraries
     rm -v ${mingw_w64_x86_64_prefix}/bin/Qt5*d.dll
   fi
-  ln -sv ${mingw_w64_x86_64_prefix}/include/QtCore/5.11.1/QtCore/private ${mingw_w64_x86_64_prefix}/include/QtCore/private
+  ln -sv ${mingw_w64_x86_64_prefix}/include/QtCore/5.12.0/QtCore/private ${mingw_w64_x86_64_prefix}/include/QtCore/private
   ln -sv ${mingw_w64_x86_64_prefix}/bin/Qt*.dll ${mingw_w64_x86_64_prefix}/../bin
   ln -sv ${mingw_w64_x86_64_prefix}/plugins ${mingw_w64_x86_64_prefix}/../plugins
+  sed -i.bak 's! /libQt5Core\.a! -lQt5Core!' ${mingw_w64_x86_64_prefix}/lib/qtmain.prl
   unset QT_VERSION
   unset QT_SOURCE
   unset QT_BUILD
@@ -1965,9 +1966,9 @@ build_ncurses() {
     wget http://invisible-island.net/datafiles/current/terminfo.src.gz
     gunzip terminfo.src.gz
   fi
-  download_and_unpack_file http://invisible-mirror.net/archives/ncurses/current/ncurses-6.1-20181013.tgz ncurses-6.1-20181013
+  download_and_unpack_file http://invisible-mirror.net/archives/ncurses/current/ncurses-6.1-20190112.tgz ncurses-6.1-20190112
  # generic_configure "--build=x86_64-pc-linux --host=x86_64-w64-mingw32 --with-libtool --disable-termcap --enable-widec --enable-term-driver --enable-sp-funcs --without-ada --with-debug=no --with-shared=yes --with-normal=no --enable-database --with-progs --enable-interop --with-pkg-config-libdir=${mingw_w64_x86_64_prefix}/lib/pkgconfig --enable-pc-files"
-  cd ncurses-6.1-20181013
+  cd ncurses-6.1-20190112
 #    apply_patch file://${top_dir}/ncurses-rx.patch
 #    rm configure
     generic_configure "LIBS=-lgnurx --build=x86_64-pc-linux --host=x86_64-w64-mingw32 --disable-termcap --enable-widec --enable-term-driver --enable-sp-funcs --without-ada --without-cxx-binding --with-debug=no --with-shared=yes --with-normal=no --enable-database --with-probs --enable-interop --with-pkg-config-libdir=${mingw_w64_x86_64_prefix}/lib/pkgconfig --enable-pc-files --disable-static --enable-shared"
@@ -2506,7 +2507,7 @@ build_p11kit() {
 }
 
 build_libidn2() {
-  do_git_checkout https://github.com/libidn/libidn2.git libidn2
+  do_git_checkout https://github.com/libidn/libidn2.git libidn2 301a43b5ac41f0fbea41d70444c0942ae93624cd
   cd libidn2
     generic_configure_make_install
 
@@ -3619,10 +3620,13 @@ build_liburiparser() {
   cd uriparser
   # This requires sys/socket.h, which mingw-w64 (Windows) doesn't have
   sed -i.bak 's/bin_PROGRAMS = uriparse/bin_PROGRAMS =/' Makefile.am
-  if [[ ! -f ./configure ]]; then
-    ./autogen.sh
-  fi
-  generic_configure_make_install "--disable-test --disable-doc"
+#  if [[ ! -f ./configure ]]; then
+#    ./autogen.sh
+#  fii
+  do_cmake "-DURIPARSER_BUILD_TESTS=OFF -DURIPARSER_BUILD_DOCS=OFF"
+  do_make
+  do_make_install
+  #generic_configure_make_install "--disable-test --disable-doc"
 
   # Put back the change to allow git to update correctly
   sed -i.bak 's/bin_PROGRAMS =/bin_PROGRAMS = uriparse/' Makefile.am
@@ -4490,8 +4494,8 @@ build_mjpegtools() {
 
 build_file() {
   # Also contains libmagic
-  do_git_checkout https://github.com/file/file.git file_native #edb7f0d6c23852f799f5f919cb44131307e98e2c
-  do_git_checkout https://github.com/file/file.git file #edb7f0d6c23852f799f5f919cb44131307e98e2c
+  do_git_checkout https://github.com/file/file.git file_native 5f80e1a628d7b3fef3f87e2a69c5ecbf08f7daec
+  do_git_checkout https://github.com/file/file.git file 5f80e1a628d7b3fef3f87e2a69c5ecbf08f7daec
   # We use the git version of file and libmagic, which is updated more
   # often than distributions track. File requires its own binary to compile
   # its list of magic numbers. Therefore, because we are cross-compiling,
@@ -5019,7 +5023,7 @@ do_git_checkout git://anongit.freedesktop.org/uchardet/uchardet uchardet
 }
 
 build_zstd() {
-    do_git_checkout https://github.com/facebook/zstd.git zstd
+    do_git_checkout https://github.com/facebook/zstd.git zstd 6b7a1d6127a0306731d4f98a0da2b9e91c078242
     cd zstd/build/cmake
         do_cmake
         do_make
@@ -5058,7 +5062,7 @@ build_hdf() {
 }
 
 build_netcdf() {
-  do_git_checkout https://github.com/Unidata/netcdf-c.git netcdf-c
+  do_git_checkout https://github.com/Unidata/netcdf-c.git netcdf-c 383f1cbe321e16ec82c6eb8e1774e16d8ed1962c
   cd netcdf-c
     apply_patch file://${top_dir}/netcdf-shared.patch
     apply_patch file://${top_dir}/netcdf-mingw.patch
@@ -5227,7 +5231,7 @@ build_mimedb() {
 }
 
 build_qjackctl() {
-  do_git_checkout https://github.com/rncbc/qjackctl.git qjackctl b2ae94121d368bb2498a3fa09173e99263fe8c39 # 568b076f1ddd0fcb18a78828e0e5b833e52fd7a1
+  do_git_checkout https://github.com/rncbc/qjackctl.git qjackctl # b2ae94121d368bb2498a3fa09173e99263fe8c39 # 568b076f1ddd0fcb18a78828e0e5b833e52fd7a1
   cd qjackctl
     apply_patch file://${top_dir}/qjackctl-MainForm.patch
     generic_configure_make_install "LIBS=-lportaudio --enable-xunique=no --disable-alsa-seq" # enable-jack-version=yes
@@ -5263,7 +5267,7 @@ build_glslang() {
 }
 
 build_shaderc() {
-    do_git_checkout https://github.com/google/shaderc.git shaderc # a2c044c44d68c31014210f9b37a682d118c40388 # be8e0879750303a1de09385465d6b20ecb8b380d
+    do_git_checkout https://github.com/google/shaderc.git shaderc 14ae0de47d34f14e09ae1c64327cd39c32c8f693 # a2c044c44d68c31014210f9b37a682d118c40388 # be8e0879750303a1de09385465d6b20ecb8b380d
     cd shaderc
         export spirv-tools_SOURCE_DIR=${top_dir}/x86_64/SPIRV-Tools/
         export glslang_SOURCE_DIR=${top_dir}/x86_64/glslang/
