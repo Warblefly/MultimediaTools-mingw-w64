@@ -2507,7 +2507,7 @@ build_p11kit() {
 }
 
 build_libidn2() {
-  do_git_checkout https://github.com/libidn/libidn2.git libidn2 301a43b5ac41f0fbea41d70444c0942ae93624cd
+  do_git_checkout https://github.com/libidn/libidn2.git libidn2 # 301a43b5ac41f0fbea41d70444c0942ae93624cd
   cd libidn2
     generic_configure_make_install
 
@@ -2954,7 +2954,7 @@ build_iconvgettext() {
 build_libgpg-error() {
   # We remove one of the .po files due to a bug in Cygwin's iconv that causes it to loop when converting certain character encodings
 #  download_and_unpack_file ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-1.22.tar.bz2 libgpg-error-1.22
-  do_git_checkout git://git.gnupg.org/libgpg-error.git libgpg-error 12349de46d241cfbadbdf99773d6cabfcbc97578 # 78b679a778ddf37b8952f1808fd8c52cc8163f17
+  do_git_checkout git://git.gnupg.org/libgpg-error.git libgpg-error # 12349de46d241cfbadbdf99773d6cabfcbc97578 # 78b679a778ddf37b8952f1808fd8c52cc8163f17
   cd libgpg-error
 #    apply_patch file://${top_dir}/gpg-error-pid.patch
 #    rm po/ro.* # The Romanian translation causes Cygwin's iconv to loop. This is a Cygwin bug.
@@ -3770,7 +3770,7 @@ build_boost() {
 }
 
 build_mkvtoolnix() {
-  do_git_checkout https://gitlab.com/mbunkus/mkvtoolnix mkvtoolnix 16772170030715717341c3d5460d3d1fecf501a4
+  do_git_checkout https://gitlab.com/mbunkus/mkvtoolnix mkvtoolnix #16772170030715717341c3d5460d3d1fecf501a4
 #    download_and_unpack_file https://mkvtoolnix.download/sources/mkvtoolnix-23.0.0.tar.xz mkvtoolnix-23.0.0
   cd mkvtoolnix
     # Two libraries needed for mkvtoolnix
@@ -4494,8 +4494,8 @@ build_mjpegtools() {
 
 build_file() {
   # Also contains libmagic
-  do_git_checkout https://github.com/file/file.git file_native 5f80e1a628d7b3fef3f87e2a69c5ecbf08f7daec
-  do_git_checkout https://github.com/file/file.git file 5f80e1a628d7b3fef3f87e2a69c5ecbf08f7daec
+  do_git_checkout https://github.com/file/file.git file_native # 5f80e1a628d7b3fef3f87e2a69c5ecbf08f7daec
+  do_git_checkout https://github.com/file/file.git file # 5f80e1a628d7b3fef3f87e2a69c5ecbf08f7daec
   # We use the git version of file and libmagic, which is updated more
   # often than distributions track. File requires its own binary to compile
   # its list of magic numbers. Therefore, because we are cross-compiling,
