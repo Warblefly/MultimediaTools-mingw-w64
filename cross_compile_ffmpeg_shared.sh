@@ -742,7 +742,7 @@ do_cleanup() {
 }
 
 build_libx265() {
-  do_git_checkout https://github.com/videolan/x265.git x265 1388601db0d23f8d8c3259886e9fcb747c1d5b52
+  do_git_checkout https://github.com/videolan/x265.git x265 #1388601db0d23f8d8c3259886e9fcb747c1d5b52
   cd x265
     apply_patch file://${top_dir}/x265-CMakeVersion.patch
 #    apply_patch file://${top_dir}/x265-headers-revert.patch
@@ -2143,7 +2143,8 @@ build_sqlite() {
 }
 
 build_medialibrary() {
-	do_git_checkout https://code.videolan.org/videolan/medialibrary.git medialibrary
+	# New name change not reflected yet in VLC player
+	do_git_checkout https://code.videolan.org/videolan/medialibrary.git medialibrary 21fa816f7e3ee4ae20b565c2665641ee91431234
 	cd medialibrary
 		git submodule init
 		git submodule update
@@ -4711,9 +4712,10 @@ build_ocaml() {
 build_aubio() {
     # We need our own version of Waf, specially compiled
     # Tests have been added to aubio but don't work when cross-compiled
-    do_git_checkout https://git.aubio.org/aubio/aubio aubio d94afb37f953f5d7cad9881dac42bff1e3b66f9c
+    do_git_checkout https://git.aubio.org/aubio/aubio aubio #d94afb37f953f5d7cad9881dac42bff1e3b66f9c
     cd aubio
     	apply_patch file://${top_dir}/aubio_notests.patch
+	apply_patch file://${top_dir}/aubio_mingw.patch
         mkdir aubio_build
         cd aubio_build
             wget https://waf.io/waf-2.0.1.tar.bz2
@@ -4789,7 +4791,7 @@ build_makemkv() { # THIS IS NOT WORKING - MAKEMKV NEEDS MORE THAN MINGW OFFERS
 }
 
 build_gettext() {
-  do_git_checkout https://git.savannah.gnu.org/git/gettext.git gettext 5ed70829a2a78b38f8fddf3543a34f9f22ea110e
+  do_git_checkout https://git.savannah.gnu.org/git/gettext.git gettext # 5ed70829a2a78b38f8fddf3543a34f9f22ea110e
   cd gettext
     generic_configure "CFLAGS=-O2 CXXFLAGS=-O2 LIBS=-lpthread"
     cd gettext-runtime/intl
@@ -4842,7 +4844,8 @@ download_and_unpack_file http://ftp.gnome.org/pub/GNOME/sources/atk/2.29/atk-2.2
 }
 
 build_libplacebo() {
-  do_git_checkout https://github.com/haasn/libplacebo.git libplacebo 08b45ede97262d73778f1bee40ac845702e240d4 # 5198e1564c5f2900b7b1f98561b6323d27bd78bb
+  #do_git_checkout https://code.videolan.org/videolan/libplacebo.git libplacebo #3294a29ee0fa103a0558a37123344cee573324e8
+  do_git_checkout https://github.com/haasn/libplacebo.git libplacebo e79ea1902ea7c797f5cd2ff2de937a789408c136 # 08b45ede97262d73778f1bee40ac845702e240d4 # 5198e1564c5f2900b7b1f98561b6323d27bd78bb
   cd libplacebo
     #apply_patch file://${top_dir}/libplacebo-win32.patch
     generic_meson_ninja_install
@@ -5062,10 +5065,12 @@ build_hdf() {
 }
 
 build_netcdf() {
-  do_git_checkout https://github.com/Unidata/netcdf-c.git netcdf-c 383f1cbe321e16ec82c6eb8e1774e16d8ed1962c
+  do_git_checkout https://github.com/Unidata/netcdf-c.git netcdf-c #383f1cbe321e16ec82c6eb8e1774e16d8ed1962c
   cd netcdf-c
     apply_patch file://${top_dir}/netcdf-shared.patch
-    apply_patch file://${top_dir}/netcdf-mingw.patch
+    apply_patch file://${top_dir}/netcdf-errno.patch
+    apply_patch file://${top_dir}/netcdf-gcc.patch
+#    apply_patch file://${top_dir}/netcdf-mingw.patch
     generic_configure_make_install "--enable-dll --disable-netcdf4"
   cd ..
 #  generic_download_and_install ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-4.5.0.tar.gz netcdf-4.5.0 "--enable-dll --disable-netcdf4"
@@ -5077,7 +5082,7 @@ build_netcdf() {
 build_vlc() {
   # VLC normally requires its own libraries to be linked. However, it in fact builds with latest
   # versions of everything compiled here. At the moment..
-  do_git_checkout https://github.com/videolan/vlc.git vlc
+  do_git_checkout https://github.com/videolan/vlc.git vlc  # ba330c1ff6c3418cfebe2a404d49702681735f5c #9868c4be81c9d4ae45f76463fa2a76629dc92dce
   cd vlc
     unset CFLAGS
     unset CXXFLAGS
@@ -5445,7 +5450,7 @@ build_pngcrush() {
 }
 
 build_eigen() {
-  do_git_checkout https://github.com/eigenteam/eigen-git-mirror.git eigen-git-mirror 54d243db458f88b716deafb5ac1da5d7ffde4a78
+  do_git_checkout https://github.com/eigenteam/eigen-git-mirror.git eigen-git-mirror #54d243db458f88b716deafb5ac1da5d7ffde4a78
 #  download_and_unpack_file http://bitbucket.org/eigen/eigen/get/3.3.5.tar.bz2 eigen-eigen-b3f3d4950030
 #  cd eigen-eigen-b3f3d4950030
     cd eigen-git-mirror

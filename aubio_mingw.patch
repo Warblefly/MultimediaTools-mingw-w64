@@ -1,0 +1,14 @@
+--- src/aubio_priv.h.orig	2019-01-25 11:08:51.229777721 +0000
++++ src/aubio_priv.h	2019-01-25 11:09:43.285286351 +0000
+@@ -330,11 +330,7 @@
+ #define isnan _isnan
+ #endif
+ 
+-#if !defined(_MSC_VER)
+-#define AUBIO_STRERROR(errno,buf,len) strerror_r(errno, buf, len)
+-#else
+ #define AUBIO_STRERROR(errno,buf,len) strerror_s(buf, len, errno)
+-#endif
+ 
+ #ifdef HAVE_C99_VARARGS_MACROS
+ #define AUBIO_STRERR(...)            \
