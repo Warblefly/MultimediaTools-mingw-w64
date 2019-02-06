@@ -1409,7 +1409,7 @@ build_opendcp() {
 }
 
 build_dcpomatic() {
-  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
+  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
 #  download_and_unpack_file https://dcpomatic.com/downloads/2.11.72/dcpomatic-2.11.72.tar.bz2 dcpomatic-2.11.72
   cd dcpomatic
 #    apply_patch file://${top_dir}/dcpomatic-wscript.patch
@@ -1445,7 +1445,7 @@ build_gcal() {
 }
 
 build_unbound() {
-  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.8.3 "CFLAGS=-O1 libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
+  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.9.0 "CFLAGS=-O1 libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
 }
 
 build_libxavs() {
@@ -4791,7 +4791,7 @@ build_makemkv() { # THIS IS NOT WORKING - MAKEMKV NEEDS MORE THAN MINGW OFFERS
 }
 
 build_gettext() {
-  do_git_checkout https://git.savannah.gnu.org/git/gettext.git gettext # 5ed70829a2a78b38f8fddf3543a34f9f22ea110e
+  do_git_checkout https://git.savannah.gnu.org/git/gettext.git gettext  5ed70829a2a78b38f8fddf3543a34f9f22ea110e
   cd gettext
     generic_configure "CFLAGS=-O2 CXXFLAGS=-O2 LIBS=-lpthread"
     cd gettext-runtime/intl
