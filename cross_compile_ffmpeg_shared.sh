@@ -4791,6 +4791,7 @@ build_makemkv() { # THIS IS NOT WORKING - MAKEMKV NEEDS MORE THAN MINGW OFFERS
 }
 
 build_gettext() {
+	# Later versions of GNU gettext have a mingw incompatibility
   do_git_checkout https://git.savannah.gnu.org/git/gettext.git gettext  5ed70829a2a78b38f8fddf3543a34f9f22ea110e
   cd gettext
     generic_configure "CFLAGS=-O2 CXXFLAGS=-O2 LIBS=-lpthread"
