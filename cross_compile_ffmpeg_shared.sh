@@ -1315,7 +1315,8 @@ build_opencv() {
     apply_patch file://${top_dir}/opencv-strict.patch
     mkdir -pv build
     cd build
-      do_cmake ".. -DWITH_IPP=OFF -DWITH_EIGEN=ON -DWITH_VFW=ON -DWITH_DSHOW=ON -DOPENCV_ENABLE_NONFREE=ON -DWITH_GTK=ON -DWITH_WIN32UI=ON -DWITH_DIRECTX=ON -DBUILD_SHARED_LIBS=ON -DBUILD_opencv_apps=ON -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_JASPER=OFF -DBUILD_JPEG=OFF -DBUILD_OPENEXR=OFF -DBUILD_PNG=OFF -DBUILD_TIFF=OFF -DBUILD_ZLIB=OFF -DENABLE_SSE41=ON -DENABLE_SSE42=ON -DWITH_WEBP=OFF -DBUILD_EXAMPLES=ON -DINSTALL_C_EXAMPLES=ON -DWITH_OPENGL=ON -DINSTALL_PYTHON_EXAMPLES=ON -DCMAKE_CXX_FLAGS=-DMINGW_HAS_SECURE_API=1 -DCMAKE_C_FLAGS=-DMINGW_HAS_SECURE_API=1 -DOPENCV_LINKER_LIBS=boost_thread-mt;boost_system-mt -DCMAKE_VERBOSE=ON -DINSTALL_TO_MANGLED_PATHS=OFF" && ${top_dir}/correct_headers.sh
+      do_cmake ".. -DWITH_IPP=OFF -DWITH_EIGEN=ON -DWITH_VFW=ON -DWITH_DSHOW=ON -DOPENCV_ENABLE_NONFREE=ON -DWITH_GTK=ON -DWITH_WIN32UI=ON -DWITH_DIRECTX=ON -DBUILD_SHARED_LIBS=ON -DBUILD_opencv_apps=ON -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_JASPER=OFF -DBUILD_JPEG=OFF -DBUILD_OPENEXR=OFF -DBUILD_PNG=OFF -DBUILD_TIFF=OFF -DBUILD_ZLIB=OFF -DENABLE_SSE41=ON -DENABLE_SSE42=ON -DWITH_WEBP=OFF -DBUILD_EXAMPLES=ON -DINSTALL_C_EXAMPLES=ON -DWITH_OPENGL=ON
+      -DINSTALL_PYTHON_EXAMPLES=ON -DCMAKE_CXX_FLAGS=-DMINGW_HAS_SECURE_API=1 -DCMAKE_C_FLAGS=-DMINGW_HAS_SECURE_API=1 -DOPENCV_LINKER_LIBS=boost_thread-mt-x64;boost_system-mt-x64 -DCMAKE_VERBOSE=ON -DINSTALL_TO_MANGLED_PATHS=OFF" && ${top_dir}/correct_headers.sh
       sed -i.bak "s|DBL_EPSILON|2.2204460492503131E-16|g" modules/imgproc/include/opencv2/imgproc/types_c.h
       do_make_install
 #      cp -v ${mingw_w64_x86_64_prefix}/lib/libopencv_core320.dll.a ${mingw_w64_x86_64_prefix}/lib/libopencv_core.dll.a
@@ -2239,7 +2240,7 @@ build_orc() {
 
 build_libxml2() {
   do_git_checkout https://github.com/GNOME/libxml2.git libxml2
-#  download_and_unpack_file https://github.com/GNOME/libxml2/archive/v2.9.9-rc2.tar.gz libxml2-2.9.9-rc2 
+#  download_and_unpack_file https://github.com/GNOME/libxml2/archive/v2.9.9-rc2.tar.gz libxml2-2.9.9-rc2
   cd libxml2 # -2.9.9-rc2
     # Remove libxml2 autogen because it sets variables that interfere with our cross-compile
 #    rm -v autogen.sh
@@ -2717,7 +2718,9 @@ build_asdcplib-cth() {
     export PKG_CONFIG_PATH=${mingw_w64_x86_64_prefix}/lib/pkgconfig
     export CXXFLAGS="-DKM_WIN32"
     export CFLAGS="-DKM_WIN32"
-    export LIBS="-lws2_32 -lcrypto -lssl -lgdi32 -lboost_filesystem-mt -lboost_system-mt"
+    export LIBS="-lws2_32 -lcrypto -lssl -lgdi32 -lboost_filesystem-mt-x64 -lboost_system-mt-x64"
+    apply_patch file://${top_dir}/asdcplib-cth-wscript.patch
+    apply_patch file://${top_dir}/asdcplib-cth-snprintf.patch
     # Don't look for boost libraries ending in -mt -- all our libraries are multithreaded anyway
     #sed -i.bak "s/boost_lib_suffix = '-mt'/boost_lib_suffix = ''/" wscript
 #    sed -i.bak "s/boost_lib_suffix = '-mt'/boost_lib_suffix = ''/" test/wscript
@@ -2785,7 +2788,7 @@ build_libsub() {
     #sed -i.bak "s/boost_lib_suffix = '-mt'/boost_lib_suffix = ''/" wscript
     # The version in the development tree doesn't have an updated version number
 #    sed -i.bak "s/1\.1\.0devel/1.2.4/" wscript
-#    apply_patch file://${top_dir}/libsub-wscript.patch
+    apply_patch file://${top_dir}/libsub-wscript.patch
     #sed -i.bak "s/boost_lib_suffix = '-mt'/boost_lib_suffix = ''/" test/wscript
     # iostream header is needed for std::cout objects
 #    apply_patch file://${top_dir}/libsub_iostream.patch
@@ -2988,7 +2991,7 @@ build_tesseract() {
 #    apply_patch file://${top_dir}/tesseract-thread.patch
 #    apply_patch file://${top_dir}/tesseract-libgomp.patch
     export LIBLEPT_HEADERSDIR="${mingw_w64_x86_64_prefix}/include/leptonica"
-    export LIBS="-ltiff -ljpeg -lpng -lwebp -lz -lboost_thread-mt" # -lboost_thread_win32 -lboost_chrono"
+    export LIBS="-ltiff -ljpeg -lpng -lwebp -lz -lboost_thread-mt-x64" # -lboost_thread_win32 -lboost_chrono"
     old_cxxflags="${CXXFLAGS}"
     export CXXFLAGS="-fpermissive"
     sed -i.bak 's/Windows.h/windows.h/' opencl/openclwrapper.cpp
@@ -3733,11 +3736,12 @@ build_regex() {
 }
 
 build_boost() {
-  download_and_unpack_file "https://dl.bintray.com/boostorg/release/1.68.0/source/boost_1_68_0.tar.bz2" boost_1_68_0
-  cd boost_1_68_0
-    cd libs/serialization
-      apply_patch file://${top_dir}/boost-codecvt.patch
-    cd ../..
+  download_and_unpack_file "https://dl.bintray.com/boostorg/release/1.69.0/source/boost_1_69_0.tar.bz2" boost_1_69_0
+  cd boost_1_69_0
+  #  cd libs/serialization
+  #    apply_patch file://${top_dir}/boost-codecvt.patch
+  #  cd ../..
+    apply_patch file://${top_dir}/boost-snprintf.patch
     local touch_name=$(get_small_touchfile_name already_configured "$configure_options $configure_name $LDFLAGS $CFLAGS")
     if [ ! -f  "$touch_name" ]; then
 #      ./bootstrap.sh mingw target-os=windows address-model=64 link=shared threading=multi threadapi=win32 toolset=gcc-mingw --prefix=${mingw_w64_x86_64_prefix} || exit 1
@@ -3798,7 +3802,7 @@ build_mkvtoolnix() {
     #apply_patch file://${top_dir}/mkvtoolnix-qt5-2.patch
     apply_patch file://${top_dir}/mkvtoolnix-stack.patch
     #rm -vf src/info/sys_windows.cpp
-    generic_configure "--with-boost=${mingw_w64_x86_64_prefix} --with-boost-system=boost_system-mt --with-boost-filesystem=boost_filesystem-mt --with-boost-date-time=boost_date_time-mt --with-boost-regex=boost_regex-mt --enable-qt --enable-static-qt=no --disable-static-qt --disable-static --enable-optimization=yes --enable-debug=no"
+    generic_configure "--with-boost=${mingw_w64_x86_64_prefix} --with-boost-system=boost_system-mt-x64 --with-boost-filesystem=boost_filesystem-mt-x64 --with-boost-date-time=boost_date_time-mt-x64 --with-boost-regex=boost_regex-mt-x64 --enable-qt --enable-static-qt=no --disable-static-qt --disable-static --enable-optimization=yes --enable-debug=no"
     # Now we must prevent inclusion of sys_windows.cpp because our build uses shared libraries,
     # and this piece of code unfortunately tries to pull in a static version of the Windows Qt
     # platform library libqwindows.a
@@ -3929,7 +3933,7 @@ build_frei0r() {
     # These are ALWAYS compiled as DLLs... there is no static library model in frei0r
     # The facedetect filters don't work because there's something wrong in the way frei0r calls into opencv.
     # If you want to debug this, please add -DCMAKE_BUILD_TYPE=Debug, otherwise important parameters are optimized out
-    do_cmake "-DOpenCV_DIR=${OpenCV_DIR} -DOpenCV_INCLUDE_DIR=${OpenCV_INCLUDE_DIR} -DCMAKE_CXX_FLAGS=-std=c++14 -DCMAKE_VERBOSE_MAKEFILE=YES"
+    do_cmake "-DOpenCV_DIR=${OpenCV_DIR} -DOpenCV_INCLUDE_DIR=${OpenCV_INCLUDE_DIR} -DCMAKE_CXX_FLAGS=-std=c++14 -DCMAKE_VERBOSE_MAKEFILE=YES" && ${top_dir}/correct_headers.sh
     # do_cmake "-DCMAKE_CXX_FLAGS=-std=c++14 -DCMAKE_VERBOSE_MAKEFILE=YES"
     do_make_install #  "-j1"
 
@@ -4277,7 +4281,7 @@ build_libuuid() {
 }
 
 build_zmq() {
-  do_git_checkout https://github.com/zeromq/libzmq libzmq  # 4e2b9e6e07d4622d094febf8c4f61f9f191fd9ae
+  do_git_checkout https://github.com/zeromq/libzmq libzmq cb73745250dce53aa6e059751a47940b7518a1c3 # 4e2b9e6e07d4622d094febf8c4f61f9f191fd9ae
   cd libzmq
     generic_configure_make_install
 
@@ -4865,8 +4869,8 @@ build_gdk_pixbuf() {
 }
 
 build_libsigc++() {
-  generic_download_and_install https://download.gnome.org/sources/libsigc++/2.10/libsigc++-2.10.0.tar.xz libsigc++-2.10.0
-  do_git_checkout https://github.com/GNOME/libsigcplusplus.git libsigcplusplus
+#  generic_download_and_install https://github.com/libsigcplusplus/libsigcplusplus/archive/2.99.12.tar.gz libsigcplusplus-2.99.12
+  do_git_checkout https://github.com/libsigcplusplus/libsigcplusplus.git libsigcplusplus libsigc++-2-10
   cd libsigcplusplus
     orig_aclocalpath=${ACLOCAL_PATH}
     export ACLOCAL_PATH="${mingw_w64_x86_64_prefix}/share/aclocal"
@@ -4938,6 +4942,7 @@ build_libcxml(){
     # libdir must be set
     # We have to tell wscript not to look in /usr/local/lib. This ought not to be hard-coded
     sed -i.bak "s!libpath='/usr/local/!libpath='${mingw_w64_x86_64_prefix}/!" wscript
+    apply_patch file://${top_dir}/libcxml-boost.patch
     do_configure "configure --target-windows -vv -pp --prefix=${mingw_w64_x86_64_prefix} --check-cxx-compiler=gxx" "./waf" # --libdir=${mingw_w64_x86_64_prefix}/lib WINRC=x86_64-w64-mingw32-windres CXX=x86_64-w64-mingw32-g++
     ./waf build || exit 1
     ./waf install || exit 1
@@ -4953,11 +4958,11 @@ build_glibmm() {
   # Because our threading model for our GCC does not involve posix threads, we must emulate them with
   # the Boost libraries. These provide an (almost) drop-in replacement.
   # VERSION WARNING: glibmm-2.51 breaks compatibility. You have to read the documentation to learn this.
-  export GLIBMM_LIBS="-lgobject-2.0 -lgmodule-2.0 -lglib-2.0 -lboost_system-mt -lsigc-2.0 -lboost_thread-mt"
-  export GIOMM_LIBS="-lgio-2.0 -lgobject-2.0 -lgmodule-2.0 -lglib-2.0 -lboost_system-mt -lsigc-2.0"
+  export GLIBMM_LIBS="-lgobject-2.0 -lgmodule-2.0 -lglib-2.0 -lboost_system-mt-x64 -lsigc-2.0 -lboost_thread-mt-x64"
+  export GIOMM_LIBS="-lgio-2.0 -lgobject-2.0 -lgmodule-2.0 -lglib-2.0 -lboost_system-mt-x64 -lsigc-2.0"
   export NOCONFIGURE=1
-  download_and_unpack_file https://ftp.gnome.org/pub/GNOME/sources/glibmm/2.56/glibmm-2.56.0.tar.xz glibmm-2.56.0
-  cd glibmm-2.56.0
+  download_and_unpack_file https://ftp.gnome.org/pub/GNOME/sources/glibmm/2.56/glibmm-2.56.1.tar.xz glibmm-2.56.1
+  cd glibmm-2.56.1
     apply_patch file://${top_dir}/glibmm-mutex.patch
     generic_configure_make_install "--disable-silent-rules"
 
@@ -5095,7 +5100,7 @@ build_vlc() {
     apply_patch file://${top_dir}/vlc-dxgi.patch
     apply_patch file://${top_dir}/vlc-dll-dirs.patch
     apply_patch file://${top_dir}/vlc-aom.patch
-    apply_patch file://${top_dir}/vlc-vpx.patch
+#    apply_patch file://${top_dir}/vlc-vpx.patch
     apply_patch file://${top_dir}/vlc-d3d11-deinterlace.patch
     apply_patch file://${top_dir}/vlc-stack.patch
     export LIVE555_CFLAGS="-I${mingw_w64_x86_64_prefix}/include/liveMedia -I${mingw_w64_x86_64_prefix}/include/UsageEnvironment -I${mingw_w64_x86_64_prefix}/include/BasicUsageEnvironment -I${mingw_w64_x86_64_prefix}/include/groupsock"
@@ -5216,7 +5221,7 @@ build_pango() {
 
 build_pangomm() {
   # VERSION WARNING Pango-2.41 breaks compatibility
-  export PANGOMM_LIBS="-lgobject-2.0 -lgmodule-2.0 -lglib-2.0 -lglibmm-2.4 -lgio-2.0 -lboost_system-mt -lsigc-2.0 -lboost_thread-mt -lboost_system-mt -lcairo -lcairomm-1.0 -lpango-1.0 -lpangocairo-1.0"
+  export PANGOMM_LIBS="-lgobject-2.0 -lgmodule-2.0 -lglib-2.0 -lglibmm-2.4 -lgio-2.0 -lboost_system-mt-x64 -lsigc-2.0 -lboost_thread-mt-x64 -lboost_system-mt-x64 -lcairo -lcairomm-1.0 -lpango-1.0 -lpangocairo-1.0"
   generic_download_and_install http://ftp.gnome.org/pub/GNOME/sources/pangomm/2.40/pangomm-2.40.1.tar.xz pangomm-2.40.1
   cd pangomm-2.40.1
 
@@ -5861,6 +5866,15 @@ build_libdecklink() {
 #  fi
 }
 
+build_libklvanc() {
+    do_git_checkout https://github.com/stoth68000/libklvanc.git libklvanc
+    cd libklvanc
+        rm autogen.sh
+        apply_patch file://${top_dir}/libklvanc.patch
+        generic_configure_make_install "LIBS=-lpthread --disable-silent-rules"
+    cd ..
+}
+
 build_ffmpegnv() {
   do_git_checkout https://git.videolan.org/git/ffmpeg/nv-codec-headers.git nv-codec-headers
   cd nv-codec-headers
@@ -5879,7 +5893,7 @@ build_ffmpeg() {
 
   # FFmpeg + libav compatible options
   # add libpsapi to enable libdlfcn for Windows to work, thereby enabling frei0r plugins
-  local extra_configure_opts="--enable-libsoxr --enable-fontconfig --enable-libass --enable-libbluray --enable-iconv --enable-libtwolame --enable-libzvbi --enable-libcaca --enable-libmodplug --extra-libs=-lstdc++ --extra-libs=-lpsapi --enable-opengl --extra-libs=-lz --extra-libs=-lpng --enable-libvidstab --enable-decklink --extra-libs=-loleaut32 --enable-libcdio --enable-libzimg --enable-chromaprint --enable-libsnappy --enable-libx265 --enable-lv2 --logfile=/dev/tty"
+  local extra_configure_opts="--enable-libsoxr --enable-fontconfig --enable-libass --enable-libbluray --enable-iconv --enable-libtwolame --enable-libzvbi --enable-libcaca --enable-libmodplug --extra-libs=-lstdc++ --extra-libs=-lpsapi --enable-opengl --extra-libs=-lz --extra-libs=-lpng --enable-libvidstab --enable-decklink --extra-libs=-loleaut32 --enable-libcdio --enable-libzimg --enable-chromaprint --enable-libsnappy --enable-libx265 --enable-lv2 --enable-libklvanc --logfile=/dev/tty"
 
 # The -Wno-narrowing is because libutvideo triggers a compiler strictness with the narrowing of a constant inside a curly-bracketed declaration
   extra_configure_opts="$extra_configure_opts --extra-cflags=$CFLAGS --extra-version=COMPILED_BY_JohnWarburton --extra-cxxflags=-Wno-narrowing" # extra-cflags is not needed, but adds it to the console output which I lke
@@ -6091,6 +6105,7 @@ build_dependencies() {
   build_libilbc
 #  build_icu # Needed for Qt5 / QtWebKit
   build_libmms
+  build_libklvanc
   build_flac
   if [[ -d gsm-1.0-pl13 ]]; then # this is a TERRIBLE kludge because sox mustn't see libgsm
     cd gsm-1.0-pl13

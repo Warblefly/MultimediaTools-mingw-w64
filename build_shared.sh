@@ -543,7 +543,7 @@ fi
 
 if [[ "${upload_archive}" = [Yy] ]]; then
   echo "Uploading archive to ${upload_location}..."
-  sshpass -p "${upload_password}" rsync --bwlimit=400 -avP -e ssh --progress MultimediaTools-mingw-w64-Open-source.exe "${upload_location}"
+  sshpass -p "${upload_password}" rsync --bwlimit=40 -avP -e ssh --progress MultimediaTools-mingw-w64-Open-source.exe "${upload_location}"
 # We also upload the installation command files separately.
 #  echo "Uploading installation scripts to ${upload_location}..."
 #  sshpass -p "${upload_password}" scp -v -l 250 "install-zipfile.ps1" "install-zipfile.cmd" "${upload_location}"

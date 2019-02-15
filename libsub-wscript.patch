@@ -1,16 +1,31 @@
---- wscript.orig	2017-09-09 11:47:10.551359800 +0100
-+++ wscript	2017-09-09 11:47:49.519367100 +0100
-@@ -34,11 +34,11 @@
-         conf.check_cfg(package='libcxml', atleast_version='0.08', args='--cflags', uselib_store='CXML', mandatory=True)
-         conf.env.STLIB_DCP = ['dcp', 'asdcp-libdcp', 'kumu-libdcp', 'openjpeg']
-         conf.env.LIB_DCP = ['glibmm-2.4', 'ssl', 'crypto', 'bz2', 'xslt', 'xmlsec1', 'xmlsec1-openssl']
--        conf.check_cfg(package='libdcp', atleast_version='0.98', args='--cflags', uselib_store='DCP', mandatory=True)
-+        conf.check_cfg(package='libdcp-1.0', atleast_version='0.98', args='--cflags', uselib_store='DCP', mandatory=True)
-         conf.env.DEFINES_DCP = [f.replace('\\', '') for f in conf.env.DEFINES_DCP]
-     else:
-         conf.check_cfg(package='libcxml', atleast_version='0.08', args='--cflags --libs', uselib_store='CXML', mandatory=True)
--        conf.check_cfg(package='libdcp', atleast_version='0.97.0', args='--cflags --libs', uselib_store='DCP', mandatory=True)
-+        conf.check_cfg(package='libdcp-1.0', atleast_version='0.97.0', args='--cflags --libs', uselib_store='DCP', mandatory=True)
-         conf.env.DEFINES_DCP = [f.replace('\\', '') for f in conf.env.DEFINES_DCP]
+--- wscript.orig	2019-02-11 14:10:09.119873784 +0000
++++ wscript	2019-02-11 14:10:33.611705582 +0000
+@@ -125,7 +125,7 @@
  
      boost_lib_suffix = ''
+     if conf.env.TARGET_WINDOWS:
+-        boost_lib_suffix = '-mt'
++        boost_lib_suffix = '-mt-x64'
+ 
+     conf.check_cxx(fragment="""
+                             #include <boost/version.hpp>\n
+@@ -183,7 +183,7 @@
+     create_version_cc(bld, VERSION)
+ 
+     if bld.env.TARGET_WINDOWS:
+-        boost_lib_suffix = '-mt'
++        boost_lib_suffix = '-mt-x64'
+     else:
+         boost_lib_suffix = ''
+ 
+--- test/wscript.orig	2019-02-11 14:12:37.094829581 +0000
++++ test/wscript	2019-02-11 14:12:50.286733512 +0000
+@@ -1,7 +1,7 @@
+ def configure(conf):
+     boost_lib_suffix = ''
+     if conf.env.TARGET_WINDOWS:
+-        boost_lib_suffix = '-mt'
++        boost_lib_suffix = '-mt-x64'
+ 
+     conf.check_cxx(fragment="""
+                             #define BOOST_TEST_MODULE Config test\n

@@ -1,0 +1,11 @@
+--- wscript.orig	2019-02-10 08:06:56.733910636 +0000
++++ wscript	2019-02-10 08:07:13.645746245 +0000
+@@ -61,7 +61,7 @@
+     conf.env.API_VERSION = API_VERSION
+ 
+     if conf.options.target_windows:
+-        boost_lib_suffix = '-mt'
++        boost_lib_suffix = '-mt-x64'
+     else:
+         boost_lib_suffix = ''
+ 

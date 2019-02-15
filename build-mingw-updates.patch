@@ -17,7 +17,7 @@
  v_script="4.0.1"
 -v_mingww64="6git"
 +v_mingww64="git"
- v_binutils="2.31git"
+ v_binutils="2.32git"
  v_gcc="8svn"
  v_gmp="6.1.2"
 @@ -83,7 +83,7 @@
@@ -160,7 +160,7 @@
  
    echo "downloading gcc" >&3
 -  svn co svn://gcc.gnu.org/svn/gcc/branches/gcc-8-branch gcc-$v_gcc || error_exit
-+  git clone --depth 1 -b gcc-8-branch --single-branch https://github.com/gcc-mirror/gcc.git gcc-$v_gcc || error_exit
++  git clone --depth 1 -b master --single-branch git@github.com:Warblefly/gcc-working-temp.git gcc-$v_gcc || error_exit
 +#  svn co svn://gcc.gnu.org/svn/gcc/branches/gcc-8-branch gcc-$v_gcc || error_exit
  
    local urls=(

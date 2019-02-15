@@ -1,0 +1,13 @@
+--- src/asdcp/KM_platform.h.orig	2019-02-10 19:09:21.560201657 +0000
++++ src/asdcp/KM_platform.h	2019-02-10 19:09:49.079965635 +0000
+@@ -52,8 +52,8 @@
+ typedef __int64            i64_t;
+ #  define i64_C(c)  (i64_t)(c)
+ #  define ui64_C(c) (ui64_t)(c)
+-#  define snprintf _snprintf
+-#  define vsnprintf _vsnprintf
++//#  define snprintf _snprintf
++//#  define vsnprintf _vsnprintf
+ 
+ # else // KM_WIN32
+ typedef unsigned long long ui64_t;

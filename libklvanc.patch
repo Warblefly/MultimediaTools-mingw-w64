@@ -1,0 +1,66 @@
+--- src/libklvanc/vanc.h.orig	2019-02-14 07:54:40.394357829 +0000
++++ src/libklvanc/vanc.h	2019-02-14 07:54:59.742208800 +0000
+@@ -37,8 +37,8 @@
+ 
+ #include <stdint.h>
+ #include <stdarg.h>
+-#include <sys/errno.h>
+-#include <sys/errno.h>
++#include <errno.h>
++#include <errno.h>
+ #include <libklvanc/klrestricted_code_path.h>
+ 
+ #ifdef __cplusplus
+--- src/libklvanc/vanc-packets.h.orig	2019-02-14 07:58:20.816603239 +0000
++++ src/libklvanc/vanc-packets.h	2019-02-14 07:58:35.652481258 +0000
+@@ -30,7 +30,7 @@
+ #define _VANC_PACKETS_H
+ 
+ #include <sys/types.h>
+-#include <sys/errno.h>
++#include <errno.h>
+ 
+ #ifdef __cplusplus
+ extern "C" {
+--- src/libklvanc/vanc-lines.h.orig	2019-02-14 08:12:22.177272920 +0000
++++ src/libklvanc/vanc-lines.h	2019-02-14 08:12:36.897140294 +0000
+@@ -38,7 +38,7 @@
+ 
+ #include <stdint.h>
+ #include <sys/types.h>
+-#include <sys/errno.h>
++#include <errno.h>
+ 
+ #ifdef __cplusplus
+ extern "C" {
+--- src/core-private.h.orig	2019-02-14 08:17:45.354308937 +0000
++++ src/core-private.h	2019-02-14 08:18:03.102120300 +0000
+@@ -25,7 +25,7 @@
+ #define vanc_PRIVATE_H
+ 
+ #include <sys/types.h>
+-#include <sys/errno.h>
++#include <errno.h>
+ 
+ /* We'll have a mutex and a list of items */
+ #include <pthread.h>
+--- src/Makefile.am.orig	2019-02-14 08:32:36.437420800 +0000
++++ src/Makefile.am	2019-02-14 08:33:02.353172379 +0000
+@@ -28,6 +28,8 @@
+   libklvanc_la_CFLAGS += -g
+ endif
+ 
++libklvanc_la_LDFLAGS = -no-undefined
++
+ libklvanc_includedir = $(includedir)/libklvanc
+ 
+ libklvanc_include_HEADERS  = libklvanc/vanc.h
+--- Makefile.am.orig	2019-02-14 08:50:36.443203933 +0000
++++ Makefile.am	2019-02-14 08:50:51.739060255 +0000
+@@ -1,5 +1,5 @@
+ AUTOMAKE_OPTIONS = foreign
+-SUBDIRS = src tools
++SUBDIRS = src # tools
+ EXTRA_DIST = doxygen/libklvanc.doxyconf doxygen/include
+ 
+ docs:

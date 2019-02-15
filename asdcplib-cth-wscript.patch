@@ -1,14 +1,5 @@
 --- wscript.orig	2017-09-06 19:52:46.970416700 +0100
 +++ wscript	2017-09-06 19:54:20.586301300 +0100
-@@ -34,7 +34,7 @@
-     conf.check_cfg(package='openssl', args='--cflags --libs', uselib_store='OPENSSL', mandatory=True)
- 
-     if conf.options.target_windows:
--        boost_lib_suffix = ''
-+        boost_lib_suffix = '-mt'
-     else:
-         boost_lib_suffix = ''
- 
 @@ -60,7 +60,7 @@
      			    int main() { boost::filesystem::copy_file ("a", "b"); }\n
  			    """,
@@ -18,3 +9,37 @@
                     lib=['boost_filesystem%s' % boost_lib_suffix, 'boost_system%s' % boost_lib_suffix],
                     uselib_store='BOOST_FILESYSTEM')
  
+--- wscript.orig	2019-02-10 15:56:22.575573129 +0000
++++ wscript	2019-02-10 15:56:31.807469945 +0000
+@@ -44,7 +44,7 @@
+     conf.check_cfg(package='openssl', args='--cflags --libs', uselib_store='OPENSSL', mandatory=True)
+ 
+     if conf.options.target_windows:
+-        boost_lib_suffix = '-mt'
++        boost_lib_suffix = '-mt-x64'
+     else:
+         boost_lib_suffix = ''
+ 
+--- cscript.orig	2019-02-11 13:54:04.931619924 +0000
++++ cscript	2019-02-11 13:54:40.867274132 +0000
+@@ -6,7 +6,7 @@
+     elif target.platform == 'windows':
+         cmd += ' --target-windows'
+ 
+-    target.append_with_space('LIBS', '-lboost_system')
+-    target.append_with_space('LIBS', '-lboost_filesystem')
++    target.append_with_space('LIBS', '-lboost_system-mt-x64')
++    target.append_with_space('LIBS', '-lboost_filesystem-mt-x64')
+     target.command(cmd)
+     target.command('./waf build install')
+--- wscript.orig	2019-02-11 13:56:23.363355285 +0000
++++ wscript	2019-02-11 13:56:34.811356570 +0000
+@@ -80,7 +80,7 @@
+ 
+ def build(bld):
+     if bld.env.TARGET_WINDOWS:
+-        boost_lib_suffix = '-mt'
++        boost_lib_suffix = '-mt-x64'
+         flags = '-DKM_WIN32'
+     else:
+         boost_lib_suffix = ''

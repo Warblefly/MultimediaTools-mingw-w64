@@ -75,11 +75,11 @@
  
  if(WIN32)
 -    set(LIBRARIES ${LIBRARIES} psapi)
-+    set(LIBRARIES ${LIBRARIES} boost_exception-mt boost_thread-mt boost_system-mt)
++    set(LIBRARIES ${LIBRARIES} boost_exception-mt-x64 boost_thread-mt-x64 boost_system-mt-x64)
  elseif(UNIX)
      if(NOT ANDROID)
 -        set(LIBRARIES ${LIBRARIES} pthread)
-+        set(LIBRARIES ${LIBRARIES} boost_exception-mt boost_thread-mt boost_system-mt)
++        set(LIBRARIES ${LIBRARIES} boost_exception-mt-x64 boost_thread-mt-x64 boost_system-mt-x64)
      endif()
  endif(WIN32)
  
