@@ -1468,8 +1468,8 @@ build_libxavs2() {
 }
 
 build_libpng() {
-  download_and_unpack_file http://prdownloads.sourceforge.net/libpng/libpng-1.6.35.tar.xz?download libpng-1.6.35
-  cd libpng-1.6.35
+  download_and_unpack_file http://prdownloads.sourceforge.net/libpng/libpng-1.6.36.tar.xz?download libpng-1.6.36
+  cd libpng-1.6.36
     # DBL_EPSILON 21 Feb 2015 starts to come back "undefined". I have NO IDEA why.
     grep -lr DBL_EPSILON contrib | xargs sed -i "s| DBL_EPSILON| 2.2204460492503131E-16|g"
     generic_configure_make_install "--enable-shared"
@@ -1623,8 +1623,8 @@ build_lsdvd() {
 }
 
 build_doxygen() {
-  download_and_unpack_file http://doxygen.nl/files/doxygen-1.8.14.src.tar.gz doxygen-1.8.14
-  cd doxygen-1.8.14
+  download_and_unpack_file http://doxygen.nl/files/doxygen-1.8.15.src.tar.gz doxygen-1.8.15
+  cd doxygen-1.8.15
 #    sed -i.bak 's/WIN32/MSVC/' CMakeLists.txt
 #    sed -i.bak 's/if (win_static/if (win_static AND MSVC/' CMakeLists.txt
     apply_patch file://${top_dir}/doxygen-fix-CMake.patch
@@ -1726,8 +1726,8 @@ build_libdvdcss() {
 
 build_gdb() {
   export LIBS="-lpsapi -ldl"
-  download_and_unpack_file ftp://sourceware.org/pub/gdb/releases/gdb-8.2.tar.xz gdb-8.2
-  cd gdb-8.2
+  download_and_unpack_file ftp://sourceware.org/pub/gdb/releases/gdb-8.2.1.tar.xz gdb-8.2.1
+  cd gdb-8.2.1
 #    cd readline
 #    generic_configure_make_install
 #   cd ..
@@ -2196,8 +2196,8 @@ do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla
 build_libfribidi() {
   # generic_download_and_install http://fribidi.org/download/fribidi-0.19.5.tar.bz2 fribidi-0.19.5 # got report of still failing?
   #  download_and_unpack_file http://fribidi.org/download/fribidi-0.19.7.tar.bz2 fribidi-0.19.7
-  download_and_unpack_file https://ftp.osuosl.org/pub/blfs/conglomeration/fribidi/fribidi-0.19.7.tar.bz2 fribidi-0.19.7
-  cd fribidi-0.19.7
+  download_and_unpack_file https://ftp.osuosl.org/pub/blfs/conglomeration/fribidi/fribidi-1.0.5.tar.bz2 fribidi-1.0.5
+  cd fribidi-1.0.5
     # make it export symbols right...
 #    apply_patch file://${top_dir}/fribidi.diff
     generic_configure
@@ -4006,7 +4006,7 @@ build_gtk() {
 }
 
 build_snappy () {
-  do_git_checkout https://github.com/google/snappy.git snappy fix_rc
+  do_git_checkout https://github.com/google/snappy.git snappy rc
   cd snappy
     # apply_patch file://${top_dir}/snappy-shared-dll.patch
     cp README.md README
