@@ -2645,13 +2645,13 @@ build_libaacplus() {
 }
 
 build_openssl() {
-  download_and_unpack_file ftp://ftp.openssl.org/source/openssl-1.0.2q.tar.gz openssl-1.0.2q
+  download_and_unpack_file ftp://ftp.openssl.org/source/openssl-1.0.2r.tar.gz openssl-1.0.2r
 #  download_and_unpack_file https://www.openssl.org/source/openssl-1.1.0f.tar.gz openssl-1.1.0f
   # When the manpages are written, they need somewhere to go otherwise there is an error.
   mkdir -pv ${mingw_w64_x86_64_prefix}/include/openssl
   mkdir -pv ${mingw_w64_x86_64_prefix}/lib/engines
   mkdir -pv ${mingw_w64_x86_64_prefix}/ssl/misc
-  cd openssl-1.0.2q
+  cd openssl-1.0.2r
   #env
   # apply_patch file://${top_dir}/openssl-1.1.0f.patch
   #export cross="${cross_prefix}"
@@ -3800,7 +3800,7 @@ build_mkvtoolnix() {
     export AR=x86_64-w64-mingw32-ar
     export CXX=x86_64-w64-mingw32-g++
     #apply_patch file://${top_dir}/mkvtoolnix-qt5-2.patch
-    apply_patch file://${top_dir}/mkvtoolnix-stack.patch
+    #apply_patch file://${top_dir}/mkvtoolnix-stack.patch
     #rm -vf src/info/sys_windows.cpp
     generic_configure "--with-boost=${mingw_w64_x86_64_prefix} --with-boost-system=boost_system-mt-x64 --with-boost-filesystem=boost_filesystem-mt-x64 --with-boost-date-time=boost_date_time-mt-x64 --with-boost-regex=boost_regex-mt-x64 --enable-qt --enable-static-qt=no --disable-static-qt --disable-static --enable-optimization=yes --enable-debug=no"
     # Now we must prevent inclusion of sys_windows.cpp because our build uses shared libraries,
