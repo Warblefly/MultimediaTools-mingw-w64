@@ -1906,7 +1906,7 @@ build_lv2() {
 }
 
 build_lilv() {
-  do_git_checkout http://git.drobilla.net/lilv.git lilv
+  do_git_checkout http://git.drobilla.net/lilv.git lilv a9edaabf0926a18dd96fae30c7206fd8eadb0fdc
   cd lilv
     export AR=x86_64-w64-mingw32-ar
     export CC=x86_64-w64-mingw32-gcc
@@ -2040,7 +2040,7 @@ build_win32_pthreads() {
 }
 
 build_libdlfcn() {
-  do_git_checkout https://github.com/dlfcn-win32/dlfcn-win32.git dlfcn-win32
+  do_git_checkout https://github.com/dlfcn-win32/dlfcn-win32.git dlfcn-win32 # 23d77533b3277a9f722e66484f3ed5b702c7bbda
   cd dlfcn-win32
     ./configure --enable-shared --enable-static --cross-prefix=$cross_prefix --prefix=$mingw_w64_x86_64_prefix
     do_make_install
@@ -2145,7 +2145,7 @@ build_sqlite() {
 
 build_medialibrary() {
 	# New name change not reflected yet in VLC player
-	do_git_checkout https://code.videolan.org/videolan/medialibrary.git medialibrary 21fa816f7e3ee4ae20b565c2665641ee91431234
+	do_git_checkout https://code.videolan.org/videolan/medialibrary.git medialibrary #21fa816f7e3ee4ae20b565c2665641ee91431234
 	cd medialibrary
 		git submodule init
 		git submodule update
@@ -2991,11 +2991,11 @@ build_tesseract() {
 #    apply_patch file://${top_dir}/tesseract-thread.patch
 #    apply_patch file://${top_dir}/tesseract-libgomp.patch
     export LIBLEPT_HEADERSDIR="${mingw_w64_x86_64_prefix}/include/leptonica"
-    export LIBS="-ltiff -ljpeg -lpng -lwebp -lz -lboost_thread-mt-x64" # -lboost_thread_win32 -lboost_chrono"
+    export LIBS="-larchive -ltiff -ljpeg -lpng -lwebp -lz -lboost_thread-mt-x64" # -lboost_thread_win32 -lboost_chrono"
     old_cxxflags="${CXXFLAGS}"
     export CXXFLAGS="-fpermissive"
     sed -i.bak 's/Windows.h/windows.h/' opencl/openclwrapper.cpp
-    sed -i.bak 's/-ltesseract/-ltesseract -llept -ltiff -ljpeg -lpng -lwebp -lz/' tesseract.pc.in
+    sed -i.bak 's/-ltesseract/-ltesseract -llept -larchive -ltiff -ljpeg -lpng -lwebp -lz/' tesseract.pc.in
     # Unpack English language tessdata into data directory
     # tar xvvf ${top_dir}/tessdata-snapshot-20150411.tar.xz
     generic_configure_make_install "--enable-maintainer-mode" #"--disable-openmp"
