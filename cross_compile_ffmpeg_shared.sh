@@ -1446,7 +1446,7 @@ build_gcal() {
 }
 
 build_unbound() {
-  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.9.0 "CFLAGS=-O1 libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
+  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.9.1 "CFLAGS=-O1 libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
 }
 
 build_libxavs() {
@@ -1889,8 +1889,8 @@ build_serd() {
 }
 
 build_lv2() {
-
-  do_git_checkout https://github.com/drobilla/lv2.git lv2
+  # Release version
+  do_git_checkout https://github.com/drobilla/lv2.git lv2 0fa4d4847eb6d5bb0f58da889933c94c37ecb730
   cd lv2
     export AR=x86_64-w64-mingw32-ar
     export CC=x86_64-w64-mingw32-gcc
@@ -2745,8 +2745,8 @@ build_asdcplib-cth() {
 
 build_libdcp() {
   # Branches are slightly askew. 1.0 is where development takes place
-#  do_git_checkout https://github.com/cth103/libdcp.git libdcp  1.0
-  do_git_checkout git://git.carlh.net/git/libdcp.git libdcp
+  do_git_checkout https://github.com/cth103/libdcp.git libdcp f3058b2f1b48ec613bda5781fe97e83a0dca83a9
+#  do_git_checkout git://git.carlh.net/git/libdcp.git libdcp
 #  download_and_unpack_file http://carlh.net/downloads/libdcp/libdcp-1.5.1.tar.bz2 libdcp-1.5.1
   cd libdcp
     # M_PI is required. This is a quick way of defining it
@@ -4930,7 +4930,7 @@ build_libdc1394() {
 }
 
 build_libcxml(){
-  do_git_checkout https://github.com/cth103/libcxml.git libcxml
+  do_git_checkout https://github.com/cth103/libcxml.git libcxml 4dfe693bbe01810274f370a7e791a9f508f7e8f6
 #  download_and_unpack_file http://carlh.net/downloads/libcxml/libcxml-0.15.1.tar.bz2 libcxml-0.15.1
   cd libcxml
 #    apply_patch file://${top_dir}/libcxml-shared_ptr.patch
