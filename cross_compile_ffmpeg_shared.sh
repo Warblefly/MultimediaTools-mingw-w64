@@ -1300,7 +1300,7 @@ build_openblas() {
 }
 
 build_opencv() {
-  do_git_checkout https://github.com/opencv/opencv.git "opencv" 3.4 # 2.4
+  do_git_checkout https://github.com/opencv/opencv.git "opencv" 2bd0844be39a799d100e1ac00833ca946a7bfbf7 #3.4 # 2.4
   cd opencv
   # This is only used for a couple of frei0r filters. Surely we can switch off more options than this?
   # WEBP is switched off because it triggers a Cmake bug that removes #define-s of EPSILON and variants
@@ -1410,7 +1410,8 @@ build_opendcp() {
 }
 
 build_dcpomatic() {
-  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
+#do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic 9cff6ec974a4d0270091fe5c753483b0d53ecd46
+  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
 #  download_and_unpack_file https://dcpomatic.com/downloads/2.11.72/dcpomatic-2.11.72.tar.bz2 dcpomatic-2.11.72
   cd dcpomatic
 #    apply_patch file://${top_dir}/dcpomatic-wscript.patch
@@ -1890,14 +1891,15 @@ build_serd() {
 
 build_lv2() {
   # Release version
-  do_git_checkout https://github.com/drobilla/lv2.git lv2 0fa4d4847eb6d5bb0f58da889933c94c37ecb730
+  do_git_checkout https://github.com/drobilla/lv2.git lv2 # 0fa4d4847eb6d5bb0f58da889933c94c37ecb730
   cd lv2
     export AR=x86_64-w64-mingw32-ar
     export CC=x86_64-w64-mingw32-gcc
     export CXX=x86_64-w64-mingw32-g++
     export CXXFLAGS_ORIG=${CXXFLAGS}
     export CXXFLAGS=-DMINGW_HAS_SECURE_API=1
-    do_configure "configure --prefix=${mingw_w64_x86_64_prefix} -ppp" "./waf"
+    apply_patch file://${top_dir}/lv2-link.patch
+    do_configure "configure --no-coverage --prefix=${mingw_w64_x86_64_prefix} -ppp" "./waf"
     ./waf build || exit 1
     ./waf install || exit 1
   cd ..
@@ -1906,7 +1908,7 @@ build_lv2() {
 }
 
 build_lilv() {
-  do_git_checkout http://git.drobilla.net/lilv.git lilv a9edaabf0926a18dd96fae30c7206fd8eadb0fdc
+  do_git_checkout http://git.drobilla.net/lilv.git lilv # a9edaabf0926a18dd96fae30c7206fd8eadb0fdc
   cd lilv
     export AR=x86_64-w64-mingw32-ar
     export CC=x86_64-w64-mingw32-gcc
@@ -1914,7 +1916,7 @@ build_lilv() {
     export CXXFLAGS_ORIG=${CXXFLAGS}
     export CXXFLAGS=-DMINGW_HAS_SECURE_API=1
     do_configure "configure --prefix=${mingw_w64_x86_64_prefix} -ppp" "./waf"
-    #apply_patch file://${top_dir}/lilv-mingw.patch
+    apply_patch file://${top_dir}/lilv-mingw.patch
     ./waf build || exit 1
     ./waf install || exit 1
   cd ..
@@ -2745,8 +2747,8 @@ build_asdcplib-cth() {
 
 build_libdcp() {
   # Branches are slightly askew. 1.0 is where development takes place
-  do_git_checkout https://github.com/cth103/libdcp.git libdcp f3058b2f1b48ec613bda5781fe97e83a0dca83a9
-#  do_git_checkout git://git.carlh.net/git/libdcp.git libdcp
+#  do_git_checkout https://github.com/cth103/libdcp.git libdcp # f3058b2f1b48ec613bda5781fe97e83a0dca83a9
+  do_git_checkout git://git.carlh.net/git/libdcp.git libdcp 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
 #  download_and_unpack_file http://carlh.net/downloads/libdcp/libdcp-1.5.1.tar.bz2 libdcp-1.5.1
   cd libdcp
     # M_PI is required. This is a quick way of defining it
@@ -3853,8 +3855,9 @@ build_fdkaac-commandline() {
 
 build_poppler() {
 #  do_git_checkout git://git.freedesktop.org/git/poppler/poppler poppler poppler-0.67.0
-  do_git_checkout https://anongit.freedesktop.org/git/poppler/poppler.git poppler poppler-0.68.0
+  do_git_checkout https://anongit.freedesktop.org/git/poppler/poppler.git poppler poppler-0.69.0
   cd poppler
+    apply_patch file://${top_dir}/poppler-threads.patch
     sed -i.bak 's!string\.h!sec_api/string_s.h!' test/perf-test.cc
     #sed -i.bak 's/noinst_PROGRAMS += perf-test/noinst_PROGRAMS += /' test/Makefile.am
     # Allow installation of QT5 PDF viewer
@@ -4499,8 +4502,8 @@ build_mjpegtools() {
 
 build_file() {
   # Also contains libmagic
-  do_git_checkout https://github.com/file/file.git file_native # 5f80e1a628d7b3fef3f87e2a69c5ecbf08f7daec
-  do_git_checkout https://github.com/file/file.git file # 5f80e1a628d7b3fef3f87e2a69c5ecbf08f7daec
+  do_git_checkout https://github.com/file/file.git file_native 13ba1a3639f7a40f3bffbabf2737cbdde314faf4
+  do_git_checkout https://github.com/file/file.git file 13ba1a3639f7a40f3bffbabf2737cbdde314faf4
   # We use the git version of file and libmagic, which is updated more
   # often than distributions track. File requires its own binary to compile
   # its list of magic numbers. Therefore, because we are cross-compiling,
@@ -4930,7 +4933,7 @@ build_libdc1394() {
 }
 
 build_libcxml(){
-  do_git_checkout https://github.com/cth103/libcxml.git libcxml 4dfe693bbe01810274f370a7e791a9f508f7e8f6
+  do_git_checkout https://github.com/cth103/libcxml.git libcxml 9fb7d466379c0943c22d3e1f0bc51d737e493d7d # 4dfe693bbe01810274f370a7e791a9f508f7e8f6
 #  download_and_unpack_file http://carlh.net/downloads/libcxml/libcxml-0.15.1.tar.bz2 libcxml-0.15.1
   cd libcxml
 #    apply_patch file://${top_dir}/libcxml-shared_ptr.patch
@@ -5928,7 +5931,7 @@ build_ffmpeg() {
 #  apply_patch_p1 file://${top_dir}/ffmpeg-decklink-teletext-2-reverse.patch
   apply_patch file://${top_dir}/ffmpeg-bs2b.patch
 
-  config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --disable-doc --enable-libxml2 --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-libmysofa --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-libcodec2 --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libxavs2 --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libvpx --enable-libilbc --enable-libwavpack --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --enable-d3d11va --enable-nvenc --enable-libzmq --enable-nonfree --enable-libfdk-aac --enable-libflite --enable-decoder=aac --enable-libaom --enable-libndi_newtek --enable-runtime-cpudetect --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts" # $CFLAGS # other possibilities: --enable-w32threads --enable-libflite
+  config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --disable-doc --enable-libxml2 --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-libmysofa --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-libcodec2 --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libxavs2 --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libvpx --enable-libilbc --enable-libwavpack --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --enable-d3d11va --enable-nvenc --enable-libzmq --enable-nonfree --enable-libfdk-aac --enable-libflite --enable-decoder=aac --enable-libaom --enable-runtime-cpudetect --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts" # $CFLAGS # other possibilities: --enable-w32threads --enable-libflite
   # sed -i 's/openjpeg-1.5/openjpeg-2.1/' configure # change library path for updated libopenjpeg
   export PKG_CONFIG="pkg-config" # --static
   export LDFLAGS="" # "-static"
