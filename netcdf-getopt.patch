@@ -1,0 +1,25 @@
+--- ncdump/ocprint.c.orig	2019-04-09 20:33:50.337293930 +0100
++++ ncdump/ocprint.c	2019-04-09 20:34:13.305100468 +0100
+@@ -31,9 +31,9 @@
+ #include "ocx.h"
+ 
+ #ifdef _WIN32
+-#include "XGetopt.h"
++/* #include "XGetopt.h"
+ int opterr, optind;
+-char* optarg;
++char* optarg; */
+ #endif
+ 
+ #ifndef nulldup
+--- ncdump/ncdump.c.orig	2019-04-09 20:31:57.202220324 +0100
++++ ncdump/ncdump.c	2019-04-09 20:32:21.870022382 +0100
+@@ -19,7 +19,7 @@
+ #endif
+ 
+ #ifdef _WIN32
+-#include "XGetopt.h"
++/* #include "XGetopt.h" */
+ int opterr;
+ int optind;
+ #endif

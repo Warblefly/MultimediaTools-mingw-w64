@@ -6,8 +6,8 @@
  #    include <stdio.h>
 -#    define dlopen(path, flags) LoadLibrary(path)
 -#    define dlclose(lib)        FreeLibrary((HMODULE)lib)
-+/*#    define dlopen(path, flags) LoadLibrary(path) */
-+/*#    define dlclose(lib)        FreeLibrary((HMODULE)lib)*/
++#    define dlopen(path, flags) LoadLibrary(path)
++#    define dlclose(lib)        FreeLibrary((HMODULE)lib)
  #    define unlink(path)        _unlink(path)
  #    define rmdir(path)         _rmdir(path)
  #    ifdef _MSC_VER
@@ -18,7 +18,7 @@
  #    define NAN INFINITY - INFINITY
  #endif
 -static inline const char* dlerror(void) { return "Unknown error"; }
-+/* static inline const char* dlerror(void) { return "Unknown error"; } */
++static inline const char* dlerror(void) { return "Unknown error"; }
  #else
  #    include <dlfcn.h>
  #    include <unistd.h>
