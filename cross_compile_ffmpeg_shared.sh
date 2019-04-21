@@ -2142,7 +2142,7 @@ build_libtheora() {
 }
 
 build_sqlite() {
-    generic_download_and_install https://www.sqlite.org/snapshot/sqlite-snapshot-201811291200.tar.gz sqlite-snapshot-201811291200
+    generic_download_and_install https://sqlite.org/2019/sqlite-autoconf-3280000.tar.gz sqlite-autoconf-3280000 #  https://www.sqlite.org/snapshot/sqlite-snapshot-201811291200.tar.gz sqlite-snapshot-201811291200
 }
 
 build_medialibrary() {
@@ -3738,8 +3738,8 @@ build_regex() {
 }
 
 build_boost() {
-  download_and_unpack_file "https://dl.bintray.com/boostorg/release/1.69.0/source/boost_1_69_0.tar.bz2" boost_1_69_0
-  cd boost_1_69_0
+  download_and_unpack_file "https://dl.bintray.com/boostorg/release/1.70.0/source/boost_1_70_0.tar.bz2" boost_1_70_0
+  cd boost_1_70_0
   #  cd libs/serialization
   #    apply_patch file://${top_dir}/boost-codecvt.patch
   #  cd ../..
