@@ -4009,7 +4009,7 @@ build_gtk() {
 }
 
 build_snappy () {
-  do_git_checkout https://github.com/google/snappy.git snappy rc
+  do_git_checkout https://github.com/google/snappy.git snappy
   cd snappy
     # apply_patch file://${top_dir}/snappy-shared-dll.patch
     cp README.md README
@@ -4316,8 +4316,8 @@ build_cairo() {
      generic_configure_make_install "--disable-silent-rules --enable-win32 --enable-win32-font --enable-gobject --enable-tee --enable-pdf --enable-ps --enable-svg --disable-dependency-tracking"
 
   cd ..
-  download_and_unpack_file http://cairographics.org/snapshots/cairo-1.15.12.tar.xz cairo-1.15.12 # Was .4
-  cd cairo-1.15.12
+  download_and_unpack_file http://cairographics.org/snapshots/cairo-1.15.14.tar.xz cairo-1.15.14 # Was .4
+  cd cairo-1.15.14
      rm -v autogen.sh configure
      generic_configure_make_install "--disable-silent-rules --enable-win32 --enable-win32-font --enable-gobject --enable-tee --enable-pdf --enable-ps --enable-svg --disable-dependency-tracking"
 
@@ -5092,7 +5092,7 @@ build_netcdf() {
 build_vlc() {
   # VLC normally requires its own libraries to be linked. However, it in fact builds with latest
   # versions of everything compiled here. At the moment..
-  do_git_checkout https://github.com/videolan/vlc.git vlc  # ba330c1ff6c3418cfebe2a404d49702681735f5c #9868c4be81c9d4ae45f76463fa2a76629dc92dce
+  do_git_checkout https://github.com/videolan/vlc.git vlc a047b31b978e4a3bd86b3c1a8f7dec9281d1a056
   cd vlc
     unset CFLAGS
     unset CXXFLAGS
