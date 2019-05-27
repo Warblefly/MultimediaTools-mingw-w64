@@ -1871,7 +1871,7 @@ build_sratom() {
 }
 
 build_serd() {
-  do_git_checkout http://git.drobilla.net/serd.git serd
+  do_git_checkout http://git.drobilla.net/serd.git serd 683d47cb7fddf5447de76cdf80041b6b230de93c
   cd serd
     export AR=x86_64-w64-mingw32-ar
     export CC=x86_64-w64-mingw32-gcc
@@ -1891,7 +1891,7 @@ build_serd() {
 
 build_lv2() {
   # Release version
-  do_git_checkout https://github.com/drobilla/lv2.git lv2 # 0fa4d4847eb6d5bb0f58da889933c94c37ecb730
+  do_git_checkout https://github.com/drobilla/lv2.git lv2 9b7bfdd92d9a12b0d7db59f0ec0bb790fb827406 # 0fa4d4847eb6d5bb0f58da889933c94c37ecb730
   cd lv2
     export AR=x86_64-w64-mingw32-ar
     export CC=x86_64-w64-mingw32-gcc
@@ -2176,7 +2176,7 @@ do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfile
 }
 
 build_filezilla() {
-do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla # 9056
+do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla 9262 # 9056
   cd filezilla
     export CC=x86_64-w64-mingw32-gcc
     export CXX=x86_64-w64-mingw32-g++
@@ -2503,7 +2503,7 @@ build_liba52() {
 
 build_p11kit() {
 #  generic_download_and_install https://p11-glue.freedesktop.org/releases/p11-kit-0.23.2.tar.gz p11-kit-0.23.2
-  do_git_checkout https://github.com/p11-glue/p11-kit.git p11-kit # 6af8234936f805a9c6dceb29a84e73d40ed4b257
+  do_git_checkout https://github.com/p11-glue/p11-kit.git p11-kit 58cede114664e839b53d923863bff604ce58b1a7
   cd p11-kit
     generic_configure_make_install
   cd ..
@@ -3000,7 +3000,7 @@ build_tesseract() {
     sed -i.bak 's/-ltesseract/-ltesseract -llept -larchive -ltiff -ljpeg -lpng -lwebp -lz/' tesseract.pc.in
     # Unpack English language tessdata into data directory
     # tar xvvf ${top_dir}/tessdata-snapshot-20150411.tar.xz
-    generic_configure_make_install "--enable-maintainer-mode" #"--disable-openmp"
+    generic_configure_make_install "--without-tensorflow --enable-maintainer-mode" #"--disable-openmp"
 
     unset LIBLEPT_HEADERSDIR
     unset LIBS
@@ -5785,8 +5785,8 @@ build_graphicsmagick() {
 }
 
 build_graphicsmagicksnapshot() {
-  download_and_unpack_file ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020180430.tar.xz GraphicsMagick-1.4.020180430
-  cd GraphicsMagick-1.4.020180430
+  download_and_unpack_file ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020190523.tar.xz GraphicsMagick-1.4.020190523
+  cd GraphicsMagick-1.4.020190523
     apply_patch file://${top_dir}/graphicmagick-mingw64.patch
     mkdir -pv build
     cd build
@@ -6233,7 +6233,7 @@ build_dependencies() {
   build_rtaudio
   build_gtk2
   build_gtk
-  build_graphicsmagick
+  build_graphicsmagicksnapshot
   build_eigen
   build_libdv
   build_aom
