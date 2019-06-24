@@ -191,7 +191,7 @@ install_cross_compiler() {
 #    apply_patch file://${top_dir}/d3d11.h.patch
     apply_patch file://${top_dir}/cfgmgr32.h.patch
     apply_patch file://${top_dir}/devpkey.h.patch
-    apply_patch file://${top_dir}/sal.h.patch
+#    apply_patch file://${top_dir}/sal.h.patch
 #    apply_patch file://${top_dir}/dxgitype-missing.patch
 #     cp -v ${top_dir}/dxgi1_3.h .
 #     apply_patch file://${top_dir}/dxgi1_3.h.patch
@@ -1833,7 +1833,7 @@ build_jack() {
 }
 
 build_sord() {
-   do_git_checkout http://git.drobilla.net/sord.git sord
+   do_git_checkout http://git.drobilla.net/sord.git sord 44afb527ce74d6ec6f9d8b769ad8459cacdc2fec
    cd sord
      export AR=x86_64-w64-mingw32-ar
      export CC=x86_64-w64-mingw32-gcc
@@ -1853,7 +1853,7 @@ build_sord() {
 }
 
 build_sratom() {
-  do_git_checkout http://git.drobilla.net/sratom.git sratom
+  do_git_checkout http://git.drobilla.net/sratom.git sratom de6492738adf1794bf5fa39c1fe1ebbd167727ac
   cd sratom
     export AR=x86_64-w64-mingw32-ar
     export CC=x86_64-w64-mingw32-gcc
@@ -2647,13 +2647,13 @@ build_libaacplus() {
 }
 
 build_openssl() {
-  download_and_unpack_file ftp://ftp.openssl.org/source/openssl-1.0.2r.tar.gz openssl-1.0.2r
+  download_and_unpack_file ftp://ftp.openssl.org/source/openssl-1.0.2s.tar.gz openssl-1.0.2s
 #  download_and_unpack_file https://www.openssl.org/source/openssl-1.1.0f.tar.gz openssl-1.1.0f
   # When the manpages are written, they need somewhere to go otherwise there is an error.
   mkdir -pv ${mingw_w64_x86_64_prefix}/include/openssl
   mkdir -pv ${mingw_w64_x86_64_prefix}/lib/engines
   mkdir -pv ${mingw_w64_x86_64_prefix}/ssl/misc
-  cd openssl-1.0.2r
+  cd openssl-1.0.2s
   #env
   # apply_patch file://${top_dir}/openssl-1.1.0f.patch
   #export cross="${cross_prefix}"
@@ -5026,8 +5026,9 @@ build_libzip() {
 }
 
 build_uchardet() {
-do_git_checkout git://anongit.freedesktop.org/uchardet/uchardet uchardet
-    cd uchardet
+#do_git_checkout git://anongit.freedesktop.org/uchardet/uchardet uchardet
+  download_and_unpack_file https://www.freedesktop.org/software/uchardet/releases/uchardet-0.0.6.tar.xz uchardet-0.0.6
+    cd uchardet-0.0.6
         do_cmake "-DTARGET_ARCHITECTURE=x86"
         do_make
         do_make_install
@@ -5302,15 +5303,16 @@ build_shaderc() {
 build_vulkan() {
 
     #download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Loader/archive/sdk-1.1.73.0.tar.gz Vulkan-Loader-sdk-1.1.73.0
-    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Headers/archive/sdk-1.1.92.0.tar.gz Vulkan-Headers-sdk-1.1.92.0
+    #download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Headers/archive/sdk-1.1.92.0.tar.gz Vulkan-Headers-sdk-1.1.92.0
+    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Headers/archive/v1.1.108.tar.gz Vulkan-Headers-1.1.108
     #cd Vulkan-Loader-sdk-1.1.73.0
-    cd Vulkan-Headers-sdk-1.1.92.0
+    cd Vulkan-Headers-1.1.108
         do_cmake
         do_make
         do_make_install
     cd ..
-    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Loader/archive/sdk-1.1.92.1.tar.gz Vulkan-Loader-sdk-1.1.92.1
-    cd Vulkan-Loader-sdk-1.1.92.1
+    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Loader/archive/v1.1.108.tar.gz Vulkan-Loader-1.1.108
+    cd Vulkan-Loader-1.1.108
         #apply_patch_p1 file://${top_dir}/001-build-fix.patch
         #apply_patch_p1 file://${top_dir}/002-proper-def-files-for-32bit.patch
         #apply_patch_p1 file://${top_dir}/003-generate-pkgconfig-files.patch
@@ -6233,7 +6235,7 @@ build_dependencies() {
   build_rtaudio
   build_gtk2
   build_gtk
-  build_graphicsmagicksnapshot
+  build_graphicsmagick
   build_eigen
   build_libdv
   build_aom

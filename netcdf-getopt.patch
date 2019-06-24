@@ -12,14 +12,25 @@
  #endif
  
  #ifndef nulldup
---- ncdump/ncdump.c.orig	2019-04-09 20:31:57.202220324 +0100
-+++ ncdump/ncdump.c	2019-04-09 20:32:21.870022382 +0100
-@@ -19,7 +19,7 @@
- #endif
+--- ncdump/ncdump.c.orig	2019-06-09 15:30:16.021385981 +0100
++++ ncdump/ncdump.c	2019-06-09 15:30:28.029156268 +0100
+@@ -20,7 +20,7 @@
  
  #ifdef _WIN32
+ #define snprintf _snprintf
 -#include "XGetopt.h"
-+/* #include "XGetopt.h" */
++/*#include "XGetopt.h"*/
+ int opterr;
+ int optind;
+ #endif
+--- ncdump/ncvalidator.c.orig	2019-06-09 15:35:07.303838094 +0100
++++ ncdump/ncvalidator.c	2019-06-09 15:35:22.079557792 +0100
+@@ -76,7 +76,7 @@
+ #ifdef _WIN32
+ #include <io.h>
+ #define snprintf _snprintf
+-#include "XGetopt.h"
++/*#include "XGetopt.h"*/
  int opterr;
  int optind;
  #endif
