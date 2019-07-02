@@ -38,7 +38,7 @@ yes_no_sel () {
 }
 
 check_missing_packages () {
-  local check_packages=('cmp' 'bzip2' 'rsync' 'sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint' 'pxz' 'wget' 'zip' 'xmlto' 'gtkdocize' 'python-config' 'ant' 'sdl-config' 'sdl2-config' 'gyp' 'mm-common-prepare' 'sassc' 'nasm' 'ragel' 'gengetopt' 'asn1Parser' 'ronn' 'docbook2x-man'
+  local check_packages=('cmp' 'bzip2' 'nvcc' 'rsync' 'sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint' 'pxz' 'wget' 'zip' 'xmlto' 'gtkdocize' 'python-config' 'ant' 'sdl-config' 'sdl2-config' 'gyp' 'mm-common-prepare' 'sassc' 'nasm' 'ragel' 'gengetopt' 'asn1Parser' 'ronn' 'docbook2x-man'
   'intltool-update' 'gtk-update-icon-cache' 'gdk-pixbuf-csource' 'interdiff' 'orcc' 'luac' 'makensis')
   for package in "${check_packages[@]}"; do
     type -P "$package" >/dev/null || missing_packages=("$package" "${missing_packages[@]}")
@@ -3172,7 +3172,7 @@ build_OpenCL() {
     cp -v ${mingw_w64_x86_64_prefix}/include/CL/* inc/CL/
     export orig_cflags="${CFLAGS}"
     export CFLAGS=-DWINVER=0x0A00
-    do_cmake
+    do_cmake "-DOPENCL_ICD_LOADER_REQUIRE_WDK=OFF"
     do_make
     export CFLAGS="${orig_cflags}"
     # There is no install target for make
@@ -5934,7 +5934,9 @@ build_ffmpeg() {
 #  apply_patch_p1 file://${top_dir}/ffmpeg-decklink-teletext-2-reverse.patch
   apply_patch file://${top_dir}/ffmpeg-bs2b.patch
 
-  config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --enable-libjack --disable-doc --enable-libxml2 --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-libmysofa --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-libcodec2 --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libxavs2 --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libvpx --enable-libilbc --enable-libwavpack --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --enable-d3d11va --enable-nvenc --enable-libzmq --enable-nonfree --enable-libfdk-aac --enable-libflite --enable-decoder=aac --enable-libaom --enable-runtime-cpudetect --enable-libpulse --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts" # $CFLAGS # other possibilities: --enable-w32threads --enable-libflite
+  config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --enable-libjack --disable-doc --enable-libxml2 --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-libmysofa --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus
+  --disable-w32threads --enable-libcodec2 --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libxavs2 --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libvpx --enable-libilbc --enable-libwavpack --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --enable-d3d11va --enable-nvenc --enable-libzmq --enable-nonfree --enable-libfdk-aac --enable-libflite --enable-decoder=aac
+  --enable-libaom --enable-runtime-cpudetect --enable-libpulse --enable-cuda-nvcc --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts" # $CFLAGS # other possibilities: --enable-w32threads --enable-libflite
   # sed -i 's/openjpeg-1.5/openjpeg-2.1/' configure # change library path for updated libopenjpeg
   export PKG_CONFIG="pkg-config" # --static
   export LDFLAGS="" # "-static"
