@@ -1447,7 +1447,7 @@ build_gcal() {
 }
 
 build_unbound() {
-  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.9.1 "CFLAGS=-O1 libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
+  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.9.2 "CFLAGS=-O1 libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
 }
 
 build_libxavs() {
@@ -1908,7 +1908,7 @@ build_lv2() {
 }
 
 build_lilv() {
-  do_git_checkout http://git.drobilla.net/lilv.git lilv # a9edaabf0926a18dd96fae30c7206fd8eadb0fdc
+  do_git_checkout http://git.drobilla.net/lilv.git lilv c1637b46f9ff960f58dcf2bb3b69bff231f8acfd # a9edaabf0926a18dd96fae30c7206fd8eadb0fdc
   cd lilv
     export AR=x86_64-w64-mingw32-ar
     export CC=x86_64-w64-mingw32-gcc
@@ -1969,9 +1969,9 @@ build_ncurses() {
     wget http://invisible-island.net/datafiles/current/terminfo.src.gz
     gunzip terminfo.src.gz
   fi
-  download_and_unpack_file http://invisible-mirror.net/archives/ncurses/current/ncurses-6.1-20190330.tgz ncurses-6.1-20190330
+  download_and_unpack_file http://invisible-mirror.net/archives/ncurses/current/ncurses-6.1-20190630.tgz ncurses-6.1-20190630
  # generic_configure "--build=x86_64-pc-linux --host=x86_64-w64-mingw32 --with-libtool --disable-termcap --enable-widec --enable-term-driver --enable-sp-funcs --without-ada --with-debug=no --with-shared=yes --with-normal=no --enable-database --with-progs --enable-interop --with-pkg-config-libdir=${mingw_w64_x86_64_prefix}/lib/pkgconfig --enable-pc-files"
-  cd ncurses-6.1-20190330
+  cd ncurses-6.1-20190630
 #    apply_patch file://${top_dir}/ncurses-rx.patch
 #    rm configure
     generic_configure "LIBS=-lgnurx --build=x86_64-pc-linux --host=x86_64-w64-mingw32 --disable-termcap --enable-widec --enable-term-driver --enable-sp-funcs --without-ada --without-cxx-binding --with-debug=no --with-shared=yes --with-normal=no --enable-database --with-probs --enable-interop --with-pkg-config-libdir=${mingw_w64_x86_64_prefix}/lib/pkgconfig --enable-pc-files --disable-static --enable-shared"
@@ -2147,7 +2147,7 @@ build_sqlite() {
 
 build_medialibrary() {
 	# New name change not reflected yet in VLC player
-	do_git_checkout https://code.videolan.org/videolan/medialibrary.git medialibrary 8ad8de92f159c9af63c876230062bdea9d18ed04 #21fa816f7e3ee4ae20b565c2665641ee91431234
+	do_git_checkout https://code.videolan.org/videolan/medialibrary.git medialibrary # 8ad8de92f159c9af63c876230062bdea9d18ed04 #21fa816f7e3ee4ae20b565c2665641ee91431234
 	cd medialibrary
 		git submodule init
 		git submodule update
@@ -2176,7 +2176,7 @@ do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfile
 }
 
 build_filezilla() {
-do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla 9262 # 9056
+do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla # 9262 # 9056
   cd filezilla
     export CC=x86_64-w64-mingw32-gcc
     export CXX=x86_64-w64-mingw32-g++
@@ -2184,7 +2184,7 @@ do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla
 #    export orig_cpu_count=$cpu_count
 #    export cpu_count=1
     #env
-    apply_patch file://{$top_dir}/filezilla-install.patch
+    #apply_patch file://{$top_dir}/filezilla-install.patch
     generic_configure_make_install "--disable-dependency-tracking"
 #   generic_download_and_install https://download.filezilla-project.org/client/FileZilla_latest_src.tar.bz2 filezilla-3.33.0
     unset CC
@@ -3708,7 +3708,7 @@ build_twolame() {
    cd twolame
 #     sed -i.bak 's/libtwolame_la_LDFLAGS  = -export-dynamic/libtwolame_la_LDFLAGS  = -no-undefined -export-dynamic/' libtwolame/Makefile.am
      apply_patch file://${top_dir}/0001-mingw32-does-not-need-handholding.all.patch
-     apply_patch file://${top_dir}/0002-no-undefined-on.mingw.patch
+     #apply_patch file://${top_dir}/0002-no-undefined-on.mingw.patch
      # apply_patch file://${top_dir}/0003-binary-stdin.all.patch
      apply_patch file://${top_dir}/0004-no-need-for-dllexport.mingw.patch
      apply_patch file://${top_dir}/0005-silent.mingw.patch
@@ -5093,7 +5093,7 @@ build_netcdf() {
 build_vlc() {
   # VLC normally requires its own libraries to be linked. However, it in fact builds with latest
   # versions of everything compiled here. At the moment..
-  do_git_checkout https://github.com/videolan/vlc.git vlc a047b31b978e4a3bd86b3c1a8f7dec9281d1a056
+  do_git_checkout https://github.com/videolan/vlc.git vlc # a047b31b978e4a3bd86b3c1a8f7dec9281d1a056
   cd vlc
     unset CFLAGS
     unset CXXFLAGS
@@ -5102,7 +5102,7 @@ build_vlc() {
     export CXXFLAGS="-fpermissive"
     apply_patch file://${top_dir}/vlc-qt5.patch
     apply_patch file://${top_dir}/vlc-more-static.patch
-    apply_patch file://${top_dir}/vlc-dxgi.patch
+#    apply_patch file://${top_dir}/vlc-dxgi.patch
     apply_patch file://${top_dir}/vlc-dll-dirs.patch
     apply_patch file://${top_dir}/vlc-aom.patch
 #    apply_patch file://${top_dir}/vlc-vpx.patch
