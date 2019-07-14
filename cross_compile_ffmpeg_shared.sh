@@ -2147,7 +2147,7 @@ build_sqlite() {
 
 build_medialibrary() {
 	# New name change not reflected yet in VLC player
-	do_git_checkout https://code.videolan.org/videolan/medialibrary.git medialibrary # 8ad8de92f159c9af63c876230062bdea9d18ed04 #21fa816f7e3ee4ae20b565c2665641ee91431234
+	do_git_checkout https://code.videolan.org/videolan/medialibrary.git medialibrary a86453015164df65b7dbcdbc01cf4220daffc8aa # 8ad8de92f159c9af63c876230062bdea9d18ed04 #21fa816f7e3ee4ae20b565c2665641ee91431234
 	cd medialibrary
 		git submodule init
 		git submodule update
@@ -5093,7 +5093,7 @@ build_netcdf() {
 build_vlc() {
   # VLC normally requires its own libraries to be linked. However, it in fact builds with latest
   # versions of everything compiled here. At the moment..
-  do_git_checkout https://github.com/videolan/vlc.git vlc # a047b31b978e4a3bd86b3c1a8f7dec9281d1a056
+  do_git_checkout https://git.videolan.org/git/vlc.git vlc # a047b31b978e4a3bd86b3c1a8f7dec9281d1a056
   cd vlc
     unset CFLAGS
     unset CXXFLAGS
