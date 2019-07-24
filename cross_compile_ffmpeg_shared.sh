@@ -39,7 +39,7 @@ yes_no_sel () {
 
 check_missing_packages () {
   local check_packages=('cmp' 'bzip2' 'nvcc' 'rsync' 'sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint' 'wget' 'zip' 'xmlto' 'gtkdocize' 'python-config' 'ant' 'sdl-config' 'sdl2-config' 'gyp' 'mm-common-prepare' 'sassc' 'nasm' 'ragel' 'gengetopt' 'asn1Parser' 'ronn' 'docbook2x-man'
-  'intltool-update' 'gtk-update-icon-cache' 'gdk-pixbuf-csource' 'interdiff' 'orcc' 'luac' 'makensis')
+  'intltool-update' 'gtk-update-icon-cache' 'gdk-pixbuf-csource' 'interdiff' 'orcc' 'luac' 'makensis' 'swig')
   for package in "${check_packages[@]}"; do
     type -P "$package" >/dev/null || missing_packages=("$package" "${missing_packages[@]}")
   done
@@ -2157,6 +2157,40 @@ build_medialibrary() {
 	cd ..
 }
 
+build_libopenshotaudio() {
+	do_git_checkout https://github.com/OpenShot/libopenshot-audio.git libopenshot-audio
+	cd libopenshot-audio
+		apply_patch file://${top_dir}/libopenshot-audio.patch
+		mkdir -p build
+		cd build
+			do_cmake ../
+			do_make
+			do_make_install
+		cd ..
+	cd ..
+}		
+
+build_libopenshot() {
+	do_git_checkout https://github.com/OpenShot/libopenshot.git libopenshot
+	cd libopenshot
+		mkdir -p build
+		cd build
+			do_cmake ../ "-DLIBOPENSHOT_AUDIO_INCLUDE_DIR=${mingw_w64_x86_64_prefix}/include/libopenshot-audio -DUNITTEST++_INCLUDE_DIR=${mingw_w64_x86_64_prefix}/include/UnitTest++" 
+			${top_dir}/correct_headers.sh 
+			do_make
+			do_make_install
+		cd ..
+	cd ..
+}
+
+build_unittest() {
+	do_git_checkout https://github.com/unittest-cpp/unittest-cpp.git unittest-cpp
+	cd unittest-cpp
+		do_cmake -DUTPP_INCLUDE_TESTS_IN_BUILD=OFF
+		do_make
+		do_make_install
+	cd ..
+}
 
 build_libfilezilla() {
 do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfilezilla
@@ -2503,7 +2537,7 @@ build_liba52() {
 
 build_p11kit() {
 #  generic_download_and_install https://p11-glue.freedesktop.org/releases/p11-kit-0.23.2.tar.gz p11-kit-0.23.2
-  do_git_checkout https://github.com/p11-glue/p11-kit.git p11-kit 58cede114664e839b53d923863bff604ce58b1a7
+  do_git_checkout https://github.com/p11-glue/p11-kit.git p11-kit #58cede114664e839b53d923863bff604ce58b1a7
   cd p11-kit
     generic_configure_make_install
   cd ..
@@ -2986,7 +3020,7 @@ build_libgcrypt() {
 }
 
 build_tesseract() {
-  do_git_checkout https://github.com/tesseract-ocr/tesseract tesseract # a2e72f258a3bd6811cae226a01802d891407409f
+  do_git_checkout https://github.com/tesseract-ocr/tesseract tesseract fef64d795cdb0db5315c11f936b7efd1424994b2
   # Problem with latest tree and FFmpeg. Should be fixed soon
 #  download_and_unpack_file https://github.com/tesseract-ocr/tesseract/archive/3.05.00dev.tar.gz tesseract-3.05.00dev
   cd tesseract
@@ -4286,9 +4320,18 @@ build_libuuid() {
 build_zmq() {
   do_git_checkout https://github.com/zeromq/libzmq libzmq cb73745250dce53aa6e059751a47940b7518a1c3 # 4e2b9e6e07d4622d094febf8c4f61f9f191fd9ae
   cd libzmq
-    generic_configure_make_install
+    generic_configure_make_install 
 
   cd ..
+}
+
+build_cppzmq() {
+	do_git_checkout https://github.com/zeromq/cppzmq.git cppzmq
+	cd cppzmq
+		do_cmake "-DCPPZMQ_BUILD_TESTS=OFF" && ${top_dir}/correct_headers.sh
+		do_make
+		do_make_install
+	cd ..
 }
 
 build_wxsvg() {
@@ -6215,6 +6258,7 @@ build_dependencies() {
   build_librubberband # for mpv
   build_zmq
 #  build_libtasn1
+  build_cppzmq
   build_libdsm
   build_dvbpsi
   build_libebml
@@ -6304,6 +6348,7 @@ build_apps() {
   #build_digikam
   build_youtube-dl
   build_mjpegtools
+  build_unittest
 # build_qt5
   build_mkvtoolnix
 #  build_openssh
@@ -6325,6 +6370,8 @@ build_apps() {
   build_mp4box
   build_libdash
   build_aubio
+  build_libopenshotaudio
+#  build_libopenshot
   #build_pulseaudio
   build_mpv
   build_libplacebo

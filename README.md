@@ -46,7 +46,7 @@ apt upgrade
 
 3. Install the pre-requisites. On Debian running under Windows, you can do this.
 ```
-apt install software-properties-common extra-cmake-modules libsdl1.2debian libsdl1.2-dev libsdl2-2.0 libsdl2-dev ant asciidoc autoconf autoconf-archive autogen autopoint bison bzr cmake curl cvs docbook2x ed flex g++ libgdk-pixbuf2.0-dev gengetopt git gperf gtk-doc-tools gtk-update-icon-cache gyp intltool liborc-0.4 libsamplerate-dev libtasn1-bin librhash0 libtool libtool-bin lua5.3 mercurial meson nsis mm-common nasm nvidia-cuda-toolkit openjdk-8-jdk patchutils pax pxz python-dev ragel rsync ronn ruby-json rake-compiler ruby-ronn sassc libspeex-dev libspeexdsp-dev ssh sshpass sssd-tools subversion libwxbase3.0-dev wget wx-common xutils-dev yasm
+apt install software-properties-common extra-cmake-modules libsdl1.2debian libsdl1.2-dev libsdl2-2.0 libsdl2-dev ant asciidoc autoconf autoconf-archive autogen autopoint bison bzr cmake curl cvs docbook2x ed flex g++ libgdk-pixbuf2.0-dev gengetopt git gperf gtk-doc-tools gtk-update-icon-cache gyp intltool liborc-0.4 libsamplerate-dev libtasn1-bin librhash0 libtool libtool-bin libunittest++ lua5.3 mercurial meson nsis mm-common nasm nvidia-cuda-toolkit openjdk-8-jdk patchutils pax pxz python-dev ragel rsync ronn ruby-json rake-compiler ruby-ronn sassc libspeex-dev libspeexdsp-dev ssh sshpass sssd-tools subversion swig libwxbase3.0-dev wget wx-common xutils-dev yasm
 ```
 Then, switch your Java development kit to an Oracle version. You'll need this to compile libbluray:
 ```

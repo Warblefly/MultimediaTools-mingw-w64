@@ -1,20 +1,383 @@
---- ccstruct/imagedata.cpp.orig	2016-11-27 17:12:34.479035300 +0000
-+++ ccstruct/imagedata.cpp	2016-11-27 17:13:39.536213700 +0000
-@@ -30,7 +30,7 @@
- #include "helpers.h"
- #include "tprintf.h"
+--- src/viewer/scrollview.cpp.orig	2019-07-20 16:54:39.597731883 +0100
++++ src/viewer/scrollview.cpp	2019-07-20 16:58:34.676745046 +0100
+@@ -22,9 +22,9 @@
+ #include <cstdarg>
+ #include <cstring>
+ #include <map>
+-#include <mutex>       // for std::mutex
++#include <boost/thread/mutex.hpp>       // for std::mutex
+ #include <string>
+-#include <thread>      // for std::thread
++#include <boost/thread.hpp>      // for std::thread
+ #include <utility>
+ #include <vector>
  
--#include <thread>
-+#include <boost/thread.hpp>
+@@ -50,11 +50,11 @@
  
- // Number of documents to read ahead while training. Doesn't need to be very
- // large.
-@@ -449,7 +449,7 @@
+ // A map between the window IDs and their corresponding pointers.
+ static std::map<int, ScrollView*> svmap;
+-static std::mutex* svmap_mu;
++static boost::mutex* svmap_mu;
+ // A map of all semaphores waiting for a specific event on a specific window.
+ static std::map<std::pair<ScrollView*, SVEventType>,
+                 std::pair<SVSemaphore*, SVEvent*> > waiting_for_events;
+-static std::mutex* waiting_for_events_mu;
++static boost::mutex* waiting_for_events_mu;
+ 
+ SVEvent* SVEvent::copy() {
+   auto* any = new SVEvent;
+@@ -273,11 +273,11 @@
+   if (stream_ == nullptr) {
+     nr_created_windows_ = 0;
+     stream_ = new SVNetwork(server_name, kSvPort);
+-    waiting_for_events_mu = new std::mutex();
+-    svmap_mu = new std::mutex();
++    waiting_for_events_mu = new boost::mutex();
++    svmap_mu = new boost::mutex();
+     SendRawMessage(
+         "svmain = luajava.bindClass('com.google.scrollview.ScrollView')\n");
+-    std::thread t(&ScrollView::MessageReceiver);
++    boost::thread t(&ScrollView::MessageReceiver);
+     t.detach();
+   }
+ 
+@@ -301,7 +301,7 @@
+     i = nullptr;
+   }
+ 
+-  mutex_ = new std::mutex();
++  mutex_ = new boost::mutex();
+   semaphore_ = new SVSemaphore();
+ 
+   // Set up an actual Window on the client side.
+@@ -313,7 +313,7 @@
+            x_pos, y_pos, x_size, y_size, x_canvas_size, y_canvas_size);
+   SendRawMessage(message);
+ 
+-  std::thread t(&ScrollView::StartEventHandler, this);
++  boost::thread t(&ScrollView::StartEventHandler, this);
+   t.detach();
+ }
+ 
+@@ -428,7 +428,7 @@
+   any->counter = specific->counter + 1;
+ 
+ // Place both events into the queue.
+-  std::lock_guard<std::mutex> guard(*mutex_);
++  std::lock_guard<boost::mutex> guard(*mutex_);
+   // Delete the old objects..
+   delete event_table_[specific->type];
+   delete event_table_[SVET_ANY];
+@@ -708,7 +708,7 @@
+ 
+ // Note: this is an update to all windows
+ void ScrollView::Update() {
+-  std::lock_guard<std::mutex> guard(*svmap_mu);
++  std::lock_guard<boost::mutex> guard(*svmap_mu);
+   for (auto & iter : svmap) {
+     if (iter.second != nullptr)
+       iter.second->UpdateWindow();
+--- src/viewer/scrollview.h.orig	2019-07-20 19:06:29.420866396 +0100
++++ src/viewer/scrollview.h	2019-07-20 19:06:55.740117697 +0100
+@@ -34,7 +34,7 @@
+ #ifndef OCR_SCROLLVIEW_H__
+ 
+ #include <cstdio>
+-#include <mutex>
++#include <boost/thread/mutex.hpp>
+ 
+ class ScrollView;
+ class SVNetwork;
+@@ -407,7 +407,7 @@
+   SVEvent* event_table_[SVET_COUNT];
+ 
+   // Mutex to access the event_table_ in a synchronized fashion.
+-  std::mutex* mutex_;
++  boost::mutex* mutex_;
+ 
+   // Semaphore to the thread belonging to this window.
+   SVSemaphore* semaphore_;
+--- src/viewer/svutil.h.orig	2019-07-20 19:21:25.317304422 +0100
++++ src/viewer/svutil.h	2019-07-20 19:20:53.106869293 +0100
+@@ -29,7 +29,7 @@
+ #include <semaphore.h>
+ #endif
+ 
+-#include <mutex>
++#include <boost/thread/mutex.hpp>
+ #include <string>
+ 
+ /// The SVSync class provides functionality for Thread & Process Creation
+@@ -86,7 +86,7 @@
+ 
+  private:
+   /// The mutex for access to Send() and Flush().
+-  std::mutex mutex_send_;
++  boost::mutex mutex_send_;
+   /// The actual stream_ to the server.
+   int stream_;
+   /// Stores the last received message-chunk from the server.
+--- src/viewer/svutil.cpp.orig	2019-07-20 19:21:52.900067820 +0100
++++ src/viewer/svutil.cpp	2019-07-20 19:23:26.056471216 +0100
+@@ -31,7 +31,7 @@
+ #include <iostream>
+ #include <memory>
+ #include <string>
+-#include <thread>        // for std::this_thread
++#include <boost/thread.hpp>        // for std::this_thread
+ #include <vector>
+ 
+ #ifdef _WIN32
+@@ -326,7 +326,7 @@
+         Close();
+ 
+         std::cout << "ScrollView: Waiting for server...\n";
+-        std::this_thread::sleep_for(std::chrono::seconds(1));
++        boost::this_thread::sleep_for(std::chrono::seconds(1));
+       }
+     }
+   }
+--- src/viewer/svutil.cpp.orig	2019-07-20 19:32:48.027718102 +0100
++++ src/viewer/svutil.cpp	2019-07-20 19:33:36.490909753 +0100
+@@ -147,13 +147,13 @@
+ 
+ // Place a message in the message buffer (and flush it).
+ void SVNetwork::Send(const char* msg) {
+-  std::lock_guard<std::mutex> guard(mutex_send_);
++  boost::lock_guard<boost::mutex> guard(mutex_send_);
+   msg_buffer_out_.append(msg);
+ }
+ 
+ // Send the whole buffer.
+ void SVNetwork::Flush() {
+-  std::lock_guard<std::mutex> guard(mutex_send_);
++  boost::lock_guard<boost::mutex> guard(mutex_send_);
+   while (!msg_buffer_out_.empty()) {
+     int i = send(stream_, msg_buffer_out_.c_str(), msg_buffer_out_.length(), 0);
+     msg_buffer_out_.erase(0, i);
+--- src/viewer/svutil.cpp.orig	2019-07-20 19:36:45.433477885 +0100
++++ src/viewer/svutil.cpp	2019-07-20 19:38:47.579642186 +0100
+@@ -32,6 +32,7 @@
+ #include <memory>
+ #include <string>
+ #include <boost/thread.hpp>        // for std::this_thread
++#include <boost/chrono.hpp>
+ #include <vector>
+ 
+ #ifdef _WIN32
+@@ -326,7 +327,7 @@
+         Close();
+ 
+         std::cout << "ScrollView: Waiting for server...\n";
+-        boost::this_thread::sleep_for(std::chrono::seconds(1));
++        boost::this_thread::sleep_for(boost::chrono::seconds(1));
+       }
+     }
+   }
+--- src/viewer/scrollview.cpp.orig	2019-07-20 19:41:51.197573045 +0100
++++ src/viewer/scrollview.cpp	2019-07-20 19:43:17.294055456 +0100
+@@ -428,7 +428,7 @@
+   any->counter = specific->counter + 1;
+ 
+ // Place both events into the queue.
+-  std::lock_guard<boost::mutex> guard(*mutex_);
++  boost::lock_guard<boost::mutex> guard(*mutex_);
+   // Delete the old objects..
+   delete event_table_[specific->type];
+   delete event_table_[SVET_ANY];
+@@ -708,7 +708,7 @@
+ 
+ // Note: this is an update to all windows
+ void ScrollView::Update() {
+-  std::lock_guard<boost::mutex> guard(*svmap_mu);
++  boost::lock_guard<boost::mutex> guard(*svmap_mu);
+   for (auto & iter : svmap) {
+     if (iter.second != nullptr)
+       iter.second->UpdateWindow();
+--- src/ccstruct/imagedata.cpp.orig	2019-07-20 19:46:36.210408219 +0100
++++ src/ccstruct/imagedata.cpp	2019-07-20 19:49:50.861996494 +0100
+@@ -24,7 +24,8 @@
+ #include "imagedata.h"
+ 
+ #include <cinttypes>     // for PRId64
+-#include <thread>        // for std::thread
++#include <boost/thread/mutex.hpp>
++#include <boost/thread.hpp>        // for std::thread
+ 
+ #include "allheaders.h"  // for pixDestroy, pixGetHeight, pixGetWidth, lept_...
+ #include "boxread.h"     // for ReadMemBoxes
+@@ -378,8 +379,8 @@
+       reader_(nullptr) {}
+ 
+ DocumentData::~DocumentData() {
+-  std::lock_guard<std::mutex> lock_p(pages_mutex_);
+-  std::lock_guard<std::mutex> lock_g(general_mutex_);
++  boost::lock_guard<boost::mutex> lock_p(pages_mutex_);
++  boost::lock_guard<boost::mutex> lock_g(general_mutex_);
+ }
+ 
+ // Reads all the pages in the given lstmf filename to the cache. The reader
+@@ -394,8 +395,8 @@
+ // Sets up the document, without actually loading it.
+ void DocumentData::SetDocument(const char* filename, int64_t max_memory,
+                                FileReader reader) {
+-  std::lock_guard<std::mutex> lock_p(pages_mutex_);
+-  std::lock_guard<std::mutex> lock(general_mutex_);
++  boost::lock_guard<boost::mutex> lock_p(pages_mutex_);
++  boost::lock_guard<boost::mutex> lock(general_mutex_);
+   document_name_ = filename;
+   pages_offset_ = -1;
+   max_memory_ = max_memory;
+@@ -404,7 +405,7 @@
+ 
+ // Writes all the pages to the given filename. Returns false on error.
+ bool DocumentData::SaveDocument(const char* filename, FileWriter writer) {
+-  std::lock_guard<std::mutex> lock(pages_mutex_);
++  boost::lock_guard<boost::mutex> lock(pages_mutex_);
+   TFile fp;
+   fp.OpenWrite(nullptr);
+   if (!pages_.Serialize(&fp) || !fp.CloseWrite(filename, writer)) {
+@@ -414,7 +415,7 @@
+   return true;
+ }
+ bool DocumentData::SaveToBuffer(GenericVector<char>* buffer) {
+-  std::lock_guard<std::mutex> lock(pages_mutex_);
++  boost::lock_guard<boost::mutex> lock(pages_mutex_);
+   TFile fp;
+   fp.OpenWrite(buffer);
+   return pages_.Serialize(&fp);
+@@ -422,7 +423,7 @@
+ 
+ // Adds the given page data to this document, counting up memory.
+ void DocumentData::AddPageToDocument(ImageData* page) {
+-  std::lock_guard<std::mutex> lock(pages_mutex_);
++  boost::lock_guard<boost::mutex> lock(pages_mutex_);
+   pages_.push_back(page);
+   set_memory_used(memory_used() + page->MemoryUsed());
+ }
+@@ -432,11 +433,11 @@
+ void DocumentData::LoadPageInBackground(int index) {
+   ImageData* page = nullptr;
+   if (IsPageAvailable(index, &page)) return;
+-  std::lock_guard<std::mutex> lock(pages_mutex_);
++  boost::lock_guard<boost::mutex> lock(pages_mutex_);
+   if (pages_offset_ == index) return;
+   pages_offset_ = index;
+   pages_.clear();
+-  std::thread t(&tesseract::DocumentData::ReCachePages, this);
++  boost::thread t(&tesseract::DocumentData::ReCachePages, this);
+   t.detach();
+ }
+ 
+@@ -452,7 +453,7 @@
      if (needs_loading) LoadPageInBackground(index);
      // We can't directly load the page, or the background load will delete it
      // while the caller is using it, so give it a chance to work.
--    std::this_thread::sleep_for(std::chrono::seconds(1));
-+    boost::this_thread::sleep(boost::posix_time::seconds(1));
+-    std::this_thread::yield();
++    boost::this_thread::yield();
    }
    return page;
  }
+@@ -461,7 +462,7 @@
+ // which may be nullptr if the document is empty. May block, even though it
+ // doesn't guarantee to return true.
+ bool DocumentData::IsPageAvailable(int index, ImageData** page) {
+-  std::lock_guard<std::mutex> lock(pages_mutex_);
++  boost::lock_guard<boost::mutex> lock(pages_mutex_);
+   int num_pages = NumPages();
+   if (num_pages == 0 || index < 0) {
+     *page = nullptr;  // Empty Document.
+@@ -480,7 +481,7 @@
+ // Removes all pages from memory and frees the memory, but does not forget
+ // the document metadata.
+ int64_t DocumentData::UnCache() {
+-  std::lock_guard<std::mutex> lock(pages_mutex_);
++  boost::lock_guard<boost::mutex> lock(pages_mutex_);
+   int64_t memory_saved = memory_used();
+   pages_.clear();
+   pages_offset_ = -1;
+@@ -509,7 +510,7 @@
+ // Locks the pages_mutex_ and Loads as many pages can fit in max_memory_
+ // starting at index pages_offset_.
+ bool DocumentData::ReCachePages() {
+-  std::lock_guard<std::mutex> lock(pages_mutex_);
++  boost::lock_guard<boost::mutex> lock(pages_mutex_);
+   // Read the file.
+   set_total_pages(0);
+   set_memory_used(0);
+--- src/ccstruct/imagedata.h.orig	2019-07-20 19:57:21.959346273 +0100
++++ src/ccstruct/imagedata.h	2019-07-20 19:55:18.852234091 +0100
+@@ -19,7 +19,7 @@
+ #ifndef TESSERACT_IMAGE_IMAGEDATA_H_
+ #define TESSERACT_IMAGE_IMAGEDATA_H_
+ 
+-#include <mutex>                // for std::mutex
++#include <boost/thread/mutex.hpp>                // for std::mutex
+ #include "genericvector.h"      // for GenericVector, PointerVector, FileReader
+ #include "points.h"             // for FCOORD
+ #include "strngs.h"             // for STRING
+@@ -226,15 +226,15 @@
+   void AddPageToDocument(ImageData* page);
+ 
+   const STRING& document_name() const {
+-    std::lock_guard<std::mutex> lock(general_mutex_);
++    boost::lock_guard<boost::mutex> lock(general_mutex_);
+     return document_name_;
+   }
+   int NumPages() const {
+-    std::lock_guard<std::mutex> lock(general_mutex_);
++    boost::lock_guard<boost::mutex> lock(general_mutex_);
+     return total_pages_;
+   }
+   int64_t memory_used() const {
+-    std::lock_guard<std::mutex> lock(general_mutex_);
++    boost::lock_guard<boost::mutex> lock(general_mutex_);
+     return memory_used_;
+   }
+   // If the given index is not currently loaded, loads it using a separate
+@@ -258,7 +258,7 @@
+   bool IsPageAvailable(int index, ImageData** page);
+   // Takes ownership of the given page index. The page is made nullptr in *this.
+   ImageData* TakePage(int index) {
+-    std::lock_guard<std::mutex> lock(pages_mutex_);
++    boost::lock_guard<boost::mutex> lock(pages_mutex_);
+     ImageData* page = pages_[index];
+     pages_[index] = nullptr;
+     return page;
+@@ -275,11 +275,11 @@
+  private:
+   // Sets the value of total_pages_ behind a mutex.
+   void set_total_pages(int total) {
+-    std::lock_guard<std::mutex> lock(general_mutex_);
++    boost::lock_guard<boost::mutex> lock(general_mutex_);
+     total_pages_ = total;
+   }
+   void set_memory_used(int64_t memory_used) {
+-    std::lock_guard<std::mutex> lock(general_mutex_);
++    boost::lock_guard<boost::mutex> lock(general_mutex_);
+     memory_used_ = memory_used;
+   }
+   // Locks the pages_mutex_ and Loads as many pages can fit in max_memory_
+@@ -303,10 +303,10 @@
+   FileReader reader_;
+   // Mutex that protects pages_ and pages_offset_ against multiple parallel
+   // loads, and provides a wait for page.
+-  std::mutex pages_mutex_;
++  boost::mutex pages_mutex_;
+   // Mutex that protects other data members that callers want to access without
+   // waiting for a load operation.
+-  mutable std::mutex general_mutex_;
++  mutable boost::mutex general_mutex_;
+ };
+ 
+ // A collection of DocumentData that knows roughly how much memory it is using.
+--- src/ccstruct/imagedata.h.orig	2019-07-20 20:00:43.377721136 +0100
++++ src/ccstruct/imagedata.h	2019-07-20 20:02:28.400809610 +0100
+@@ -20,6 +20,7 @@
+ #define TESSERACT_IMAGE_IMAGEDATA_H_
+ 
+ #include <boost/thread/mutex.hpp>                // for std::mutex
++#include <boost/thread.hpp>
+ #include "genericvector.h"      // for GenericVector, PointerVector, FileReader
+ #include "points.h"             // for FCOORD
+ #include "strngs.h"             // for STRING
