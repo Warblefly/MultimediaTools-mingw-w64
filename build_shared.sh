@@ -515,6 +515,7 @@ ${EnvVarUpdate} $0 VLC_PLUGIN_PATH "A" "HKCU" "$INSTDIR\lib\vlc"
 ${EnvVarUpdate} $0 MAGICK_CONFIGURE_PATH "A" "HKCU" "$INSTDIR\lib\GraphicsMagick-1.4\config\"
 ${EnvVarUpdate} $0 MAGICK_CODER_MODULE_PATH "A" "HKCU" "$INSTDIR\lib\GraphicsMagick-1.4\modules-Q8\coders\"
 ${EnvVarUpdate} $0 MAGICK_FILTER_MODULE_PATH "A" "HKCU" "$INSTDIR\lib\GraphicsMagick-1.4\modules-Q8\filters\"
+${EnvVarUpdate} $0 FZ_DATADIR "A" "HKCU" "$INSTDIR\share\filezilla\"
 
 ; Set up the GTK loader cache
 
