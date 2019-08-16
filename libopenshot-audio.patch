@@ -1,21 +1,11 @@
---- CMakeLists.txt.orig	2019-07-20 20:30:13.114426030 +0100
-+++ CMakeLists.txt	2019-07-20 20:30:40.218129309 +0100
-@@ -105,14 +105,14 @@
- 		advapi32.lib
- 		comdlg32.lib
- 		gdi32.lib
--		GlU32.lib
--		Imm32.dll
-+		glu32.lib
-+		imm32.dll
- 		kernel32.lib
- 		ole32.lib
--		OpenGL32.lib
-+		opengl32.lib
- 		rpcrt4.lib
- 		shell32.lib
--		Shlwapi.dll
-+		shlwapi.dll
- 		user32.lib
- 		vfw32.lib
- 		version.lib
+--- CMakeLists.txt.orig	2019-08-14 04:40:26.504413749 +0100
++++ CMakeLists.txt	2019-08-14 04:40:35.868317779 +0100
+@@ -127,7 +127,7 @@
+                 ws2_32.lib
+                 wininet.lib
+                 version.lib
+-                Shlwapi.dll
++                shlwapi.dll
+ 		)
+ endif()
+ 

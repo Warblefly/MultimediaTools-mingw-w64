@@ -4857,10 +4857,7 @@ build_gettext() {
 }
 
 build_pcre() {
-  generic_download_and_install ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.41.tar.bz2 pcre-8.41 "--enable-pcre16 --enable-pcre32 --enable-newline-is-any --enable-jit --enable-utf --enable-pcregrep-libz --enable-pcregrep-libbz2 --enable-pcregrep-libreadline --enable-unicode-properties"
-  cd pcre-8.41
-
-  cd ..
+  generic_download_and_install https://ftp.pcre.org/pub/pcre/pcre-8.43.tar.bz2 pcre-8.43 "--enable-pcre16 --enable-pcre32 --enable-newline-is-any --enable-jit --enable-utf --enable-pcregrep-libz --enable-pcregrep-libbz2 --enable-pcregrep-libreadline --enable-unicode-properties"
 }
 
 build_glib() {
@@ -5292,7 +5289,7 @@ build_mimedb() {
 build_qjackctl() {
   do_git_checkout https://github.com/rncbc/qjackctl.git qjackctl # b2ae94121d368bb2498a3fa09173e99263fe8c39 # 568b076f1ddd0fcb18a78828e0e5b833e52fd7a1
   cd qjackctl
-    apply_patch file://${top_dir}/qjackctl-MainForm.patch
+#    apply_patch file://${top_dir}/qjackctl-MainForm.patch
     generic_configure_make_install "LIBS=-lportaudio --enable-xunique=no --disable-alsa-seq" # enable-jack-version=yes
     # make install doesn't work
     cp -vf src/release/qjackctl.exe ${mingw_w64_x86_64_prefix}/bin

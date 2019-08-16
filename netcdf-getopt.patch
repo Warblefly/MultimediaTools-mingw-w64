@@ -3,7 +3,7 @@
 @@ -31,9 +31,9 @@
  #include "ocx.h"
  
- #ifdef _WIN32
+ #ifdef _MSC_VER
 -#include "XGetopt.h"
 +/* #include "XGetopt.h"
  int opterr, optind;
@@ -16,7 +16,7 @@
 +++ ncdump/ncdump.c	2019-06-09 15:30:28.029156268 +0100
 @@ -20,7 +20,7 @@
  
- #ifdef _WIN32
+ #ifdef _MSC_VER
  #define snprintf _snprintf
 -#include "XGetopt.h"
 +/*#include "XGetopt.h"*/
@@ -26,7 +26,7 @@
 --- ncdump/ncvalidator.c.orig	2019-06-09 15:35:07.303838094 +0100
 +++ ncdump/ncvalidator.c	2019-06-09 15:35:22.079557792 +0100
 @@ -76,7 +76,7 @@
- #ifdef _WIN32
+ #ifdef _MSC_VER
  #include <io.h>
  #define snprintf _snprintf
 -#include "XGetopt.h"
