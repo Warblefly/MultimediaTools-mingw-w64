@@ -3004,7 +3004,7 @@ build_libgpg-error() {
 
 build_libgcrypt() {
 #  generic_download_and_install ftp://ftp.gnupg.org/gcrypt/libgcrypt/libgcrypt-1.8.1.tar.gz libgcrypt-1.8.1 "GPG_ERROR_CONFIG=${mingw_w64_x86_64_prefix}/bin/gpg-error-config"
-  do_git_checkout git://git.gnupg.org/libgcrypt.git libgcrypt # 86e5e06a97ae13b8bbf6923ecc76e02b9c429b46
+  do_git_checkout git://git.gnupg.org/libgcrypt.git libgcrypt cdaeb86f067b94d9dff4235ade20dde6479d9bb8 # 86e5e06a97ae13b8bbf6923ecc76e02b9c429b46
   cd libgcrypt
   export holding_path="${PATH}"
   export PATH="/usr/bin:/bin:${top_dir}/sandbox/x86_64-w64-mingw32/bin"
