@@ -25,7 +25,7 @@
  
    echo "downloading mingw-w64" >&3
 -  git clone --depth 1 -b v6.x git://git.code.sf.net/p/mingw-w64/mingw-w64 mingw-w64-$v_mingww64 || error_exit
-+  git clone --depth 1 git://git.code.sf.net/p/mingw-w64/mingw-w64 mingw-w64-$v_mingww64 || error_exit
++  git clone git://git.code.sf.net/p/mingw-w64/mingw-w64 mingw-w64-$v_mingww64 && cd mingw-w64-$v_mingww64 && git reset --hard && cd .. || error_exit
  
    echo "downloading binutils" >&3
    git clone --depth 1 -b binutils-2_31-branch --single-branch git://sourceware.org/git/binutils-gdb.git binutils-$v_binutils || error_exit
@@ -161,7 +161,20 @@
    echo "downloading gcc" >&3
 -  svn co svn://gcc.gnu.org/svn/gcc/branches/gcc-9-branch gcc-$v_gcc || error_exit
 +#  git clone --depth 1 -b master --single-branch git@github.com:Warblefly/gcc-working-temp.git gcc-$v_gcc || error_exit
-+  git clone --depth 1 -b gcc-9-branch --single-branch  https://github.com/gcc-mirror/gcc.git gcc-$v_gcc || error_exit
++  git clone --depth 1 -b gcc-8-branch --single-branch  https://github.com/gcc-mirror/gcc.git gcc-$v_gcc || error_exit
  
    local urls=(
      "https://ftp.gnu.org/gnu/gmp/gmp-$v_gmp.tar.xz"
+--- mingw-w64-build.orig	2019-09-01 20:40:09.408063575 +0100
++++ mingw-w64-build	2019-09-01 20:43:37.750000858 +0100
+@@ -84,6 +84,10 @@
+ 
+   echo "downloading mingw-w64" >&3
+   git clone git://git.code.sf.net/p/mingw-w64/mingw-w64 mingw-w64-$v_mingww64 && cd mingw-w64-$v_mingww64 && git reset --hard && cd .. || error_exit
++  cd mingw-w64-$v_mingww64/mingw-w64-headers
++  echo "patching shlguid.h..."
++    cat ../../../../shlguid.patch | patch -p0
++  cd ../..
+ 
+   echo "downloading binutils" >&3
+   git clone --depth 1 -b binutils-2_32-branch --single-branch git://sourceware.org/git/binutils-gdb.git binutils-$v_binutils || error_exit

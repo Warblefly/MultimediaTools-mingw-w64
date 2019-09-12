@@ -1,11 +1,11 @@
---- src/daemon/daemon.conf.in.orig	2018-09-30 11:53:03.490356900 +0100
-+++ src/daemon/daemon.conf.in	2018-09-30 11:53:58.395949500 +0100
-@@ -45,7 +45,7 @@
- ; dl-search-path = (depends on architecture)
+--- configure.orig	2019-09-11 14:41:22.335648247 +0100
++++ configure	2019-09-11 14:41:35.879517512 +0100
+@@ -9872,7 +9872,7 @@
+     # Warnings to be aware of that appear with -D_FORTIFY_SOURCE=2 but without -U_FORTIFY_SOURCE:
+     # On Fedora 20 with -O0: #warning _FORTIFY_SOURCE requires compiling with optimization (-O) [-Wcpp]
+     # On Gentoo with -O2:    "_FORTIFY_SOURCE" redefined [enabled by default]
+-    as_fn_append CPPFLAGS " -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2"
++    # as_fn_append CPPFLAGS " -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2"
+  ;;
+ esac
  
- ; load-default-script-file = yes
--; default-script-file = @PA_DEFAULT_CONFIG_DIR@/default.pa
-+; default-script-file = "C:\Program Files\ffmpeg\etc\default.pa"
- 
- ; log-target = auto
- ; log-level = notice

@@ -1447,7 +1447,7 @@ build_gcal() {
 }
 
 build_unbound() {
-  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.9.2 "CFLAGS=-O1 libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
+  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.9.3 "CFLAGS=-O1 libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
 }
 
 build_libxavs() {
@@ -1969,9 +1969,9 @@ build_ncurses() {
     wget http://invisible-island.net/datafiles/current/terminfo.src.gz
     gunzip terminfo.src.gz
   fi
-  download_and_unpack_file http://invisible-mirror.net/archives/ncurses/current/ncurses-6.1-20190630.tgz ncurses-6.1-20190630
+  download_and_unpack_file https://invisible-mirror.net/archives/ncurses/current/ncurses-6.1-20190831.tgz ncurses-6.1-20190831
  # generic_configure "--build=x86_64-pc-linux --host=x86_64-w64-mingw32 --with-libtool --disable-termcap --enable-widec --enable-term-driver --enable-sp-funcs --without-ada --with-debug=no --with-shared=yes --with-normal=no --enable-database --with-progs --enable-interop --with-pkg-config-libdir=${mingw_w64_x86_64_prefix}/lib/pkgconfig --enable-pc-files"
-  cd ncurses-6.1-20190630
+  cd ncurses-6.1-20190831
 #    apply_patch file://${top_dir}/ncurses-rx.patch
 #    rm configure
     generic_configure "LIBS=-lgnurx --build=x86_64-pc-linux --host=x86_64-w64-mingw32 --disable-termcap --enable-widec --enable-term-driver --enable-sp-funcs --without-ada --without-cxx-binding --with-debug=no --with-shared=yes --with-normal=no --enable-database --with-probs --enable-interop --with-pkg-config-libdir=${mingw_w64_x86_64_prefix}/lib/pkgconfig --enable-pc-files --disable-static --enable-shared"
@@ -2193,25 +2193,25 @@ build_unittest() {
 }
 
 build_libfilezilla() {
-do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfilezilla
-    cd libfilezilla
+#do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfilezilla
+#    cd libfilezilla
         export CC=x86_64-w64-mingw32-gcc
         export CXX=x86_64-w64-mingw32-g++
         export WINDRES=x86_64-w64-mingw32-windres
 #        export orig_cpu_count=$cpu_count
 #        export cpu_count=1
-        generic_configure_make_install "--disable-shared --enable-static"
-#        generic_download_and_install https://download.filezilla-project.org/libfilezilla/libfilezilla-0.12.2.tar.bz2 libfilezilla-0.12.2 "--disable-shared --enable-static"
+#        generic_configure_make_install "--disable-shared --enable-static"
+        generic_download_and_install https://download.filezilla-project.org/libfilezilla/libfilezilla-0.18.1.tar.bz2 libfilezilla-0.18.1 "--disable-shared --enable-static"
         unset CC
         unset CXX
         unset WINDRES
 #        export cpu_count=$orig_cpu_count
-    cd ..
+#    cd ..
 }
 
 build_filezilla() {
-do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla # 9262 # 9056
-  cd filezilla
+#do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla 9450 # 9262 # 9056
+#  cd filezilla
     export CC=x86_64-w64-mingw32-gcc
     export CXX=x86_64-w64-mingw32-g++
     export WINDRES=x86_64-w64-mingw32-windres
@@ -2219,13 +2219,16 @@ do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla
 #    export cpu_count=1
     #env
     #apply_patch file://{$top_dir}/filezilla-install.patch
-    generic_configure_make_install "--disable-dependency-tracking"
-#   generic_download_and_install https://download.filezilla-project.org/client/FileZilla_latest_src.tar.bz2 filezilla-3.33.0
+    #export CFLAGS="-g -O0 -Wall"
+#    generic_configure_make_install "--disable-dependency-tracking"
+#    unset CFLAGS
+   generic_download_and_install https://download.filezilla-project.org/client/FileZilla_3.44.2_src.tar.bz2 filezilla-3.44.2
+    #unset CFLAGS
     unset CC
     unset CXX
     unset WINDRES
 #   export cpu_count=$orig_cpu_count
-  cd ..
+#  cd ..
 }
 
 
@@ -3218,6 +3221,9 @@ build_OpenCL() {
 
 build_vim() {
   do_git_checkout https://github.com/vim/vim.git vim
+  cd vim
+  	apply_patch file://${top_dir}/vim_uuid.patch
+  cd ..
   cd vim/src
       sed -i.bak 's/FEATURES=BIG/FEATURES=HUGE/' Make_cyg_ming.mak
       sed -i.bak 's/ARCH=i686/ARCH=x86-64/' Make_cyg_ming.mak
@@ -3299,7 +3305,7 @@ build_gstreamer() {
         mkdir -vp tests/examples/controller/include # to work around a bad include directory
         generic_configure_make_install "--disable-silent-rules --disable-fatal-warnings"
     cd ..
-    do_git_checkout https://github.com/GStreamer/gst-plugins-base.git gst-plugins-base
+    do_git_checkout https://github.com/GStreamer/gst-plugins-base.git gst-plugins-base 909baa2360f7ba7b6e2e27a2ad565e3142630abe
     cd gst-plugins-base
         mkdir -vp gst-libs/gst/video/include
         mkdir -vp gst-libs/gst/tag/include
@@ -3340,13 +3346,12 @@ build_traverso() {
 
 
 build_wx() {
-  do_git_checkout https://github.com/wxWidgets/wxWidgets.git wxWidgets WX_3_0_BRANCH #  8c8557812be37697d4c2ffdad35141a51a9bc71d # WX_3_0_BRANCH
-#  download_and_unpack_file https://github.com/wxWidgets/wxWidgets/archive/v3.0.2.tar.gz wxWidgets-3.0.2
-  cd wxWidgets
+#  do_git_checkout https://github.com/wxWidgets/wxWidgets.git wxWidgets WX_3_0_BRANCH #  8c8557812be37697d4c2ffdad35141a51a9bc71d # WX_3_0_BRANCH
+  download_and_unpack_file https://github.com/wxWidgets/wxWidgets/archive/v3.0.4.tar.gz wxWidgets-3.0.4
+  cd wxWidgets-3.0.4
 #    apply_patch_p1 https://github.com/wxWidgets/wxWidgets/commit/73e9e18ea09ffffcaac50237def0d9728a213c02.patch
 #    rm -v configure
-    generic_configure_make_install "--without-opengl  --enable-checklst --with-regex=yes --with-msw --with-libpng=sys --with-libjpeg=sys --with-libtiff=sys --with-zlib=yes --enable-graphics_ctx --enable-webview --enable-mediactrl --disable-official_build --disable-option-checking" # --with-regex=yes
-
+    generic_configure_make_install "--with-msw --with-opengl --disable-mslu --enable-unicode --enable-monolithic --with-regex=builtin --disable-precomp-headers --enable-graphics_ctx --enable-webview --enable-mediactrl --with-libpng=sys --with-libxpm=builtin --with-libjpeg=sys --with-libtiff=sys" # "--without-opengl  --enable-checklst --with-regex=yes --with-msw --with-libpng=sys --with-libjpeg=sys --with-libtiff=sys --with-zlib=yes --enable-graphics_ctx --enable-webview --enable-mediactrl --disable-official_build --disable-option-checking" # --with-regex=yes
     # wx-config needs to be visible to this script when compiling
     cp -v ${mingw_w64_x86_64_prefix}/bin/wx-config ${mingw_w64_x86_64_prefix}/../bin/wx-config
     # wxWidgets doesn't include the DLL run-time libraries in the right place.
@@ -4114,6 +4119,7 @@ build_libopusenc() {
 build_opustools() {
   do_git_checkout https://git.xiph.org/opus-tools.git opus-tools
   cd opus-tools
+  apply_patch file://${top_dir}/opus-tools-fortify.patch
   if [[ ! -f "configure" ]]; then
     ./autogen.sh
   fi
@@ -4356,12 +4362,14 @@ build_cairo() {
   download_and_unpack_file https://www.cairographics.org/releases/cairo-1.14.12.tar.xz cairo-1.14.12 # Was .8
   cd cairo-1.14.12
      rm -v autogen.sh configure
+     apply_patch file://${top_dir}/cairo-fortify.patch
      generic_configure_make_install "--disable-silent-rules --enable-win32 --enable-win32-font --enable-gobject --enable-tee --enable-pdf --enable-ps --enable-svg --disable-dependency-tracking"
 
   cd ..
   download_and_unpack_file http://cairographics.org/snapshots/cairo-1.15.14.tar.xz cairo-1.15.14 # Was .4
   cd cairo-1.15.14
      rm -v autogen.sh configure
+     apply_patch file://${top_dir}/cairo-fortify.patch
      generic_configure_make_install "--disable-silent-rules --enable-win32 --enable-win32-font --enable-gobject --enable-tee --enable-pdf --enable-ps --enable-svg --disable-dependency-tracking"
 
   cd ..
@@ -4786,6 +4794,7 @@ build_aubio() {
 build_libdsm() {
   do_git_checkout https://github.com/videolabs/libdsm.git libdsm 03e98f930c45f4b9c34a98cc1f9a69c78567e9a3
   cd libdsm
+    apply_patch file://${top_dir}/libdsm-fortify.patch
     generic_configure_make_install "--disable-silent-rules"
 
   cd ..
@@ -5148,6 +5157,7 @@ build_vlc() {
 #    apply_patch file://${top_dir}/vlc-vpx.patch
 #    apply_patch file://${top_dir}/vlc-d3d11-deinterlace.patch
     apply_patch file://${top_dir}/vlc-stack.patch
+    apply_patch file://${top_dir}/vlc-fortify.patch
     export LIVE555_CFLAGS="-I${mingw_w64_x86_64_prefix}/include/liveMedia -I${mingw_w64_x86_64_prefix}/include/UsageEnvironment -I${mingw_w64_x86_64_prefix}/include/BasicUsageEnvironment -I${mingw_w64_x86_64_prefix}/include/groupsock"
     export DSM_LIBS="-lws2_32 -ldsm"
     export AOM_LIBS="-laom -lpthread -lm"
@@ -5323,7 +5333,7 @@ build_glslang() {
 }
 
 build_shaderc() {
-    do_git_checkout https://github.com/google/shaderc.git shaderc 14ae0de47d34f14e09ae1c64327cd39c32c8f693 # a2c044c44d68c31014210f9b37a682d118c40388 # be8e0879750303a1de09385465d6b20ecb8b380d
+    do_git_checkout https://github.com/google/shaderc.git shaderc #14ae0de47d34f14e09ae1c64327cd39c32c8f693 # a2c044c44d68c31014210f9b37a682d118c40388 # be8e0879750303a1de09385465d6b20ecb8b380d
     cd shaderc
         export spirv-tools_SOURCE_DIR=${top_dir}/x86_64/SPIRV-Tools/
         export glslang_SOURCE_DIR=${top_dir}/x86_64/glslang/
@@ -5631,6 +5641,7 @@ build_pulseaudio() {
   download_and_unpack_file https://freedesktop.org/software/pulseaudio/releases/pulseaudio-12.2.tar.xz pulseaudio-12.2
     cd pulseaudio-12.2
         apply_patch file://${top_dir}/pulseaudio-size.patch
+	apply_patch file://${top_dir}/pulseaudio-conf.patch
         generic_configure_make_install "LIBS=-lintl --enable-orc --enable-waveout --disable-silent-rules -disable-gsettings --disable-dbus"
         # Main library is in wrong place for our paths
         cp -vf ${mingw_w64_x86_64_prefix}/lib/pulseaudio/*dll ${mingw_w64_x86_64_prefix}/bin

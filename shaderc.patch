@@ -24,10 +24,10 @@
 +++ CMakeLists.txt	2018-06-10 11:58:03.516810000 +0100
 @@ -62,5 +62,5 @@
  add_custom_target(build-version
-   ${PYTHON_EXE}
+   ${PYTHON_EXECUTABLE}
    ${CMAKE_CURRENT_SOURCE_DIR}/utils/update_build_version.py
--  ${shaderc_SOURCE_DIR} ${spirv-tools_SOURCE_DIR} ${glslang_SOURCE_DIR}
-+  "../../shaderc" "../../SPIRV-Tools" "../../glslang"
+-  ${shaderc_SOURCE_DIR} ${spirv-tools_SOURCE_DIR} ${glslang_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}/build-version.inc
++  "../../shaderc" "../../SPIRV-Tools" "../../glslang" ${CMAKE_CURRENT_BINARY_DIR}/build-version.inc
    COMMENT "Update build-version.inc in the Shaderc build directory (if necessary).")
 --- libshaderc_util/CMakeLists.txt.orig	2018-06-10 14:15:03.501463200 +0100
 +++ libshaderc_util/CMakeLists.txt	2018-06-10 14:15:29.640898300 +0100
