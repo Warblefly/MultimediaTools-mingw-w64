@@ -847,13 +847,13 @@ build_drm() {
 
 
 build_qt() {
-  export QT_VERSION="5.12.3"
+  export QT_VERSION="5.13.1"
   export QT_SOURCE="qt-source"
   export QT_BUILD="qt-build"
 #  orig_cpu_count=$cpu_count
 #  export cpu_count=1
   if [ ! -f qt.built ]; then
-    download_and_unpack_file http://download.qt.io/official_releases/qt/5.12/5.12.3/single/qt-everywhere-src-5.12.3.tar.xz "qt-everywhere-src-${QT_VERSION}"
+    download_and_unpack_file http://download.qt.io/official_releases/qt/5.13/5.13.1/single/qt-everywhere-src-5.13.1.tar.xz "qt-everywhere-src-${QT_VERSION}"
     cd "qt-everywhere-src-${QT_VERSION}"
 #      apply_patch file://${top_dir}/qt-permissive.patch
     apply_patch file://${top_dir}/qt5-skip-mapboxglnative.patch
@@ -2540,7 +2540,7 @@ build_liba52() {
 
 build_p11kit() {
 #  generic_download_and_install https://p11-glue.freedesktop.org/releases/p11-kit-0.23.2.tar.gz p11-kit-0.23.2
-  do_git_checkout https://github.com/p11-glue/p11-kit.git p11-kit #58cede114664e839b53d923863bff604ce58b1a7
+  do_git_checkout https://github.com/p11-glue/p11-kit.git p11-kit f00183944fad943216ac5842f6b23ab5c4149e50
   cd p11-kit
     generic_configure_make_install
   cd ..
@@ -3222,7 +3222,7 @@ build_OpenCL() {
 build_vim() {
   do_git_checkout https://github.com/vim/vim.git vim
   cd vim
-  	apply_patch file://${top_dir}/vim_uuid.patch
+#  	apply_patch file://${top_dir}/vim_uuid.patch
   cd ..
   cd vim/src
       sed -i.bak 's/FEATURES=BIG/FEATURES=HUGE/' Make_cyg_ming.mak
@@ -3263,7 +3263,7 @@ build_mpv() {
     unset CC
     unset LD
     #env
-    do_configure "configure -v -pp --prefix=${mingw_w64_x86_64_prefix} --enable-dvdread --enable-dvdnav --enable-cdda --disable-x11 --disable-debug-build --enable-sdl2 --enable-libmpv-shared --disable-libmpv-static" "./waf"
+    do_configure "configure -v -pp --prefix=${mingw_w64_x86_64_prefix} --enable-dvdnav --enable-cdda --disable-x11 --disable-debug-build --enable-sdl2 --enable-libmpv-shared --disable-libmpv-static" "./waf"
     # In this cross-compile for Windows, we keep the Python script up-to-date and therefore
     # must call it directly by its full name, because mpv can only explore for executables
     # with the .exe suffix.

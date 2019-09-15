@@ -27,7 +27,7 @@
  #if defined(_WIN32) && HAS_QT5
  #include <QWindow>
 -#include <qpa/qplatformnativeinterface.h>
-+#include <5.12.3/QtGui/qpa/qplatformnativeinterface.h>
++#include <5.13.1/QtGui/qpa/qplatformnativeinterface.h>
  #endif
  
  #include <math.h>
@@ -38,7 +38,7 @@
  
  #include <QWindow>
 -#include <qpa/qplatformnativeinterface.h>
-+#include <5.12.3/QtGui/qpa/qplatformnativeinterface.h>
++#include <5.13.1/QtGui/qpa/qplatformnativeinterface.h>
  
  #define WM_APPCOMMAND 0x0319
  
