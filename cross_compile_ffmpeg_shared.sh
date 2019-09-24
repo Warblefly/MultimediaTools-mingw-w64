@@ -5297,7 +5297,7 @@ build_mimedb() {
 }
 
 build_qjackctl() {
-  do_git_checkout https://github.com/rncbc/qjackctl.git qjackctl # b2ae94121d368bb2498a3fa09173e99263fe8c39 # 568b076f1ddd0fcb18a78828e0e5b833e52fd7a1
+  do_git_checkout https://github.com/rncbc/qjackctl.git qjackctl e76e58ea6e67b74ab1fcc539a4d1f18ea0686144 # b2ae94121d368bb2498a3fa09173e99263fe8c39 # 568b076f1ddd0fcb18a78828e0e5b833e52fd7a1
   cd qjackctl
 #    apply_patch file://${top_dir}/qjackctl-MainForm.patch
     generic_configure_make_install "LIBS=-lportaudio --enable-xunique=no --disable-alsa-seq" # enable-jack-version=yes
