@@ -1447,7 +1447,7 @@ build_gcal() {
 }
 
 build_unbound() {
-  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.9.3 "CFLAGS=-O1 libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
+  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.9.4 "CFLAGS=-O1 libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
 }
 
 build_libxavs() {
@@ -1969,9 +1969,9 @@ build_ncurses() {
     wget http://invisible-island.net/datafiles/current/terminfo.src.gz
     gunzip terminfo.src.gz
   fi
-  download_and_unpack_file https://invisible-mirror.net/archives/ncurses/current/ncurses-6.1-20190831.tgz ncurses-6.1-20190831
+  download_and_unpack_file https://invisible-mirror.net/archives/ncurses/current/ncurses-6.1-20190928.tgz ncurses-6.1-20190928
  # generic_configure "--build=x86_64-pc-linux --host=x86_64-w64-mingw32 --with-libtool --disable-termcap --enable-widec --enable-term-driver --enable-sp-funcs --without-ada --with-debug=no --with-shared=yes --with-normal=no --enable-database --with-progs --enable-interop --with-pkg-config-libdir=${mingw_w64_x86_64_prefix}/lib/pkgconfig --enable-pc-files"
-  cd ncurses-6.1-20190831
+  cd ncurses-6.1-20190928
 #    apply_patch file://${top_dir}/ncurses-rx.patch
 #    rm configure
     generic_configure "LIBS=-lgnurx --build=x86_64-pc-linux --host=x86_64-w64-mingw32 --disable-termcap --enable-widec --enable-term-driver --enable-sp-funcs --without-ada --without-cxx-binding --with-debug=no --with-shared=yes --with-normal=no --enable-database --with-probs --enable-interop --with-pkg-config-libdir=${mingw_w64_x86_64_prefix}/lib/pkgconfig --enable-pc-files --disable-static --enable-shared"
@@ -2147,7 +2147,7 @@ build_sqlite() {
 
 build_medialibrary() {
 	# New name change not reflected yet in VLC player
-	do_git_checkout https://code.videolan.org/videolan/medialibrary.git medialibrary a86453015164df65b7dbcdbc01cf4220daffc8aa # 8ad8de92f159c9af63c876230062bdea9d18ed04 #21fa816f7e3ee4ae20b565c2665641ee91431234
+	do_git_checkout https://code.videolan.org/videolan/medialibrary.git medialibrary # a86453015164df65b7dbcdbc01cf4220daffc8aa # 8ad8de92f159c9af63c876230062bdea9d18ed04 #21fa816f7e3ee4ae20b565c2665641ee91431234
 	cd medialibrary
 		git submodule init
 		git submodule update
@@ -2193,25 +2193,25 @@ build_unittest() {
 }
 
 build_libfilezilla() {
-#do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfilezilla
-#    cd libfilezilla
+do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfilezilla
+    cd libfilezilla
         export CC=x86_64-w64-mingw32-gcc
         export CXX=x86_64-w64-mingw32-g++
         export WINDRES=x86_64-w64-mingw32-windres
 #        export orig_cpu_count=$cpu_count
 #        export cpu_count=1
-#        generic_configure_make_install "--disable-shared --enable-static"
-        generic_download_and_install https://download.filezilla-project.org/libfilezilla/libfilezilla-0.18.1.tar.bz2 libfilezilla-0.18.1 "--disable-shared --enable-static"
+        generic_configure_make_install "--disable-shared --enable-static"
+#        generic_download_and_install https://download.filezilla-project.org/libfilezilla/libfilezilla-0.18.1.tar.bz2 libfilezilla-0.18.1 "--disable-shared --enable-static"
         unset CC
         unset CXX
         unset WINDRES
 #        export cpu_count=$orig_cpu_count
-#    cd ..
+    cd ..
 }
 
 build_filezilla() {
-#do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla 9450 # 9262 # 9056
-#  cd filezilla
+do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla #9450 # 9262 # 9056
+  cd filezilla
     export CC=x86_64-w64-mingw32-gcc
     export CXX=x86_64-w64-mingw32-g++
     export WINDRES=x86_64-w64-mingw32-windres
@@ -2220,15 +2220,15 @@ build_filezilla() {
     #env
     #apply_patch file://{$top_dir}/filezilla-install.patch
     #export CFLAGS="-g -O0 -Wall"
-#    generic_configure_make_install "--disable-dependency-tracking"
+    generic_configure_make_install "--disable-dependency-tracking"
 #    unset CFLAGS
-   generic_download_and_install https://download.filezilla-project.org/client/FileZilla_3.44.2_src.tar.bz2 filezilla-3.44.2
+#   generic_download_and_install https://download.filezilla-project.org/client/FileZilla_3.44.2_src.tar.bz2 filezilla-3.44.2
     #unset CFLAGS
     unset CC
     unset CXX
     unset WINDRES
 #   export cpu_count=$orig_cpu_count
-#  cd ..
+  cd ..
 }
 
 
@@ -3776,9 +3776,17 @@ build_regex() {
   cd ..
 }
 
+build_fmt() {
+	do_git_checkout https://github.com/fmtlib/fmt.git fmt 6.0.0
+	cd fmt
+		do_cmake "-DBUILD_SHARED_LIBS=TRUE -DFMT_TEST=OFF"
+		do_make_install
+	cd ..
+}
+
 build_boost() {
-  download_and_unpack_file "https://dl.bintray.com/boostorg/release/1.70.0/source/boost_1_70_0.tar.bz2" boost_1_70_0
-  cd boost_1_70_0
+  download_and_unpack_file "https://dl.bintray.com/boostorg/release/1.71.0/source/boost_1_71_0.tar.bz2" boost_1_71_0
+  cd boost_1_71_0
   #  cd libs/serialization
   #    apply_patch file://${top_dir}/boost-codecvt.patch
   #  cd ../..
@@ -6093,6 +6101,7 @@ build_dependencies() {
   build_libopus
   build_libopencore
   build_libogg
+  #build_fmt
 #  build_icu
   build_boost # needed for mkv tools
   build_libspeexdsp # Speex now split into two libraries
