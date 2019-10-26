@@ -2147,7 +2147,7 @@ build_sqlite() {
 
 build_medialibrary() {
 	# New name change not reflected yet in VLC player
-	do_git_checkout https://code.videolan.org/videolan/medialibrary.git medialibrary # a86453015164df65b7dbcdbc01cf4220daffc8aa # 8ad8de92f159c9af63c876230062bdea9d18ed04 #21fa816f7e3ee4ae20b565c2665641ee91431234
+	do_git_checkout https://code.videolan.org/videolan/medialibrary.git medialibrary 42c330b4e38062c7a773f7c5ad4ff0c0a6984a08 # a86453015164df65b7dbcdbc01cf4220daffc8aa # 8ad8de92f159c9af63c876230062bdea9d18ed04 #21fa816f7e3ee4ae20b565c2665641ee91431234
 	cd medialibrary
 		git submodule init
 		git submodule update
@@ -3300,7 +3300,7 @@ build_atomicparsley() {
 }
 
 build_gstreamer() {
-    do_git_checkout https://github.com/GStreamer/gstreamer.git gstreamer
+    do_git_checkout https://github.com/GStreamer/gstreamer.git gstreamer 6babf1f086cce9cc392e2dc8a6cdf252d9b4cc48
     cd gstreamer
         mkdir -vp tests/examples/controller/include # to work around a bad include directory
         generic_configure_make_install "--disable-silent-rules --disable-fatal-warnings"
@@ -3743,14 +3743,14 @@ build_twolame() {
 #    ./autogen.sh
 #    generic_configure_make_install
 #  cd ..
-   do_git_checkout https://github.com/njh/twolame.git twolame
+   do_git_checkout https://github.com/njh/twolame.git twolame 3e1720f4718b84c9744c0be936192ef74f2ad573
    cd twolame
 #     sed -i.bak 's/libtwolame_la_LDFLAGS  = -export-dynamic/libtwolame_la_LDFLAGS  = -no-undefined -export-dynamic/' libtwolame/Makefile.am
-     apply_patch file://${top_dir}/0001-mingw32-does-not-need-handholding.all.patch
-     #apply_patch file://${top_dir}/0002-no-undefined-on.mingw.patch
+    apply_patch file://${top_dir}/0001-mingw32-does-not-need-handholding.all.patch
+    apply_patch file://${top_dir}/0002-no-undefined-on.mingw.patch
      # apply_patch file://${top_dir}/0003-binary-stdin.all.patch
-     apply_patch file://${top_dir}/0004-no-need-for-dllexport.mingw.patch
-     apply_patch file://${top_dir}/0005-silent.mingw.patch
+    apply_patch file://${top_dir}/0004-no-need-for-dllexport.mingw.patch
+     #apply_patch file://${top_dir}/0005-silent.mingw.patch
      sed -i.bak 's/simplefrontend doc tests/simplefrontend tests/' Makefile.am
      generic_configure_make_install
 
@@ -5170,7 +5170,7 @@ build_vlc() {
     export DSM_LIBS="-lws2_32 -ldsm"
     export AOM_LIBS="-laom -lpthread -lm"
     export BUILDCC=/usr/bin/gcc
-    generic_configure_make_install "--enable-qt --disable-dvbpsi --disable-gst-decode --disable-asdcp --disable-opencv --disable-ncurses --disable-dbus --disable-sdl --disable-telx --disable-silent-rules --disable-pulse JACK_LIBS=-ljack JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib LIVE555_LIBS=-llivemedia ASDCP_LIBS=lasdcp ASDCP_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/asdcp"
+    generic_configure_make_install "--enable-qt --disable-dvbpsi --disable-gst-decode --disable-asdcp --disable-opencv --disable-ncurses --disable-dbus --disable-sdl --disable-telx --disable-silent-rules --disable-medialibrary --disable-pulse JACK_LIBS=-ljack JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib LIVE555_LIBS=-llivemedia ASDCP_LIBS=lasdcp ASDCP_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/asdcp"
     # X264 is disabled because of an API change. We ought to be able to re-enable it when vlc has caught up.
 
   cd ..
@@ -5328,7 +5328,7 @@ do_git_checkout https://github.com/KhronosGroup/SPIRV-Tools.git SPIRV-Tools # 2d
 }
 
 build_glslang() {
-    do_git_checkout https://github.com/KhronosGroup/glslang.git glslang # 32d3ec319909fcad0b2b308fe1635198773e8316
+    do_git_checkout https://github.com/KhronosGroup/glslang.git glslang #135e3e35ea87d07b51d977b73fde7bd637fcbe4a 
     #download_and_unpack_file https://github.com/KhronosGroup/glslang/archive/6.2.2596.tar.gz glslang-6.2.2596
     cd glslang #-6.2.2596
         #apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-glslang/001-install-missing-dll.patch
@@ -5564,7 +5564,7 @@ build_movit() {
 }
 
 build_aom() {
-  do_git_checkout https://aomedia.googlesource.com/aom aom
+  do_git_checkout https://aomedia.googlesource.com/aom aom  bbe0a0a1cd34dc5aa9040f1d8b68468f32b895e4
   cd aom
     old_LDFLAGS=${LDFLAGS}
     old_CFLAGS=${CFLAGS}
@@ -5584,7 +5584,7 @@ build_aom() {
 #    do_configure "--target=x86_64-win64-gcc --prefix=${mingw_w64_x86_64_prefix} --enable-webm-io --enable-pic --enable-multithread --enable-runtime-cpu-detect --enable-postproc --enable-av1 --enable-lowbitdepth --disable-unit-tests"
     mkdir -pv ../aom_build
     cd ../aom_build
-    do_cmake_static ../aom/. "-DAOM_TARGET_CPU=x86_64 -DCONFIG_LOWBITDEPTH=0 -DCONFIG_HIGHBITDEPTH=1 -DHAVE_PTHREAD=1 -DCMAKE_TOOLCHAIN_FILE=../aom/build/cmake/toolchains/x86_64-mingw-gcc.cmake"
+    do_cmake_static ../aom/. "-DAOM_TARGET_CPU=x86_64 -DCONFIG_FILEOPTIONS=1 -DCONFIG_LOWBITDEPTH=0 -DCONFIG_HIGHBITDEPTH=1 -DHAVE_PTHREAD=1 -DCMAKE_TOOLCHAIN_FILE=../aom/build/cmake/toolchains/x86_64-mingw-gcc.cmake"
       do_make
       do_make_install
     cd ../aom
