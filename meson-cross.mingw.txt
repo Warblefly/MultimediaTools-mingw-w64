@@ -1,11 +1,11 @@
 [binaries]
-c = '/home/john/FFmpeg/MultimediaTools-mingw-w64/sandbox/x86_64-w64-mingw32/bin/x86_64-w64-mingw32-gcc'
-cpp = '/home/john/FFmpeg/MultimediaTools-mingw-w64/sandbox/x86_64-w64-mingw32/bin/x86_64-w64-mingw32-g++'
-ar = '/home/john/FFmpeg/MultimediaTools-mingw-w64/sandbox/x86_64-w64-mingw32/bin/x86_64-w64-mingw32-ar'
-strip = '/home/john/FFmpeg/MultimediaTools-mingw-w64/sandbox/x86_64-w64-mingw32/bin/x86_64-w64-mingw32-strip'
-pkgconfig = '/home/john/FFmpeg/MultimediaTools-mingw-w64/sandbox/x86_64-w64-mingw32/bin/x86_64-w64-mingw32-pkg-config'
-nm = '/home/john/FFmpeg/MultimediaTools-mingw-w64/sandbox/x86_64-w64-mingw32/bin/x86_64-w64-mingw32-nm'
-windres = '/home/john/FFmpeg/MultimediaTools-mingw-w64/sandbox/x86_64-w64-mingw32/bin/x86_64-w64-mingw32-windres'
+c = '/home/john/MultimediaTools-mingw-w64/sandbox/x86_64-w64-mingw32/bin/x86_64-w64-mingw32-gcc'
+cpp = '/home/john/MultimediaTools-mingw-w64/sandbox/x86_64-w64-mingw32/bin/x86_64-w64-mingw32-g++'
+ar = '/home/john/MultimediaTools-mingw-w64/sandbox/x86_64-w64-mingw32/bin/x86_64-w64-mingw32-ar'
+strip = '/home/john/MultimediaTools-mingw-w64/sandbox/x86_64-w64-mingw32/bin/x86_64-w64-mingw32-strip'
+pkgconfig = '/home/john/MultimediaTools-mingw-w64/sandbox/x86_64-w64-mingw32/bin/x86_64-w64-mingw32-pkg-config'
+nm = '/home/john/MultimediaTools-mingw-w64/sandbox/x86_64-w64-mingw32/bin/x86_64-w64-mingw32-nm'
+windres = '/home/john/MultimediaTools-mingw-w64/sandbox/x86_64-w64-mingw32/bin/x86_64-w64-mingw32-windres'
 [host_machine]
 system = 'windows'
 cpu_family = 'x86_64'

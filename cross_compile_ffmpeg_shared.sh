@@ -2163,7 +2163,7 @@ build_libopenshotaudio() {
 		apply_patch file://${top_dir}/libopenshot-audio.patch
 		mkdir -p build
 		cd build
-			do_cmake ../
+			do_cmake ../ && ${top_dir}/correct_headers.sh
 			do_make
 			do_make_install
 		cd ..
@@ -2262,6 +2262,10 @@ build_gmp() {
   cd gmp-6.1.2
 #    export CC_FOR_BUILD=/usr/bin/gcc
 #    export CPP_FOR_BUILD=usr/bin/cpp
+    apply_patch file://${top_dir}/gmp-exeext.patch
+    rm configure
+    rm Makefile.in
+    rm config.in
     generic_configure "ABI=$bits_target --disable-static --enable-shared"
 #    unset CC_FOR_BUILD
 #    unset CPP_FOR_BUILD
@@ -2271,10 +2275,16 @@ build_gmp() {
 }
 
 build_orc() {
-  generic_download_and_install http://download.videolan.org/contrib/orc-0.4.18.tar.gz orc-0.4.18
-  cd orc-0.4.18
-
-  cd ..
+#	download_and_unpack_file http://download.videolan.org/contrib/orc-0.4.18.tar.gz orc-0.4.18
+#	  cd orc-0.4.18
+#		  apply_patch file://${top_dir}/orc-no-examples.patch
+#		  rm configure Makefile.in
+#		  generic_configure_make_install
+#	  cd ..
+	download_and_unpack_file https://github.com/GStreamer/orc/archive/0.4.30.tar.gz orc-0.4.30
+	cd orc-0.4.30
+		generic_meson_ninja_install
+	cd ..
 }
 
 build_libxml2() {
@@ -2661,9 +2671,11 @@ build_libxvid() {
 }
 
 build_fontconfig() {
-  download_and_unpack_file https://www.freedesktop.org/software/fontconfig/release/fontconfig-2.13.0.tar.bz2 fontconfig-2.13.0
-  cd fontconfig-2.13.0
+  download_and_unpack_file https://www.freedesktop.org/software/fontconfig/release/fontconfig-2.13.92.tar.xz fontconfig-2.13.92
+  cd fontconfig-2.13.92
     export LDFLAGS="-lintl -liconv"
+    apply_patch file://${top_dir}/fontconfig-cross.patch
+    rm configure && rm Makefile.in
     generic_configure "--disable-docs --disable-silent-rules"
     do_make_install
     unset LDFLAGS
@@ -2938,6 +2950,7 @@ build_vamp-sdk() {
     # M_PI doesn't get defined: it's not standard C++
     apply_patch file://${top_dir}/vamp-M_PI.patch
     apply_patch file://${top_dir}/vamp-configure.patch
+    apply_patch file://${top_dir}/vamp-mutex.patch
     # Vamp installs shared libraries. They confuse mpv's linker (I think)
     export SNDFILE_LIBS="-lsndfile -lspeex -logg -lspeexdsp -lFLAC -lvorbisenc -lvorbis -logg -lvorbisfile -logg -lFLAC++ -lsndfile"
     generic_configure_make_install
@@ -4578,8 +4591,9 @@ build_file() {
   cd file
     apply_patch file://${top_dir}/file-win32.patch
 #    apply_patch file://${top_dir}/magic_psl.patch
+#    export cross_compiling=yes
     generic_configure_make_install "--enable-fsect-man5"
-
+#    unset cross_compiling
   cd ..
 }
 
@@ -5150,7 +5164,7 @@ build_netcdf() {
 build_vlc() {
   # VLC normally requires its own libraries to be linked. However, it in fact builds with latest
   # versions of everything compiled here. At the moment..
-  do_git_checkout https://git.videolan.org/git/vlc.git vlc # a047b31b978e4a3bd86b3c1a8f7dec9281d1a056
+  do_git_checkout https://git.videolan.org/git/vlc.git vlc 7b81168938cf2fd2217cbc5bf701ab23ad8655b9 # a047b31b978e4a3bd86b3c1a8f7dec9281d1a056
   cd vlc
     unset CFLAGS
     unset CXXFLAGS
@@ -5338,6 +5352,7 @@ build_glslang() {
         do_make "V=1"
         do_make_install
     cd ..
+#    ln -s ${mingw_w64_x86_64_prefix}/include/glslang/SPIRV ${mingw_w64_x86_64_prefix}/include/SPIRV
 }
 
 build_shaderc() {
@@ -5352,6 +5367,19 @@ build_shaderc() {
         do_cmake_static ".." "-GNinja -DSHADERC_SKIP_TESTS=ON -DCMAKE_VERBOSE_MAKEFILE=YES " #-DSHADERC_ENABLE_SHARED_CRT=ON" # -DSHADERC_ENABLE_SHARED_CRT=ON"
         apply_patch file://${top_dir}/shaderc-build.patch
         cd ..
+	cd libshaderc/src
+		ln -s ${mingw_w64_x86_64_prefix}/include/glslang/SPIRV SPIRV
+	cd ../..
+	cd libshaderc_util/src
+		ln -s ${mingw_w64_x86_64_prefix}/include/glslang/SPIRV SPIRV
+	cd ../..
+	cd libshaderc_util
+		mkdir glslang
+		cd glslang
+			ln -s -v ${mingw_w64_x86_64_prefix}/include/glslang/MachineIndependent MachineIndependent
+			ln -s -v ${mingw_w64_x86_64_prefix}/include/glslang/Include Include
+		cd ..
+	cd ..
         do_ninja_and_ninja_install "V=1"
 #        do_make_install
     cd ..
@@ -5564,7 +5592,7 @@ build_movit() {
 }
 
 build_aom() {
-  do_git_checkout https://aomedia.googlesource.com/aom aom  bbe0a0a1cd34dc5aa9040f1d8b68468f32b895e4
+  do_git_checkout https://aomedia.googlesource.com/aom aom  # bbe0a0a1cd34dc5aa9040f1d8b68468f32b895e4
   cd aom
     old_LDFLAGS=${LDFLAGS}
     old_CFLAGS=${CFLAGS}

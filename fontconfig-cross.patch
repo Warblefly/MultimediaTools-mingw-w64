@@ -1,0 +1,12 @@
+--- Makefile.am.orig	2019-10-27 16:49:31.570000000 +0000
++++ Makefile.am	2019-10-27 16:50:01.390000000 +0000
+@@ -68,7 +68,8 @@
+ if CROSS_COMPILING
+   RUN_FC_CACHE_TEST=false
+ else
+-  RUN_FC_CACHE_TEST=test -z "$(DESTDIR)"
++#RUN_FC_CACHE_TEST=test -z "$(DESTDIR)"
++  RUN_FC_CACHE_TEST=false
+ endif
+ 
+ # Creating ChangeLog from git log:
