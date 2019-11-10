@@ -2195,6 +2195,7 @@ build_unittest() {
 build_libfilezilla() {
 do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfilezilla
     cd libfilezilla
+        apply_patch file://${top_dir}/libfilezilla-typo.patch
         export CC=x86_64-w64-mingw32-gcc
         export CXX=x86_64-w64-mingw32-g++
         export WINDRES=x86_64-w64-mingw32-windres
@@ -3359,9 +3360,9 @@ build_traverso() {
 
 
 build_wx() {
-#  do_git_checkout https://github.com/wxWidgets/wxWidgets.git wxWidgets WX_3_0_BRANCH #  8c8557812be37697d4c2ffdad35141a51a9bc71d # WX_3_0_BRANCH
-  download_and_unpack_file https://github.com/wxWidgets/wxWidgets/archive/v3.0.4.tar.gz wxWidgets-3.0.4
-  cd wxWidgets-3.0.4
+  do_git_checkout https://github.com/wxWidgets/wxWidgets.git wxWidgets WX_3_0_BRANCH #  8c8557812be37697d4c2ffdad35141a51a9bc71d # WX_3_0_BRANCH
+#  download_and_unpack_file https://github.com/wxWidgets/wxWidgets/archive/v3.0.4.tar.gz wxWidgets-3.0.4
+  cd wxWidgets
 #    apply_patch_p1 https://github.com/wxWidgets/wxWidgets/commit/73e9e18ea09ffffcaac50237def0d9728a213c02.patch
 #    rm -v configure
     generic_configure_make_install "--with-msw --with-opengl --disable-mslu --enable-unicode --enable-monolithic --with-regex=builtin --disable-precomp-headers --enable-graphics_ctx --enable-webview --enable-mediactrl --with-libpng=sys --with-libxpm=builtin --with-libjpeg=sys --with-libtiff=sys" # "--without-opengl  --enable-checklst --with-regex=yes --with-msw --with-libpng=sys --with-libjpeg=sys --with-libtiff=sys --with-zlib=yes --enable-graphics_ctx --enable-webview --enable-mediactrl --disable-official_build --disable-option-checking" # --with-regex=yes
@@ -5390,24 +5391,24 @@ build_vulkan() {
 
     #download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Loader/archive/sdk-1.1.73.0.tar.gz Vulkan-Loader-sdk-1.1.73.0
     #download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Headers/archive/sdk-1.1.92.0.tar.gz Vulkan-Headers-sdk-1.1.92.0
-    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Headers/archive/v1.1.108.tar.gz Vulkan-Headers-1.1.108
+    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Headers/archive/v1.1.127.tar.gz Vulkan-Headers-1.1.127
     #cd Vulkan-Loader-sdk-1.1.73.0
-    cd Vulkan-Headers-1.1.108
+    cd Vulkan-Headers-1.1.127
         do_cmake
         do_make
         do_make_install
     cd ..
-    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Loader/archive/v1.1.108.tar.gz Vulkan-Loader-1.1.108
-    cd Vulkan-Loader-1.1.108
+    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Loader/archive/v1.1.127.tar.gz Vulkan-Loader-1.1.127
+    cd Vulkan-Loader-1.1.127
         #apply_patch_p1 file://${top_dir}/001-build-fix.patch
         #apply_patch_p1 file://${top_dir}/002-proper-def-files-for-32bit.patch
         #apply_patch_p1 file://${top_dir}/003-generate-pkgconfig-files.patch
         #apply_patch_p1 file://${top_dir}/004-installation-commands.patch
         #apply_patch_p1 file://${top_dir}/005-mingw-dll-name.patch
         #apply_patch file://${top_dir}/006-commit.patch
-        apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-vulkan-loader/001-build-fix.patch
-        apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-vulkan-loader/002-proper-def-files-for-32bit.patch
-        apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-vulkan-loader/003-generate-pkgconfig-files.patch
+        apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vulkan-loader/001-build-fix.patch
+        apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vulkan-loader/002-proper-def-files-for-32bit.patch
+        apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vulkan-loader/003-generate-pkgconfig-files.patch
         #echo "#define SPIRV_TOOLS_COMMIT_ID \"8d8a71278bf9e83dd0fb30d5474386d30870b74d\"" > spirv_tools_commit_id.h
         #cp -fv spirv_tools_commit_id.h loader/
         # Missing defines are already added to MinGW by our scripts earlier in the build process.
