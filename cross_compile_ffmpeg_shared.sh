@@ -1265,10 +1265,10 @@ build_DJV() {
     sed -i.bak 's!\.\.\\\\.\.\\\\etc\\\\Windows\\\\djv_view.ico!../../etc/Windows/djv_view.ico!' bin/djv_view/win.rc
     do_cmake "-DBUILD_SHARED_LIBS=true -DCMAKE_VERBOSE_MAKEFILE=YES -DENABLE_STATIC_RUNTIME=0 -DCMAKE_PREFIX_PATH=${mingw_w64_x86_64_prefix} -DCMAKE_C_FLAGS=-D__STDC_CONSTANT_MACROS -DCMAKE_CXX_FLAGS=-D__STDC_CONSTANT_MACROS -DCMAKE_SUPPRESS_REGENERATION=TRUE"
     ${top_dir}/correct_headers.sh
-    orig_cpu_count=$cpu_count
-    export cpu_count=1
+#    orig_cpu_count=$cpu_count
+#    export cpu_count=1
     do_make "V=1"
-    export cpu_count=$orig_cpu_count
+#    export cpu_count=$orig_cpu_count
     # The whole DJV suite is now in two directories: build/bin and build/lib.
     # bin contains programs and their necessary DLLs, lib contains plugins and development libraries.
     # We need to copy the executables and their companion DLLs to our bin distribution directory
@@ -1447,7 +1447,7 @@ build_gcal() {
 }
 
 build_unbound() {
-  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.9.4 "CFLAGS=-O1 libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
+  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.9.5 "CFLAGS=-O1 libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
 }
 
 build_libxavs() {
@@ -2195,7 +2195,7 @@ build_unittest() {
 build_libfilezilla() {
 do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfilezilla
     cd libfilezilla
-        apply_patch file://${top_dir}/libfilezilla-typo.patch
+        #apply_patch file://${top_dir}/libfilezilla-typo.patch
         export CC=x86_64-w64-mingw32-gcc
         export CXX=x86_64-w64-mingw32-g++
         export WINDRES=x86_64-w64-mingw32-windres
@@ -2721,11 +2721,11 @@ build_openssl() {
   do_configure "--prefix=$mingw_w64_x86_64_prefix zlib shared no-capieng mingw64" ./Configure
   #fi
   #do_configure "" ./config
-  cpu_count=1
+#  cpu_count=1
   sleep 3
   do_make # "build_libs"
   do_make "install_sw"
-  cpu_count=$original_cpu_count
+#  cpu_count=$original_cpu_count
   unset cross
   unset CC
   unset AR
@@ -4895,7 +4895,7 @@ build_pcre() {
 build_glib() {
   download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/glib/2.58/glib-2.58.0.tar.xz glib-2.58.0 # Was 2.53.1
   export orig_cpu=$cpu_count
-  export cpu_count=1
+#  export cpu_count=1
   cd glib-2.58.0
     export glib_cv_long_long_format=I64
     export glib_cv_stack_grows=no
@@ -4911,7 +4911,7 @@ build_glib() {
     # appears in our PATH
 #    cp -v ${mingw_w64_x86_64_prefix}/bin/gdbus-codegen ${mingw_w64_x86_64_prefix}/../bin/gdbus-codegen
   cd ..
-  export cpu_count=$orig_cpu
+#  export cpu_count=$orig_cpu
 }
 
 build_atk() {
