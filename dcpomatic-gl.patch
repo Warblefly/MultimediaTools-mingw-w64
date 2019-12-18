@@ -1,0 +1,21 @@
+--- src/wx/wscript.orig	2019-12-17 18:18:01.900659092 +0000
++++ src/wx/wscript	2019-12-17 18:18:31.984362315 +0000
+@@ -252,12 +252,12 @@
+                    define_name='DCPOMATIC_USE_RTERROR',
+                    mandatory=False)
+ 
+-    if conf.env.TARGET_WINDOWS or conf.env.TARGET_LINUX:
+-        conf.check_cfg(package='gl', args='--cflags --libs', uselib_store='GL', mandatory=True)
+-        conf.check_cfg(package='glu', args='--cflags --libs', uselib_store='GLU', mandatory=True)
+-    else:
+-        conf.env.STLIB_GL = 'gl'
+-        conf.env.STLIB_GLU = 'glu'
++    #if conf.env.TARGET_WINDOWS or conf.env.TARGET_LINUX:
++    #    conf.check_cfg(package='gl', args='--cflags --libs', uselib_store='GL', mandatory=True)
++    #    conf.check_cfg(package='glu', args='--cflags --libs', uselib_store='GLU', mandatory=True)
++    #else:
++    conf.env.STLIB_GL = 'opengl32'
++    conf.env.STLIB_GLU = 'glu32'
+ 
+     if conf.env.TARGET_LINUX:
+         conf.check_cxx(fragment="""

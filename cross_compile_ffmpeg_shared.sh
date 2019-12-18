@@ -1346,7 +1346,7 @@ build_cunit() {
 }
 
 build_libspatialaudio() {
-  do_git_checkout https://github.com/videolabs/libspatialaudio.git libspatialaudio 5420ba0c660236bd319da94fe9bec7d38c13705b
+  do_git_checkout https://github.com/videolabs/libspatialaudio.git libspatialaudio # 5420ba0c660236bd319da94fe9bec7d38c13705b
   cd libspatialaudio
     apply_patch file://${top_dir}/libspatialaudio-install.patch
     do_cmake "-DCMAKE_SHARED_LINKER_FLAGS=-lz -DCMAKE_VERBOSE_MAKEFILE=ON"
@@ -1411,13 +1411,14 @@ build_opendcp() {
 
 build_dcpomatic() {
 #do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic 9cff6ec974a4d0270091fe5c753483b0d53ecd46
-  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
-#  download_and_unpack_file https://dcpomatic.com/downloads/2.11.72/dcpomatic-2.11.72.tar.bz2 dcpomatic-2.11.72
-  cd dcpomatic
+#  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
+  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.38" dcpomatic-2.15.38
+  cd dcpomatic-2.15.38
 #    apply_patch file://${top_dir}/dcpomatic-wscript.patch
 #    apply_patch file://${top_dir}/dcpomatic-audio_ring_buffers.h.patch
 ##    apply_patch file://${top_dir}/dcpomatic-ffmpeg.patch
     apply_patch file://${top_dir}/dcpomatic-boost.patch
+    apply_patch file://${top_dir}/dcpomatic-gl.patch
 ##    apply_patch file://${top_dir}/dcpomatic-src-wx-wscript.patch
 ##    apply_patch file://${top_dir}/dcpomatic-test-wscript.patch
 ##    apply_patch file://${top_dir}/dcpomatic-libsub.patch
@@ -1447,7 +1448,7 @@ build_gcal() {
 }
 
 build_unbound() {
-  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.9.5 "CFLAGS=-O1 libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
+  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.9.6 "CFLAGS=-O1 libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
 }
 
 build_libxavs() {
@@ -2566,6 +2567,15 @@ build_libidn2() {
   cd ..
 }
 
+build_xerces() {
+	download_and_unpack_file http://mirrors.ukfast.co.uk/sites/ftp.apache.org//xerces/c/3/sources/xerces-c-3.2.2.tar.xz xerces-c-3.2.2
+	cd xerces-c-3.2.2
+		do_cmake && ${top_dir}/correct_headers.sh
+		do_make
+		do_make_install
+	cd ..
+}
+
 build_gnutls() {
 #  download_and_unpack_file https://www.gnupg.org/ftp/gcrypt/gnutls/v3.3/gnutls-3.3.27.tar.xz gnutls-3.3.27
    # do_git_checkout https://gitlab.com/gnutls/gnutls.git gnutls
@@ -2764,9 +2774,9 @@ build_libssh() {
 
 build_asdcplib-cth() {
    # Use brance cth because this is the version the writer works on, and has modified
-  do_git_checkout git://git.carlh.net/git/asdcplib-cth.git asdcplib-cth cth
+  do_git_checkout git://git.carlh.net/git/asdcplib.git asdcplib-carl carl
 #  download_and_unpack_file http://carlh.net/downloads/asdcplib-cth/libasdcp-cth-0.1.1.tar.bz2 libasdcp-cth-0.1.1
-  cd asdcplib-cth
+  cd asdcplib-carl
     export PKG_CONFIG_PATH=${mingw_w64_x86_64_prefix}/lib/pkgconfig
     export CXXFLAGS="-DKM_WIN32"
     export CFLAGS="-DKM_WIN32"
@@ -2783,9 +2793,9 @@ build_asdcplib-cth() {
     ./waf build || exit 1
     ./waf install || exit 1
         # The installation puts the pkgconfig file and the import DLL in the wrong place
-    cp -v build/libasdcp-cth.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig
-    cp -v build/src/libasdcp-cth.dll.a ${mingw_w64_x86_64_prefix}/lib
-    cp -v build/src/libkumu-cth.dll.a ${mingw_w64_x86_64_prefix}/lib
+    cp -v build/libasdcp-carl.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig
+    cp -v build/src/libasdcp-carl.dll.a ${mingw_w64_x86_64_prefix}/lib
+    cp -v build/src/libkumu-carl.dll.a ${mingw_w64_x86_64_prefix}/lib
     unset CXX
     unset CC
     unset AR
@@ -2797,9 +2807,9 @@ build_asdcplib-cth() {
 
 build_libdcp() {
   # Branches are slightly askew. 1.0 is where development takes place
-#  do_git_checkout https://github.com/cth103/libdcp.git libdcp # f3058b2f1b48ec613bda5781fe97e83a0dca83a9
-  do_git_checkout git://git.carlh.net/git/libdcp.git libdcp 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
-#  download_and_unpack_file http://carlh.net/downloads/libdcp/libdcp-1.5.1.tar.bz2 libdcp-1.5.1
+  do_git_checkout https://github.com/cth103/libdcp.git libdcp # f3058b2f1b48ec613bda5781fe97e83a0dca83a9
+#  do_git_checkout git://git.carlh.net/git/libdcp.git libdcp # 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
+#  download_and_unpack_file https://carlh.net/downloads/libdcp/libdcp-1.6.13.tar.bz2 libdcp-1.6.13
   cd libdcp
     # M_PI is required. This is a quick way of defining it
     sed -i.bak 's/M_PI/3.14159265358979323846/' examples/make_dcp.cc
@@ -3314,13 +3324,18 @@ build_atomicparsley() {
 }
 
 build_gstreamer() {
-    do_git_checkout https://github.com/GStreamer/gstreamer.git gstreamer 6babf1f086cce9cc392e2dc8a6cdf252d9b4cc48
-    cd gstreamer
-        mkdir -vp tests/examples/controller/include # to work around a bad include directory
-        generic_configure_make_install "--disable-silent-rules --disable-fatal-warnings"
-    cd ..
-    do_git_checkout https://github.com/GStreamer/gst-plugins-base.git gst-plugins-base 909baa2360f7ba7b6e2e27a2ad565e3142630abe
-    cd gst-plugins-base
+	
+    #do_git_checkout https://github.com/GStreamer/gstreamer.git gstreamer # 6babf1f086cce9cc392e2dc8a6cdf252d9b4cc48
+	download_and_unpack_file https://gstreamer.freedesktop.org/src/gstreamer/gstreamer-1.16.2.tar.xz gstreamer-1.16.2
+	cd gstreamer-1.16.2
+    #cd gstreamer
+        	mkdir -vp tests/examples/controller/include # to work around a bad include directory
+        	generic_configure_make_install "--disable-silent-rules --disable-fatal-warnings"
+  	cd ..
+	download_and_unpack_file https://gstreamer.freedesktop.org/src/gst-plugins-base/gst-plugins-base-1.16.2.tar.xz gst-plugins-base-1.16.2
+	cd gst-plugins-base-1.16.2
+#    do_git_checkout https://github.com/GStreamer/gst-plugins-base.git gst-plugins-base 909baa2360f7ba7b6e2e27a2ad565e3142630abe
+ #   cd gst-plugins-base
         mkdir -vp gst-libs/gst/video/include
         mkdir -vp gst-libs/gst/tag/include
         mkdir -vp ext/gl/include
@@ -6427,6 +6442,7 @@ build_apps() {
     build_vlc # NB requires ffmpeg static as well, at least once...so put this last :)
   fi
   build_cuetools
+  build_xerces
 #  build_graphicsmagick
   build_libdcp # Now needs graphicsmagick
   build_libsub
