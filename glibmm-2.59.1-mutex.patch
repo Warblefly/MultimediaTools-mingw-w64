@@ -1,0 +1,116 @@
+--- glib/glibmm/dispatcher.cc.orig	2020-01-05 12:58:27.493471031 +0000
++++ glib/glibmm/dispatcher.cc	2020-01-05 12:59:47.976731686 +0000
+@@ -31,7 +31,7 @@
+ #include <io.h>
+ #include <direct.h>
+ #include <list>
+-#include <mutex>
++#include <boost/thread/mutex.hpp>
+ #else
+ #include <unistd.h>
+ #endif
+@@ -180,7 +180,7 @@
+   long ref_count_;
+   Glib::RefPtr<MainContext> context_;
+ #ifdef G_OS_WIN32
+-  std::mutex mutex_;
++  boost::mutex mutex_;
+   std::list<DispatchNotifyData> notify_queue_;
+   HANDLE fd_receiver_;
+ #else
+@@ -355,7 +355,7 @@
+ {
+ #ifdef G_OS_WIN32
+   {
+-    const std::lock_guard<std::mutex> lock(mutex_);
++    const boost::lock_guard<boost::mutex> lock(mutex_);
+ 
+     const bool was_empty = notify_queue_.empty();
+     notify_queue_.emplace_back(DispatchNotifyData(dispatcher_impl, this));
+@@ -416,7 +416,7 @@
+ 
+ #ifdef G_OS_WIN32
+   {
+-    const std::lock_guard<std::mutex> lock(mutex_);
++    const boost::lock_guard<boost::mutex> lock(mutex_);
+ 
+     // Should never be empty at this point, but let's allow for bogus
+     // notifications with no data available anyway; just to be safe.
+--- glib/glibmm/dispatcher.cc.orig	2020-01-05 13:02:19.895334769 +0000
++++ glib/glibmm/dispatcher.cc	2020-01-05 13:02:44.271110492 +0000
+@@ -32,6 +32,7 @@
+ #include <direct.h>
+ #include <list>
+ #include <boost/thread/mutex.hpp>
++#include <boost/thread/lock_guard.hpp>
+ #else
+ #include <unistd.h>
+ #endif
+--- gio/giomm/application.cc.orig	2020-01-05 13:05:10.557763883 +0000
++++ gio/giomm/application.cc	2020-01-05 13:06:26.141067746 +0000
+@@ -29,7 +29,8 @@
+ #include <giomm/init.h>
+ #include <cstring> // std::memset()
+ #include <map>
+-#include <mutex>
++#include <boost/thread/mutex.hpp>
++#include <boost/thread/lock_guard.hpp>
+ #include <vector>
+ 
+ using Flags = Gio::Application::Flags;
+@@ -197,7 +198,7 @@
+ 
+ // Gio::Application instances may be used in different threads.
+ // Accesses to option_arg_callback_data must be thread-safe.
+-std::mutex option_arg_callback_data_mutex;
++boost::mutex option_arg_callback_data_mutex;
+ 
+ gboolean
+ Application_option_arg_callback(
+@@ -207,7 +208,7 @@
+ 
+   // option_name is either a single dash followed by a single letter (for a
+   // short name) or two dashes followed by a long option name.
+-  std::unique_lock<std::mutex> lock(option_arg_callback_data_mutex);
++  std::unique_lock<boost::mutex> lock(option_arg_callback_data_mutex);
+   OptionArgCallbackDataMap::const_iterator iterFind = option_arg_callback_data.end();
+   if (option_name[1] == '-')
+   {
+@@ -292,7 +293,7 @@
+ Application::~Application() noexcept
+ {
+   // Delete all OptionArgCallbackData instances that belong to this application.
+-  std::lock_guard<std::mutex> lock(option_arg_callback_data_mutex);
++  boost::lock_guard<boost::mutex> lock(option_arg_callback_data_mutex);
+   OptionArgCallbackDataMap::iterator iter = option_arg_callback_data.begin();
+   while (iter != option_arg_callback_data.end())
+   {
+@@ -417,7 +418,7 @@
+ {
+   OptionArgCallbackData* callback_data = nullptr;
+   {
+-    std::lock_guard<std::mutex> lock(option_arg_callback_data_mutex);
++    boost::lock_guard<boost::mutex> lock(option_arg_callback_data_mutex);
+     OptionArgCallbackDataMap::iterator iterFind = option_arg_callback_data.find(long_name);
+     if (iterFind != option_arg_callback_data.end())
+       return; // Ignore duplicates
+@@ -439,7 +440,7 @@
+ {
+   OptionArgCallbackData* callback_data = nullptr;
+   {
+-    std::lock_guard<std::mutex> lock(option_arg_callback_data_mutex);
++    boost::lock_guard<boost::mutex> lock(option_arg_callback_data_mutex);
+     OptionArgCallbackDataMap::iterator iterFind = option_arg_callback_data.find(long_name);
+     if (iterFind != option_arg_callback_data.end())
+       return; // Ignore duplicates
+--- gio/giomm/application.cc.orig	2020-01-05 13:09:08.451572166 +0000
++++ gio/giomm/application.cc	2020-01-05 13:09:33.411342110 +0000
+@@ -208,7 +208,7 @@
+ 
+   // option_name is either a single dash followed by a single letter (for a
+   // short name) or two dashes followed by a long option name.
+-  std::unique_lock<boost::mutex> lock(option_arg_callback_data_mutex);
++  boost::unique_lock<boost::mutex> lock(option_arg_callback_data_mutex);
+   OptionArgCallbackDataMap::const_iterator iterFind = option_arg_callback_data.end();
+   if (option_name[1] == '-')
+   {

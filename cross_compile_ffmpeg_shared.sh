@@ -364,7 +364,7 @@ do_meson() {
         rm -f already_* # reset
         echo "Using meson: $english_name ($PWD) as $ PATH=$PATH ${configure_env} $configure_name $configure_options"
         #env
-        "$configure_name" $configure_options || exit 1
+        ${configure_env} "$configure_name" $configure_options || exit 1
         touch -- "$touch_name"
         make clean # just in case
     else
@@ -776,7 +776,7 @@ build_libx265() {
 #x264_profile_guided=y
 
 build_libx264() {
-  do_git_checkout git://git.videolan.org/x264.git x264
+  do_git_checkout https://github.com/mirror/x264.git x264
   cd x264
   local configure_flags="--host=$host_target --disable-static --enable-shared --cross-prefix=$cross_prefix --prefix=$mingw_w64_x86_64_prefix --disable-avs --disable-swscale --disable-lavf --disable-ffms --disable-gpac --bit-depths=all --chroma-format=all" # --enable-win32thread --enable-debug shouldn't hurt us since ffmpeg strips it anyway I think
 
@@ -1412,8 +1412,8 @@ build_opendcp() {
 build_dcpomatic() {
 #do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic 9cff6ec974a4d0270091fe5c753483b0d53ecd46
 #  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
-  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.38" dcpomatic-2.15.38
-  cd dcpomatic-2.15.38
+  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.39" dcpomatic-2.15.39
+  cd dcpomatic-2.15.39
 #    apply_patch file://${top_dir}/dcpomatic-wscript.patch
 #    apply_patch file://${top_dir}/dcpomatic-audio_ring_buffers.h.patch
 ##    apply_patch file://${top_dir}/dcpomatic-ffmpeg.patch
@@ -1625,8 +1625,8 @@ build_lsdvd() {
 }
 
 build_doxygen() {
-  download_and_unpack_file http://doxygen.nl/files/doxygen-1.8.15.src.tar.gz doxygen-1.8.15
-  cd doxygen-1.8.15
+  download_and_unpack_file https://github.com/doxygen/doxygen/archive/Release_1_8_15.tar.gz doxygen-Release_1_8_15
+  cd doxygen-Release_1_8_15
 #    sed -i.bak 's/WIN32/MSVC/' CMakeLists.txt
 #    sed -i.bak 's/if (win_static/if (win_static AND MSVC/' CMakeLists.txt
     apply_patch file://${top_dir}/doxygen-fix-CMake.patch
@@ -2148,7 +2148,7 @@ build_sqlite() {
 
 build_medialibrary() {
 	# New name change not reflected yet in VLC player
-	do_git_checkout https://code.videolan.org/videolan/medialibrary.git medialibrary 42c330b4e38062c7a773f7c5ad4ff0c0a6984a08 # a86453015164df65b7dbcdbc01cf4220daffc8aa # 8ad8de92f159c9af63c876230062bdea9d18ed04 #21fa816f7e3ee4ae20b565c2665641ee91431234
+	do_git_checkout https://code.videolan.org/videolan/medialibrary.git medialibrary #42c330b4e38062c7a773f7c5ad4ff0c0a6984a08 # a86453015164df65b7dbcdbc01cf4220daffc8aa # 8ad8de92f159c9af63c876230062bdea9d18ed04 #21fa816f7e3ee4ae20b565c2665641ee91431234
 	cd medialibrary
 		git submodule init
 		git submodule update
@@ -2343,14 +2343,14 @@ build_libxmlsec() {
 }
 
 build_libaacs() {
-  do_git_checkout https://git.videolan.org/git/libaacs.git libaacs
+  do_git_checkout https://code.videolan.org/videolan/libaacs.git libaacs
   cd libaacs
     generic_configure_make_install "CFLAGS=-DGPGRT_ENABLE_ES_MACROS --with-libgcrypt-prefix=${mingw_w64_x86_64_prefix} --with-gpg-error-prefix=${mingw_w64_x86_64_prefix}"
   cd ..
 }
 
 build_libbdplus() {
-  do_git_checkout http://git.videolan.org/git/libbdplus.git libbdplus
+  do_git_checkout http://code.videolan.org/videolan/libbdplus.git libbdplus
   cd libbdplus
     apply_patch file://${top_dir}/libbdplus-dirs_win32.c.patch
     generic_configure_make_install "CFLAGS=-DGPGRT_ENABLE_ES_MACROS --with-libaacs --with-libgcrypt-prefix=${mingw_w64_x86_64_prefix} --with-gpg-error-prefix=${mingw_w64_x86_64_prefix}"
@@ -2359,7 +2359,7 @@ build_libbdplus() {
 }
 
 build_libbluray() {
-  do_git_checkout git://git.videolan.org/libbluray.git libbluray  #e0bfb98d042d0c907fa8a78f8fa2e3c3515d5ff9
+  do_git_checkout https://code.videolan.org/videolan/libbluray.git libbluray  #e0bfb98d042d0c907fa8a78f8fa2e3c3515d5ff9
   cd libbluray
     git submodule init
     git submodule update
@@ -2707,13 +2707,13 @@ build_libaacplus() {
 }
 
 build_openssl() {
-  download_and_unpack_file ftp://ftp.openssl.org/source/openssl-1.0.2s.tar.gz openssl-1.0.2s
+  download_and_unpack_file https://www.openssl.org/source/openssl-1.0.2u.tar.gz openssl-1.0.2u
 #  download_and_unpack_file https://www.openssl.org/source/openssl-1.1.0f.tar.gz openssl-1.1.0f
   # When the manpages are written, they need somewhere to go otherwise there is an error.
   mkdir -pv ${mingw_w64_x86_64_prefix}/include/openssl
   mkdir -pv ${mingw_w64_x86_64_prefix}/lib/engines
   mkdir -pv ${mingw_w64_x86_64_prefix}/ssl/misc
-  cd openssl-1.0.2s
+  cd openssl-1.0.2u
   #env
   # apply_patch file://${top_dir}/openssl-1.1.0f.patch
   #export cross="${cross_prefix}"
@@ -4059,7 +4059,7 @@ build_gtk() {
   cd ..
 #  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/gtk+/3.22/gtk+-3.22.21.tar.xz gtk+-3.22.21 # was .19
 
-  do_git_checkout https://github.com/GNOME/gtk.git gtk gtk-3-22
+  do_git_checkout https://github.com/GNOME/gtk.git gtk gtk-3-24
   touch ${mingw_w64_x86_64_prefix}/share/icons/hicolor/.icon-theme.cache
   cd gtk
 #    orig_cpu_count=$cpu_count
@@ -4075,13 +4075,30 @@ build_gtk() {
     apply_patch file://${top_dir}/gtk3-update-icon-cache.patch
     orig_pythonpath=${PYTHONPATH}
     export PYTHON=/usr/bin/python2
+    export GLIB_COMPILE_RESOURCES=/usr/bin/glib-compile-resources
 #  export PYTHONPATH=${mingw_w64_x86_64_prefix}/share/glib-2.0/codegen
-    generic_configure_make_install "PYTHON=/usr/bin/python2 --build=x86_64-unknown-linux-gnu --disable-introspection --disable-silent-rules --enable-win32-backend --disable-cups --disable-glibtest --with-included-immodules --disable-test-print-backend"
+    generic_configure_make_install "PYTHON=/usr/bin/python2 GLIB_COMPILE_RESOURCES=/usr/bin/glib-compile-resources --build=x86_64-unknown-linux-gnu --disable-introspection --disable-silent-rules --enable-win32-backend --disable-cups --disable-glibtest --with-included-immodules --disable-test-print-backend"
     export PYTHONPATH=${orig_pythonpath}
+    unset GLIB_COMPILE_RESOURCES
 
 #    export cpu_count=$orig_cpu_count
   cd ..
 
+}
+
+build_gtkmm()
+{
+	download_and_unpack_file http://ftp.gnome.org/pub/GNOME/sources/gtkmm/3.24/gtkmm-3.24.2.tar.xz gtkmm-3.24.2
+	cd gtkmm-3.24.2
+		generic_configure_make_install
+	cd ..
+}
+
+build_libcanberra() {
+	do_git_checkout git://git.0pointer.de/libcanberra libcanberra
+	cd libcanberra
+		generic_configure_make_install
+	cd ..
 }
 
 build_snappy () {
@@ -4559,7 +4576,7 @@ build_youtube-dl() {
 }
 
 build_libudfread() {
-  do_git_checkout http://git.videolan.org/git/libudfread.git libudfread
+  do_git_checkout http://code.videolan.org/videolan/libudfread.git libudfread
   cd libudfread
     # Patch to work around broken detection of MinGW in tendem with MSVC
     apply_patch file://${top_dir}/libudfread-udfread-c.patch
@@ -4751,7 +4768,7 @@ build_lzo() {
 }
 
 build_dvbpsi() {
-  do_git_checkout http://git.videolan.org/git/libdvbpsi.git libdvbpsi
+  do_git_checkout http://code.videolan.org/videolan/libdvbpsi.git libdvbpsi
   cd libdvbpsi
     apply_patch file://${top_dir}/libdvbpsi.patch
     generic_configure_make_install
@@ -4908,17 +4925,18 @@ build_pcre() {
 }
 
 build_glib() {
-  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/glib/2.58/glib-2.58.0.tar.xz glib-2.58.0 # Was 2.53.1
+  download_and_unpack_file http://ftp.gnome.org/pub/GNOME/sources/glib/2.62/glib-2.62.4.tar.xz glib-2.62.4 # Was 2.53.1
   export orig_cpu=$cpu_count
 #  export cpu_count=1
-  cd glib-2.58.0
+  cd glib-2.62.4
     export glib_cv_long_long_format=I64
     export glib_cv_stack_grows=no
   #  apply_patch file://${top_dir}/glib-no-tests.patch
     rm aclocal.m4
+    apply_patch file://${top_dir}/glib-meson.patch
     # Work around mingw-w64 lacking strerror_s()
 #    sed -i.bak 's/strerror_s (buf, sizeof (buf), errnum);/strerror_r (errno, buf, sizeof (buf);/' glib/gstrfuncs.c
-    generic_configure_make_install "--disable-compile-warnings --disable-silent-rules CFLAGS=-DMINGW_HAS_SECURE_API --enable-debug=no --enable-installed-tests=no --enable-always-build-tests=no"
+    generic_meson_ninja_install "-Dinstalled_tests=false" "meson" "CFLAGS=-DMINGW_HAS_SECURE_API"
 
     unset glib_cv_long_long_format
     unset glib_cv_stack_grows
@@ -4936,6 +4954,18 @@ download_and_unpack_file http://ftp.gnome.org/pub/GNOME/sources/atk/2.29/atk-2.2
     echo "WE ARE NOW IN DIRECTORY"
     pwd
   cd ..
+}
+
+build_atkmm() {
+#	do_git_checkout https://github.com/GNOME/atkmm.git atkmm
+#	cd atkmm
+#		generic_configure_make_install
+#	cd ..
+	download_and_unpack_file http://ftp.gnome.org/pub/GNOME/sources/atkmm/2.29/atkmm-2.29.1.tar.xz atkmm-2.29.1
+	cd atkmm-2.29.1
+		generic_configure_make_install
+	cd ..
+	generic_download_and_install https://ftp.gnome.org/pub/GNOME/sources/atkmm/2.24/atkmm-2.24.3.tar.xz atkmm-2.24.3
 }
 
 build_libplacebo() {
@@ -4959,16 +4989,17 @@ build_gdk_pixbuf() {
 }
 
 build_libsigc++() {
-#  generic_download_and_install https://github.com/libsigcplusplus/libsigcplusplus/archive/2.99.12.tar.gz libsigcplusplus-2.99.12
-  do_git_checkout https://github.com/libsigcplusplus/libsigcplusplus.git libsigcplusplus libsigc++-2-10
-  cd libsigcplusplus
-    orig_aclocalpath=${ACLOCAL_PATH}
-    export ACLOCAL_PATH="${mingw_w64_x86_64_prefix}/share/aclocal"
-    apply_patch file://{$top_dir}/libsigcplusplus.patch
-    generic_configure_make_install
+  generic_download_and_install https://ftp.gnome.org/pub/GNOME/sources/libsigc++/3.0/libsigc++-3.0.2.tar.xz libsigc++-3.0.2
+#  do_git_checkout https://github.com/libsigcplusplus/libsigcplusplus.git libsigcplusplus libsigc++-2-10
+#  cd libsigc++-3.0.2
+#    orig_aclocalpath=${ACLOCAL_PATH}
+#    export ACLOCAL_PATH="${mingw_w64_x86_64_prefix}/share/aclocal"
+#    apply_patch file://{$top_dir}/libsigcplusplus.patch
+#    generic_configure_make_install
 
-    export ACLOCAL_PATH=${orig_aclocalpath}
-  cd ..
+#    export ACLOCAL_PATH=${orig_aclocalpath}
+#  cd ..
+  generic_download_and_install https://download.gnome.org/sources/libsigc++/2.10/libsigc++-2.10.2.tar.xz libsigc++-2.10.2
 # generic_download_and_install https://download.gnome.org/sources/libsigc++/2.99/libsigc++-2.99.8.tar.xz libsigc++-2.99.8
 }
 
@@ -5048,14 +5079,14 @@ build_glibmm() {
   # Because our threading model for our GCC does not involve posix threads, we must emulate them with
   # the Boost libraries. These provide an (almost) drop-in replacement.
   # VERSION WARNING: glibmm-2.51 breaks compatibility. You have to read the documentation to learn this.
-  export GLIBMM_LIBS="-lgobject-2.0 -lgmodule-2.0 -lglib-2.0 -lboost_system-mt-x64 -lsigc-2.0 -lboost_thread-mt-x64"
-  export GIOMM_LIBS="-lgio-2.0 -lgobject-2.0 -lgmodule-2.0 -lglib-2.0 -lboost_system-mt-x64 -lsigc-2.0"
-  export NOCONFIGURE=1
-  download_and_unpack_file https://ftp.gnome.org/pub/GNOME/sources/glibmm/2.56/glibmm-2.56.1.tar.xz glibmm-2.56.1
-  cd glibmm-2.56.1
-    apply_patch file://${top_dir}/glibmm-mutex.patch
+#  export GLIBMM_LIBS="-lgobject-2.0 -lgmodule-2.0 -lglib-2.0 -lboost_system-mt-x64 -lsigc-2.0 -lboost_thread-mt-x64"
+#  export GIOMM_LIBS="-lgio-2.0 -lgobject-2.0 -lgmodule-2.0 -lglib-2.0 -lboost_system-mt-x64 -lsigc-2.0"
+#  export NOCONFIGURE=1
+  download_and_unpack_file http://ftp.gnome.org/pub/GNOME/sources/glibmm/2.63/glibmm-2.63.1.tar.xz glibmm-2.63.1
+  cd glibmm-2.63.1
+    apply_patch file://${top_dir}/glibmm-2.63.1-mutex1.patch
+    apply_patch file://${top_dir}/glibmm-2.63.1-mutex2.patch
     generic_configure_make_install "--disable-silent-rules"
-
   cd ..
 #  do_git_checkout https://github.com/GNOME/glibmm.git glibmm glibmm-2-52
 #  cd glibmm
@@ -5070,16 +5101,33 @@ build_glibmm() {
 #    generic_configure_make_install "NOCONFIGURE=1 --disable-silent-rules --disable-deprecated-api"
 #  cd ..
  # export ACLOCAL_PATH=${orig_aclocalpath}
-  unset GLIBMM_LIBS
-  unset GIOMM_LIBS
-  unset NOCONFIGURE
+#  unset GLIBMM_LIBS
+#  unset GIOMM_LIBS
+#  unset NOCONFIGURE
+  download_and_unpack_file https://ftp.gnome.org/pub/GNOME/sources/glibmm/2.62/glibmm-2.62.0.tar.xz glibmm-2.62.0
+  cd glibmm-2.62.0
+    apply_patch file://${top_dir}/glibmm-2.62.0-mutex.patch
+    generic_configure_make_install "--disable-silent-rules"
+  cd ..
+  download_and_unpack_file https://ftp.gnome.org/pub/GNOME/sources/glibmm/2.61/glibmm-2.61.1.tar.xz glibmm-2.61.1
+  cd glibmm-2.61.1
+    apply_patch file://${top_dir}/glibmm-2.61.1-mutex.patch
+    generic_configure_make_install "--disable-silent-rules"
+  cd ..
+  download_and_unpack_file https://ftp.gnome.org/pub/GNOME/sources/glibmm/2.59/glibmm-2.59.1.tar.xz glibmm-2.59.1
+  cd glibmm-2.59.1
+    apply_patch file://${top_dir}/glibmm-2.59.1-mutex.patch
+    generic_configure_make_install "--disable-silent-rules"
+  cd ..
 }
 
 build_libxml++ () {
-  orig_aclocalpath=${ACLOCAL_PATH}
-  export ACLOCAL_PATH="/usr/local/share/aclocal"
-  download_and_unpack_file http://ftp.gnome.org/pub/GNOME/sources/libxml++/2.40/libxml++-2.40.1.tar.xz libxml++-2.40.1
-  cd libxml++-2.40.1
+#  orig_aclocalpath=${ACLOCAL_PATH}
+#  export ACLOCAL_PATH="/usr/local/share/aclocal"
+#  download_and_unpack_file http://ftp.gnome.org/pub/GNOME/sources/libxml++/2.40/libxml++-2.40.1.tar.xz libxml++-2.40.1
+  do_git_checkout https://github.com/GNOME/libxmlplusplus.git libxmlplusplus
+  cd libxmlplusplus
+#  cd libxml++-2.40.1
     rm -v configure
 #    apply_patch file://${top_dir}/libxml++-2.4-ac.patch
     generic_configure_make_install
@@ -5090,7 +5138,8 @@ build_libxml++ () {
 #    generic_configure_make_install
 #  cd ..
 #  generic_download_and_install https://git.gnome.org/browse/libxml++/snapshot/libxml++-3.0.1.tar.xz libxml++-3.0.1
-  export ACLOCAL_PATH=${orig_aclocalpath}
+#  export ACLOCAL_PATH=${orig_aclocalpath}
+  generic_download_and_install http://ftp.gnome.org/pub/GNOME/sources/libxml++/2.40/libxml++-2.40.1.tar.xz libxml++-2.40.1
 }
 
 build_libexif() {
@@ -5180,7 +5229,7 @@ build_netcdf() {
 build_vlc() {
   # VLC normally requires its own libraries to be linked. However, it in fact builds with latest
   # versions of everything compiled here. At the moment..
-  do_git_checkout https://git.videolan.org/git/vlc.git vlc 7b81168938cf2fd2217cbc5bf701ab23ad8655b9 # a047b31b978e4a3bd86b3c1a8f7dec9281d1a056
+  do_git_checkout https://code.videolan.org/videolan/vlc.git vlc # 7b81168938cf2fd2217cbc5bf701ab23ad8655b9 # a047b31b978e4a3bd86b3c1a8f7dec9281d1a056
   cd vlc
     unset CFLAGS
     unset CXXFLAGS
@@ -5200,7 +5249,7 @@ build_vlc() {
     export DSM_LIBS="-lws2_32 -ldsm"
     export AOM_LIBS="-laom -lpthread -lm"
     export BUILDCC=/usr/bin/gcc
-    generic_configure_make_install "--enable-qt --disable-dvbpsi --disable-gst-decode --disable-asdcp --disable-opencv --disable-ncurses --disable-dbus --disable-sdl --disable-telx --disable-silent-rules --disable-medialibrary --disable-pulse JACK_LIBS=-ljack JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib LIVE555_LIBS=-llivemedia ASDCP_LIBS=lasdcp ASDCP_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/asdcp"
+    generic_configure_make_install "--disable-medialibrary --enable-qt --disable-dvbpsi --disable-gst-decode --disable-asdcp --disable-opencv --disable-ncurses --disable-dbus --disable-sdl --disable-telx --disable-silent-rules --disable-pulse JACK_LIBS=-ljack JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib LIVE555_LIBS=-llivemedia ASDCP_LIBS=lasdcp ASDCP_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/asdcp"
     # X264 is disabled because of an API change. We ought to be able to re-enable it when vlc has caught up.
 
   cd ..
@@ -5690,17 +5739,35 @@ build_harfbuzz() {
 }
 
 build_pulseaudio() {
-  download_and_unpack_file https://freedesktop.org/software/pulseaudio/releases/pulseaudio-12.2.tar.xz pulseaudio-12.2
-    cd pulseaudio-12.2
+  download_and_unpack_file https://freedesktop.org/software/pulseaudio/releases/pulseaudio-13.0.tar.xz pulseaudio-13.0
+    cd pulseaudio-13.0
         apply_patch file://${top_dir}/pulseaudio-size.patch
 	apply_patch file://${top_dir}/pulseaudio-conf.patch
-        generic_configure_make_install "LIBS=-lintl --enable-orc --enable-waveout --disable-silent-rules -disable-gsettings --disable-dbus"
+        generic_configure_make_install "LIBS=-lintl --enable-orc --enable-waveout --disable-silent-rules --disable-gsettings --disable-dbus" # "LIBS=-lintl --enable-orc --enable-waveout --disable-silent-rules -disable-gsettings --disable-dbus"
         # Main library is in wrong place for our paths
         cp -vf ${mingw_w64_x86_64_prefix}/lib/pulseaudio/*dll ${mingw_w64_x86_64_prefix}/bin
-        cp -vf ${mingw_w64_x86_64_prefix}/lib/pulse-12.2/bin/*dll ${mingw_w64_x86_64_prefix}/bin
+        cp -vf ${mingw_w64_x86_64_prefix}/lib/pulse-13.0/bin/*dll ${mingw_w64_x86_64_prefix}/bin
         cp -vf ${mingw_w64_x86_64_prefix}/lib/bin/*dll ${mingw_w64_x86_64_prefix}/bin
     cd ..
 }
+
+build_pamix() {
+	do_git_checkout https://github.com/patroclos/PAmix.git PAmix
+	cd PAmix
+		apply_patch file://${top_dir}/PAmix-mutex.patch
+		do_cmake "-DCMAKE_BUILD_TYPE=RELEASE -DWITH_UNICODE=ON" # -DWITH_UNICODE=1 -DFEAT_UNICODE=1"
+		do_make
+		do_make_install
+	cd ..
+}
+
+build_pavucontrol() {
+	do_git_checkout https://gitlab.freedesktop.org/pulseaudio/pavucontrol.git pavucontrol
+	cd pavucontrol
+		generic_configure_make_install
+	cd ..
+}
+
 
 build_iculehb() {
   do_git_checkout https://github.com/behdad/icu-le-hb.git icu-le-hb
@@ -5985,7 +6052,7 @@ build_libklvanc() {
 }
 
 build_ffmpegnv() {
-  do_git_checkout https://git.videolan.org/git/ffmpeg/nv-codec-headers.git nv-codec-headers
+  do_git_checkout https://github.com/FFmpeg/nv-codec-headers.git nv-codec-headers
   cd nv-codec-headers
     sed -i.bak "s!PREFIX = /usr/local!PREFIX = ${mingw_w64_x86_64_prefix}!" Makefile
     do_make
@@ -6243,6 +6310,7 @@ build_dependencies() {
   build_libarchive
   build_jasper # JPEG2000 codec for GraphicsMagick among others
   build_atk
+  build_atkmm
   build_gdk_pixbuf
   build_mimedb
   build_vamp-sdk
@@ -6342,6 +6410,7 @@ build_dependencies() {
   build_rtaudio
   build_gtk2
   build_gtk
+  build_gtkmm
   build_graphicsmagick
   build_eigen
   build_libdv
@@ -6421,12 +6490,14 @@ build_apps() {
     build_ffmpeg ffmpeg shared
   fi
   build_pulseaudio
+#  build_libcanberra
   if [[ $build_ffmpeg_static = "y" ]]; then
     build_ffmpeg ffmpeg
   fi
   if [[ $build_libav = "y" ]]; then
     build_ffmpeg libav
   fi
+  build_pamix
   build_ffms2
   build_mp4box
   build_libdash
@@ -6446,6 +6517,7 @@ build_apps() {
 #  build_graphicsmagick
   build_libdcp # Now needs graphicsmagick
   build_libsub
+#  build_pavucontrol
   build_gstreamer
   build_wx
   build_filezilla

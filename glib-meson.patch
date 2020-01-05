@@ -1,0 +1,10 @@
+--- meson.build.orig	2020-01-04 22:36:44.438279576 +0000
++++ meson.build	2020-01-04 22:36:57.622146598 +0000
+@@ -372,7 +372,6 @@
+     '-Werror=format=2',
+     '-Werror=implicit-function-declaration',
+     '-Werror=init-self',
+-    '-Werror=missing-include-dirs',
+     '-Werror=missing-prototypes',
+     '-Werror=pointer-arith',
+   ]

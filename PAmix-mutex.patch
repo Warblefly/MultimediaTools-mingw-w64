@@ -1,0 +1,298 @@
+--- src/painterface.cpp.orig	2020-01-04 14:58:09.402131637 +0000
++++ src/painterface.cpp	2020-01-04 14:58:35.473916548 +0000
+@@ -1,3 +1,4 @@
++#include <boost/thread/mutex.hpp>
+ #include <painterface.hpp>
+ 
+ mainloop_lockguard::mainloop_lockguard(pa_threaded_mainloop *m)
+--- include/painterface.hpp.orig	2020-01-04 15:07:25.709317147 +0000
++++ include/painterface.hpp	2020-01-04 15:11:35.563059958 +0000
+@@ -5,9 +5,9 @@
+ #include <ctgmath>
+ #include <entry.hpp>
+ #include <map>
+-#include <mutex>
++#include <boost/thread/mutex.hpp>
+ #include <pulse/pulseaudio.h>
+-#include <thread>
++#include <boost/thread.hpp>
+ #include <vector>
+ 
+ struct mainloop_lockguard {
+@@ -101,7 +101,7 @@
+ 
+ 	void subscribe(pai_subscription_cb callback);
+ 
+-	std::mutex m_ModifyMutex;
++	boost::mutex m_ModifyMutex;
+ 
+ 	std::map<uint32_t, std::unique_ptr<Entry>> &getSinks() { return m_Sinks; }
+ 
+--- src/painterface.cpp.orig	2020-01-04 15:18:34.475804648 +0000
++++ src/painterface.cpp	2020-01-04 15:19:20.439478002 +0000
+@@ -71,7 +71,7 @@
+ 		paisubtype = PAI_SUBSCRIPTION_MASK_OTHER;
+ 	}
+ 
+-	std::thread updthread(_updatethread, paisubtype, type, (PAInterface *) interface);
++	boost::thread updthread(_updatethread, paisubtype, type, (PAInterface *) interface);
+ 	updthread.detach();
+ }
+ 
+--- include/pamix_ui.hpp.orig	2020-01-04 15:23:58.249368699 +0000
++++ include/pamix_ui.hpp	2020-01-04 15:24:28.173130526 +0000
+@@ -10,7 +10,7 @@
+ 	std::map<uint32_t, unsigned> m_VolumeBarLineNums;
+ 	std::map<uint32_t, uint8_t> m_EntrySizes;
+ 	unsigned m_NumDrawnEntries;
+-	std::mutex m_DrawMutex;
++	boost::mutex m_DrawMutex;
+ public:
+ 	unsigned m_SelectedEntry;
+ 	unsigned m_SelectedChannel;
+--- src/painterface.cpp.orig	2020-01-04 15:40:16.269056117 +0000
++++ src/painterface.cpp	2020-01-04 15:42:21.259953363 +0000
+@@ -79,7 +79,7 @@
+ 	if (!eol) {
+ 		std::map<uint32_t, std::unique_ptr<Entry>> &map = ((PAInterface *) interface)->m_Sinks;
+ 
+-		std::lock_guard<std::mutex> lg(((PAInterface *) interface)->m_ModifyMutex);
++		boost::lock_guard<boost::mutex> lg(((PAInterface *) interface)->m_ModifyMutex);
+ 		if (!map.count(info->index) || !map[info->index])
+ 			map[info->index] = std::unique_ptr<Entry>(new SinkEntry((PAInterface *) interface));
+ 		map[info->index]->update(info);
+@@ -90,7 +90,7 @@
+ void PAInterface::cb_source_info(pa_context *, const pa_source_info *info, int eol, void *interface) {
+ 	if (!eol) {
+ 		std::map<uint32_t, std::unique_ptr<Entry>> &map = ((PAInterface *) interface)->m_Sources;
+-		std::lock_guard<std::mutex> lg(((PAInterface *) interface)->m_ModifyMutex);
++		boost::lock_guard<boost::mutex> lg(((PAInterface *) interface)->m_ModifyMutex);
+ 		if (!map.count(info->index) || !map[info->index])
+ 			map[info->index] = std::unique_ptr<Entry>(new SourceEntry((PAInterface *) interface));
+ 		map[info->index]->update(info);
+@@ -102,7 +102,7 @@
+ 	if (!eol) {
+ 		std::map<uint32_t, std::unique_ptr<Entry>> &map = ((PAInterface *) interface)->m_SinkInputs;
+ 
+-		std::lock_guard<std::mutex> lg(((PAInterface *) interface)->m_ModifyMutex);
++		boost::lock_guard<boost::mutex> lg(((PAInterface *) interface)->m_ModifyMutex);
+ 		if (!map.count(info->index) || !map[info->index])
+ 			map[info->index] = std::unique_ptr<Entry>(new SinkInputEntry((PAInterface *) interface));
+ 		map[info->index]->update(info);
+@@ -129,7 +129,7 @@
+ 				return;
+ 		}
+ 		std::map<uint32_t, std::unique_ptr<Entry>> &map = ((PAInterface *) interface)->m_SourceOutputs;
+-		std::lock_guard<std::mutex> lg(((PAInterface *) interface)->m_ModifyMutex);
++		boost::lock_guard<boost::mutex> lg(((PAInterface *) interface)->m_ModifyMutex);
+ 		if (!map.count(info->index) || !map[info->index])
+ 			map[info->index] = std::unique_ptr<Entry>(new SourceOutputEntry((PAInterface *) interface));
+ 		map[info->index]->update(info);
+@@ -141,7 +141,7 @@
+ 	if (!eol) {
+ 		std::map<uint32_t, std::unique_ptr<Entry>> &map = ((PAInterface *) interface)->m_Cards;
+ 
+-		std::lock_guard<std::mutex> lg(((PAInterface *) interface)->m_ModifyMutex);
++		boost::lock_guard<boost::mutex> lg(((PAInterface *) interface)->m_ModifyMutex);
+ 		if (!map.count(info->index) || !map[info->index])
+ 			map[info->index] = std::unique_ptr<Entry>(new CardEntry((PAInterface *) interface));
+ 		map[info->index]->update(info);
+@@ -193,7 +193,7 @@
+ 	mainloop_lockguard lg(interface->getPAMainloop());
+ 
+ 	{
+-		std::lock_guard<std::mutex> mlg(interface->m_ModifyMutex);
++		boost::lock_guard<boost::mutex> mlg(interface->m_ModifyMutex);
+ 		for (auto it = map.begin(); it != map.end();)
+ 			if (it->second)
+ 				it++->second->m_Kill = true;
+@@ -229,7 +229,7 @@
+ 		pa_threaded_mainloop_wait(interface->getPAMainloop());
+ 	pa_operation_unref(infooper);
+ 
+-	std::lock_guard<std::mutex> modlg(interface->m_ModifyMutex);
++	boost::lock_guard<boost::mutex> modlg(interface->m_ModifyMutex);
+ 	for (auto it = map.begin(); it != map.end();) {
+ 		if (!it->second) {
+ 			it = map.erase(it);
+--- CMakeLists.txt.orig	2020-01-04 15:51:47.745907445 +0000
++++ CMakeLists.txt	2020-01-04 15:52:52.557004211 +0000
+@@ -22,9 +22,11 @@
+     pkg_search_module(NCURSESW REQUIRED ncursesw)
+     link_libraries(${NCURSESW_LDFLAGS})
+     add_definitions(-DFEAT_UNICODE)
++    message("Adding ncursesw")
+ ELSE ()
+     pkg_search_module(NCURSES REQUIRED ncurses)
+     link_libraries(${NCURSES_LDFLAGS})
++    message("NOT adding ncursesw")
+ ENDIF ()
+ 
+ add_executable(pamix ${pamix_SRC})
+--- include/pamix.hpp.orig	2020-01-04 15:57:11.829679013 +0000
++++ include/pamix.hpp	2020-01-04 15:57:33.457418241 +0000
+@@ -3,6 +3,7 @@
+ #include <../config.hpp>
+ #include <painterface.hpp>
+ #include "pamix_ui.hpp"
++#include <ncursesw/curses.h>
+ 
+ struct UpdateData {
+ 	bool redrawAll;
+--- src/pamix.cpp.orig	2020-01-04 16:00:40.919236638 +0000
++++ src/pamix.cpp	2020-01-04 16:02:09.238249169 +0000
+@@ -5,6 +5,8 @@
+ #include <condition_variable>
+ #include <queue>
+ #include <csignal>
++#include <boost/thread/mutex.hpp>
++#include <boost/thread.hpp>
+ 
+ // GLOBAL VARIABLES
+ Configuration configuration;
+@@ -12,8 +14,8 @@
+ bool running = true;
+ 
+ // sync main and callback threads
+-std::mutex updMutex;
+-std::condition_variable cv;
++boost::mutex updMutex;
++boost::condition_variable cv;
+ 
+ std::queue<UpdateData> updateDataQ;
+ 
+@@ -235,13 +237,13 @@
+ 	pamix_setup(&pamixUi);
+ 	pamixUi.redrawAll();
+ 
+-	std::thread(&interfaceReconnectThread, &pai).detach();
++	boost::thread(&interfaceReconnectThread, &pai).detach();
+ 
+-	std::thread inputT(inputThread, &pamixUi);
++	boost::thread inputT(inputThread, &pamixUi);
+ 	inputT.detach();
+ 
+ 	while (running) {
+-		std::unique_lock<std::mutex> lk(updMutex);
++		boost::unique_lock<boost::mutex> lk(updMutex);
+ 		cv.wait(lk, [] { return !updateDataQ.empty(); });
+ 
+ 		if (updateDataQ.front().redrawAll)
+--- src/pamix.cpp.orig	2020-01-04 16:06:32.843410486 +0000
++++ src/pamix.cpp	2020-01-04 16:07:44.010665269 +0000
+@@ -26,7 +26,7 @@
+ 
+ void __signal_update(bool all) {
+ 	{
+-		std::lock_guard<std::mutex> lk(updMutex);
++		boost::lock_guard<boost::mutex> lk(updMutex);
+ 		updateDataQ.push(UpdateData(all));
+ 	}
+ 	cv.notify_one();
+@@ -34,7 +34,7 @@
+ 
+ void signal_update(bool all, bool threaded) {
+ 	if (threaded)
+-		std::thread(__signal_update, all).detach();
++		boost::thread(__signal_update, all).detach();
+ 	else
+ 		__signal_update(all);
+ }
+--- include/pamix.hpp.orig	2020-01-04 16:27:34.918469516 +0000
++++ include/pamix.hpp	2020-01-04 16:28:09.286103033 +0000
+@@ -3,6 +3,7 @@
+ #include <../config.hpp>
+ #include <painterface.hpp>
+ #include "pamix_ui.hpp"
++#define _XOPEN_SOURCE_EXTENDED 1 
+ #include <ncursesw/curses.h>
+ 
+ struct UpdateData {
+--- include/pamix.hpp.orig	2020-01-04 16:38:09.455885265 +0000
++++ include/pamix.hpp	2020-01-04 16:38:45.687517062 +0000
+@@ -3,7 +3,8 @@
+ #include <../config.hpp>
+ #include <painterface.hpp>
+ #include "pamix_ui.hpp"
+-#define _XOPEN_SOURCE_EXTENDED 1 
++#define _XOPEN_SOURCE_EXTENDED 1
++#define NCURSES_WIDECHAR 1
+ #include <ncursesw/curses.h>
+ 
+ struct UpdateData {
+--- config.hpp.in.orig	2020-01-04 16:51:37.119756138 +0000
++++ config.hpp.in	2020-01-04 16:52:12.455402745 +0000
+@@ -1,5 +1,7 @@
+ #pragma once
+ #ifdef FEAT_UNICODE
++#define _XOPEN_SOURCE 1000
++#define _XOPEN_SOURCE_EXTENDED 1
+ #include <${NCURSESW_H_INCLUDE}>
+ #else
+ #include <ncurses.h>
+--- src/pamix_ui.cpp.orig	2020-01-04 16:55:53.669192383 +0000
++++ src/pamix_ui.cpp	2020-01-04 16:57:04.612484111 +0000
+@@ -60,7 +60,7 @@
+ }
+ 
+ void pamix_ui::redrawAll() {
+-	std::lock_guard<std::mutex> lockGuard(m_DrawMutex);
++	boost::lock_guard<boost::mutex> lockGuard(m_DrawMutex);
+ 
+ 	if (!m_paInterface->isConnected()) {
+ 		clear();
+@@ -168,7 +168,7 @@
+ }
+ 
+ void pamix_ui::redrawVolumeBars() {
+-	std::lock_guard<std::mutex> lockGuard(m_DrawMutex);
++	boost::lock_guard<boost::mutex> lockGuard(m_DrawMutex);
+ 
+ 	auto it = std::next(m_Entries->begin(), m_NumSkippedEntries);
+ 	uint32_t index = 0;
+--- src/pamix_ui.cpp.orig	2020-01-04 17:00:18.754386582 +0000
++++ src/pamix_ui.cpp	2020-01-04 17:01:38.569533401 +0000
+@@ -253,7 +253,7 @@
+ }
+ 
+ int pamix_ui::getKeyInput() {
+-	std::lock_guard<std::mutex> guard(m_DrawMutex);
++	boost::lock_guard<boost::mutex> guard(m_DrawMutex);
+ 	return getch();
+ }
+ 
+--- src/pamix.cpp.orig	2020-01-04 17:07:36.633779525 +0000
++++ src/pamix.cpp	2020-01-04 17:08:04.381492329 +0000
+@@ -215,8 +215,9 @@
+ 
+ 	signal(SIGABRT, sig_handle);
+ 	signal(SIGSEGV, sig_handle);
++#if defined SIGWINCH
+ 	signal(SIGWINCH, sig_handle_resize);
+-
++#endif
+ 	PAInterface pai("pamix");
+ 	pamix_ui pamixUi(&pai);
+ 	if (configuration.has(CONFIGURATION_AUTOSPAWN_PULSE))
+--- CMakeLists.txt.orig	2020-01-04 17:11:59.539072543 +0000
++++ CMakeLists.txt	2020-01-04 17:12:23.002832252 +0000
+@@ -15,7 +15,7 @@
+         "src/*.cpp")
+ 
+ include_directories("include")
+-link_libraries("pulse" "pthread")
++link_libraries("pulse" "pthread" "boost_thread-mt-x64")
+ 
+ find_package(PkgConfig REQUIRED QUIET)
+ IF (WITH_UNICODE)
+--- CMakeLists.txt.orig	2020-01-04 17:15:46.280756968 +0000
++++ CMakeLists.txt	2020-01-04 17:16:32.448286993 +0000
+@@ -30,7 +30,7 @@
+ ENDIF ()
+ 
+ add_executable(pamix ${pamix_SRC})
+-install(FILES pamix.conf DESTINATION /etc/xdg)
++install(FILES pamix.conf DESTINATION etc/xdg)
+ install(TARGETS pamix DESTINATION bin)
+ install(FILES man/pamix.1 DESTINATION share/man/man1)
+ 

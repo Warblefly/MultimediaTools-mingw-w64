@@ -20,20 +20,10 @@
      ])
  ])
  
---- modules/gui/qt/components/interface_widgets.cpp.orig	2017-07-26 19:02:37.836479700 +0100
-+++ modules/gui/qt/components/interface_widgets.cpp	2017-07-26 19:03:07.949766600 +0100
-@@ -64,7 +64,7 @@
  
- #if defined(_WIN32) && HAS_QT5
- #include <QWindow>
--#include <qpa/qplatformnativeinterface.h>
-+#include <5.13.1/QtGui/qpa/qplatformnativeinterface.h>
- #endif
- 
- #include <math.h>
---- modules/gui/qt/main_interface_win32.cpp.orig	2018-06-23 18:06:49.932745700 +0100
-+++ modules/gui/qt/main_interface_win32.cpp	2018-06-23 18:08:13.527425600 +0100
-@@ -38,7 +38,7 @@
+--- modules/gui/qt/maininterface/main_interface_win32.cpp.orig	2020-01-03 17:19:25.827161445 +0000
++++ modules/gui/qt/maininterface/main_interface_win32.cpp	2020-01-03 17:20:10.762708682 +0000
+@@ -37,7 +37,7 @@
  #include <assert.h>
  
  #include <QWindow>
@@ -42,3 +32,14 @@
  
  #define WM_APPCOMMAND 0x0319
  
+--- modules/gui/qt/widgets/native/interface_widgets.cpp.orig	2020-01-03 17:43:24.632965847 +0000
++++ modules/gui/qt/widgets/native/interface_widgets.cpp	2020-01-03 17:43:47.524748332 +0000
+@@ -61,7 +61,7 @@
+ 
+ #if defined(_WIN32)
+ #include <QWindow>
+-#include <qpa/qplatformnativeinterface.h>
++#include <5.13.1/QtGui/qpa/qplatformnativeinterface.h>
+ #endif
+ 
+ #include <math.h>
