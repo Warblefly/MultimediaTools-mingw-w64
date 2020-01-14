@@ -198,7 +198,7 @@ install_cross_compiler() {
 #     cp -v ${top_dir}/dxgi1_6.h .
 #     cp -v ${top_dir}/dxgi1_4.h .
 # This is needed for vlc, and is still missing in trunk mingw-w64
-    apply_patch file://${top_dir}/mingw-w64-headers-processor_format.patch
+#    apply_patch file://${top_dir}/mingw-w64-headers-processor_format.patch
   cd ../../..
   if [ -d x86_64-w64-mingw32 ]; then
     touch x86_64-w64-mingw32/compiler.done
@@ -1419,7 +1419,10 @@ build_dcpomatic() {
 ##    apply_patch file://${top_dir}/dcpomatic-ffmpeg.patch
     apply_patch file://${top_dir}/dcpomatic-boost.patch
     apply_patch file://${top_dir}/dcpomatic-gl.patch
-##    apply_patch file://${top_dir}/dcpomatic-src-wx-wscript.patch
+    apply_patch file://${top_dir}/dcpomatic-src-wx-wscript.patch
+    apply_patch file://${top_dir}/dcpomatic-unicode.patch
+    apply_patch file://${top_dir}/dcpomatic-rc.patch
+    apply_patch file://${top_dir}/dcpomatic-display.patch
 ##    apply_patch file://${top_dir}/dcpomatic-test-wscript.patch
 ##    apply_patch file://${top_dir}/dcpomatic-libsub.patch
 ##    apply_patch file://${top_dir}/dcpomatic-LogColorspace.patch
@@ -2212,7 +2215,9 @@ do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfile
 }
 
 build_filezilla() {
-do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla 9530 #9450 # 9262 # 9056
+
+  do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla #9530 #9450 # 9262 # 9056
+  #download_and_unpack_file https://filezilla-project.org/nightlies/2020-01-10/FileZilla3-src.tar.bz2 filezilla-3.46.3
   cd filezilla
     export CC=x86_64-w64-mingw32-gcc
     export CXX=x86_64-w64-mingw32-g++
@@ -2222,6 +2227,9 @@ do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla
     #env
     #apply_patch file://{$top_dir}/filezilla-install.patch
     #export CFLAGS="-g -O0 -Wall"
+    rm -vf configure Makefile.in config.in
+    apply_patch file://${top_dir}/filezilla-wxWidgets.patch
+    apply_patch file://${top_dir}/filezilla-wx31.patch
     generic_configure_make_install "--disable-dependency-tracking"
 #    unset CFLAGS
 #   generic_download_and_install https://download.filezilla-project.org/client/FileZilla_3.44.2_src.tar.bz2 filezilla-3.44.2
@@ -3031,7 +3039,7 @@ build_libgpg-error() {
 
 build_libgcrypt() {
 #  generic_download_and_install ftp://ftp.gnupg.org/gcrypt/libgcrypt/libgcrypt-1.8.1.tar.gz libgcrypt-1.8.1 "GPG_ERROR_CONFIG=${mingw_w64_x86_64_prefix}/bin/gpg-error-config"
-  do_git_checkout git://git.gnupg.org/libgcrypt.git libgcrypt cdaeb86f067b94d9dff4235ade20dde6479d9bb8 # 86e5e06a97ae13b8bbf6923ecc76e02b9c429b46
+  do_git_checkout git://git.gnupg.org/libgcrypt.git libgcrypt #cdaeb86f067b94d9dff4235ade20dde6479d9bb8 # 86e5e06a97ae13b8bbf6923ecc76e02b9c429b46
   cd libgcrypt
   export holding_path="${PATH}"
   export PATH="/usr/bin:/bin:${top_dir}/sandbox/x86_64-w64-mingw32/bin"
@@ -3375,12 +3383,12 @@ build_traverso() {
 
 
 build_wx() {
-  do_git_checkout https://github.com/wxWidgets/wxWidgets.git wxWidgets WX_3_0_BRANCH #  8c8557812be37697d4c2ffdad35141a51a9bc71d # WX_3_0_BRANCH
+  do_git_checkout https://github.com/wxWidgets/wxWidgets.git wxWidgets v3.1.3 # WX_3_0_BRANCH #  8c8557812be37697d4c2ffdad35141a51a9bc71d # WX_3_0_BRANCH
 #  download_and_unpack_file https://github.com/wxWidgets/wxWidgets/archive/v3.0.4.tar.gz wxWidgets-3.0.4
   cd wxWidgets
 #    apply_patch_p1 https://github.com/wxWidgets/wxWidgets/commit/73e9e18ea09ffffcaac50237def0d9728a213c02.patch
 #    rm -v configure
-    generic_configure_make_install "--with-msw --with-opengl --disable-mslu --enable-unicode --enable-monolithic --with-regex=builtin --disable-precomp-headers --enable-graphics_ctx --enable-webview --enable-mediactrl --with-libpng=sys --with-libxpm=builtin --with-libjpeg=sys --with-libtiff=sys" # "--without-opengl  --enable-checklst --with-regex=yes --with-msw --with-libpng=sys --with-libjpeg=sys --with-libtiff=sys --with-zlib=yes --enable-graphics_ctx --enable-webview --enable-mediactrl --disable-official_build --disable-option-checking" # --with-regex=yes
+    generic_configure_make_install "--with-msw --enable-monolithic --disable-debug --disable-debug_flag --enable-unicode --enable-optimise --with-libpng --with-libjpeg --with-libtiff --with-opengl --disable-option-checking --enable-compat28 --enable-compat30" # --with-opengl --disable-mslu --enable-unicode --enable-monolithic --with-regex=builtin --disable-precomp-headers --enable-graphics_ctx --enable-webview --enable-mediactrl --with-libpng=sys --with-libxpm=builtin --with-libjpeg=sys --with-libtiff=sys" # "--without-opengl  --enable-checklst --with-regex=yes --with-msw --with-libpng=sys --with-libjpeg=sys --with-libtiff=sys --with-zlib=yes --enable-graphics_ctx --enable-webview --enable-mediactrl --disable-official_build --disable-option-checking" # --with-regex=yes
     # wx-config needs to be visible to this script when compiling
     cp -v ${mingw_w64_x86_64_prefix}/bin/wx-config ${mingw_w64_x86_64_prefix}/../bin/wx-config
     # wxWidgets doesn't include the DLL run-time libraries in the right place.
@@ -3814,8 +3822,8 @@ build_fmt() {
 }
 
 build_boost() {
-  download_and_unpack_file "https://dl.bintray.com/boostorg/release/1.71.0/source/boost_1_71_0.tar.bz2" boost_1_71_0
-  cd boost_1_71_0
+  download_and_unpack_file "https://dl.bintray.com/boostorg/release/1.72.0/source/boost_1_72_0.tar.bz2" boost_1_72_0
+  cd boost_1_72_0
   #  cd libs/serialization
   #    apply_patch file://${top_dir}/boost-codecvt.patch
   #  cd ../..
@@ -4607,8 +4615,8 @@ build_mjpegtools() {
 
 build_file() {
   # Also contains libmagic
-  do_git_checkout https://github.com/file/file.git file_native 13ba1a3639f7a40f3bffbabf2737cbdde314faf4
-  do_git_checkout https://github.com/file/file.git file 13ba1a3639f7a40f3bffbabf2737cbdde314faf4
+  do_git_checkout https://github.com/file/file.git file_native #13ba1a3639f7a40f3bffbabf2737cbdde314faf4
+  do_git_checkout https://github.com/file/file.git file #13ba1a3639f7a40f3bffbabf2737cbdde314faf4
   # We use the git version of file and libmagic, which is updated more
   # often than distributions track. File requires its own binary to compile
   # its list of magic numbers. Therefore, because we are cross-compiling,

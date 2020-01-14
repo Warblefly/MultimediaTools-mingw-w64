@@ -1,0 +1,36 @@
+--- platform/windows/dcpomatic.rc.orig	2020-01-11 16:11:10.775595898 +0000
++++ platform/windows/dcpomatic.rc	2020-01-11 16:11:24.027465506 +0000
+@@ -1,2 +1,2 @@
+ id ICON "../../graphics/windows/dcpomatic2.ico"
+-#include "wx-3.0/wx/msw/wx.rc"
++#include "wx-3.1/wx/msw/wx.rc"
+--- platform/windows/dcpomatic_playlist.rc.orig	2020-01-11 16:12:39.546722007 +0000
++++ platform/windows/dcpomatic_playlist.rc	2020-01-11 16:12:54.642573305 +0000
+@@ -1,2 +1,2 @@
+ id ICON "../../graphics/windows/dcpomatic2_playlist.ico"
+-#include "wx-3.0/wx/msw/wx.rc"
++#include "wx-3.1/wx/msw/wx.rc"
+--- platform/windows/dcpomatic_server.rc.orig	2020-01-11 16:13:31.290212201 +0000
++++ platform/windows/dcpomatic_server.rc	2020-01-11 16:13:40.586120583 +0000
+@@ -1,2 +1,2 @@
+ id ICON "../../graphics/windows/dcpomatic2_server.ico"
+-#include "wx-3.0/wx/msw/wx.rc"
++#include "wx-3.1/wx/msw/wx.rc"
+--- platform/windows/dcpomatic_batch.rc.orig	2020-01-11 16:14:33.901594952 +0000
++++ platform/windows/dcpomatic_batch.rc	2020-01-11 16:15:02.193315920 +0000
+@@ -1,2 +1,2 @@
+ id ICON "../../graphics/windows/dcpomatic2_batch.ico"
+-#include "wx-3.0/wx/msw/wx.rc"
++#include "wx-3.1/wx/msw/wx.rc"
+--- platform/windows/dcpomatic_kdm.rc.orig	2020-01-11 16:15:27.033070876 +0000
++++ platform/windows/dcpomatic_kdm.rc	2020-01-11 16:15:36.528977185 +0000
+@@ -1,2 +1,2 @@
+ id ICON "../../graphics/windows/dcpomatic2_kdm.ico"
+-#include "wx-3.0/wx/msw/wx.rc"
++#include "wx-3.1/wx/msw/wx.rc"
+--- platform/windows/dcpomatic_player.rc.orig	2020-01-11 16:15:59.496750546 +0000
++++ platform/windows/dcpomatic_player.rc	2020-01-11 16:16:13.712610248 +0000
+@@ -1,2 +1,2 @@
+ id ICON "../../graphics/windows/dcpomatic2_player.ico"
+-#include "wx-3.0/wx/msw/wx.rc"
++#include "wx-3.1/wx/msw/wx.rc"

@@ -161,7 +161,7 @@
    echo "downloading gcc" >&3
 -  svn co svn://gcc.gnu.org/svn/gcc/branches/gcc-9-branch gcc-$v_gcc || error_exit
 +#  git clone --depth 1 -b master --single-branch git@github.com:Warblefly/gcc-working-temp.git gcc-$v_gcc || error_exit
-+  git clone --depth 1 -b gcc-8-branch --single-branch  https://github.com/gcc-mirror/gcc.git gcc-$v_gcc || error_exit
++  git clone --depth 1 -b releases/gcc-8 --single-branch  https://github.com/gcc-mirror/gcc.git gcc-$v_gcc || error_exit
  
    local urls=(
      "https://ftp.gnu.org/gnu/gmp/gmp-$v_gmp.tar.xz"
@@ -177,4 +177,4 @@
 +  cd ../..
  
    echo "downloading binutils" >&3
-   git clone --depth 1 -b binutils-2_32-branch --single-branch git://sourceware.org/git/binutils-gdb.git binutils-$v_binutils || error_exit
+   git clone --depth 1 -b binutils-2_33-branch --single-branch git://sourceware.org/git/binutils-gdb.git binutils-$v_binutils || error_exit

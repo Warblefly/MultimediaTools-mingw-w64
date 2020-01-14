@@ -1,0 +1,15 @@
+--- src/tools/dcpomatic_player.cc.orig	2020-01-11 17:03:31.270893281 +0000
++++ src/tools/dcpomatic_player.cc	2020-01-11 17:03:48.858714818 +0000
+@@ -768,10 +768,10 @@
+ 				switch (Config::instance()->image_display()) {
+ 				case 0:
+ 					_dual_screen->Move (0, 0);
+-					Move (wxDisplay(0).GetClientArea().GetWidth(), 0);
++					Move (wxDisplay(0u).GetClientArea().GetWidth(), 0);
+ 					break;
+ 				case 1:
+-					_dual_screen->Move (wxDisplay(0).GetClientArea().GetWidth(), 0);
++					_dual_screen->Move (wxDisplay(0u).GetClientArea().GetWidth(), 0);
+ 					// (0, 0) doesn't seem to work for some strange reason
+ 					Move (8, 8);
+ 					break;

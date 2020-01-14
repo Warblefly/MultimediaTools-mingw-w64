@@ -1,0 +1,10 @@
+--- wscript.orig	2020-01-11 15:20:22.629170082 +0000
++++ wscript	2020-01-11 15:20:57.864809869 +0000
+@@ -150,6 +150,7 @@
+         conf.env.append_value('CXXFLAGS', '-DWIN32_LEAN_AND_MEAN')
+         conf.env.append_value('CXXFLAGS', '-DBOOST_USE_WINDOWS_H')
+         conf.env.append_value('CXXFLAGS', '-DUNICODE')
++	conf.env.append_value('CXXFLAGS', '-D_UNICODE')
+         conf.env.append_value('CXXFLAGS', '-DBOOST_THREAD_PROVIDES_GENERIC_SHARED_MUTEX_ON_WIN')
+         conf.env.append_value('CXXFLAGS', '-mfpmath=sse')
+         conf.env.append_value('CXXFLAGS', '-std=c++11')

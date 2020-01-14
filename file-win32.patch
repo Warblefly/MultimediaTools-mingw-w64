@@ -25,3 +25,25 @@
  
  ${MAGIC}: $(EXTRA_DIST) $(FILE_COMPILE_DEP)
  	@rm -fr magic
+--- src/compress.c.orig	2020-01-12 10:43:07.350109332 +0000
++++ src/compress.c	2020-01-12 10:44:09.652894826 +0000
+@@ -380,7 +380,8 @@
+ sread(int fd, void *buf, size_t n, int canbepipe __attribute__((__unused__)))
+ {
+ 	ssize_t rv;
+-#ifdef FIONREAD
++/*#ifdef FIONREAD */
++#if 0
+ 	int t = 0;
+ #endif
+ 	size_t rn = n;
+@@ -388,7 +389,8 @@
+ 	if (fd == STDIN_FILENO)
+ 		goto nocheck;
+ 
+-#ifdef FIONREAD
++/*#ifdef FIONREAD*/
++#if 0
+ 	if (canbepipe && (ioctl(fd, FIONREAD, &t) == -1 || t == 0)) {
+ #ifdef FD_ZERO
+ 		ssize_t cnt;
