@@ -1287,6 +1287,15 @@ build_DJV() {
   cd ..
 }
 
+build_DJVnew() {
+	do_git_checkout https://github.com/darbyjohnston/DJV.git DJV
+	cd DJV
+		do_cmake
+		do_make
+		do_make_install
+	cd ..
+}
+
 build_openblas() {
   do_git_checkout https://github.com/xianyi/OpenBLAS.git OpenBLAS
   cd OpenBLAS
@@ -2197,28 +2206,28 @@ build_unittest() {
 }
 
 build_libfilezilla() {
-do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfilezilla
-    cd libfilezilla
+#do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfilezilla 
+#    cd libfilezilla
         #apply_patch file://${top_dir}/libfilezilla-typo.patch
         export CC=x86_64-w64-mingw32-gcc
         export CXX=x86_64-w64-mingw32-g++
         export WINDRES=x86_64-w64-mingw32-windres
 #        export orig_cpu_count=$cpu_count
 #        export cpu_count=1
-        generic_configure_make_install "--disable-shared --enable-static"
-#        generic_download_and_install https://download.filezilla-project.org/libfilezilla/libfilezilla-0.18.1.tar.bz2 libfilezilla-0.18.1 "--disable-shared --enable-static"
+#        generic_configure_make_install "--disable-shared --enable-static"
+        generic_download_and_install https://download.filezilla-project.org/libfilezilla/libfilezilla-0.19.3.tar.bz2 libfilezilla-0.19.3 "--disable-shared --enable-static"
         unset CC
         unset CXX
         unset WINDRES
 #        export cpu_count=$orig_cpu_count
-    cd ..
+#    cd ..
 }
 
 build_filezilla() {
 
-  do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla #9530 #9450 # 9262 # 9056
-  #download_and_unpack_file https://filezilla-project.org/nightlies/2020-01-10/FileZilla3-src.tar.bz2 filezilla-3.46.3
-  cd filezilla
+#  do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla #9530 #9450 # 9262 # 9056
+  download_and_unpack_file "https://dl4.cdn.filezilla-project.org/client/FileZilla_3.46.3_src.tar.bz2?h=08dw8TP5frE6DMEiw1wUMw&x=1579368285" filezilla-3.46.3
+  cd filezilla-3.46.3
     export CC=x86_64-w64-mingw32-gcc
     export CXX=x86_64-w64-mingw32-g++
     export WINDRES=x86_64-w64-mingw32-windres
@@ -3939,7 +3948,7 @@ build_fdkaac-commandline() {
 
 build_poppler() {
 #  do_git_checkout git://git.freedesktop.org/git/poppler/poppler poppler poppler-0.67.0
-  do_git_checkout https://anongit.freedesktop.org/git/poppler/poppler.git poppler poppler-0.69.0
+  do_git_checkout https://anongit.freedesktop.org/git/poppler/poppler.git poppler poppler-0.84.0
   cd poppler
     apply_patch file://${top_dir}/poppler-threads.patch
     sed -i.bak 's!string\.h!sec_api/string_s.h!' test/perf-test.cc
@@ -3948,10 +3957,10 @@ build_poppler() {
     #sed -i.bak 's/noinst_PROGRAMS = poppler_qt5viewer/bin_PROGRAMS = poppler_qt5viewer/' qt5/demos/Makefile.am
     #generic_configure_make_install "CFLAGS=-DMINGW_HAS_SECURE_API CXXFLAGS=-fpermissive --enable-xpdf-headers --enable-cmyk --enable-libtiff --enable-libopenjpeg=openjpeg2 --enable-zlib-uncompress --enable-libcurl"
     export CFLAGS_ORIG="${CFLAGS}"
-    export CFLAGS=-DMINGW_HAS_SECURE_API
+    export CFLAGS="-DMINGW_HAS_SECURE_API"
     export CXXFLAGS=-fpermissive
     export PKG_CONFIG_PATH="${mingw_w64_x86_64_prefix}/lib/pkgconfig"
-    do_cmake "-DENABLE_XPDF_HEADERS=ON -DSPLASH_CMYK=ON -DBUILD_SHARED_LIBS=ON -DENABLE_ZLIB_UNCOMPRESS=ON -DENABLE_GLIB=OFF -DENABLE_LIBOPENJPEG=unmaintained" && ${top_dir}/correct_headers.sh
+    do_cmake "-DENABLE_XPDF_HEADERS=ON -DSPLASH_CMYK=ON -DBUILD_SHARED_LIBS=ON -DENABLE_ZLIB_UNCOMPRESS=ON -DENABLE_GLIB=OFF -DCMAKE_VERBOSE_MAKEFILE=ON -DENABLE_LIBOPENJPEG=unmaintained" && ${top_dir}/correct_headers.sh
     do_make_install
 
     export CFLAGS="${CFLAGS_ORIG}"
@@ -6536,7 +6545,7 @@ build_apps() {
 #  build_traverso
   build_mlt # Framework, but relies on FFmpeg, Qt, and many other libraries we've built.
   build_movit
-  build_DJV # Requires FFmpeg libraries
+  build_DJVnew # Requires FFmpeg libraries
   build_qjackctl
 #  build_jackmix
   build_flacon

@@ -14,21 +14,21 @@
 @@ -17,7 +17,7 @@
  #
  
- v_script="4.0.1"
--v_mingww64="6git"
+ v_script="4git"
+-v_mingww64="7git"
 +v_mingww64="git"
- v_binutils="2.32git"
- v_gcc="8svn"
+ v_binutils="2.33git"
+ v_gcc="9svn"
  v_gmp="6.1.2"
 @@ -83,7 +83,7 @@
    cd "$src" || error_exit
  
    echo "downloading mingw-w64" >&3
--  git clone --depth 1 -b v6.x git://git.code.sf.net/p/mingw-w64/mingw-w64 mingw-w64-$v_mingww64 || error_exit
+-  git clone --depth 1 -b v7.x git://git.code.sf.net/p/mingw-w64/mingw-w64 mingw-w64-$v_mingww64 || error_exit
 +  git clone git://git.code.sf.net/p/mingw-w64/mingw-w64 mingw-w64-$v_mingww64 && cd mingw-w64-$v_mingww64 && git reset --hard && cd .. || error_exit
  
    echo "downloading binutils" >&3
-   git clone --depth 1 -b binutils-2_31-branch --single-branch git://sourceware.org/git/binutils-gdb.git binutils-$v_binutils || error_exit
+   git clone --depth 1 -b binutils-2_33-branch --single-branch git://sourceware.org/git/binutils-gdb.git binutils-$v_binutils || error_exit
 --- mingw-w64-build.orig	2018-09-28 14:53:27.452643200 +0100
 +++ mingw-w64-build	2018-09-28 14:55:32.780794000 +0100
 @@ -149,7 +149,7 @@

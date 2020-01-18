@@ -16,3 +16,22 @@
  #include "goo/gmem.h"
  #include "goo/gstrtod.h"
  #include "GooList.h"
+--- poppler/Catalog.h.orig	2020-01-17 22:03:58.156598328 +0000
++++ poppler/Catalog.h	2020-01-17 22:08:55.137714269 +0000
+@@ -43,6 +43,16 @@
+ #include <vector>
+ #include <memory>
+ 
++#include <boost/thread.hpp>
++	namespace std {
++		using boost::mutex;
++		using boost::recursive_mutex;
++		using boost::lock_guard;
++		using boost::condition_variable;
++		using boost::unique_lock;
++		using boost::thread;
++	}
++
+ class PDFDoc;
+ class XRef;
+ class Object;
