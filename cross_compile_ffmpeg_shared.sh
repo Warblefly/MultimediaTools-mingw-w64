@@ -1290,7 +1290,9 @@ build_DJV() {
 build_DJVnew() {
 	do_git_checkout https://github.com/darbyjohnston/DJV.git DJV
 	cd DJV
-		do_cmake
+		apply_patch file://${top_dir}/DJVnew.patch
+		do_cmake "-DDJV_THIRD_PARTY=FALSE" && ${top_dir}/correct_headers.sh
+		
 		do_make
 		do_make_install
 	cd ..
@@ -1421,8 +1423,8 @@ build_opendcp() {
 build_dcpomatic() {
 #do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic 9cff6ec974a4d0270091fe5c753483b0d53ecd46
 #  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
-  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.39" dcpomatic-2.15.39
-  cd dcpomatic-2.15.39
+  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.41" dcpomatic-2.15.41
+  cd dcpomatic-2.15.41
 #    apply_patch file://${top_dir}/dcpomatic-wscript.patch
 #    apply_patch file://${top_dir}/dcpomatic-audio_ring_buffers.h.patch
 ##    apply_patch file://${top_dir}/dcpomatic-ffmpeg.patch
@@ -2072,10 +2074,11 @@ build_rsync() {
 }
 
 build_libjpeg_turbo() {
-  do_git_checkout https://github.com/libjpeg-turbo/libjpeg-turbo libjpeg-turbo 1.5.x
-  cd libjpeg-turbo
+#  do_git_checkout https://github.com/libjpeg-turbo/libjpeg-turbo libjpeg-turbo #1.5.x
+  download_and_unpack_file https://downloads.sourceforge.net/project/libjpeg-turbo/2.0.4/libjpeg-turbo-2.0.4.tar.gz libjpeg-turbo-2.0.4
+  cd libjpeg-turbo-2.0.4
 #    apply_patch file://${top_dir}/libjpeg-turbo-simd-yasm.patch
-    do_cmake "-DENABLE_STATIC=FALSE -DENABLE_SHARED=TRUE"
+    do_cmake "-DENABLE_STATIC=FALSE -DENABLE_SHARED=TRUE -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_SYSTEM_PROCESSOR=AMD64 -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc -DCMAKE_RC_COMPILER=x86_64-w64-mingw32-windres"
     do_make_install
   # Change to CMAKE
 #    if [[ ! -f "configure" ]]; then
@@ -2225,9 +2228,9 @@ build_libfilezilla() {
 
 build_filezilla() {
 
-#  do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla #9530 #9450 # 9262 # 9056
-  download_and_unpack_file "https://dl4.cdn.filezilla-project.org/client/FileZilla_3.46.3_src.tar.bz2?h=08dw8TP5frE6DMEiw1wUMw&x=1579368285" filezilla-3.46.3
-  cd filezilla-3.46.3
+  do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla #9530 #9450 # 9262 # 9056
+#  download_and_unpack_file "https://dl3.cdn.filezilla-project.org/client/FileZilla_3.46.3_src.tar.bz2?h=oLc72s8yghgbX19g_lnNNw&x=1580289968" filezilla-3.46.3
+  cd filezilla
     export CC=x86_64-w64-mingw32-gcc
     export CXX=x86_64-w64-mingw32-g++
     export WINDRES=x86_64-w64-mingw32-windres
@@ -4530,27 +4533,31 @@ build_libffi() {
 }
 
 build_ilmbase() {
-  do_git_checkout https://github.com/openexr/openexr.git openexr  9f23bcc60b9786ffd5d97800750b953313080c87
+  do_git_checkout https://github.com/openexr/openexr.git openexr  #9f23bcc60b9786ffd5d97800750b953313080c87
   # Problem with threads in latest code that checks for c++14 standard
-  cd openexr/IlmBase
-    # IlmBase is written expecting that some of its binaries will be run during compilation.
+#  cd openexr/IlmBase
+  cd openexr
+# IlmBase is written expecting that some of its binaries will be run during compilation.
     # In a cross-compiling environment, this more difficult to do than I know how.
     # The files that the binaries generate are two quite large headers. We have generated
     # them for you, and copy them to where they're required.
     # Then we patch the Makefiles to prevent the binaries' compilation.
-    cp ${top_dir}/openexr-IlmBase-Half-Makefile.am Half/Makefile.am
-    cp ${top_dir}/eLut.h Half/eLut.h
-    cp ${top_dir}/toFloat.h Half/toFloat.h
-    cd IlmThread
+#    cp ${top_dir}/openexr-IlmBase-Half-Makefile.am Half/Makefile.am
+#    cp ${top_dir}/eLut.h Half/eLut.h
+#    cp ${top_dir}/toFloat.h Half/toFloat.h
+#    cd IlmThread
     # Now apply patch to cause Windows threads to be used instead of Posix
     # Note that ILM has supplied the code; we merely enable it in Makefile.am
-      apply_patch file://${top_dir}/ilmbase-ilmthread-Makefile.am.patch
-    cd ..
-    generic_configure_make_install "--enable-shared --enable-large-stack"
-    #do_cmake
-    #do_make
-    #do_make_install
-  cd ../..
+#      apply_patch file://${top_dir}/ilmbase-ilmthread-Makefile.am.patch
+#    cd ..
+#    generic_configure_make_install "--enable-shared --enable-large-stack"
+
+    apply_patch file://${top_dir}/openexr.patch
+    do_cmake "-DPYILMBASE_ENABLE=OFF -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_THREAD_LIBS_INIT=-lboost_thread-mt-x64" && ${top_dir}/correct_headers.sh
+    do_make "V=1"
+    do_make_install "V=1"
+#  cd ../..
+  cd ..
 }
 
 
@@ -5798,9 +5805,11 @@ build_iculehb() {
 build_rtaudio() {
   do_git_checkout https://github.com/thestk/rtaudio.git rtaudio
   cd rtaudio
-    apply_patch file://${top_dir}/rtaudio-configure.patch
-    generic_configure_make_install "--with-wasapi --disable-static --enable-shared "
-
+    do_cmake "-DCMAKE_VERBOSE_MAKEFILE=ON -DRTAUDIO_API_WASAPI=ON -DRTAUDIO_API_ALSA=OFF -DRTAUDIO_API_PULSE=OFF -DRTAUDIO_API_JACK=OFF -DRTAUDIO_API_CORE=OFF"
+    do_make "V=1"
+    do_make_install "V=1"
+#    apply_patch file://${top_dir}/rtaudio-configure.patch
+#    generic_configure_make_install "--with-wasapi --disable-static --enable-shared "
   cd ..
 }
 
@@ -6042,6 +6051,61 @@ build_graphicsmagicksnapshot() {
 #    cd ..
 #  cd ..
 #}
+
+build_yamlcc() {
+	do_git_checkout https://github.com/jbeder/yaml-cpp.git yaml-cpp release-0.5.3
+	cd yaml-cpp
+		apply_patch file://${top_dir}/yamlcpp.patch
+		do_cmake "-DYAML_CPP_BUILD_TESTS=OFF -DCMAKE_VERBOSE_MAKEFILE=ON"
+		do_make "V=1"
+		do_make_install "V=1"
+		cp -v ${mingw_w64_x86_64_prefix}/bin/pkgconfig/yaml-cpp.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig/yaml-cpp.pc
+	cd ..
+}
+
+build_tinyxml() {
+download_and_unpack_file https://downloads.sourceforge.net/project/tinyxml/tinyxml/2.6.2/tinyxml_2_6_2.tar.gz tinyxml
+	cd tinyxml
+		cp ${top_dir}/tinyxml-CMakeLists.txt CMakeLists.txt
+		cp ${top_dir}/tinyxml.pc.in tinyxml.pc.in
+		do_cmake "-DCMAKE_VERBOSE_MAKEFILE=ON"
+		do_make "V=1"
+		do_make_install "V=1"
+	cd ..
+}
+
+build_ocio() {
+	download_and_unpack_file https://github.com/AcademySoftwareFoundation/OpenColorIO/archive/v1.1.1.tar.gz OpenColorIO-1.1.1
+	cd OpenColorIO-1.1.1
+		apply_patch file://${top_dir}/OpenColorIO.patch
+		do_cmake "-DCMAKE_VERBOSE_MAKEFILE=ON -DOCIO_BUILD_PYGLUE=OFF -DOCIO_BUILD_TESTS=OFF -DOCIO_BUILD_STATIC=OFF -DUSE_EXTERNAL_YAML=ON -DUSE_EXTERNAL_TINYXML=ON"
+		do_make "V=1"
+		do_make_install "V=1"
+	cd ..
+}
+
+build_GLM() {
+	download_and_unpack_file https://github.com/g-truc/glm/archive/0.9.9.7.tar.gz glm-0.9.9.7
+	cd glm-0.9.9.7
+	cp -rv glm ${mingw_w64_x86_64_prefix}/include/	
+	cd ..
+}
+
+build_GLFW() {
+	download_and_unpack_file https://github.com/glfw/glfw/archive/3.3.2.tar.gz glfw-3.3.2
+	cd glfw-3.3.2
+		do_cmake "-DCMAKE_VERBOSE_MAKEFILE=ON"
+		do_make "V=1"
+		do_make_install "V=1"
+	cd ..
+}
+build_picoJSON() {
+	do_git_checkout https://github.com/kazuho/picojson.git picojson
+	cd picojson
+		mkdir -pv ${mingw_w64_x86_64_prefix}/include/picojson/
+		cp -v picojson.h ${mingw_w64_x86_64_prefix}/include/picojson/picojson.h
+	cd ..
+}
 
 build_get_iplayer() {
   # This isn't really "building" - just downloading the latest Perl script from Github
@@ -6437,6 +6501,12 @@ build_dependencies() {
   build_opusfile
   build_libopusenc
   build_medialibrary
+  build_yamlcc
+  build_tinyxml
+  build_ocio
+  build_GLM
+  build_GLFW
+  build_picoJSON
 }
 
 build_apps() {
@@ -6537,7 +6607,7 @@ build_apps() {
 #  build_pavucontrol
   build_gstreamer
   build_wx
-  build_filezilla
+  #build_filezilla
   build_wxsvg
   build_mediainfo
   build_dvdauthor
@@ -6545,7 +6615,7 @@ build_apps() {
 #  build_traverso
   build_mlt # Framework, but relies on FFmpeg, Qt, and many other libraries we've built.
   build_movit
-  build_DJVnew # Requires FFmpeg libraries
+ # build_DJVnew # Requires FFmpeg libraries
   build_qjackctl
 #  build_jackmix
   build_flacon
@@ -6708,7 +6778,7 @@ echo "Copying runtime libraries that have gone to the wrong build directory."
 #wrong_libs=('iculx59.dll' 'icudt59.dll' 'icutu59.dll' 'icuin59.dll' 'icuio59.dll' 'icutest59.dll' 'icuuc59.dll' 'libatomic-1.dll' 'libboost_chrono.dll' 'libboost_date_time.dll' 'libboost_filesystem.dll' 'libboost_prg_exec_monitor.dll' 'libboost_regex.dll' 'libboost_system.dll' 'libboost_locale.dll' 'libboost_thread_win32.dll' 'libboost_unit_test_framework.dll' 'libboost_timer.dll' 'libdcadec.dll' 'libgcc_s_seh-1.dll' 'libopendcp-lib.dll' 'libpthread.dll' 'libquadmath-0.dll' 'libssp-0.dll' 'libstdc++-6.dll' 'pthreadGC2.dll' 'libebur128.dll')
 #for move in ${wrong_libs[@]}; do
 #  cp -Lv "${mingw_w64_x86_64_prefix}/lib/${move}" "${mingw_w64_x86_64_prefix}/bin/${move}" || exit 1
-  cp -Lv ${mingw_w64_x86_64_prefix}/lib/*dll ${mingw_w64_x86_64_prefix}/bin/ || exit 1
+  cp -Lv ${mingw_w64_x86_64_prefix}/lib/*dll ${mingw_w64_x86_64_prefix}/bin/
 #done
 # Also copy WxWidgets
 cp -v ${mingw_w64_x86_64_prefix}/lib/wx*dll ${mingw_w64_x86_64_prefix}/bin/ || "WxWidgets already copied."

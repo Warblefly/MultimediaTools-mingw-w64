@@ -1,0 +1,36 @@
+project(tinyxml)
+
+cmake_minimum_required(VERSION 2.8)
+
+add_library(tinyxml
+    SHARED
+    tinystr.cpp
+    tinyxml.cpp
+    tinyxmlerror.cpp
+    tinyxmlparser.cpp)
+
+set(TINYXML_COMPILE_FLAGS "-DTIXML_USE_STL")
+
+if(OCIO_INLINES_HIDDEN AND UNIX)
+    set(TINYXML_COMPILE_FLAGS "${TINYXML_COMPILE_FLAGS} -fvisibility-inlines-hidden")
+endif()
+
+set_target_properties(tinyxml PROPERTIES
+    COMPILE_FLAGS "${TINYXML_COMPILE_FLAGS}")
+
+configure_file(
+	"${CMAKE_CURRENT_SOURCE_DIR}/tinyxml.pc.in"
+	"${CMAKE_CURRENT_BINARY_DIR}/tinyxml.pc"
+	@ONLY)
+
+install(TARGETS tinyxml
+    RUNTIME DESTINATION bin # ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION lib # ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION lib # ${CMAKE_INSTALL_LIBDIR}
+)
+
+install(FILES
+    tinyxml.h tinystr.h
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/tinyxml.pc DESTINATION lib/pkgconfig)

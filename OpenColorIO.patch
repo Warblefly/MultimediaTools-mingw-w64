@@ -1,0 +1,95 @@
+--- src/core/CMakeLists.txt.orig	2020-01-19 11:31:38.206273697 +0000
++++ src/core/CMakeLists.txt	2020-01-19 11:32:20.909841001 +0000
+@@ -52,7 +52,7 @@
+         # Mute a design issue where the Exception public class inherits 
+         # from a STL Exception. STL classes are never supposed to
+         # be exported among different dynamic libraries.
+-        set(EXTERNAL_COMPILE_FLAGS "${EXTERNAL_COMPILE_FLAGS} /wd4275")
++	#        set(EXTERNAL_COMPILE_FLAGS "${EXTERNAL_COMPILE_FLAGS} /wd4275")
+     endif()
+ 
+     set_target_properties(OpenColorIO PROPERTIES
+--- CMakeLists.txt.orig	2020-01-19 11:33:50.068936957 +0000
++++ CMakeLists.txt	2020-01-19 11:34:53.668291618 +0000
+@@ -415,16 +415,8 @@
+ messageonce("SSE Optimizations: ${OCIO_USE_SSE}")
+ 
+ if(OCIO_USE_SSE)
+-    if(WIN32)
+-        # SSE instructions are automatically compiled into 64-bit applications so enabling the option is redundant and
+-        # actually produces an unknown option warning in Visual Studio.
+-        if(NOT CMAKE_CL_64)
+-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:SSE2")
+-        endif()
+-    else()
+-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2")
+-    endif()
+-    add_definitions("-DUSE_SSE")
++	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2")
++	add_definitions("-DUSE_SSE")
+ endif()
+ 
+ ###############################################################################
+--- CMakeLists.txt.orig	2020-01-19 12:31:32.979983467 +0000
++++ CMakeLists.txt	2020-01-19 12:32:05.971687087 +0000
+@@ -231,11 +231,7 @@
+             INSTALL_DIR     ext/dist
+             CMAKE_ARGS      ${TINYXML_CMAKE_ARGS}
+         )
+-        if(WIN32)
+-            set(TINYXML_STATIC_LIBRARIES  ${PROJECT_BINARY_DIR}/ext/dist/lib/tinyxml.lib)
+-        else()
+-            set(TINYXML_STATIC_LIBRARIES ${PROJECT_BINARY_DIR}/ext/dist/lib/libtinyxml.a)
+-        endif()
++        set(TINYXML_STATIC_LIBRARIES ${PROJECT_BINARY_DIR}/ext/dist/lib/libtinyxml.a)
+         add_library(TINYXML_LIB STATIC IMPORTED)
+         ## static is the .lib location, shared is the .dll/.so location (see IMPORTED_IMPLIB for the associated .lib archive location on windows)
+         set_property(TARGET TINYXML_LIB PROPERTY IMPORTED_LOCATION ${TINYXML_STATIC_LIBRARIES})
+--- CMakeLists.txt.orig	2020-01-19 12:37:00.116992373 +0000
++++ CMakeLists.txt	2020-01-19 12:37:45.024574472 +0000
+@@ -344,15 +344,8 @@
+         set(YAML_CPP_INCLUDE_DIRS ${PROJECT_BINARY_DIR}/ext/dist/include)
+         set(YAML_CPP_LIBRARY_DIRS ${PROJECT_BINARY_DIR}/ext/dist/lib)
+         add_library(YAML_CPP_LIB STATIC IMPORTED)
+-        if(WIN32)
+-            set(YAML_CPP_STATIC_DEBUG_LIBRARIES     ${PROJECT_BINARY_DIR}/ext/dist/lib/libyaml-cppmdd.lib)
+-            set(YAML_CPP_STATIC_OPTIMIZED_LIBRARIES ${PROJECT_BINARY_DIR}/ext/dist/lib/libyaml-cppmd.lib)
+-            set_property(TARGET YAML_CPP_LIB PROPERTY IMPORTED_LOCATION_DEBUG   ${YAML_CPP_STATIC_DEBUG_LIBRARIES})
+-            set_property(TARGET YAML_CPP_LIB PROPERTY IMPORTED_LOCATION_RELEASE ${YAML_CPP_STATIC_OPTIMIZED_LIBRARIES})
+-        else()
+-            set(YAML_CPP_STATIC_GENERAL_LIBRARIES           ${PROJECT_BINARY_DIR}/ext/dist/lib/libyaml-cpp.a)
+-            set_property(TARGET YAML_CPP_LIB PROPERTY IMPORTED_LOCATION ${YAML_CPP_STATIC_GENERAL_LIBRARIES})
+-        endif()
++        set(YAML_CPP_STATIC_GENERAL_LIBRARIES           ${PROJECT_BINARY_DIR}/ext/dist/lib/libyaml-cpp.a)
++        set_property(TARGET YAML_CPP_LIB PROPERTY IMPORTED_LOCATION ${YAML_CPP_STATIC_GENERAL_LIBRARIES})
+         add_dependencies(YAML_CPP_LIB  YAML_CPP_LOCAL)
+         list(APPEND EXTERNAL_LIBRARIES YAML_CPP_LIB)
+     endif()
+--- CMakeLists.txt.orig	2020-01-19 16:16:01.281798087 +0000
++++ CMakeLists.txt	2020-01-19 16:16:19.949612923 +0000
+@@ -36,11 +36,9 @@
+ option(OCIO_PYGLUE_SONAME "If ON, soname/soversion will be set for Python module library" OFF)
+ option(OCIO_PYGLUE_LIB_PREFIX "If ON, prefix the Python module with 'lib'" OFF)
+ 
+-if(UNIX AND NOT APPLE)
+-    option(USE_EXTERNAL_YAML "Use system installed yaml-cpp library." OFF)
+-    option(USE_EXTERNAL_TINYXML "Use system installed tinyxml library." OFF)
+-    option(USE_EXTERNAL_LCMS "Use system install lcms2 library." OFF)
+-endif()
++option(USE_EXTERNAL_YAML "Use system installed yaml-cpp library." OFF)
++option(USE_EXTERNAL_TINYXML "Use system installed tinyxml library." OFF)
++option(USE_EXTERNAL_LCMS "Use system install lcms2 library." OFF)
+ 
+ # This does not include the SOVERSION override, on purpose, so that the
+ # OCIO_VERSION value will be an accurate reflection of the underlying library version.
+--- src/core/Platform.cpp.orig	2020-01-20 22:24:53.419741688 +0000
++++ src/core/Platform.cpp	2020-01-20 22:25:09.551482457 +0000
+@@ -18,7 +18,7 @@
+         // 
+         void getenv (const char* name, std::string& value)
+         {
+-#ifdef WINDOWS
++#ifdef _MSC_VER
+             // To remove the security compilation warning, the _dupenv_s method
+             // must be used (instead of the getenv). The improvement is that
+             // the buffer length is now under control to mitigate buffer overflow attacks.
