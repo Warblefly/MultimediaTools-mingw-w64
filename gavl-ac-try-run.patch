@@ -1,0 +1,38 @@
+--- configure.ac.orig	2020-02-02 08:35:13.194304412 +0000
++++ configure.ac	2020-02-02 08:35:46.498006794 +0000
+@@ -170,33 +170,9 @@
+ OLD_LIBS=$LIBS
+ LIBS=$RT_LIBS
+ 
+-AC_MSG_CHECKING(for CLOCK_MONOTONIC)
++AC_MSG_CHECKING(for CLOCK_MONOTONIC with preset variable)
+ 
+-AC_TRY_RUN([
+-  #include <time.h>
+-  #include <errno.h>
+-main()
+-  {
+-  struct timespec tp;
+-  if(clock_gettime(CLOCK_MONOTONIC, &tp))
+-    return -1;
+-  else
+-    return 0;
+-  }
+-  ],
+-  [
+-    # program could be run
+-    AC_MSG_RESULT(yes)
+-    HAVE_CLOCK_MONOTONIC="true"
+-
+-  ],
+-    # program could not be run
+-    AC_MSG_RESULT(no)
+-)
+-
+-if test "x$HAVE_CLOCK_MONOTONIC" = "xtrue"; then
+-  AC_DEFINE([HAVE_CLOCK_MONOTONIC])
+-fi
++AC_DEFINE([HAVE_CLOCK_MONOTONIC])
+ 
+ fi
+ 

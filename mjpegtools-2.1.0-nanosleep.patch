@@ -1,0 +1,13 @@
+--- utils/mjpeg_logging.h.orig	2020-02-04 08:25:39.268552791 +0000
++++ utils/mjpeg_logging.h	2020-02-04 08:26:49.211845525 +0000
+@@ -77,8 +77,8 @@
+ #ifndef WINAPI
+ #define WINAPI __stdcall
+ #endif
+-WINBASEAPI void WINAPI Sleep( unsigned long );
+-#define nanosleep(a,b) Sleep((a)->tv_sec*1000+(a)->tv_nsec/1000000)
++/* WINBASEAPI void WINAPI Sleep( unsigned long );
++#define nanosleep(a,b) Sleep((a)->tv_sec*1000+(a)->tv_nsec/1000000) */
+ #define sync _flushall
+ #endif
+ 

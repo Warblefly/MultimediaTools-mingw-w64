@@ -1,0 +1,51 @@
+--- utils/cpu_accel.c.orig	2020-02-02 16:41:24.333211003 +0000
++++ utils/cpu_accel.c	2020-02-02 16:42:17.092681804 +0000
+@@ -83,6 +83,7 @@
+    illegal instruction errors.
+ */
+ 
++#ifndef __MINGW32__
+ static sigjmp_buf sigill_recover;
+ 
+ static RETSIGTYPE sigillhandler(int sig )
+@@ -91,6 +92,7 @@
+ }
+ 
+ typedef RETSIGTYPE (*__sig_t)(int);
++#endif
+ 
+ static int testsseill()
+ {
+--- utils/cpu_accel.c.orig	2020-02-02 16:48:57.048655593 +0000
++++ utils/cpu_accel.c	2020-02-02 16:50:40.399612286 +0000
+@@ -97,7 +97,7 @@
+ static int testsseill()
+ {
+ 	int illegal;
+-#if defined(__CYGWIN__)
++#if defined(__CYGWIN__) || defined(__MINGW32__)
+ 	/* SSE causes a crash on CYGWIN, apparently.
+ 	   Perhaps the wrong signal is being caught or something along
+ 	   those line ;-) or maybe SSE itself won't work...
+--- utils/cpu_accel.c.orig	2020-02-02 16:55:10.476882543 +0000
++++ utils/cpu_accel.c	2020-02-02 16:57:43.211337279 +0000
+@@ -366,7 +366,8 @@
+ 		}
+ #endif		
+ 	}
+-		
++	
++#ifndef __MINGW32__	
+ 	pgsize = sysconf(_SC_PAGESIZE);
+ /*
+  * If posix_memalign fails it could be a broken glibc that caused the error,
+@@ -379,6 +380,9 @@
+ 		free(buf);
+ 		buf = memalign(pgsize, size);
+ 	}
++#else
++	buf = __mingw_aligned_malloc( size,simd_alignment );
++#endif
+ 	if (buf == NULL)
+ 		mjpeg_error_exit1("malloc of %d bytes failed", (int)size);
+ 	if ((size_t)buf & (simd_alignment - 1))

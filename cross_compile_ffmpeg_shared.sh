@@ -153,9 +153,9 @@ install_cross_compiler() {
   if [[ -f mingw-w64-build ]]; then
     rm mingw-w64-build || exit 1
   fi
-  curl https://raw.githubusercontent.com/Zeranoe/mingw-w64-build/master/mingw-w64-build -O || exit 1
-  chmod u+x mingw-w64-build
-  apply_patch file://${top_dir}/build-mingw-updates.patch
+#  curl https://raw.githubusercontent.com/Zeranoe/mingw-w64-build/master/mingw-w64-build -O || exit 1
+#  chmod u+x mingw-w64-build
+#  apply_patch file://${top_dir}/build-mingw-updates.patch
   unset CFLAGS # don't want these for the compiler itself since it creates executables to run on the local box
   # pthreads version to avoid having to use cvs for it
   echo "building cross compile gcc [requires internet access]"
@@ -178,7 +178,9 @@ install_cross_compiler() {
 # Gendef compilation throws a char-as-array-index error when invoked with "--target=" : "--host" avoids this.
 #  sed -i.bak 's#gendef/configure" --build="$system_type" --prefix="$mingw_w64_prefix" --target#gendef/configure" --build="$system_type" --prefix="$mingw_w64_prefix" --host#' mingw-w64-build-3.6.6
 #  ./mingw-w64-build-3.6.6 --gcc-langs=c,c++,fortran --default-configure --mingw-w64-ver=git --gcc-ver=svn --pthreads-w32-ver=2-9-1 --cpu-count=$gcc_cpu_count --build-type=$build_choice --enable-gendef --enable-widl --binutils-ver=2.29 --verbose || exit 1 # --disable-shared allows c++ to be distributed at all...which seemed necessary for some random dependency...
-  ./mingw-w64-build x86_64
+#  ./mingw-w64-build x86_64
+  ${top_dir}/toolchain.sh
+  #mv bld ${top_dir}/sandbox/x86_64-w64-mingw32
   export CFLAGS=$original_cflags # reset it
 # We need to move the plain cross-compiling versions of bintools out of the way
 # because exactly the same binaries exist with the host triplet prefix
@@ -814,8 +816,8 @@ build_librtmp() {
   #  download_and_unpack_file http://rtmpdump.mplayerhq.hu/download/rtmpdump-2.3.tgz rtmpdump-2.3 # has some odd configure failure
   #  cd rtmpdump-2.3/librtmp
 
-  do_git_checkout "http://repo.or.cz/r/rtmpdump.git" rtmpdump_git # 883c33489403ed360a01d1a47ec76d476525b49e # trunk didn't build once...this one i sstable
-  cd rtmpdump_git
+  do_git_checkout git://git.ffmpeg.org/rtmpdump rtmpdump # 883c33489403ed360a01d1a47ec76d476525b49e # trunk didn't build once...this one i sstable
+  cd rtmpdump
     sed -i.bak 's/SYS=posix/SYS=mingw/' Makefile
     sed -i.bak 's/SYS=posix/SYS=mingw/' librtmp/Makefile
     cd librtmp
@@ -1288,13 +1290,16 @@ build_DJV() {
 }
 
 build_DJVnew() {
-	do_git_checkout https://github.com/darbyjohnston/DJV.git DJV
+	do_git_checkout https://github.com/darbyjohnston/DJV.git DJV 2.0.5
 	cd DJV
 		apply_patch file://${top_dir}/DJVnew.patch
-		do_cmake "-DDJV_THIRD_PARTY=FALSE" && ${top_dir}/correct_headers.sh
-		
-		do_make
-		do_make_install
+		find . -name 'CMakeLists.txt' -exec sed -i.bak 's/CXX_STANDARD 11/CXX_STANDARD 20/' {} \;
+		cp -v ${top_dir}/FindOTIO.cmake cmake/Modules/
+		do_cmake "-DDJV_THIRD_PARTY=FALSE -DCMAKE_VERBOSE_MAKEFILE=ON" && ${top_dir}/correct_headers.sh		
+		do_make "V=1"
+		do_make_install "V=1"
+		# The DLLs need to be installed, too
+		cp -v build/bin/*dll ${mingw_w64_x86_64_prefix}/bin/
 	cd ..
 }
 
@@ -1319,15 +1324,14 @@ build_opencv() {
   # NOT YET: CMAKE_LIBRARY_PATH needs to find the installed Qt5 libraries
   # Because MinGW has no native Posix threads, we use the Boost emulation and must link the Boost libraries
 
-    apply_patch file://${top_dir}/opencv-mutex-boost.patch
-    apply_patch file://${top_dir}/opencv-boost-thread.patch
+#    apply_patch file://${top_dir}/opencv-mutex-boost.patch
+#    apply_patch file://${top_dir}/opencv-boost-thread.patch
 #    apply_patch file://${top_dir}/opencv-wrong-slash.patch
     apply_patch file://${top_dir}/opencv-location.patch
     apply_patch file://${top_dir}/opencv-strict.patch
     mkdir -pv build
     cd build
-      do_cmake ".. -DWITH_IPP=OFF -DWITH_EIGEN=ON -DWITH_VFW=ON -DWITH_DSHOW=ON -DOPENCV_ENABLE_NONFREE=ON -DWITH_GTK=ON -DWITH_WIN32UI=ON -DWITH_DIRECTX=ON -DBUILD_SHARED_LIBS=ON -DBUILD_opencv_apps=ON -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_JASPER=OFF -DBUILD_JPEG=OFF -DBUILD_OPENEXR=OFF -DBUILD_PNG=OFF -DBUILD_TIFF=OFF -DBUILD_ZLIB=OFF -DENABLE_SSE41=ON -DENABLE_SSE42=ON -DWITH_WEBP=OFF -DBUILD_EXAMPLES=ON -DINSTALL_C_EXAMPLES=ON -DWITH_OPENGL=ON
-      -DINSTALL_PYTHON_EXAMPLES=ON -DCMAKE_CXX_FLAGS=-DMINGW_HAS_SECURE_API=1 -DCMAKE_C_FLAGS=-DMINGW_HAS_SECURE_API=1 -DOPENCV_LINKER_LIBS=boost_thread-mt-x64;boost_system-mt-x64 -DCMAKE_VERBOSE=ON -DINSTALL_TO_MANGLED_PATHS=OFF" && ${top_dir}/correct_headers.sh
+      do_cmake ".. -DWITH_IPP=OFF -DWITH_EIGEN=ON -DWITH_VFW=ON -DWITH_DSHOW=ON -DOPENCV_ENABLE_NONFREE=ON -DWITH_GTK=ON -DWITH_WIN32UI=ON -DWITH_DIRECTX=ON -DBUILD_SHARED_LIBS=ON -DBUILD_opencv_apps=ON -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_JASPER=OFF -DBUILD_JPEG=OFF -DBUILD_OPENEXR=OFF -DBUILD_PNG=OFF -DBUILD_TIFF=OFF -DBUILD_ZLIB=OFF -DENABLE_SSE41=ON -DENABLE_SSE42=ON -DWITH_WEBP=OFF -DBUILD_EXAMPLES=ON -DINSTALL_C_EXAMPLES=ON -DWITH_OPENGL=ON -DINSTALL_PYTHON_EXAMPLES=ON -DCMAKE_CXX_FLAGS=-DMINGW_HAS_SECURE_API=1 -DCMAKE_C_FLAGS=-DMINGW_HAS_SECURE_API=1 -DOPENCV_LINKER_LIBS=boost_thread-mt-x64;boost_system-mt-x64 -DCMAKE_VERBOSE=ON -DINSTALL_TO_MANGLED_PATHS=OFF" && ${top_dir}/correct_headers.sh
       sed -i.bak "s|DBL_EPSILON|2.2204460492503131E-16|g" modules/imgproc/include/opencv2/imgproc/types_c.h
       do_make_install
 #      cp -v ${mingw_w64_x86_64_prefix}/lib/libopencv_core320.dll.a ${mingw_w64_x86_64_prefix}/lib/libopencv_core.dll.a
@@ -2981,7 +2985,7 @@ build_vamp-sdk() {
     # M_PI doesn't get defined: it's not standard C++
     apply_patch file://${top_dir}/vamp-M_PI.patch
     apply_patch file://${top_dir}/vamp-configure.patch
-    apply_patch file://${top_dir}/vamp-mutex.patch
+    #apply_patch file://${top_dir}/vamp-mutex.patch
     # Vamp installs shared libraries. They confuse mpv's linker (I think)
     export SNDFILE_LIBS="-lsndfile -lspeex -logg -lspeexdsp -lFLAC -lvorbisenc -lvorbis -logg -lvorbisfile -logg -lFLAC++ -lsndfile"
     generic_configure_make_install
@@ -3074,7 +3078,7 @@ build_tesseract() {
 #    apply_patch file://${top_dir}/tesseract-thread.patch
 #    apply_patch file://${top_dir}/tesseract-libgomp.patch
     export LIBLEPT_HEADERSDIR="${mingw_w64_x86_64_prefix}/include/leptonica"
-    export LIBS="-larchive -ltiff -ljpeg -lpng -lwebp -lz -lboost_thread-mt-x64" # -lboost_thread_win32 -lboost_chrono"
+    export LIBS="-larchive -ltiff -ljpeg -lpng -lwebp -lz" # -lboost_thread-mt-x64" # -lboost_thread_win32 -lboost_chrono"
     old_cxxflags="${CXXFLAGS}"
     export CXXFLAGS="-fpermissive"
     sed -i.bak 's/Windows.h/windows.h/' opencl/openclwrapper.cpp
@@ -3921,9 +3925,12 @@ build_mkvtoolnix() {
 
 build_gavl() {
 #  generic_download_and_install https://downloads.sourceforge.net/project/gmerlin/gavl/1.4.0/gavl-1.4.0.tar.gz gavl-1.4.0 "--enable-shared=yes"
- do_svn_checkout svn://svn.code.sf.net/p/gmerlin/code/trunk/gavl gavl 5412
+ do_svn_checkout svn://svn.code.sf.net/p/gmerlin/code/trunk/gavl gavl # 5412
  cd gavl
-   generic_configure_make_install "--enable-shared=yes"
+   apply_patch file://${top_dir}/gavl-ac-try-run.patch
+   export ac_cv_have_clock_monotonic=yes 
+   generic_configure_make_install "ac_cv_have_clock_monotonic=yes --enable-shared=yes"
+   unset ac_cv_have_clock_monotonic
  cd ..
 }
 
@@ -3953,7 +3960,7 @@ build_poppler() {
 #  do_git_checkout git://git.freedesktop.org/git/poppler/poppler poppler poppler-0.67.0
   do_git_checkout https://anongit.freedesktop.org/git/poppler/poppler.git poppler poppler-0.84.0
   cd poppler
-    apply_patch file://${top_dir}/poppler-threads.patch
+#    apply_patch file://${top_dir}/poppler-threads.patch
     sed -i.bak 's!string\.h!sec_api/string_s.h!' test/perf-test.cc
     #sed -i.bak 's/noinst_PROGRAMS += perf-test/noinst_PROGRAMS += /' test/Makefile.am
     # Allow installation of QT5 PDF viewer
@@ -4377,7 +4384,7 @@ EOF
 }
 
 build_sox() {
-  do_git_checkout git://repo.or.cz/sox.git sox
+  do_git_checkout https://git.code.sf.net/p/sox/code sox
   cd sox
   if [[ ! -f "configure" ]]; then
     autoreconf -fiv
@@ -4552,10 +4559,23 @@ build_ilmbase() {
 #    cd ..
 #    generic_configure_make_install "--enable-shared --enable-large-stack"
 
-    apply_patch file://${top_dir}/openexr.patch
-    do_cmake "-DPYILMBASE_ENABLE=OFF -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_THREAD_LIBS_INIT=-lboost_thread-mt-x64" && ${top_dir}/correct_headers.sh
+#    apply_patch file://${top_dir}/openexr.patch
+    do_cmake "-DPYILMBASE_ENABLE=OFF -DCMAKE_VERBOSE_MAKEFILE=ON" && ${top_dir}/correct_headers.sh # -DCMAKE_THREAD_LIBS_INIT=-lboost_thread-mt-x64
     do_make "V=1"
     do_make_install "V=1"
+    # Some bizarre locations are used
+    cd ${mingw_w64_x86_64_prefix}/lib
+    rm -vf libIlmImfUtil.dll libIlmImf.dll libIexMath.dll libIlmThread.dll libHalf.dll libIex.dll libImath.dll
+    cd -
+    cd ${mingw_w64_x86_64_prefix}/bin
+    ln -fvs libIlmImfUtil-2_4.dll libIlmImfUtils.dll
+    ln -fvs libIlmImf-2_4.dll libIlmImf.dll
+    ln -fvs libIexMath-2_4.dll libIexMath.dll
+    ln -fvs libIlmThread-2_4.dll libIlmThread.dll
+    ln -fvs libHalf-2_4.dll libHalf.dll
+    ln -fvs libIex-2_4.dll libIex.dll
+    ln -fvs libImath-2_4.dll libImath.dll
+    cd -
 #  cd ../..
   cd ..
 }
@@ -4618,15 +4638,21 @@ build_libburn() {
 }
 
 build_mjpegtools() {
+#	do_svn_checkout https://svn.code.sf.net/p/mjpeg/Code/ mjpeg-Code
+#	cd mjpeg-Code/trunk/mjpeg_play
+#		apply_patch file://${top_dir}/mjpegtools-svn.patch
+#		generic_configure_make_install "--disable-simd-accel"
+#	cd -
+
   download_and_unpack_file http://downloads.sourceforge.net/project/mjpeg/mjpegtools/2.1.0/mjpegtools-2.1.0.tar.gz mjpegtools-2.1.0
   cd mjpegtools-2.1.0
     apply_patch file://${top_dir}/mjpegtools-2.1.0-mingw.patch
+    apply_patch file://${top_dir}/mjpegtools-2.1.0-nanosleep.patch
     apply_patch file://${top_dir}/lavtools-Makefile.am.patch
     rm -v lavtools/Makefile.in
     rm -v configure
     generic_configure_make_install "LIBS=-lpthread --without-x --without-gtk SDL_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/SDL"
-
-  cd ..
+  cd -
 }
 
 build_file() {
@@ -4871,15 +4897,15 @@ build_aubio() {
 }
 
 build_libdsm() {
-  do_git_checkout https://github.com/videolabs/libdsm.git libdsm 03e98f930c45f4b9c34a98cc1f9a69c78567e9a3
+  do_git_checkout https://github.com/videolabs/libdsm.git libdsm #03e98f930c45f4b9c34a98cc1f9a69c78567e9a3
   cd libdsm
     apply_patch file://${top_dir}/libdsm-fortify.patch
     generic_configure_make_install "--disable-silent-rules"
 
   cd ..
-  cd ${mingw_w64_x86_64_prefix}/lib/pkgconfig
-    apply_patch file://${top_dir}/libdsm-pc.patch
-  cd -
+#  cd ${mingw_w64_x86_64_prefix}/lib/pkgconfig
+#    apply_patch file://${top_dir}/libdsm-pc.patch
+#  cd -
 }
 
 build_libcdio() {
@@ -5108,8 +5134,8 @@ build_glibmm() {
 #  export NOCONFIGURE=1
   download_and_unpack_file http://ftp.gnome.org/pub/GNOME/sources/glibmm/2.63/glibmm-2.63.1.tar.xz glibmm-2.63.1
   cd glibmm-2.63.1
-    apply_patch file://${top_dir}/glibmm-2.63.1-mutex1.patch
-    apply_patch file://${top_dir}/glibmm-2.63.1-mutex2.patch
+#    apply_patch file://${top_dir}/glibmm-2.63.1-mutex1.patch
+#    apply_patch file://${top_dir}/glibmm-2.63.1-mutex2.patch
     generic_configure_make_install "--disable-silent-rules"
   cd ..
 #  do_git_checkout https://github.com/GNOME/glibmm.git glibmm glibmm-2-52
@@ -5130,17 +5156,17 @@ build_glibmm() {
 #  unset NOCONFIGURE
   download_and_unpack_file https://ftp.gnome.org/pub/GNOME/sources/glibmm/2.62/glibmm-2.62.0.tar.xz glibmm-2.62.0
   cd glibmm-2.62.0
-    apply_patch file://${top_dir}/glibmm-2.62.0-mutex.patch
+#    apply_patch file://${top_dir}/glibmm-2.62.0-mutex.patch
     generic_configure_make_install "--disable-silent-rules"
   cd ..
   download_and_unpack_file https://ftp.gnome.org/pub/GNOME/sources/glibmm/2.61/glibmm-2.61.1.tar.xz glibmm-2.61.1
   cd glibmm-2.61.1
-    apply_patch file://${top_dir}/glibmm-2.61.1-mutex.patch
+#    apply_patch file://${top_dir}/glibmm-2.61.1-mutex.patch
     generic_configure_make_install "--disable-silent-rules"
   cd ..
   download_and_unpack_file https://ftp.gnome.org/pub/GNOME/sources/glibmm/2.59/glibmm-2.59.1.tar.xz glibmm-2.59.1
   cd glibmm-2.59.1
-    apply_patch file://${top_dir}/glibmm-2.59.1-mutex.patch
+#    apply_patch file://${top_dir}/glibmm-2.59.1-mutex.patch
     generic_configure_make_install "--disable-silent-rules"
   cd ..
 }
@@ -5435,7 +5461,7 @@ build_glslang() {
     #download_and_unpack_file https://github.com/KhronosGroup/glslang/archive/6.2.2596.tar.gz glslang-6.2.2596
     cd glslang #-6.2.2596
         #apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-glslang/001-install-missing-dll.patch
-        apply_patch file://${top_dir}/glslang-threads.patch
+        #apply_patch file://${top_dir}/glslang-threads.patch
     #    apply_patch file://${top_dir}/glslang-shared.patch
         do_cmake_static "-DCMAKE_BUILD_TYPE=Release -DCMAKE_VERBOSE_MAKEFILE=YES"
         do_make "V=1"
@@ -5454,7 +5480,7 @@ build_shaderc() {
         mkdir build
         cd build
         do_cmake_static ".." "-GNinja -DSHADERC_SKIP_TESTS=ON -DCMAKE_VERBOSE_MAKEFILE=YES " #-DSHADERC_ENABLE_SHARED_CRT=ON" # -DSHADERC_ENABLE_SHARED_CRT=ON"
-        apply_patch file://${top_dir}/shaderc-build.patch
+        apply_patch file://${top_dir}/shaderc-build-new.patch
         cd ..
 	cd libshaderc/src
 		ln -s ${mingw_w64_x86_64_prefix}/include/glslang/SPIRV SPIRV
@@ -6084,6 +6110,16 @@ build_ocio() {
 	cd ..
 }
 
+build_otio() {
+	do_git_checkout https://github.com/PixarAnimationStudios/OpenTimelineIO.git OpenTimelineIO
+	cd OpenTimelineIO
+		apply_patch file://${top_dir}/opentime.patch
+		do_cmake "-DCMAKE_VERBOSE_MAKEFILE=ON"
+		do_make "V=1"
+		do_make_install "V=1"
+	cd ..
+}
+
 build_GLM() {
 	download_and_unpack_file https://github.com/g-truc/glm/archive/0.9.9.7.tar.gz glm-0.9.9.7
 	cd glm-0.9.9.7
@@ -6185,9 +6221,7 @@ build_ffmpeg() {
 #  apply_patch_p1 file://${top_dir}/ffmpeg-decklink-teletext-2-reverse.patch
   apply_patch file://${top_dir}/ffmpeg-bs2b.patch
 
-  config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --enable-libjack --disable-doc --enable-libxml2 --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-libmysofa --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus
-  --disable-w32threads --enable-libcodec2 --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libxavs2 --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libvpx --enable-libilbc --enable-libwavpack --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --enable-d3d11va --enable-nvenc --enable-libzmq --enable-nonfree --enable-libfdk-aac --enable-libflite --enable-decoder=aac
-  --enable-libaom --enable-runtime-cpudetect --enable-libpulse --enable-cuda-nvcc --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts" # $CFLAGS # other possibilities: --enable-w32threads --enable-libflite
+  config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --enable-libjack --disable-doc --enable-libxml2 --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-libmysofa --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-libcodec2 --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libxavs2 --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libvpx --enable-libilbc --enable-libwavpack --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --enable-d3d11va --enable-nvenc --enable-libzmq --enable-nonfree --enable-libfdk-aac --enable-libflite --enable-decoder=aac --enable-libaom --enable-runtime-cpudetect --enable-libpulse --enable-cuda-nvcc --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts" # $CFLAGS # other possibilities: --enable-w32threads --enable-libflite
   # sed -i 's/openjpeg-1.5/openjpeg-2.1/' configure # change library path for updated libopenjpeg
   export PKG_CONFIG="pkg-config" # --static
   export LDFLAGS="" # "-static"
@@ -6247,7 +6281,7 @@ find_all_build_exes() {
 build_dependencies() {
   echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" # debug
   build_meson_cross
-  build_win32_pthreads # vpx etc. depend on this--provided by the compiler build script now, so shouldn't have to build our own
+  # build_win32_pthreads # vpx etc. depend on this--provided by the compiler build script now, so shouldn't have to build our own
   build_libtool
   build_pkg-config # because MPV likes to see a mingw version of pkg-config
   build_iconv # Because Cygwin's iconv is buggy, and loops on certain character set conversions
@@ -6504,6 +6538,7 @@ build_dependencies() {
   build_yamlcc
   build_tinyxml
   build_ocio
+  build_otio
   build_GLM
   build_GLFW
   build_picoJSON
@@ -6607,7 +6642,7 @@ build_apps() {
 #  build_pavucontrol
   build_gstreamer
   build_wx
-  #build_filezilla
+  build_filezilla
   build_wxsvg
   build_mediainfo
   build_dvdauthor
@@ -6615,7 +6650,7 @@ build_apps() {
 #  build_traverso
   build_mlt # Framework, but relies on FFmpeg, Qt, and many other libraries we've built.
   build_movit
- # build_DJVnew # Requires FFmpeg libraries
+  build_DJVnew # Requires FFmpeg libraries
   build_qjackctl
 #  build_jackmix
   build_flacon

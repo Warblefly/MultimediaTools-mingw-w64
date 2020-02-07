@@ -40,6 +40,6 @@
      if bld.env.TARGET_WINDOWS:
 -        boost_lib_suffix = '-mt'
 +        boost_lib_suffix = '-mt-x64'
-         flags = '-DKM_WIN32'
+         flags = '-DKM_WIN32 -DWIN32_LEAN_AND_MEAN'
      else:
          boost_lib_suffix = ''
