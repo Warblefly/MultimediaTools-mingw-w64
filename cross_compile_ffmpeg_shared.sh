@@ -1488,10 +1488,10 @@ build_libxavs2() {
 }
 
 build_libpng() {
-  download_and_unpack_file http://prdownloads.sourceforge.net/libpng/libpng-1.6.36.tar.xz?download libpng-1.6.36
-  cd libpng-1.6.36
+  download_and_unpack_file http://prdownloads.sourceforge.net/libpng/libpng-1.6.37.tar.xz?download libpng-1.6.37
+  cd libpng-1.6.37
     # DBL_EPSILON 21 Feb 2015 starts to come back "undefined". I have NO IDEA why.
-    grep -lr DBL_EPSILON contrib | xargs sed -i "s| DBL_EPSILON| 2.2204460492503131E-16|g"
+    #grep -lr DBL_EPSILON contrib | xargs sed -i "s| DBL_EPSILON| 2.2204460492503131E-16|g"
     generic_configure_make_install "--enable-shared"
     sed -i.bak 's/-lpng16.*$/-lpng16 -lz/' "$PKG_CONFIG_PATH/libpng.pc"
     sed -i.bak 's/-lpng16.*$/-lpng16 -lz/' "$PKG_CONFIG_PATH/libpng16.pc"
@@ -2213,21 +2213,21 @@ build_unittest() {
 }
 
 build_libfilezilla() {
-#do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfilezilla 
-#    cd libfilezilla
+do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfilezilla 
+    cd libfilezilla
         #apply_patch file://${top_dir}/libfilezilla-typo.patch
         export CC=x86_64-w64-mingw32-gcc
         export CXX=x86_64-w64-mingw32-g++
         export WINDRES=x86_64-w64-mingw32-windres
 #        export orig_cpu_count=$cpu_count
 #        export cpu_count=1
-#        generic_configure_make_install "--disable-shared --enable-static"
-        generic_download_and_install https://download.filezilla-project.org/libfilezilla/libfilezilla-0.19.3.tar.bz2 libfilezilla-0.19.3 "--disable-shared --enable-static"
+        generic_configure_make_install "--disable-shared --enable-static"
+#        generic_download_and_install https://download.filezilla-project.org/libfilezilla/libfilezilla-0.19.3.tar.bz2 libfilezilla-0.19.3 "--disable-shared --enable-static"
         unset CC
         unset CXX
         unset WINDRES
 #        export cpu_count=$orig_cpu_count
-#    cd ..
+    cd ..
 }
 
 build_filezilla() {
