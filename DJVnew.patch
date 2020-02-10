@@ -130,3 +130,14 @@
  
 -DJV_ICON ICON "..\\..\\etc\\Windows\\djv.ico"
 +DJV_ICON ICON "../../etc/Windows/djv.ico"
+--- lib/djvCore/Core.h.orig	2020-02-08 11:30:55.806774567 +0000
++++ lib/djvCore/Core.h	2020-02-08 11:31:10.978629111 +0000
+@@ -77,7 +77,7 @@
+ 
+ #if defined(DJV_PLATFORM_WINDOWS)
+ //! \bug [S 1.0] https://social.msdn.microsoft.com/Forums/vstudio/en-US/8f40dcd8-c67f-4eba-9134-a19b9178e481/vs-2015-rc-linker-stdcodecvt-error?forum=vcgeneral
+-typedef unsigned int djv_char_t;
++typedef char16_t djv_char_t;
+ #define DJV_SNPRINTF sprintf_s
+ #define DJV_STRNCPY strncpy_s
+ #else // DJV_PLATFORM_WINDOWS

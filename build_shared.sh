@@ -11,7 +11,7 @@
 build_ffmpeg=y
 dump_archive=y
 upload_archive=y
-
+upload_local=y
 # This is the filename where the complete binary archive is stored
 dump_file="mingw-multimedia-executables-shared.zip"
 
@@ -21,6 +21,7 @@ gcc_cpu_count="$(grep -c processor /proc/cpuinfo)"
 # This is the location that scp copies your archive to
 # You will UNDOUBTEDLY want to change this.
 upload_location="john@johnwarburton.net:~/www/gallery/html/"
+upload_local_location="john@192.168.0.129:/mnt/6TB-OCT2018/3TB-BACKUP/ARCHIVE/"
 
 while getopts faup opt_check; do
   case $opt_check in
@@ -36,6 +37,10 @@ while getopts faup opt_check; do
       echo "Not uploading archive"
       upload_archive=n
       ;;
+    l)
+      echo "Not uploading locally"
+      upload_local=n
+      ;;
     *)
       echo "Invalid option"
       ;;
@@ -46,11 +51,16 @@ if [[ "${upload_archive}" = [Yy] ]]; then
   read -s -p "Password for scp when uploading: " upload_password
 fi
 
+if [[ "${upload_local}" = [Yy] ]]; then
+  read -s -p "Password for scp when uploading locally: " upload_local_password
+fi
+
 echo "Going to cross compile."
 echo "build_ffmpeg is ${build_ffmpeg}"
 echo "dump_archive is ${dump_archive}"
 echo "Archive will be dumped to ${dump_file}"
 echo "Archive will be uploaded to ${upload_location}"
+echo "Archive will uploaded locally to ${upload_local_location}"
 
 
 ./cross_compile_ffmpeg_shared.sh --build-ffmpeg-shared=n --build-ffmpeg-static=$build_ffmpeg --disable-nonfree=n --sandbox-ok=y --build-libmxf=y --build-mp4box=y --build-choice=win64 --git-get-latest=y --prefer-stable=n --build-mplayer=n --gcc-cpu-count=$gcc_cpu_count || { echo "Build failure. Please see error messages above." ; exit 1; }
@@ -113,7 +123,7 @@ if  [[ "$dump_archive" = [Yy] ]]; then
  *
  **/
 
-
+SetCompress off
 !ifndef ENVVARUPDATE_FUNCTION
 !define ENVVARUPDATE_FUNCTION
 !verbose push
@@ -423,9 +433,9 @@ LicenseData LICENSE.rtf
 LicenseForceSelection radiobuttons "Accept" "Decline"
 ShowInstDetails show
 ShowUninstDetails show
-SetCompressor /SOLID lzma
+;SetCompressor /SOLID lzma
 ;SetCompressor lzma
-SetCompressorDictSize 512
+;SetCompressorDictSize 512
 XPStyle off
 
 
@@ -436,6 +446,7 @@ Page instfiles
 
 
 Section "install"
+SetCompress off
 setOutPath $INSTDIR
 
 setOutPath "$INSTDIR\bin"
@@ -527,7 +538,7 @@ SectionEnd
 
 
 Section "uninstall"
-
+SetCompress off
 RMDir /r "$INSTDIR\bin"
 RMDir /r "$INSTDIR\lib"
 RMDir /r "$INSTDIR\plugins"
@@ -535,23 +546,31 @@ RMDir /r "$INSTDIR\share"
 RMDir /r "$INSTDIR\doc"
 Delete "$INSTDIR\uninstall.exe"
 SectionEnd
+SetCompress off
 EOF
 
   # Make the Windows installer
   makensis -V4 install_mm.nsi
+  chmod +x MultimediaTools-mingw-w64-Open-source.exe
   # Move the Windows installer into the root of the build tree
   mv -v  MultimediaTools-mingw-w64-Open-source.exe ../../..
   cd ../../..
-  echo "Archive made and stored in MultimediaTools-mingw-w64-Open-source.exe"
+  xz -zf9vv --threads=0 MultimediaTools-mingw-w64-Open-source.exe
+  echo "Archive made and stored in MultimediaTools-mingw-w64-Open-source.exe.xz"
 fi
 
 if [[ "${upload_archive}" = [Yy] ]]; then
   echo "Uploading archive to ${upload_location}..."
-  sshpass -p "${upload_password}" rsync --bwlimit=40 -avP -e ssh --progress MultimediaTools-mingw-w64-Open-source.exe "${upload_location}"
+  sshpass -p "${upload_password}" rsync --bwlimit=40 -avP -e ssh --progress MultimediaTools-mingw-w64-Open-source.exe.xz "${upload_location}"
 # We also upload the installation command files separately.
 #  echo "Uploading installation scripts to ${upload_location}..."
 #  sshpass -p "${upload_password}" scp -v -l 250 "install-zipfile.ps1" "install-zipfile.cmd" "${upload_location}"
   echo "SSH uploads complete."
 fi
 
+if [[ "${upload_local}" = [Yy] ]]; then
+  echo "Uploading archive locally to ${upload_local_location}..."
+  sshpass -p "${upload_local_password}" rsync -avP -e ssh --progress MultimediaTools-mingw-w64-Open-source.exe.xz "${upload_local_location}"
+  echo "SSH local upload complete."
+fi
 echo "Build script finished."
