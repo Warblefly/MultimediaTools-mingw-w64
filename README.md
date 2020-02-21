@@ -3,8 +3,8 @@ Scripts and patches to cross-compile, for Windows 64-bit, many multimedia utilit
 
 # How To Install
 
-A binary package is available for download from this address:
-<a href="http://gallery.johnwarburton.net/MultimediaTools-mingw-w64-Open-source.exe">http://gallery.johnwarburton.net/MultimediaTools-mingw-w64-Open-source.exe</a>
+A compressed binary package is available for download from this address:
+<a href="http://gallery.johnwarburton.net/MultimediaTools-mingw-w64-Open-source.exe.xz">http://gallery.johnwarburton.net/MultimediaTools-mingw-w64-Open-source.exe.xz</a>
 
 These files are tested here when installed to C:\Program Files\ffmpeg. Other locations may work, but have not been tested.
 

@@ -23,7 +23,7 @@ gcc_cpu_count="$(grep -c processor /proc/cpuinfo)"
 upload_location="john@johnwarburton.net:~/www/gallery/html/"
 upload_local_location="john@192.168.0.129:/mnt/6TB-OCT2018/3TB-BACKUP/ARCHIVE/"
 
-while getopts faup opt_check; do
+while getopts faulp opt_check; do
   case $opt_check in
     f)
       echo "Not building FFmpeg"

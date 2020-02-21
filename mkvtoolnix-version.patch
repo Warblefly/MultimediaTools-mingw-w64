@@ -1,0 +1,11 @@
+--- src/common/version.cpp.orig	2020-02-16 20:31:49.289939853 +0000
++++ src/common/version.cpp	2020-02-16 20:32:50.373289613 +0000
+@@ -196,7 +196,7 @@
+   segment_info_data_t data{};
+ 
+   if (!mtx::hacks::is_engaged(mtx::hacks::NO_VARIABLE_DATA)) {
+-    data.muxing_app   = fmt::format("libebml v{0} + libmatroska v{1}", libebml::EbmlCodeVersion, libmatroska::KaxCodeVersion);
++    data.muxing_app   = fmt::format("libebml v{0} + libmatroska v{1}", libebml::EbmlCodeVersion, "unavailable");
+     data.writing_app  = get_version_info(application, static_cast<version_info_flags_e>(vif_full | vif_untranslated));
+     data.writing_date = boost::posix_time::second_clock::universal_time();
+ 

@@ -18,13 +18,13 @@ export prefix="$working_directory/$host"
 export PATH="$working_directory/bin:$PATH"
 
 echo "Cloning binutils..."
-git clone --depth 1 --single-branch -b binutils-2_33-branch git://sourceware.org/git/binutils-gdb.git binutils-2.33 || echo "Seems we have binutils."
+git clone --depth 1 --single-branch -b binutils-2_34-branch git://sourceware.org/git/binutils-gdb.git binutils-2.34 || echo "Seems we have binutils."
 echo "Binutils has arrived."
 
 mkdir -pv binutils-build
 cd binutils-build
 	if [[ ! -f binutils_configure ]]; then
-		../binutils-2.33/configure --target=$host --enable-targets=$host \
+		../binutils-2.34/configure --target=$host --enable-targets=$host \
 			--prefix=$working_directory --with-sysroot=$working_directory
 		touch binutils_configure
 	fi

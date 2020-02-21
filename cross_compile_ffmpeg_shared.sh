@@ -38,8 +38,7 @@ yes_no_sel () {
 }
 
 check_missing_packages () {
-  local check_packages=('cmp' 'bzip2' 'nvcc' 'rsync' 'sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'bzr' 'gperf' 'ruby' 'doxygen' 'asciidoc' 'xsltproc' 'autogen' 'rake' 'autopoint' 'wget' 'zip' 'xmlto' 'gtkdocize' 'python-config' 'ant' 'sdl-config' 'sdl2-config' 'gyp' 'mm-common-prepare' 'sassc' 'nasm' 'ragel' 'gengetopt' 'asn1Parser' 'ronn' 'docbook2x-man'
-  'intltool-update' 'gtk-update-icon-cache' 'gdk-pixbuf-csource' 'interdiff' 'orcc' 'luac' 'makensis' 'swig')
+  local check_packages=('cmp' 'bzip2' 'nvcc' 'rsync' 'sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'gperf' 'ruby' 'doxygen' 'xsltproc' 'autogen' 'rake' 'autopoint' 'wget' 'zip' 'gtkdocize' 'python-config' 'ant' 'sdl-config' 'sdl2-config' 'gyp' 'mm-common-prepare' 'sassc' 'nasm' 'ragel' 'gengetopt' 'asn1Parser' 'ronn' 'docbook2x-man'  'intltool-update' 'gtk-update-icon-cache' 'gdk-pixbuf-csource' 'interdiff' 'orcc' 'luac' 'makensis' 'swig' 'meson')
   for package in "${check_packages[@]}"; do
     type -P "$package" >/dev/null || missing_packages=("$package" "${missing_packages[@]}")
   done
@@ -930,6 +929,37 @@ build_kf5_coreaddons() {
     cd ..
 }
 
+build_libaec() {
+	do_git_checkout https://github.com/erget/libaec.git libaec
+	cd libaec
+		do_cmake
+		do_make
+		do_make_install
+	cd ..
+}
+
+build_gctpc() {
+	download_and_unpack_file ftp://ftp.fau.de/macports/distfiles/gctpc/gctpc20.tar.Z gctpc
+	cd gctpc/source
+		apply_patch file://${top_dir}/gctpc-makefile.patch
+		export cpu_count=1
+		do_make 
+		cp geolib.a ${mingw_w64_x86_64_prefix}/lib/libgeo.a
+		cp proj.h ${mingw_w64_x86_64_prefix}/include/proj.h
+		export cpu_count=8
+	cd ../..
+}
+
+build_wgrib2() {
+	download_and_unpack_file ftp://ftp.cpc.ncep.noaa.gov/wd51we/wgrib2/wgrib2_nolib.tgz.v2.0.8 grib2
+	cd grib2
+		apply_patch file://${top_dir}/grib2-makefile.patch
+		cp ${mingw_w64_x86_64_prefix}/include/proj.h wgrib2/proj.h
+		do_make
+		cp wgrib2/wgrib2.exe ${mingw_w64_x86_64_prefix}/bin
+	cd ..
+}
+
 build_kf5_itemmodels() {
      download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kitemmodels-5.46.0.tar.xz kitemmodels-5.46.0
      cd kitemmodels-5.46.0
@@ -1427,8 +1457,8 @@ build_opendcp() {
 build_dcpomatic() {
 #do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic 9cff6ec974a4d0270091fe5c753483b0d53ecd46
 #  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
-  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.41" dcpomatic-2.15.41
-  cd dcpomatic-2.15.41
+  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.42" dcpomatic-2.15.42
+  cd dcpomatic-2.15.42
 #    apply_patch file://${top_dir}/dcpomatic-wscript.patch
 #    apply_patch file://${top_dir}/dcpomatic-audio_ring_buffers.h.patch
 ##    apply_patch file://${top_dir}/dcpomatic-ffmpeg.patch
@@ -1946,7 +1976,7 @@ build_lilv() {
 
 
 build_leptonica() {
-  do_git_checkout https://github.com/DanBloomberg/leptonica.git leptonica
+  do_git_checkout https://github.com/DanBloomberg/leptonica.git leptonica f1ebb73bf939bca13570c35db8cc656d2735c1d7
   cd leptonica
     generic_configure_make_install "LIBS=-lopenjpeg --disable-silent-rules --without-libopenjpeg"
 
@@ -1988,9 +2018,9 @@ build_ncurses() {
     wget http://invisible-island.net/datafiles/current/terminfo.src.gz
     gunzip terminfo.src.gz
   fi
-  download_and_unpack_file ftp://ftp.invisible-island.net/ncurses/current/ncurses-6.1-20191130.tgz ncurses-6.1-20191130
+  download_and_unpack_file ftp://ftp.invisible-island.net/ncurses/current/ncurses-6.2-20200215.tgz ncurses-6.2-20200215
  # generic_configure "--build=x86_64-pc-linux --host=x86_64-w64-mingw32 --with-libtool --disable-termcap --enable-widec --enable-term-driver --enable-sp-funcs --without-ada --with-debug=no --with-shared=yes --with-normal=no --enable-database --with-progs --enable-interop --with-pkg-config-libdir=${mingw_w64_x86_64_prefix}/lib/pkgconfig --enable-pc-files"
-  cd ncurses-6.1-20191130
+  cd ncurses-6.2-20200215
 #    apply_patch file://${top_dir}/ncurses-rx.patch
 #    rm configure
     generic_configure "LIBS=-lgnurx --build=x86_64-pc-linux --host=x86_64-w64-mingw32 --disable-termcap --enable-widec --enable-term-driver --enable-sp-funcs --without-ada --without-cxx-binding --with-debug=no --with-shared=yes --with-normal=no --enable-database --with-probs --enable-interop --with-pkg-config-libdir=${mingw_w64_x86_64_prefix}/lib/pkgconfig --enable-pc-files --disable-static --enable-shared"
@@ -2015,17 +2045,18 @@ build_less() {
 }
 
 build_dvdbackup() {
-  bzr branch lp:dvdbackup
-  cd dvdbackup
-    export ac_cv_func_malloc_0_nonnull=yes
-  if [[ ! -f "configure" ]]; then
-    autoreconf -fiv || exit 1 # failure here, OS X means "you need libtoolize" perhaps? http://betterlogic.com/roger/2014/12/ilbc-cross-compile-os-x-mac-woe/
-  fi
-  sed -i.bak 's/mkdir(targetname, 0777)/mkdir(targetname)/' src/main.c
-  generic_configure_make_install "ac_cv_func_malloc_0_nonnull=yes LIBS=-ldvdcss"
-
-  unset ac_cv_func_malloc_0_nonnull
-  cd ..
+	download_and_unpack_file http://downloads.sourceforge.net/dvdbackup/dvdbackup-0.4.2.tar.xz dvdbackup-0.4.2
+	cd dvdbackup-0.4.2
+	#  bzr branch lp:dvdbackup
+#  cd dvdbackup
+		export ac_cv_func_malloc_0_nonnull=yes
+		if [[ ! -f "configure" ]]; then
+		    autoreconf -fiv || exit 1 # failure here, OS X means "you need libtoolize" perhaps? http://betterlogic.com/roger/2014/12/ilbc-cross-compile-os-x-mac-woe/
+		fi
+		sed -i.bak 's/mkdir(targetname, 0777)/mkdir(targetname)/' src/main.c
+		generic_configure_make_install "ac_cv_func_malloc_0_nonnull=yes LIBS=-ldvdcss"
+		unset ac_cv_func_malloc_0_nonnull
+  	cd ..
 }
 
 build_libopencore() {
@@ -3049,7 +3080,7 @@ build_libgpg-error() {
   cd libgpg-error
 #    apply_patch file://${top_dir}/gpg-error-pid.patch
 #    rm po/ro.* # The Romanian translation causes Cygwin's iconv to loop. This is a Cygwin bug.
-    generic_configure_make_install "CC_FOR_BUILD=gcc --disable-doc" # "--prefix=${mingw_compiler_path/}" # This is so gpg-error-config can be seen by other programs
+    generic_configure_make_install "CC_FOR_BUILD=gcc --disable-doc --disable-tests" # "--prefix=${mingw_compiler_path/}" # This is so gpg-error-config can be seen by other programs
   cd ..
 }
 
@@ -3251,7 +3282,7 @@ build_sdl2_image() {
 }
 
 build_OpenCL() {
-  do_git_checkout https://github.com/KhronosGroup/OpenCL-ICD-Loader.git OpenCL-ICD-Loader # 6849f617e991e8a46eebf746df43032175f263b3
+  do_git_checkout https://github.com/KhronosGroup/OpenCL-ICD-Loader.git OpenCL-ICD-Loader 978b4b3a29a3aebc86ce9315d5c5963e88722d03 # 6849f617e991e8a46eebf746df43032175f263b3
   cd OpenCL-ICD-Loader
     mkdir -pv inc/CL
     cp -v ${mingw_w64_x86_64_prefix}/include/CL/* inc/CL/
@@ -3336,7 +3367,7 @@ build_faac() {
 }
 
 build_atomicparsley() {
-  do_git_checkout https://github.com/evolver56k/atomicparsley.git atomicparsley
+  do_git_checkout https://github.com/benfry/atomicparsley.git atomicparsley
   export ac_cv_func_malloc_0_nonnull=yes
   cd atomicparsley
     rm configure
@@ -3878,8 +3909,8 @@ build_boost() {
 
 build_mkvtoolnix() {
   do_git_checkout https://gitlab.com/mbunkus/mkvtoolnix mkvtoolnix #16772170030715717341c3d5460d3d1fecf501a4
-#    download_and_unpack_file https://mkvtoolnix.download/sources/mkvtoolnix-23.0.0.tar.xz mkvtoolnix-23.0.0
-  cd mkvtoolnix
+#    download_and_unpack_file https://mkvtoolnix.download/sources/mkvtoolnix-43.0.0.tar.xz mkvtoolnix-43.0.0
+  cd mkvtoolnix # -43.0.0
     # Two libraries needed for mkvtoolnix
     git submodule init
     git submodule update
@@ -3904,12 +3935,15 @@ build_mkvtoolnix() {
     #apply_patch file://${top_dir}/mkvtoolnix-qt5-2.patch
     #apply_patch file://${top_dir}/mkvtoolnix-stack.patch
     #rm -vf src/info/sys_windows.cpp
-    generic_configure "--with-boost=${mingw_w64_x86_64_prefix} --with-boost-system=boost_system-mt-x64 --with-boost-filesystem=boost_filesystem-mt-x64 --with-boost-date-time=boost_date_time-mt-x64 --with-boost-regex=boost_regex-mt-x64 --enable-qt --enable-static-qt=no --disable-static-qt --disable-static --enable-optimization=yes --enable-debug=no"
+    apply_patch file://${top_dir}/mkvtoolnix-version.patch
+    generic_configure "--with-boost=${mingw_w64_x86_64_prefix} --with-boost-system=boost_system-mt-x64 --with-boost-filesystem=boost_filesystem-mt-x64 --with-boost-date-time=boost_date_time-mt-x64 --with-boost-regex=boost_regex-mt-x64 --enable-qt --enable-static-qt=no --disable-static-qt --enable-optimization=yes --enable-debug=no"
     # Now we must prevent inclusion of sys_windows.cpp because our build uses shared libraries,
     # and this piece of code unfortunately tries to pull in a static version of the Windows Qt
     # platform library libqwindows.a
 #   sed -i.bak 's!sources("src/info/sys_windows.o!#!' Rakefile
 #   env
+    echo "Environment is: "
+    env
     do_rake_and_rake_install "V=1"
     export CC=${old_CC}
     export AR=${old_AR}
@@ -4086,7 +4120,7 @@ build_gtk() {
   cd ..
 #  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/gtk+/3.22/gtk+-3.22.21.tar.xz gtk+-3.22.21 # was .19
 
-  do_git_checkout https://github.com/GNOME/gtk.git gtk gtk-3-24
+  do_git_checkout https://github.com/GNOME/gtk.git gtk 3a17e8006161df3f84f8b147ebdb6f0e5d2868de # gtk-3-24
   touch ${mingw_w64_x86_64_prefix}/share/icons/hicolor/.icon-theme.cache
   cd gtk
 #    orig_cpu_count=$cpu_count
@@ -5071,13 +5105,26 @@ build_libebml() {
 #    do_make
 #    do_make_install
 #  cd ..
-  generic_download_and_install https://dl.matroska.org/downloads/libebml/libebml-1.3.5.tar.xz libebml-1.3.5
+	download_and_unpack_file https://github.com/Matroska-Org/libebml/archive/release-1.3.10.tar.gz libebml-release-1.3.10
+	cd libebml-release-1.3.10
+		do_cmake
+		do_make
+		do_make_install
+	cd ..
 }
 
 build_libmatroska() {
-#   do_git_checkout https://github.com/Matroska-Org/libmatroska.git libmatroska
+        #do_git_checkout https://github.com/Matroska-Org/libmatroska.git libmatroska
 
-   generic_download_and_install https://dl.matroska.org/downloads/libmatroska/libmatroska-1.4.8.tar.xz libmatroska-1.4.8
+	download_and_unpack_file https://github.com/Matroska-Org/libmatroska/archive/release-1.5.2.tar.gz libmatroska-release-1.5.2
+	cd libmatroska-release-1.5.2
+		do_cmake && ${top_dir}/correct_headers.sh
+#		echo "Environment is: "
+#		env
+#		exit 1
+		do_make
+		do_make_install
+	cd ..
 #   cd libmatroska-1.4.8
 #       apply_patch file://${top_dir}/libmatroska-typo.patch
 #       do_cmake "-DCMAKE_VERBOSE_MAKEFILE=YES -DCMAKE_CXX_FLAGS=-fpermissive -DCMAKE_C_FLAGS=-fpermissive" && ${top_dir}/correct_headers.sh # "-DCMAKE_CXX_FLAGS=-fpermissive"
@@ -5253,11 +5300,19 @@ build_exif() {
 }
 
 build_hdf() {
-  generic_download_and_install https://support.hdfgroup.org/ftp/HDF5/current/src/hdf5-1.10.1.tar.bz2 hdf5-1.10.1
+	download_and_unpack_file https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-1.10.6/src/hdf5-1.10.6.tar.bz2 hdf5-1.10.6
+	cd hdf5-1.10.6
+		mkdir -pv build
+		cd build
+			do_cmake ..
+			do_make
+			do_make_install
+		cd ..
+	cd ..
 #  generic_download_and_install http://www.hdfgroup.org/ftp/HDF5/current/src/hdf5-1.8.19.tar.bz2 hdf5-1.8.19
-  cd hdf5-1.10.1
+#  cd hdf5-1.10.1
 
-  cd ..
+#  cd ..
 }
 
 build_netcdf() {
@@ -5299,9 +5354,10 @@ build_vlc() {
     export DSM_LIBS="-lws2_32 -ldsm"
     export AOM_LIBS="-laom -lpthread -lm"
     export BUILDCC=/usr/bin/gcc
+    export cpu_count=1
     generic_configure_make_install "--disable-medialibrary --enable-qt --disable-dvbpsi --disable-gst-decode --disable-asdcp --disable-opencv --disable-ncurses --disable-dbus --disable-sdl --disable-telx --disable-silent-rules --disable-pulse JACK_LIBS=-ljack JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib LIVE555_LIBS=-llivemedia ASDCP_LIBS=lasdcp ASDCP_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/asdcp"
     # X264 is disabled because of an API change. We ought to be able to re-enable it when vlc has caught up.
-
+    export cpu_count=8
   cd ..
 }
 
@@ -6542,6 +6598,8 @@ build_dependencies() {
   build_GLM
   build_GLFW
   build_picoJSON
+  build_libaec
+  build_gctpc
 }
 
 build_apps() {
@@ -6567,6 +6625,7 @@ build_apps() {
 #  fi
 #  build_ocaml
   build_exiv2
+  build_wgrib2
 #  build_cdrecord # NOTE: just now, cdrecord doesn't work on 64-bit mingw. It scans the emulated SCSI bus but no more.
 #  build_cdrkit # No. Still not compiled in MinGW
   build_lsdvd
@@ -6631,9 +6690,9 @@ build_apps() {
   build_libplacebo
   build_opendcp # Difficult at the moment. Development tree doesn't compile under its own procedures
   # build_opencv # We place it here because opencv has an interface to FFmpeg
-  if [[ $build_vlc = "y" ]]; then
-    build_vlc # NB requires ffmpeg static as well, at least once...so put this last :)
-  fi
+  #if [[ $build_vlc = "y" ]]; then
+  #  build_vlc # NB requires ffmpeg static as well, at least once...so put this last :)
+  #fi
   build_cuetools
   build_xerces
 #  build_graphicsmagick
@@ -6660,7 +6719,7 @@ build_apps() {
   build_synaesthesia
   # Because loudness scanner installs its own out-of-date libebur128, we must re-install our own.
 #  build_dvdstyler
-  build_vlc
+  #build_vlc
 }
 
 # set some parameters initial values
