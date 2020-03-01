@@ -74,10 +74,10 @@ cd ..
 echo "Mingw-w64 headers are installed."
 
 echo "Cloning GCC..."
-git clone --depth 1 -b releases/gcc-9 --single-branch  https://github.com/gcc-mirror/gcc.git gcc-9 || echo "Seems we have GCC."
+git clone --depth 1 -b releases/gcc-9 --single-branch https://github.com/gcc-mirror/gcc.git gcc || echo "Seems we have GCC."
 echo "GCC has arrived."
 
-cd gcc-9
+cd gcc
 	echo "To build GCC, we need some accessories."
 	if [[ ! -f gcc_accessories_source ]]; then
 		wget https://ftp.gnu.org/gnu/gmp/gmp-6.1.2.tar.xz || exit 1
@@ -98,7 +98,7 @@ cd gcc-build
 	echo "Configuring GCC..."
 
 	if [[ ! -f gcc_configured ]]; then
-		../gcc-9/configure --target=$host --enable-targets=$host --enable-languages=c,c++,fortran --enable-shared --disable-multilib --prefix=$working_directory --with-sysroot=$working_directory --enable-threads=posix
+		../gcc/configure --target=$host --enable-targets=$host --enable-languages=c,c++,fortran --enable-shared --disable-multilib --prefix=$working_directory --with-sysroot=$working_directory --enable-threads=posix
 		touch gcc_configured
 	else
 		echo "GCC already configured."
@@ -199,5 +199,5 @@ cd gcc-build
 cd ..
 echo "All tools built and installed."
 echo "Clean-up..."
-rm -rf binutils-2.33 binutils-build gcc-9 gcc-build mingw-crt-build mingw-headers-build mingw-w64 mingw-wpthreads-build
+rm -rf binutils-2.34 binutils-build gcc gcc-build mingw-crt-build mingw-headers-build mingw-w64 mingw-winpthreads-build
 echo "Cleaned-up."

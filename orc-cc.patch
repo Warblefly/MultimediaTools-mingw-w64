@@ -1,0 +1,10 @@
+--- meson.build.orig	2020-02-29 21:45:21.847363862 +0000
++++ meson.build	2020-02-29 21:46:04.166587019 +0000
+@@ -16,6 +16,7 @@
+ osxversion = curversion + 1
+ 
+ add_project_arguments('-DHAVE_CONFIG_H', language : 'c')
++add_project_arguments('-fcommon', language : 'c')
+ 
+ orc_inc = include_directories('.')
+ 

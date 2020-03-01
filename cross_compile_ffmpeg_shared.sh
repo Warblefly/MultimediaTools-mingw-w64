@@ -1457,8 +1457,8 @@ build_opendcp() {
 build_dcpomatic() {
 #do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic 9cff6ec974a4d0270091fe5c753483b0d53ecd46
 #  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
-  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.42" dcpomatic-2.15.42
-  cd dcpomatic-2.15.42
+  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.45" dcpomatic-2.15.45
+  cd dcpomatic-2.15.45
 #    apply_patch file://${top_dir}/dcpomatic-wscript.patch
 #    apply_patch file://${top_dir}/dcpomatic-audio_ring_buffers.h.patch
 ##    apply_patch file://${top_dir}/dcpomatic-ffmpeg.patch
@@ -1496,7 +1496,7 @@ build_gcal() {
 }
 
 build_unbound() {
-  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.9.6 "CFLAGS=-O1 libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
+  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.10.0 "CFLAGS=-O1 libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
 }
 
 build_libxavs() {
@@ -1673,14 +1673,14 @@ build_lsdvd() {
 }
 
 build_doxygen() {
-  download_and_unpack_file https://github.com/doxygen/doxygen/archive/Release_1_8_15.tar.gz doxygen-Release_1_8_15
-  cd doxygen-Release_1_8_15
+  download_and_unpack_file https://github.com/doxygen/doxygen/archive/Release_1_8_17.tar.gz doxygen-Release_1_8_17
+  cd doxygen-Release_1_8_17
 #    sed -i.bak 's/WIN32/MSVC/' CMakeLists.txt
 #    sed -i.bak 's/if (win_static/if (win_static AND MSVC/' CMakeLists.txt
-    apply_patch file://${top_dir}/doxygen-fix-CMake.patch
-    apply_patch file://${top_dir}/doxygen-fix-casts.patch
-    do_cmake -DICONV_INCLUDE_DIR=$mingw_w64_x86_64_prefix/include
-    do_make_install
+    apply_patch file://${top_dir}/doxygen-cmake.patch
+#    apply_patch file://${top_dir}/doxygen-fix-casts.patch
+    do_cmake "-DCMAKE_VERBOSE_MAKEFILE=ON" # -DICONV_INCLUDE_DIR=$mingw_w64_x86_64_prefix/include
+    do_make_install  "V=1"
 
   cd ..
 }
@@ -1692,7 +1692,7 @@ build_libflite() {
    cd flite-2.0.0-release
 #     apply_patch file://${top_dir}/flite_64.diff
      sed -i.bak "s|i386-mingw32-|$cross_prefix|" configure*
-     generic_configure
+     generic_configure "CFLAGS=-fcommon"
      apply_patch file://${top_dir}/flite-remove-inline.patch
      do_make
      make install # it fails in error..
@@ -1850,7 +1850,7 @@ build_jack() {
       export CC=x86_64-w64-mingw32-gcc
       export CXX=x86_64-w64-mingw32-g++
       export CXXFLAGS_ORIG=${CXXFLAGS}
-      export CXXFLAGS=-DMINGW_HAS_SECURE_API=1
+      export CXXFLAGS="-DMINGW_HAS_SECURE_API=1 -D__USE_MINGW_ANSI_STDIO=1"
 #      export cpu_count=1
       do_configure "configure --prefix=${mingw_w64_x86_64_prefix} --platform=win32 -ppp" "./waf"
       ./waf build || exit 1
@@ -2340,6 +2340,7 @@ build_orc() {
 #	  cd ..
 	download_and_unpack_file https://github.com/GStreamer/orc/archive/0.4.30.tar.gz orc-0.4.30
 	cd orc-0.4.30
+	apply_patch file://${top_dir}/orc-cc.patch
 		generic_meson_ninja_install
 	cd ..
 }
@@ -2634,8 +2635,8 @@ build_xerces() {
 build_gnutls() {
 #  download_and_unpack_file https://www.gnupg.org/ftp/gcrypt/gnutls/v3.3/gnutls-3.3.27.tar.xz gnutls-3.3.27
    # do_git_checkout https://gitlab.com/gnutls/gnutls.git gnutls
-  download_and_unpack_file https://www.gnupg.org/ftp/gcrypt/gnutls/v3.6/gnutls-3.6.2.tar.xz gnutls-3.6.2
-  cd gnutls-3.6.2
+  download_and_unpack_file https://www.gnupg.org/ftp/gcrypt/gnutls/v3.6/gnutls-3.6.12.tar.xz gnutls-3.6.12
+  cd gnutls-3.6.12
 #    git submodule init
 #    git submodule update
     make autoreconf
@@ -2650,8 +2651,8 @@ build_gnutls() {
 }
 
 build_libnettle() {
-  download_and_unpack_file https://ftp.gnu.org/gnu/nettle/nettle-3.4.tar.gz nettle-3.4
-  cd nettle-3.4
+  download_and_unpack_file https://ftp.gnu.org/gnu/nettle/nettle-3.5.1.tar.gz nettle-3.5.1
+  cd nettle-3.5.1
     generic_configure # "--disable-openssl" # in case we have both gnutls and openssl, just use gnutls [except that gnutls uses this so...huh? https://github.com/rdp/ffmpeg-windows-build-helpers/issues/25#issuecomment-28158515
     do_make_install
 
@@ -3282,12 +3283,12 @@ build_sdl2_image() {
 }
 
 build_OpenCL() {
-  do_git_checkout https://github.com/KhronosGroup/OpenCL-ICD-Loader.git OpenCL-ICD-Loader 978b4b3a29a3aebc86ce9315d5c5963e88722d03 # 6849f617e991e8a46eebf746df43032175f263b3
+  do_git_checkout https://github.com/KhronosGroup/OpenCL-ICD-Loader.git OpenCL-ICD-Loader #978b4b3a29a3aebc86ce9315d5c5963e88722d03 # 6849f617e991e8a46eebf746df43032175f263b3
   cd OpenCL-ICD-Loader
     mkdir -pv inc/CL
     cp -v ${mingw_w64_x86_64_prefix}/include/CL/* inc/CL/
     export orig_cflags="${CFLAGS}"
-    export CFLAGS=-DWINVER=0x0A00
+    export CFLAGS="-DWINVER=0x0A00 -fcommon"
     do_cmake "-DOPENCL_ICD_LOADER_REQUIRE_WDK=OFF"
     do_make
     export CFLAGS="${orig_cflags}"
@@ -3709,6 +3710,7 @@ build_exiv2() {
 #    apply_patch file://${top_dir}/exiv2-makernote.patch
      cpu_count=1 # svn_version.h gets written too early otherwise
     # export LIBS="-lws2_32 -lwldap32"
+     apply_patch file://${top_dir}/exiv2-vsnprintf.patch
      make config
      generic_configure_make_install "CXXFLAGS=-std=gnu++98 --enable-video --enable-webready"
 
@@ -3869,7 +3871,7 @@ build_fmt() {
 }
 
 build_boost() {
-  download_and_unpack_file "https://dl.bintray.com/boostorg/release/1.72.0/source/boost_1_72_0.tar.bz2" boost_1_72_0
+  download_and_unpack_file "http://mirror.nienbo.com/boost/1.72.0/boost_1_72_0.tar.bz2" boost_1_72_0
   cd boost_1_72_0
   #  cd libs/serialization
   #    apply_patch file://${top_dir}/boost-codecvt.patch
@@ -4342,11 +4344,15 @@ build_opencl() {
     wget --no-clobber https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/cl_d3d10.h \
 https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/cl_d3d11.h \
 https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/cl_dx9_media_sharing.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/cl_dx9_media_sharing_intel.h \
 https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/cl_ext.h \
 https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/cl_gl_ext.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/cl_ext_intel.h \
 https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/cl_gl.h \
 https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/cl.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/cl_icd.h \
 https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/cl_platform.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/cl_va_api_media_sharing_intel.h \
 https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/cl_version.h \
 https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/opencl.h \
 https://www.khronos.org/registry/cl/api/2.1/cl.hpp \
@@ -4574,7 +4580,7 @@ build_libffi() {
 }
 
 build_ilmbase() {
-  do_git_checkout https://github.com/openexr/openexr.git openexr  #9f23bcc60b9786ffd5d97800750b953313080c87
+  do_git_checkout https://github.com/openexr/openexr.git openexr 48c2106310c8edefc7c1387cffc466665e4f38d2 #9f23bcc60b9786ffd5d97800750b953313080c87
   # Problem with threads in latest code that checks for c++14 standard
 #  cd openexr/IlmBase
   cd openexr
@@ -5561,15 +5567,15 @@ build_vulkan() {
 
     #download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Loader/archive/sdk-1.1.73.0.tar.gz Vulkan-Loader-sdk-1.1.73.0
     #download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Headers/archive/sdk-1.1.92.0.tar.gz Vulkan-Headers-sdk-1.1.92.0
-    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Headers/archive/v1.1.127.tar.gz Vulkan-Headers-1.1.127
+    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Headers/archive/v1.2.133.tar.gz Vulkan-Headers-1.2.133
     #cd Vulkan-Loader-sdk-1.1.73.0
-    cd Vulkan-Headers-1.1.127
+    cd Vulkan-Headers-1.2.133
         do_cmake
         do_make
         do_make_install
     cd ..
-    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Loader/archive/v1.1.127.tar.gz Vulkan-Loader-1.1.127
-    cd Vulkan-Loader-1.1.127
+    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Loader/archive/v1.2.133.tar.gz Vulkan-Loader-1.2.133
+    cd Vulkan-Loader-1.2.133
         #apply_patch_p1 file://${top_dir}/001-build-fix.patch
         #apply_patch_p1 file://${top_dir}/002-proper-def-files-for-32bit.patch
         #apply_patch_p1 file://${top_dir}/003-generate-pkgconfig-files.patch
@@ -5845,8 +5851,8 @@ build_harfbuzz() {
 }
 
 build_pulseaudio() {
-  download_and_unpack_file https://freedesktop.org/software/pulseaudio/releases/pulseaudio-13.0.tar.xz pulseaudio-13.0
-    cd pulseaudio-13.0
+  download_and_unpack_file https://freedesktop.org/software/pulseaudio/releases/pulseaudio-13.99.1.tar.xz pulseaudio-13.99.1
+    cd pulseaudio-13.99.1
         apply_patch file://${top_dir}/pulseaudio-size.patch
 	apply_patch file://${top_dir}/pulseaudio-conf.patch
         generic_configure_make_install "LIBS=-lintl --enable-orc --enable-waveout --disable-silent-rules --disable-gsettings --disable-dbus" # "LIBS=-lintl --enable-orc --enable-waveout --disable-silent-rules -disable-gsettings --disable-dbus"
@@ -6343,7 +6349,7 @@ build_dependencies() {
   build_iconv # Because Cygwin's iconv is buggy, and loops on certain character set conversions
   build_libffi # for glib among others
   build_locked_sstream # for dcp-o-matic dcpomatic
-  build_doxygen
+  #build_doxygen
   build_libdlfcn # ffmpeg's frei0r implentation needs this <sigh>
   build_zlib # rtmp depends on it [as well as ffmpeg's optional but handy --enable-zlib]
   build_bzlib2 # in case someone wants it [ffmpeg uses it]

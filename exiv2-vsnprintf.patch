@@ -1,0 +1,11 @@
+--- src/image.cpp.orig	2020-02-29 12:10:41.722044149 +0000
++++ src/image.cpp	2020-02-29 12:16:22.952365497 +0000
+@@ -951,7 +951,7 @@
+ namespace Exiv2 {
+     namespace Internal {
+ 
+-#ifdef  MSDEV_2003
++#if defined (MSDEV_2003) || defined (__MINGW__)
+ #undef  vsnprintf
+ #define vsnprintf _vsnprintf
+ #endif
