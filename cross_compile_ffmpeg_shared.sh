@@ -848,16 +848,16 @@ build_drm() {
 
 
 build_qt() {
-  export QT_VERSION="5.13.1"
+  export QT_VERSION="5.14.1"
   export QT_SOURCE="qt-source"
   export QT_BUILD="qt-build"
 #  orig_cpu_count=$cpu_count
 #  export cpu_count=1
   if [ ! -f qt.built ]; then
-    download_and_unpack_file http://download.qt.io/official_releases/qt/5.13/5.13.1/single/qt-everywhere-src-5.13.1.tar.xz "qt-everywhere-src-${QT_VERSION}"
+    download_and_unpack_file http://download.qt.io/official_releases/qt/5.14/5.14.1/single/qt-everywhere-src-5.14.1.tar.xz "qt-everywhere-src-${QT_VERSION}"
     cd "qt-everywhere-src-${QT_VERSION}"
 #      apply_patch file://${top_dir}/qt-permissive.patch
-    apply_patch file://${top_dir}/qt5-skip-mapboxglnative.patch
+#    apply_patch file://${top_dir}/qt5-skip-mapboxglnative.patch
     apply_patch file://${top_dir}/qt-pkg-config.patch
     apply_patch file://${top_dir}/qt-include.patch
     apply_patch file://${top_dir}/qt-evrdefs.patch
@@ -874,7 +874,7 @@ build_qt() {
       export PKG_CONFIG=${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config
       export PKG_CONFIG_LIBDIR=${mingw_w64_x86_64_prefix}/lib/pkgconfig
       export PKG_CONFIG_SYSROOT_DIR=${mingw_w64_x86_64_prefix}/
-      do_configure "-xplatform win32-g++ -prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -opensource  -qt-freetype -confirm-license -accessibility -nomake examples -nomake tests -skip qtwebglplugin -release -strip -openssl -opengl dynamic -device-option CROSS_COMPILE=$cross_prefix -force-pkg-config -device-option PKG_CONFIG=x86_64-w64-mingw32-pkg-config -device-option PKG_CONFIG_LIBDIR=${mingw_w64_x86_64_prefix}/lib/pkgconfig -device-option PKG_CONFIG_SYSROOT_DIR=${mingw_w64_x86_64_prefix} -pkg-config -webengine-proprietary-codecs -no-static -shared -no-use-gold-linker -D MINGW_HAS_SECURE_API -D _WIN32_IE=0x0A00 -v -skip qtactiveqt" "../qt-everywhere-src-${QT_VERSION}/configure" # "noclean" # -skip qtactiveqt
+      do_configure "-xplatform win32-g++ -prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -opensource -no-flite-alsa -qt-freetype -confirm-license -accessibility -nomake examples -nomake tests -skip qtwebglplugin -release -strip -openssl -opengl dynamic -device-option CROSS_COMPILE=$cross_prefix -force-pkg-config -device-option PKG_CONFIG=x86_64-w64-mingw32-pkg-config -device-option PKG_CONFIG_LIBDIR=${mingw_w64_x86_64_prefix}/lib/pkgconfig -device-option PKG_CONFIG_SYSROOT_DIR=${mingw_w64_x86_64_prefix} -pkg-config -webengine-proprietary-codecs -no-static -shared -no-use-gold-linker -D MINGW_HAS_SECURE_API -D _WIN32_IE=0x0A00 -v -skip qtactiveqt" "../qt-everywhere-src-${QT_VERSION}/configure" # "noclean" # -skip qtactiveqt
       # For sone reason, the compiler doesn't set the include path properly!
       do_make || exit 1
       do_make_install || exit 1
@@ -882,7 +882,7 @@ build_qt() {
     # Qt, when building only the release libraries, retains pkgconfig files that refer to
     # the debug libraries. We have not build the debug libraries. These references must
     # therefore be changed to point to the release libraries.
-    /usr/bin/python3 ${top_dir}/fix-Qt-non-debug.py ${mingw_w64_x86_64_prefix}/lib/pkgconfig
+#    /usr/bin/python3 ${top_dir}/fix-Qt-non-debug.py ${mingw_w64_x86_64_prefix}/lib/pkgconfig
     touch "qt.built"
 #    rm -rf $QT_SOURCE $QT_BUILD
     # QT's build tree takes up over 24GB of space. We don't need to see this again because
@@ -898,7 +898,7 @@ build_qt() {
     # Remove the debug versions of libQt5 libraries
     rm -v ${mingw_w64_x86_64_prefix}/bin/Qt5*d.dll
   fi
-  ln -sv ${mingw_w64_x86_64_prefix}/include/QtCore/5.12.3/QtCore/private ${mingw_w64_x86_64_prefix}/include/QtCore/private
+  ln -sv ${mingw_w64_x86_64_prefix}/include/QtCore/5.14.1/QtCore/private ${mingw_w64_x86_64_prefix}/include/QtCore/private
   ln -sv ${mingw_w64_x86_64_prefix}/bin/Qt*.dll ${mingw_w64_x86_64_prefix}/../bin
   ln -sv ${mingw_w64_x86_64_prefix}/plugins ${mingw_w64_x86_64_prefix}/../plugins
   sed -i.bak 's! /libQt5Core\.a! -lQt5Core!' ${mingw_w64_x86_64_prefix}/lib/qtmain.prl
@@ -1732,11 +1732,12 @@ build_libopus() {
 
 build_libdvdread() {
   build_libdvdcss
-  do_git_checkout https://code.videolan.org/videolan/libdvdread.git libdvdread
-#  download_and_unpack_file http://download.videolan.org/pub/videolan/libdvdread/5.0.3/libdvdread-5.0.3.tar.bz2 libdvdread-5.0.3
-  cd libdvdread
+#  do_git_checkout https://code.videolan.org/videolan/libdvdread.git libdvdread
+  download_and_unpack_file https://get.videolan.org/libdvdread/6.0.2/libdvdread-6.0.2.tar.bz2 libdvdread-6.0.2
+  cd libdvdread-6.0.2
   # Need this to help libtool not object
   sed -i.bak 's/libdvdread_la_LDFLAGS = -version-info $(DVDREAD_LTVERSION)/libdvdread_la_LDFLAGS = -version-info $(DVDREAD_LTVERSION) -no-undefined/' Makefile.am
+#  apply_patch file://${top_dir}/libdvdread.patch
   generic_configure "--with-libdvdcss CFLAGS=-DHAVE_DVDCSS_DVDCSS_H LDFLAGS=-ldvdcss" # vlc patch: "--enable-libdvdcss" # XXX ask how I'm *supposed* to do this to the dvdread peeps [svn?]
   #apply_patch https://raw.githubusercontent.com/rdp/ffmpeg-windows-build-helpers/master/patches/dvdread-win32.patch # has been reported to them...
   do_make_install
@@ -2351,7 +2352,7 @@ build_libxml2() {
   cd libxml2 # -2.9.9-rc2
     # Remove libxml2 autogen because it sets variables that interfere with our cross-compile
 #    rm -v autogen.sh
-    generic_configure_make_install "LIBS=-lws2_32 --without-python --enable-ipv6"
+    generic_configure_make_install "LIBS=-lws2_32 --without-python --enable-ipv6 --disable-silent-rules"
     sed -i.bak 's/-lxml2.*$/-lxml2 -lws2_32/' "$PKG_CONFIG_PATH/libxml-2.0.pc" # Shared applications need Winsock
 #    cp -v ${mingw_w64_x86_64_prefix}/bin/xml2-config ${mingw_w64_x86_64_prefix}/bin/x86_64-w64-mingw32-xml2-config
 
@@ -5533,7 +5534,7 @@ build_glslang() {
 }
 
 build_shaderc() {
-    do_git_checkout https://github.com/google/shaderc.git shaderc #14ae0de47d34f14e09ae1c64327cd39c32c8f693 # a2c044c44d68c31014210f9b37a682d118c40388 # be8e0879750303a1de09385465d6b20ecb8b380d
+    do_git_checkout https://github.com/google/shaderc.git shaderc 3d99fad173cc0c00d370eeb6663784fc67efd480 #14ae0de47d34f14e09ae1c64327cd39c32c8f693 # a2c044c44d68c31014210f9b37a682d118c40388 # be8e0879750303a1de09385465d6b20ecb8b380d
     cd shaderc
         export spirv-tools_SOURCE_DIR=${top_dir}/x86_64/SPIRV-Tools/
         export glslang_SOURCE_DIR=${top_dir}/x86_64/glslang/
@@ -5932,6 +5933,7 @@ build_xz() {
 build_libjson() {
 do_git_checkout https://github.com/json-c/json-c.git json-c
     cd json-c
+    	apply_patch file://${top_dir}/json-c-control.patch
         generic_configure_make_install "--enable-threading"
         ln -vs ${mingw_w64_x86_64_prefix}/lib/pkgconfig/json-c.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig/json.pc
     cd ..
@@ -6825,6 +6827,7 @@ cd ${cur_dir}/x86_64-w64-mingw32/x86_64-w64-mingw32/include
   ln -s cfgmgr32.h Cfgmgr32.h
   ln -s devpkey.h Devpkey.h
   ln -s shlobj.h ShlObj.h
+  ln -s setupapi.h SetupAPI.h
   ln -s uiviewsettingsinterop.h UIViewSettingsInterop.h
 cd -
 cd ${cur_dir}/x86_64-w64-mingw32/x86_64-w64-mingw32/lib
