@@ -38,7 +38,7 @@ yes_no_sel () {
 }
 
 check_missing_packages () {
-  local check_packages=('cmp' 'bzip2' 'nvcc' 'rsync' 'sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'gperf' 'ruby' 'doxygen' 'xsltproc' 'autogen' 'rake' 'autopoint' 'wget' 'zip' 'gtkdocize' 'python-config' 'ant' 'sdl-config' 'sdl2-config' 'gyp' 'mm-common-prepare' 'sassc' 'nasm' 'ragel' 'gengetopt' 'asn1Parser' 'ronn' 'docbook2x-man'  'intltool-update' 'gtk-update-icon-cache' 'gdk-pixbuf-csource' 'interdiff' 'orcc' 'luac' 'makensis' 'swig' 'meson')
+  local check_packages=('cmp' 'bzip2' 'nvcc' 'rsync' 'sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'gperf' 'ruby' 'doxygen' 'xsltproc' 'autogen' 'rake' 'autopoint' 'wget' 'zip' 'gtkdocize' 'python-config' 'ant' 'sdl-config' 'sdl2-config' 'gyp' 'mm-common-prepare' 'sassc' 'nasm' 'ragel' 'gengetopt' 'asn1Parser' 'ronn' 'docbook2x-man'  'intltool-update' 'gtk-update-icon-cache' 'gdk-pixbuf-csource' 'interdiff' 'orcc' 'luac' 'makensis' 'swig' 'meson' 'scons')
   for package in "${check_packages[@]}"; do
     type -P "$package" >/dev/null || missing_packages=("$package" "${missing_packages[@]}")
   done
@@ -1248,7 +1248,7 @@ build_mlt() {
     avformat_ldextra=`pkg-config --static --libs-only-l libavformat`
     apply_patch file://${top_dir}/mlt-melt.patch
 #    do_configure "--prefix=${mingw_w64_x86_64_prefix} --enable-gpl --enable-gpl3 --disable-gtk2 --target-os=mingw --target-arch=x86_64 --libdir=${mingw_w64_x86_64_prefix}/bin/lib --datadir=${mingw_w64_x86_64_prefix}/bin/share --mandir=${mingw_w64_x86_64_prefix}/share/man --avformat-swscale --avformat-ldextra=${avformat_ldextra}"
-    generic_configure_make_install "LIBS=-lole32 --enable-gpl --enable-gpl3 --target-os=mingw --target-arch=x86_64 --prefix=${mingw_w64_x86_64_prefix} --libdir=${mingw_w64_x86_64_prefix}/bin/lib --datadir=${mingw_w64_x86_64_prefix}/bin/share --mandir=${mingw_w64_x86_64_prefix}/share/man --disable-opengl"
+    generic_configure_make_install "LIBS=-lole32 --disable-sdl --enable-gpl --enable-gpl3 --target-os=mingw --target-arch=x86_64 --prefix=${mingw_w64_x86_64_prefix} --libdir=${mingw_w64_x86_64_prefix}/bin/lib --datadir=${mingw_w64_x86_64_prefix}/bin/share --mandir=${mingw_w64_x86_64_prefix}/share/man --disable-opengl"
 #    apply_patch file://${top_dir}/mlt-rtaudio.patch
 #    do_make
 #    do_make_install
@@ -1457,8 +1457,8 @@ build_opendcp() {
 build_dcpomatic() {
 #do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic 9cff6ec974a4d0270091fe5c753483b0d53ecd46
 #  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
-  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.45" dcpomatic-2.15.45
-  cd dcpomatic-2.15.45
+  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.47" dcpomatic-2.15.47
+  cd dcpomatic-2.15.47
 #    apply_patch file://${top_dir}/dcpomatic-wscript.patch
 #    apply_patch file://${top_dir}/dcpomatic-audio_ring_buffers.h.patch
 ##    apply_patch file://${top_dir}/dcpomatic-ffmpeg.patch
@@ -1748,9 +1748,9 @@ build_libdvdread() {
 }
 
 build_libdvdnav() {
-  do_git_checkout https://code.videolan.org/videolan/libdvdnav.git libdvdnav
-#  download_and_unpack_file http://download.videolan.org/pub/videolan/libdvdnav/5.0.3/libdvdnav-5.0.3.tar.bz2 libdvdnav-5.0.3
-  cd libdvdnav
+#  do_git_checkout https://code.videolan.org/videolan/libdvdnav.git libdvdnav
+  download_and_unpack_file https://download.videolan.org/pub/videolan/libdvdnav/6.0.1/libdvdnav-6.0.1.tar.bz2 libdvdnav-6.0.1
+  cd libdvdnav-6.0.1
  # if [[ ! -f ./configure ]]; then
  #   ./autogen.sh
   #fi
@@ -2135,11 +2135,30 @@ build_libogg() {
 #  generic_download_and_install http://downloads.xiph.org/releases/ogg/libogg-1.3.2.tar.gz libogg-1.3.2
 }
 
+build_portablexdr() {
+	download_and_unpack_file http://people.redhat.com/~rjones/portablexdr//files/portablexdr-4.9.1.tar.gz portablexdr-4.9.1
+	cd portablexdr-4.9.1
+		apply_patch file://${top_dir}/portablexdr.patch
+		generic_configure_make_install
+	cd ..
+}
+
+build_lash() {
+	do_git_checkout git://repo.or.cz/lash.git lash
+	export cpu_count=1
+	cd lash
+		apply_patch file://${top_dir}/lash.patch
+		generic_configure_make_install "--without-alsa --with-gtk2 --without-python"
+	cd ..
+}
+
+
 build_jackmix() {
   do_git_checkout https://github.com/kampfschlaefer/jackmix.git jackmix qt5
   cd jackmix
+    #apply_patch file://${top_dir}/qt5muc.py.patch
 #    apply_patch file://${top_dir}/jackmix-qt5.patch
-    scons
+    /usr/bin/env python2 /usr/bin/scons
     do_make
   cd ..
 }
@@ -2447,7 +2466,8 @@ build_icu() {
   # First, build native ICU, whose build tools are required by cross-compiled ICU
   # Luckily, we do this only once per build.
   if [ ! -f icu.built ]; then
-    download_and_unpack_file https://kent.dl.sourceforge.net/project/icu/ICU4C/62.1/icu4c-62_1-src.tgz icu
+    download_and_unpack_file https://github.com/unicode-org/icu/releases/download/release-66-1/icu4c-66_1-src.tgz icu
+    #download_and_unpack_file https://kent.dl.sourceforge.net/project/icu/ICU4C/62.1/icu4c-62_1-src.tgz icu
     holding_path=$PATH
     export PATH=$original_path
     mv icu icu_native
@@ -2465,7 +2485,8 @@ build_icu() {
       # Don't install this
     cd ../..
     export PATH=$holding_path
-    download_and_unpack_file https://kent.dl.sourceforge.net/project/icu/ICU4C/62.1/icu4c-62_1-src.tgz icu
+    download_and_unpack_file https://github.com/unicode-org/icu/releases/download/release-66-1/icu4c-66_1-src.tgz icu
+    #download_and_unpack_file https://kent.dl.sourceforge.net/project/icu/ICU4C/62.1/icu4c-62_1-src.tgz icu
     mv icu icu_plain
     cd icu_plain
       # ICU 58.2 uses a pair of locale-related functiont that don't occur in mingw yet
@@ -2488,29 +2509,30 @@ build_icu() {
   fi
   # The ICU libraries are made without the prefix 'lib'. Also, the version is missing from the link library. Let's correct that.
   cp -v ${mingw_w64_x86_64_prefix}/lib/icudt.dll ${mingw_w64_x86_64_prefix}/lib/libicudt.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/icudt62.dll ${mingw_w64_x86_64_prefix}/lib/libicudt62.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/icudt66.dll ${mingw_w64_x86_64_prefix}/lib/libicudt66.dll
   cp -v ${mingw_w64_x86_64_prefix}/lib/icuin.dll ${mingw_w64_x86_64_prefix}/lib/libicuin.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/icuin62.dll ${mingw_w64_x86_64_prefix}/lib/libicuin62.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/icuin66.dll ${mingw_w64_x86_64_prefix}/lib/libicuin66.dll
   cp -v ${mingw_w64_x86_64_prefix}/lib/icuio.dll ${mingw_w64_x86_64_prefix}/lib/libicuio.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/icuio62.dll ${mingw_w64_x86_64_prefix}/lib/libicuio62.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/icuio66.dll ${mingw_w64_x86_64_prefix}/lib/libicuio66.dll
   cp -v ${mingw_w64_x86_64_prefix}/lib/icutest.dll ${mingw_w64_x86_64_prefix}/lib/libicutest.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/icutest62.dll ${mingw_w64_x86_64_prefix}/lib/libicutest62.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/icutest66.dll ${mingw_w64_x86_64_prefix}/lib/libicutest66.dll
   cp -v ${mingw_w64_x86_64_prefix}/lib/icutu.dll ${mingw_w64_x86_64_prefix}/lib/libicutu.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/icutu62.dll ${mingw_w64_x86_64_prefix}/lib/libicutu62.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/icutu66.dll ${mingw_w64_x86_64_prefix}/lib/libicutu66.dll
   cp -v ${mingw_w64_x86_64_prefix}/lib/icuuc.dll ${mingw_w64_x86_64_prefix}/lib/libicuuc.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/icuuc61.dll ${mingw_w64_x86_64_prefix}/lib/libicuuc62.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libicudt.dll.a ${mingw_w64_x86_64_prefix}/lib/libicudt62.dll.a
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuin.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuin62.dll.a
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuio.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuio62.dll.a
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libicutest.dll.a ${mingw_w64_x86_64_prefix}/lib/libicutest62.dll.a
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libicutu.dll.a ${mingw_w64_x86_64_prefix}/lib/libicutu62.dll.a
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuuc.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuuc62.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/icuuc66.dll ${mingw_w64_x86_64_prefix}/lib/libicuuc66.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libicudt.dll.a ${mingw_w64_x86_64_prefix}/lib/libicudt66.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuin.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuin66.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuio.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuio66.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libicutest.dll.a ${mingw_w64_x86_64_prefix}/lib/libicutest66.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libicutu.dll.a ${mingw_w64_x86_64_prefix}/lib/libicutu66.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuuc.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuuc66.dll.a
 }
 
 build_icu_with_iculehb() {
   # Native ICU has already been built
   if [ ! -f icu-hb.built ]; then
-    download_and_unpack_file https://kent.dl.sourceforge.net/project/icu/ICU4C/62.1/icu4c-62_1-src.tgz icu
+    download_and_unpack_file https://github.com/unicode-org/icu/releases/download/release-66-1/icu4c-66_1-src.tgz icu
+#    download_and_unpack_file https://kent.dl.sourceforge.net/project/icu/ICU4C/62.1/icu4c-62_1-src.tgz icu
     cd icu
       # ICU 58.2 uses a pair of locale-related functiont that don't occur in mingw yet
       #apply_patch file://${top_dir}/icu-59.patch
@@ -2532,26 +2554,26 @@ build_icu_with_iculehb() {
   fi
     # The ICU libraries are made without the prefix 'lib'. Also, the version is missing from the link library. Let's correct that.
   cp -v ${mingw_w64_x86_64_prefix}/lib/icudt.dll ${mingw_w64_x86_64_prefix}/lib/libicudt.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/icudt62.dll ${mingw_w64_x86_64_prefix}/lib/libicudt62.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/icudt66.dll ${mingw_w64_x86_64_prefix}/lib/libicudt66.dll
   cp -v ${mingw_w64_x86_64_prefix}/lib/icuin.dll ${mingw_w64_x86_64_prefix}/lib/libicuin.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/icuin62.dll ${mingw_w64_x86_64_prefix}/lib/libicuin62.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/icuin66.dll ${mingw_w64_x86_64_prefix}/lib/libicuin66.dll
   cp -v ${mingw_w64_x86_64_prefix}/lib/icuio.dll ${mingw_w64_x86_64_prefix}/lib/libicuio.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/icuio62.dll ${mingw_w64_x86_64_prefix}/lib/libicuio62.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/icuio66.dll ${mingw_w64_x86_64_prefix}/lib/libicuio66.dll
   cp -v ${mingw_w64_x86_64_prefix}/lib/icutest.dll ${mingw_w64_x86_64_prefix}/lib/libicutest.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/icutest62.dll ${mingw_w64_x86_64_prefix}/lib/libicutest62.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/icutest66.dll ${mingw_w64_x86_64_prefix}/lib/libicutest66.dll
   cp -v ${mingw_w64_x86_64_prefix}/lib/icutu.dll ${mingw_w64_x86_64_prefix}/lib/libicutu.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/icutu62.dll ${mingw_w64_x86_64_prefix}/lib/libicutu62.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/icutu66.dll ${mingw_w64_x86_64_prefix}/lib/libicutu66.dll
   cp -v ${mingw_w64_x86_64_prefix}/lib/icuuc.dll ${mingw_w64_x86_64_prefix}/lib/libicuuc.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/icuuc62.dll ${mingw_w64_x86_64_prefix}/lib/libicuuc62.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libicudt.dll.a ${mingw_w64_x86_64_prefix}/lib/libicudt62.dll.a
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuin.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuin62.dll.a
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuio.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuio62.dll.a
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libicutest.dll.a ${mingw_w64_x86_64_prefix}/lib/libicutest62.dll.a
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libicutu.dll.a ${mingw_w64_x86_64_prefix}/lib/libicutu62.dll.a
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuuc.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuuc62.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/icuuc66.dll ${mingw_w64_x86_64_prefix}/lib/libicuuc66.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libicudt.dll.a ${mingw_w64_x86_64_prefix}/lib/libicudt66.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuin.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuin66.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuio.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuio66.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libicutest.dll.a ${mingw_w64_x86_64_prefix}/lib/libicutest66.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libicutu.dll.a ${mingw_w64_x86_64_prefix}/lib/libicutu66.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuuc.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuuc66.dll.a
   cp -v ${mingw_w64_x86_64_prefix}/lib/iculx.dll ${mingw_w64_x86_64_prefix}/lib/libiculx.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/iculx62.dll ${mingw_w64_x86_64_prefix}/lib/libiculx62.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libiculx.dll.a ${mingw_w64_x86_64_prefix}/lib/libiculx62.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/iculx66.dll ${mingw_w64_x86_64_prefix}/lib/libiculx66.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libiculx.dll.a ${mingw_w64_x86_64_prefix}/lib/libiculx66.dll.a
 }
 
 
@@ -3281,6 +3303,15 @@ build_sdl2_image() {
     do_make_install "V=1"
     # do_make_clean
   cd ..
+}
+
+build_sdl_image() {
+	download_and_unpack_file https://www.libsdl.org/projects/SDL_image/release/SDL_image-1.2.12.tar.gz SDL_image-1.2.12
+	cd SDL_image-1.2.12
+		rm -v aclocal.m4 Makefile.in configure
+		do_configure "--host=x86_64-w64-mingw32 --target=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-shared --enable-static"
+		do_make_install "V=1"
+	cd ..
 }
 
 build_OpenCL() {
@@ -4951,15 +4982,15 @@ build_libdsm() {
 
 build_libcdio() {
 #  download_and_unpack_file file://${top_dir}/libcdio-4b5eda30.tar.gz libcdio-cdtext-testing-4b5eda3
-  do_git_checkout git://git.sv.gnu.org/libcdio.git libcdio #  cd libcdio
-  cd libcdio
+  download_and_unpack_file  http://git.savannah.gnu.org/cgit/libcdio.git/snapshot/libcdio-release-2.1.0.tar.gz libcdio-release-2.1.0
+#do_git_checkout git://git.sv.gnu.org/libcdio.git libcdio #  cd libcdio
+  cd libcdio-release-2.1.0
     if [[ ! -f "configure" ]]; then
       autoreconf -fvi
     fi
     touch ./doc/version.texi # Documentation isn't included but the Makefile still wants it
     touch src/cd-drive.1 src/cd-info.1 src/cd-read.1 src/iso-info.1 src/iso-read.1
     generic_configure_make_install
-
   cd ..
 }
 
@@ -5502,7 +5533,7 @@ build_qjackctl() {
 #    apply_patch file://${top_dir}/qjackctl-MainForm.patch
     generic_configure_make_install "LIBS=-lportaudio --enable-xunique=no --disable-alsa-seq" # enable-jack-version=yes
     # make install doesn't work
-    cp -vf src/release/qjackctl.exe ${mingw_w64_x86_64_prefix}/bin
+    cp -vf src/qjackctl.exe ${mingw_w64_x86_64_prefix}/bin
 
   cd ..
 }
@@ -5707,13 +5738,14 @@ build_libcroco() {
   generic_download_and_install http://ftp.gnome.org/pub/GNOME/sources/libcroco/0.6/libcroco-0.6.12.tar.xz libcroco-0.6.12
 }
 
-build_lash() {
-  do_git_checkout https://git.savannah.gnu.org/git/lash.git lash
-  cd lash
-    generic_configure_make_install --with-python=no --with-alsa=no --with-jack-dbus=no
-
-  cd ..
-}
+#build_lash() {
+#  do_git_checkout https://git.savannah.gnu.org/git/lash.git lash
+#  cd lash
+#    generic_configure_make_install --with-python=no --with-alsa=no --with-jack-dbus=no
+#
+#  cd ..
+#
+#}
 
 build_pngcrush() {
   do_git_checkout https://git.code.sf.net/p/pmt/code pngcrush pngcrush
@@ -5871,6 +5903,16 @@ build_pamix() {
 		do_cmake "-DCMAKE_BUILD_TYPE=RELEASE -DWITH_UNICODE=ON" # -DWITH_UNICODE=1 -DFEAT_UNICODE=1"
 		do_make
 		do_make_install
+	cd ..
+}
+
+build_meterbridge() {
+	download_and_unpack_file http://plugin.org.uk/meterbridge/meterbridge-0.9.2.tar.gz meterbridge-0.9.2
+	cd meterbridge-0.9.2
+		apply_patch file://${top_dir}/meterbridge-buf_rect.patch
+		apply_patch file://${top_dir}/meterbridge-set_rgba.patch
+		
+		generic_configure_make_install "CFLAGS=-I${mingw_w64_x86_64_prefix}/include/SDL2"
 	cd ..
 }
 
@@ -6452,7 +6494,7 @@ build_dependencies() {
   # build_libcddb # Circular dependency here!
   build_libcdio
   build_libcddb
-  build_libcdio_libcddb # Now build again with cddb support
+#  build_libcdio_libcddb # Now build again with cddb suppor#
   build_libcdio-paranoia
   build_sqlite
   build_libfilezilla
@@ -6535,7 +6577,8 @@ build_dependencies() {
   #build_pthread_stubs
   #build_drm
   build_sdl2_image
-#  build_mmcommon
+  build_sdl_image
+  #  build_mmcommon
   build_spirvtools
   build_glslang
   build_shaderc
@@ -6552,6 +6595,7 @@ build_dependencies() {
   build_iculehb
   build_icu_with_iculehb
   build_libcroco
+  build_portablexdr
   # build_lash
   build_tesseract
   if [[ "$non_free" = "y" ]]; then
@@ -6593,6 +6637,7 @@ build_dependencies() {
   build_graphicsmagick
   build_eigen
   build_libdv
+  #build_lash
   build_aom
   build_asdcplib-cth
   build_cmark
@@ -6687,6 +6732,7 @@ build_apps() {
     build_ffmpeg libav
   fi
   build_pamix
+  #build_meterbridge
   build_ffms2
   build_mp4box
   build_libdash

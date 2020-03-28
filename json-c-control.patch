@@ -1,0 +1,11 @@
+--- configure.ac.orig	2020-03-02 17:12:04.916356142 +0000
++++ configure.ac	2020-03-02 17:12:48.795878298 +0000
+@@ -170,7 +170,7 @@
+ 
+ AS_IF([test "x$enable_werror" != "xno"], [AX_APPEND_COMPILE_FLAGS([-Werror])])
+ 
+-AX_APPEND_COMPILE_FLAGS([-Wall -Wcast-qual -Wno-error=deprecated-declarations])
++AX_APPEND_COMPILE_FLAGS([-Wall -Wcast-qual -Wno-error=deprecated-declarations -Wno-error=return-type])
+ AX_APPEND_COMPILE_FLAGS([-Wextra -Wwrite-strings -Wno-unused-parameter])
+ AX_APPEND_COMPILE_FLAGS([-D_GNU_SOURCE])
+ 
