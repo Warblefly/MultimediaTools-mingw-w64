@@ -1,0 +1,24 @@
+--- cmake/Modules/BuildOCIO.cmake.orig	2020-01-07 22:46:18.026294477 +0000
++++ cmake/Modules/BuildOCIO.cmake	2020-01-07 22:46:32.419087264 +0000
+@@ -52,7 +52,7 @@
+     set_target_properties(OCIO::OCIO PROPERTIES
+         IMPORTED_LOCATION "${OCIO_LIBRARY}"
+         INTERFACE_INCLUDE_DIRECTORIES "${OCIO_INCLUDE_DIRS}"
+-		INTERFACE_COMPILE_DEFINITIONS ${OCIO_DEFINES})
++		INTERFACE_COMPILE_DEFINITIONS "${OCIO_DEFINES}")
+ endif()
+ if(OCIO_FOUND AND NOT TARGET OCIO)
+     add_library(OCIO INTERFACE)
+--- CMakeLists.txt.orig	2020-01-07 22:47:15.837332062 +0000
++++ CMakeLists.txt	2020-01-07 22:47:39.486466759 +0000
+@@ -75,8 +75,8 @@
+ elseif(WIN32)
+     set(DJV_PLATFORM_WINDOWS TRUE)
+     add_definitions(-DDJV_PLATFORM_WINDOWS)
+-	set(CMAKE_C_FLAGS "/MP /EHsc")
+-	set(CMAKE_CXX_FLAGS "/MP /EHsc")
++    #set(CMAKE_C_FLAGS "/MP /EHsc")
++    #set(CMAKE_CXX_FLAGS "/MP /EHsc")
+ endif()
+ 
+ # Set the output directories for the build.
