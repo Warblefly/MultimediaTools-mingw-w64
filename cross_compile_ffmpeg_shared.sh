@@ -1395,6 +1395,7 @@ build_libspatialaudio() {
   cd libspatialaudio
     apply_patch file://${top_dir}/libspatialaudio-install.patch
     do_cmake "-DCMAKE_SHARED_LINKER_FLAGS=-lz -DCMAKE_VERBOSE_MAKEFILE=ON"
+    apply_patch file://${top_dir}/libspatialaudio-pc.patch
     do_make_install "V=1"
 
   cd ..
@@ -1548,7 +1549,7 @@ build_libopenjpeg() {
 }
 
 build_lcms2() {
-  do_git_checkout https://github.com/mm2/Little-CMS.git lcms2 # 5d91cf48902068b5049a7f9961fa23a267d0c93e
+  do_git_checkout https://github.com/mm2/Little-CMS.git lcms2 981aac648ce214c5aac5c645b95a3c4e6f3d8174 # 5d91cf48902068b5049a7f9961fa23a267d0c93e
   cd lcms2
     generic_configure_make_install
 
@@ -2785,8 +2786,31 @@ build_libaacplus() {
   cd ..
 }
 
+build_openssl11() {
+	download_and_unpack_file https://www.openssl.org/source/openssl-1.1.1f.tar.gz openssl-1.1.1f
+	cd openssl-1.1.1f
+		export CC="${cross_prefix}gcc"
+		export AR="${cross_prefix}ar"
+		export RANLIB="${cross_prefix}ranlib"
+		export WINDRES="${cross_prefix}windres"
+		do_configure "--prefix=$mingw_w64_x86_64_prefix zlib shared no-capieng mingw64" ./Configure
+		do_make # "build_libs"
+		do_make "install_sw"
+#  cpu_count=$original_cpu_count
+		#unset cross
+		unset CC
+		unset AR
+		unset RANLIB
+		unset WINDRES
+		#unset RC
+		#unset CROSS_COMPILE
+		#unset PERL
+		# do_cleanup
+	cd ..
+}
+
 build_openssl() {
-  download_and_unpack_file https://www.openssl.org/source/openssl-1.0.2u.tar.gz openssl-1.0.2u
+  download_and_unpack_file https://ftp.openssl.org/source/old/1.0.2/openssl-1.0.2u.tar.gz openssl-1.0.2u
 #  download_and_unpack_file https://www.openssl.org/source/openssl-1.1.0f.tar.gz openssl-1.1.0f
   # When the manpages are written, they need somewhere to go otherwise there is an error.
   mkdir -pv ${mingw_w64_x86_64_prefix}/include/openssl
@@ -5380,10 +5404,11 @@ build_vlc() {
     export CFLAGS="-fpermissive"
     export CXXFLAGS="-fpermissive"
     apply_patch file://${top_dir}/vlc-qt5.patch
-    apply_patch file://${top_dir}/vlc-more-static.patch
+#    apply_patch file://${top_dir}/vlc-more-static.patch
 #    apply_patch file://${top_dir}/vlc-dxgi.patch
     apply_patch file://${top_dir}/vlc-dll-dirs.patch
-    apply_patch file://${top_dir}/vlc-aom.patch
+    apply_patch file://${top_dir}/vlc-lib-shared.patch
+#    apply_patch file://${top_dir}/vlc-aom.patch
 #    apply_patch file://${top_dir}/vlc-vpx.patch
 #    apply_patch file://${top_dir}/vlc-d3d11-deinterlace.patch
     apply_patch file://${top_dir}/vlc-stack.patch
@@ -5392,10 +5417,10 @@ build_vlc() {
     export DSM_LIBS="-lws2_32 -ldsm"
     export AOM_LIBS="-laom -lpthread -lm"
     export BUILDCC=/usr/bin/gcc
-    export cpu_count=1
+    #export cpu_count=1
     generic_configure_make_install "--disable-medialibrary --enable-qt --disable-dvbpsi --disable-gst-decode --disable-asdcp --disable-opencv --disable-ncurses --disable-dbus --disable-sdl --disable-telx --disable-silent-rules --disable-pulse JACK_LIBS=-ljack JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib LIVE555_LIBS=-llivemedia ASDCP_LIBS=lasdcp ASDCP_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/asdcp"
     # X264 is disabled because of an API change. We ought to be able to re-enable it when vlc has caught up.
-    export cpu_count=8
+    #export cpu_count=8
   cd ..
 }
 
@@ -6219,7 +6244,7 @@ build_ocio() {
 build_otio() {
 	do_git_checkout https://github.com/PixarAnimationStudios/OpenTimelineIO.git OpenTimelineIO
 	cd OpenTimelineIO
-		apply_patch file://${top_dir}/opentime.patch
+#		apply_patch file://${top_dir}/opentime.patch
 		do_cmake "-DCMAKE_VERBOSE_MAKEFILE=ON"
 		do_make "V=1"
 		do_make_install "V=1"
@@ -6407,6 +6432,7 @@ build_dependencies() {
   build_pcre # for glib and others
   build_libnettle # needs gmp
   build_openssl
+  build_openssl11
   build_libexpat
   build_unbound
   build_libunistring # Needed for gnutls
@@ -6773,7 +6799,7 @@ build_apps() {
   build_synaesthesia
   # Because loudness scanner installs its own out-of-date libebur128, we must re-install our own.
 #  build_dvdstyler
-  #build_vlc
+  build_vlc
 }
 
 # set some parameters initial values

@@ -1,0 +1,9 @@
+--- spatialaudio.pc.orig	2020-04-05 19:36:58.982628145 +0100
++++ spatialaudio.pc	2020-04-05 19:37:07.874522484 +0100
+@@ -5,5 +5,5 @@
+ Name: libspatialaudio
+ Description: Spatial audio rendering library
+ Version: 0.3.1
+-Libs: -L${libdir} -lspatialaudio -L -lmysofa -lm -lz
++Libs: -L${libdir} -lspatialaudio -lmysofa -lm -lz
+ Cflags: -I${includedir} -I/home/john/MultimediaTools-mingw-w64/sandbox/x86_64-w64-mingw32/x86_64-w64-mingw32/include

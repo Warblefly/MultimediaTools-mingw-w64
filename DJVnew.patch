@@ -141,3 +141,47 @@
  #define DJV_SNPRINTF sprintf_s
  #define DJV_STRNCPY strncpy_s
  #else // DJV_PLATFORM_WINDOWS
+--- lib/djvAV/Audio.h.orig	2020-04-04 21:54:48.715943723 +0100
++++ lib/djvAV/Audio.h	2020-04-04 21:55:06.291765310 +0100
+@@ -37,7 +37,7 @@
+ //#include <AL/al.h>
+ //#include <AL/alc.h>
+ //#include <AL/alext.h>
+-#include <RtAudio.h>
++#include <rtaudio/RtAudio.h>
+ 
+ #include <limits>
+ 
+--- lib/djvAV/AudioSystem.cpp.orig	2020-04-04 23:00:06.524020720 +0100
++++ lib/djvAV/AudioSystem.cpp	2020-04-04 23:00:21.919864050 +0100
+@@ -34,7 +34,7 @@
+ #include <djvCore/Error.h>
+ #include <djvCore/OS.h>
+ 
+-#include <RtAudio.h>
++#include <rtaudio/RtAudio.h>
+ 
+ using namespace djv::Core;
+ 
+--- lib/djvViewApp/Media.h.orig	2020-04-04 23:06:40.396012651 +0100
++++ lib/djvViewApp/Media.h	2020-04-04 23:06:55.683857081 +0100
+@@ -36,7 +36,7 @@
+ #include <djvCore/ListObserver.h>
+ #include <djvCore/ValueObserver.h>
+ 
+-#include <RtAudio.h>
++#include <rtaudio/RtAudio.h>
+ 
+ namespace djv
+ {
+--- lib/djvViewApp/Media.cpp.orig	2020-04-04 23:13:16.811978708 +0100
++++ lib/djvViewApp/Media.cpp	2020-04-04 23:13:31.151832785 +0100
+@@ -37,7 +37,7 @@
+ #include <djvCore/LogSystem.h>
+ #include <djvCore/Timer.h>
+ 
+-#include <RtAudio.h>
++#include <rtaudio/RtAudio.h>
+ 
+ using namespace djv::Core;
+ 
