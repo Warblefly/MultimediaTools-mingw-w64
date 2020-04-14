@@ -1,34 +1,3 @@
---- wscript.orig	2017-12-26 09:22:29.364656740 +0000
-+++ wscript	2017-12-26 09:22:55.256354990 +0000
-@@ -124,7 +124,7 @@
-         conf.check(lib='winmm', uselib_store='WINMM', msg="Checking for library winmm")
-         conf.check(lib='ksuser', uselib_store='KSUSER', msg="Checking for library ksuser")
-         boost_lib_suffix = '-mt'
--        boost_thread = 'boost_thread_win32-mt'
-+        boost_thread = 'boost_thread-mt-x64'
-         conf.check_cxx(fragment="""
-                                #include <boost/locale.hpp>\n
-                                int main() { std::locale::global (boost::locale::generator().generate ("")); }\n
---- wscript.orig	2019-02-11 18:06:37.064463554 +0000
-+++ wscript	2019-02-11 18:07:35.040085382 +0000
-@@ -144,7 +144,7 @@
-         conf.check(lib='dsound', uselib_store='DSOUND', msg="Checking for library dsound")
-         conf.check(lib='winmm', uselib_store='WINMM', msg="Checking for library winmm")
-         conf.check(lib='ksuser', uselib_store='KSUSER', msg="Checking for library ksuser")
--        boost_lib_suffix = '-mt'
-+        boost_lib_suffix = '-mt-x64'
-         boost_thread = 'boost_thread-mt-x64'
-         conf.check_cxx(fragment="""
-                                #include <boost/locale.hpp>\n
-@@ -159,7 +159,7 @@
-     if conf.env.TARGET_LINUX or conf.env.TARGET_OSX:
-         conf.env.append_value('CXXFLAGS', '-DDCPOMATIC_POSIX')
-         boost_lib_suffix = ''
--        boost_thread = 'boost_thread'
-+        boost_thread = 'boost_thread-mt-x64'
-         conf.env.append_value('LINKFLAGS', '-pthread')
- 
-     # Linux
 --- wscript.orig	2020-01-11 15:55:51.584524418 +0000
 +++ wscript	2020-01-11 15:56:08.228366378 +0000
 @@ -148,7 +148,6 @@
@@ -39,3 +8,25 @@
          conf.env.append_value('CXXFLAGS', '-DUNICODE')
  	conf.env.append_value('CXXFLAGS', '-D_UNICODE')
          conf.env.append_value('CXXFLAGS', '-DBOOST_THREAD_PROVIDES_GENERIC_SHARED_MUTEX_ON_WIN')
+--- wscript.orig	2020-04-13 14:16:23.792665488 +0100
++++ wscript	2020-04-13 14:18:23.775643143 +0100
+@@ -173,8 +173,8 @@
+         conf.check(lib='winmm', uselib_store='WINMM', msg="Checking for library winmm")
+         conf.check(lib='ksuser', uselib_store='KSUSER', msg="Checking for library ksuser")
+         conf.check(lib='setupapi', uselib_store='SETUPAPI', msg="Checking for library setupapi")
+-        boost_lib_suffix = '-mt'
+-        boost_thread = 'boost_thread-mt'
++        boost_lib_suffix = '-mt-x64'
++        boost_thread = 'boost_thread-mt-x64'
+         conf.check_cxx(fragment="""
+                                #include <boost/locale.hpp>\n
+                                int main() { std::locale::global (boost::locale::generator().generate ("")); }\n
+@@ -188,7 +188,7 @@
+     if conf.env.TARGET_LINUX or conf.env.TARGET_OSX:
+         conf.env.append_value('CXXFLAGS', '-DDCPOMATIC_POSIX')
+         boost_lib_suffix = ''
+-        boost_thread = 'boost_thread'
++        boost_thread = 'boost_thread-mt-x64'
+         conf.env.append_value('LINKFLAGS', '-pthread')
+ 
+     # Linux

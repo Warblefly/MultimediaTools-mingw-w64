@@ -185,3 +185,176 @@
  
  using namespace djv::Core;
  
+--- lib/djvAV/PNGRead.cpp.orig	2020-04-13 21:28:28.509935857 +0100
++++ lib/djvAV/PNGRead.cpp	2020-04-13 21:29:29.404968651 +0100
+@@ -135,7 +135,7 @@
+                         png_infop *  pngInfo,
+                         png_infop *  pngInfoEnd)
+                     {
+-                        if (setjmp(png_jmpbuf(png)))
++                        if (__builtin_setjmp(png_jmpbuf(png)))
+                         {
+                             return false;
+                         }
+@@ -184,7 +184,7 @@
+                 {
+                     bool pngScanline(png_structp png, uint8_t * out)
+                     {
+-                        if (setjmp(png_jmpbuf(png)))
++                        if (__builtin_setjmp(png_jmpbuf(png)))
+                         {
+                             return false;
+                         }
+@@ -194,7 +194,7 @@
+ 
+                     bool pngEnd(png_structp png, png_infop pngInfo)
+                     {
+-                        if (setjmp(png_jmpbuf(png)))
++                        if (__builtin_setjmp(png_jmpbuf(png)))
+                         {
+                             return false;
+                         }
+--- lib/djvAV/PNG.cpp.orig	2020-04-13 21:30:25.812093347 +0100
++++ lib/djvAV/PNG.cpp	2020-04-13 21:30:54.715651818 +0100
+@@ -76,14 +76,14 @@
+     {
+         auto error = reinterpret_cast<djv::AV::IO::PNG::ErrorStruct *>(png_get_error_ptr(in));
+         DJV_STRNCPY(error->msg, msg, djv::Core::String::cStringLength);
+-        longjmp(png_jmpbuf(in), 1);
++        __builtin_longjmp(png_jmpbuf(in), 1);
+     }
+ 
+     void djvPngWarning(png_structp in, png_const_charp msg)
+     {
+         auto error = reinterpret_cast<djv::AV::IO::PNG::ErrorStruct *>(png_get_error_ptr(in));
+         DJV_STRNCPY(error->msg, msg, djv::Core::String::cStringLength);
+-        longjmp(png_jmpbuf(in), 1);
++        __builtin_longjmp(png_jmpbuf(in), 1);
+     }
+ 
+ } // extern "C"
+--- lib/djvAV/JPEGWrite.cpp.orig	2020-04-13 21:31:49.810822144 +0100
++++ lib/djvAV/JPEGWrite.cpp	2020-04-13 21:32:23.258325555 +0100
+@@ -102,7 +102,7 @@
+ 
+                     bool jpegInit(jpeg_compress_struct* jpeg, JPEGErrorStruct* error)
+                     {
+-                        if (setjmp(error->jump))
++                        if (__builtin_setjmp(error->jump))
+                         {
+                             return false;
+                         }
+@@ -118,7 +118,7 @@
+                         const Options& options,
+                         JPEGErrorStruct* error)
+                     {
+-                        if (setjmp(error->jump))
++                        if (__builtin_setjmp(error->jump))
+                         {
+                             return false;
+                         }
+@@ -155,7 +155,7 @@
+                         const uint8_t* in,
+                         JPEGErrorStruct* error)
+                     {
+-                        if (::setjmp(error->jump))
++                        if (::__builtin_setjmp(error->jump))
+                         {
+                             return false;
+                         }
+@@ -169,7 +169,7 @@
+ 
+                     bool jpeg_end(jpeg_compress_struct* jpeg, JPEGErrorStruct* error)
+                     {
+-                        if (::setjmp(error->jump))
++                        if (::__builtin_setjmp(error->jump))
+                         {
+                             return false;
+                         }
+--- lib/djvAV/JPEGRead.cpp.orig	2020-04-13 21:33:00.553777653 +0100
++++ lib/djvAV/JPEGRead.cpp	2020-04-13 21:34:01.408895732 +0100
+@@ -102,7 +102,7 @@
+                         uint8_t *                out,
+                         JPEGErrorStruct *        error)
+                     {
+-                        if (::setjmp(error->jump))
++                        if (::__builtin_setjmp(error->jump))
+                         {
+                             return false;
+                         }
+@@ -118,7 +118,7 @@
+                         jpeg_decompress_struct * jpeg,
+                         JPEGErrorStruct *        error)
+                     {
+-                        if (::setjmp(error->jump))
++                        if (::__builtin_setjmp(error->jump))
+                         {
+                             return false;
+                         }
+@@ -158,7 +158,7 @@
+                         jpeg_decompress_struct * jpeg,
+                         JPEGErrorStruct *        error)
+                     {
+-                        if (::setjmp(error->jump))
++                        if (::__builtin_setjmp(error->jump))
+                         {
+                             return false;
+                         }
+@@ -171,7 +171,7 @@
+                         jpeg_decompress_struct * jpeg,
+                         JPEGErrorStruct *        error)
+                     {
+-                        if (::setjmp(error->jump))
++                        if (::__builtin_setjmp(error->jump))
+                         {
+                             return false;
+                         }
+--- lib/djvAV/PNGWrite.cpp.orig	2020-04-13 21:34:46.648248971 +0100
++++ lib/djvAV/PNGWrite.cpp	2020-04-13 21:35:24.335715421 +0100
+@@ -136,7 +136,7 @@
+                         png_infop *         pngInfo,
+                         const Image::Info & info)
+                     {
+-                        if (setjmp(png_jmpbuf(png)))
++                        if (__builtin_setjmp(png_jmpbuf(png)))
+                         {
+                             return false;
+                         }
+@@ -178,7 +178,7 @@
+ 
+                     bool pngScanline(png_structp png, const uint8_t * in)
+                     {
+-                        if (setjmp(png_jmpbuf(png)))
++                        if (__builtin_setjmp(png_jmpbuf(png)))
+                             return false;
+                         png_write_row(png, reinterpret_cast<const png_byte*>(in));
+                         return true;
+@@ -186,7 +186,7 @@
+ 
+                     bool pngEnd(png_structp png, png_infop pngInfo)
+                     {
+-                        if (setjmp(png_jmpbuf(png)))
++                        if (__builtin_setjmp(png_jmpbuf(png)))
+                             return false;
+                         png_write_end(png, pngInfo);
+                         return true;
+--- lib/djvAV/JPEG.cpp.orig	2020-04-13 21:37:19.614109456 +0100
++++ lib/djvAV/JPEG.cpp	2020-04-13 21:37:43.181785440 +0100
+@@ -91,7 +91,7 @@
+                     {
+                         auto error = reinterpret_cast<JPEGErrorStruct *>(in->err);
+                         in->err->format_message(in, error->msg);
+-                        ::longjmp(error->jump, 1);
++                        ::__builtin_longjmp(error->jump, 1);
+                     }
+ 
+                     void djvJPEGWarning(j_common_ptr in, int level)
+@@ -103,7 +103,7 @@
+                         }
+                         auto error = reinterpret_cast<JPEGErrorStruct *>(in->err);
+                         in->err->format_message(in, error->msg);
+-                        ::longjmp(error->jump, 1);
++                        ::__builtin_longjmp(error->jump, 1);
+                     }
+ 
+                 } // extern "C"

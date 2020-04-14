@@ -1458,9 +1458,9 @@ build_opendcp() {
 build_dcpomatic() {
 #do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic 9cff6ec974a4d0270091fe5c753483b0d53ecd46
 #  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
-  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.47" dcpomatic-2.15.47
-  cd dcpomatic-2.15.47
-#    apply_patch file://${top_dir}/dcpomatic-wscript.patch
+  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.50" dcpomatic-2.15.50
+  cd dcpomatic-2.15.50
+    apply_patch file://${top_dir}/dcpomatic-wscript.patch
 #    apply_patch file://${top_dir}/dcpomatic-audio_ring_buffers.h.patch
 ##    apply_patch file://${top_dir}/dcpomatic-ffmpeg.patch
     apply_patch file://${top_dir}/dcpomatic-boost.patch
@@ -2648,8 +2648,8 @@ build_libidn2() {
 }
 
 build_xerces() {
-	download_and_unpack_file http://mirrors.ukfast.co.uk/sites/ftp.apache.org//xerces/c/3/sources/xerces-c-3.2.2.tar.xz xerces-c-3.2.2
-	cd xerces-c-3.2.2
+	download_and_unpack_file http://mirrors.ukfast.co.uk/sites/ftp.apache.org//xerces/c/3/sources/xerces-c-3.2.3.tar.xz xerces-c-3.2.3
+	cd xerces-c-3.2.3
 		do_cmake && ${top_dir}/correct_headers.sh
 		do_make
 		do_make_install
@@ -4221,7 +4221,7 @@ build_libcanberra() {
 }
 
 build_snappy () {
-  do_git_checkout https://github.com/google/snappy.git snappy
+  do_git_checkout https://github.com/google/snappy.git snappy b5477a8457a42c10c3fffb5851cd0ef09caabb50
   cd snappy
     # apply_patch file://${top_dir}/snappy-shared-dll.patch
     cp README.md README
@@ -4272,6 +4272,7 @@ build_pkg-config() {
 build_opusfile() {
   do_git_checkout https://github.com/xiph/opusfile.git opusfile
   cd opusfile
+    apply_patch file://${top_dir}/opusfile-ssl.patch
     if [[ ! -f "configure" ]]; then
       ./autogen.sh
     fi
@@ -4370,16 +4371,17 @@ build_libdv() {
 build_asdcplib() {
   export CXXFLAGS=-DKM_WIN32
   export CFLAGS=-DKM_WIN32
-  download_and_unpack_file https://download.videolan.org/contrib/asdcplib/asdcplib-2.7.19.tar.gz asdcplib-2.7.19
-  #download_and_unpack_file http://download.cinecert.com/asdcplib/asdcplib-2.10.31.tar.gz asdcplib-2.10.31
-  cd asdcplib-2.7.19
-    rm configure
+#  download_and_unpack_file https://download.videolan.org/contrib/asdcplib/asdcplib-2.7.19.tar.gz asdcplib-2.7.19
+	download_and_unpack_file https://github.com/cinecert/asdcplib/archive/rel_2_10_35.tar.gz asdcplib-rel_2_10_35
+	#download_and_unpack_file http://download.cinecert.com/asdcplib/asdcplib-2.10.31.tar.gz asdcplib-2.10.31
+	cd asdcplib-rel_2_10_35
+		rm configure
     #env
-    apply_patch file://${top_dir}/asdcplib-shared.patch
-    generic_configure_make_install "--with-openssl=${mingw_w64_x86_64_prefix} --with-expat=${mingw_w64_x86_64_prefix}"
-    cp -v src/dirent_win.h ${mingw_w64_x86_64_prefix}/include
+		apply_patch file://${top_dir}/asdcplib-shared.patch
+		generic_configure_make_install "--with-openssl=${mingw_w64_x86_64_prefix} --with-expat=${mingw_w64_x86_64_prefix} --enable-as-02 --enable-phdr"
+		cp -v src/dirent_win.h ${mingw_w64_x86_64_prefix}/include
 
-  cd ..
+	cd ..
   unset CXXFLAGS
   unset CFLAGS
 }
@@ -5418,7 +5420,7 @@ build_vlc() {
     export AOM_LIBS="-laom -lpthread -lm"
     export BUILDCC=/usr/bin/gcc
     #export cpu_count=1
-    generic_configure_make_install "--disable-medialibrary --enable-qt --disable-dvbpsi --disable-gst-decode --disable-asdcp --disable-opencv --disable-ncurses --disable-dbus --disable-sdl --disable-telx --disable-silent-rules --disable-pulse JACK_LIBS=-ljack JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib LIVE555_LIBS=-llivemedia ASDCP_LIBS=lasdcp ASDCP_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/asdcp"
+    generic_configure_make_install "--enable-qt --disable-medialibrary --disable-dvbpsi --disable-gst-decode --disable-asdcp --disable-ncurses --disable-opencv --disable-dbus --disable-sdl --disable-telx --disable-silent-rules --disable-pulse JACK_LIBS=-ljack JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib LIVE555_LIBS=-llivemedia ASDCP_LIBS=lasdcp ASDCP_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/asdcp"
     # X264 is disabled because of an API change. We ought to be able to re-enable it when vlc has caught up.
     #export cpu_count=8
   cd ..
@@ -6000,8 +6002,11 @@ build_xz() {
 build_libjson() {
 do_git_checkout https://github.com/json-c/json-c.git json-c
     cd json-c
-    	apply_patch file://${top_dir}/json-c-control.patch
-        generic_configure_make_install "--enable-threading"
+#    	apply_patch file://${top_dir}/json-c-control.patch
+	do_cmake "-DENABLE_THREADING=ON"
+	do_make
+	do_make_install
+        #generic_configure_make_install "--enable-threading"
         ln -vs ${mingw_w64_x86_64_prefix}/lib/pkgconfig/json-c.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig/json.pc
     cd ..
 }
@@ -6308,6 +6313,16 @@ build_ffmpegnv() {
   cd ..
 }
 
+build_avisynthplus() {
+	do_git_checkout https://github.com/AviSynth/AviSynthPlus.git AviSynthPlus
+	cd AviSynthPlus
+		apply_patch file://${top_dir}/avisynthplus-memcpy.patch
+		do_cmake "-DBUILD_SHIBATCH=OFF"
+		mv -vf GNUmakefile dontusethis
+		do_make "all"
+		do_make_install
+	cd ..
+}
 
 build_ffmpeg() {
   local type=$1
@@ -6679,6 +6694,7 @@ build_dependencies() {
   build_picoJSON
   build_libaec
   build_gctpc
+  build_avisynthplus
 }
 
 build_apps() {
@@ -6768,7 +6784,8 @@ build_apps() {
   #build_pulseaudio
   build_mpv
   build_libplacebo
-  build_opendcp # Difficult at the moment. Development tree doesn't compile under its own procedures
+  # opendcp unmaintained for sixteen months, uses outdated asdcp library
+  #build_opendcp # Difficult at the moment. Development tree doesn't compile under its own procedures
   # build_opencv # We place it here because opencv has an interface to FFmpeg
   #if [[ $build_vlc = "y" ]]; then
   #  build_vlc # NB requires ffmpeg static as well, at least once...so put this last :)
@@ -6995,6 +7012,8 @@ rm -fv ${mingw_w64_x86_64_prefix}/lib/*dll
 # Remove the symbolic link first, or we get an infinite loop
 rm -v "${mingw_w64_x86_64_prefix}/bin/platforms"
 ln -fvs "${mingw_w64_x86_64_prefix}/plugins/platforms" "${mingw_w64_x86_64_prefix}/bin/platforms"
+# Copy VLC interface files to where the player can find them
+cp -vR ${mingw_w64_x86_64_prefix}/share/vlc/skins2 ${mingw_w64_x86_64_prefix}/bin/share
 
 echo "Stripping all binaries..."
 
