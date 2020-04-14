@@ -1,0 +1,10 @@
+--- avs_core/core/info.h.orig	2020-04-13 12:13:43.383415986 +0100
++++ avs_core/core/info.h	2020-04-13 12:14:12.938892056 +0100
+@@ -32,6 +32,7 @@
+ #if defined(GCC) 
+ #include <iomanip>
+ #endif
++#include <cstring>
+ 
+ class BitmapFont {
+ 
