@@ -1457,9 +1457,9 @@ build_opendcp() {
 
 build_dcpomatic() {
 #do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic 9cff6ec974a4d0270091fe5c753483b0d53ecd46
-#  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
-  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.50" dcpomatic-2.15.50
-  cd dcpomatic-2.15.50
+  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic v2.15.x-1608 # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
+#  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.51" dcpomatic-2.15.51
+  cd dcpomatic
     apply_patch file://${top_dir}/dcpomatic-wscript.patch
 #    apply_patch file://${top_dir}/dcpomatic-audio_ring_buffers.h.patch
 ##    apply_patch file://${top_dir}/dcpomatic-ffmpeg.patch
@@ -2878,7 +2878,7 @@ build_libssh() {
 build_asdcplib-cth() {
    # Use brance cth because this is the version the writer works on, and has modified
   do_git_checkout git://git.carlh.net/git/asdcplib.git asdcplib-carl carl
-#  download_and_unpack_file http://carlh.net/downloads/asdcplib-cth/libasdcp-cth-0.1.1.tar.bz2 libasdcp-cth-0.1.1
+#  download_and_unpack_file https://www.carlh.net/downloads/libasdcp-cth/libasdcp-cth-0.1.5.tar.bz2 libasdcp-cth-0.1.5
   cd asdcplib-carl
     export PKG_CONFIG_PATH=${mingw_w64_x86_64_prefix}/lib/pkgconfig
     export CXXFLAGS="-DKM_WIN32"
@@ -2896,9 +2896,9 @@ build_asdcplib-cth() {
     ./waf build || exit 1
     ./waf install || exit 1
         # The installation puts the pkgconfig file and the import DLL in the wrong place
-    cp -v build/libasdcp-carl.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig
-    cp -v build/src/libasdcp-carl.dll.a ${mingw_w64_x86_64_prefix}/lib
-    cp -v build/src/libkumu-carl.dll.a ${mingw_w64_x86_64_prefix}/lib
+    cp -v build/libasdcp-carl.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig || exit 1
+    cp -v build/src/asdcp-carl.dll.a ${mingw_w64_x86_64_prefix}/lib || exit 1
+    cp -v build/src/kumu-carl.dll.a ${mingw_w64_x86_64_prefix}/lib || exit 1
     unset CXX
     unset CC
     unset AR
@@ -2910,9 +2910,9 @@ build_asdcplib-cth() {
 
 build_libdcp() {
   # Branches are slightly askew. 1.0 is where development takes place
-  do_git_checkout https://github.com/cth103/libdcp.git libdcp # f3058b2f1b48ec613bda5781fe97e83a0dca83a9
-#  do_git_checkout git://git.carlh.net/git/libdcp.git libdcp # 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
-#  download_and_unpack_file https://carlh.net/downloads/libdcp/libdcp-1.6.13.tar.bz2 libdcp-1.6.13
+#  do_git_checkout https://github.com/cth103/libdcp.git libdcp # f3058b2f1b48ec613bda5781fe97e83a0dca83a9
+  do_git_checkout git://git.carlh.net/git/libdcp.git libdcp # 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
+  #download_and_unpack_file https://carlh.net/downloads/libdcp/libdcp-1.6.14.tar.bz2 libdcp-1.6.14
   cd libdcp
     # M_PI is required. This is a quick way of defining it
     sed -i.bak 's/M_PI/3.14159265358979323846/' examples/make_dcp.cc
@@ -3339,7 +3339,7 @@ build_sdl_image() {
 }
 
 build_OpenCL() {
-  do_git_checkout https://github.com/KhronosGroup/OpenCL-ICD-Loader.git OpenCL-ICD-Loader #978b4b3a29a3aebc86ce9315d5c5963e88722d03 # 6849f617e991e8a46eebf746df43032175f263b3
+  do_git_checkout https://github.com/KhronosGroup/OpenCL-ICD-Loader.git OpenCL-ICD-Loader 6d0b214b9cc303cdb0b05b3c0dc9afb0c39998c5 #978b4b3a29a3aebc86ce9315d5c5963e88722d03 # 6849f617e991e8a46eebf746df43032175f263b3
   cd OpenCL-ICD-Loader
     mkdir -pv inc/CL
     cp -v ${mingw_w64_x86_64_prefix}/include/CL/* inc/CL/
@@ -4563,7 +4563,8 @@ build_cairo() {
 build_mmcommon() {
   do_git_checkout https://github.com/GNOME/mm-common.git mm-common
   cd mm-common
-    generic_configure_make_install "--enable-network"
+#    generic_configure_make_install "--enable-network"
+	generic_meson_ninja_install "-Duse-network=true"
 
   cd ..
 }
@@ -4698,6 +4699,8 @@ build_flac() {
   cd flac
     # microbench target hasn't been tested on many platforms yet
     sed -i.bak 's/microbench//' Makefile.am
+    # These docs don't build on Debian
+    apply_patch file://${top_dir}/flac-no-doc.patch
     # Distributions subsituting doocbook2man need this
 #    sed -i.bak 's/docbook-to-man/docbook2man/' man/Makefile.am
     if [[ ! -f "configure" ]]; then
@@ -6780,7 +6783,7 @@ build_apps() {
   build_libdash
   build_aubio
   build_libopenshotaudio
-#  build_libopenshot
+  build_libopenshot
   #build_pulseaudio
   build_mpv
   build_libplacebo
