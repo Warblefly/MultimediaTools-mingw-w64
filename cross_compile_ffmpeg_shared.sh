@@ -1417,6 +1417,24 @@ build_libmysofa() {
   cd ..
 }
 
+build_leqm_nrt() {
+	do_git_checkout git://git.carlh.net/git/leqm-nrt.git leqm-nrt carl
+	cd leqm-nrt
+		#apply_patch file://${top_dir}/leqmnrt.patch
+		export CC=x86_64-w64-mingw32-g++
+		export CXX=x86_64-w64-mingw32-g++
+		export AR=x86_64-w64-mingw32-ar
+		do_configure "configure -v -pp --prefix=${mingw_w64_x86_64_prefix} --libdir=${mingw_w64_x86_64_prefix}/lib --without-libsndfile --check-cxx-compiler=gxx" "./waf"
+		./waf build || exit 1
+		./waf install || exit 1
+		cp -vf build/leqm_nrt.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig/
+		unset CC
+		unset CXX
+		unset AR
+	cd ..
+}
+
+
 build_opendcp() {
 # There are quite a few patches because I prefer to build this as a static program,
 # whereas the author, understandably, created it as a dynamically-linked program.
@@ -1457,9 +1475,9 @@ build_opendcp() {
 
 build_dcpomatic() {
 #do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic 9cff6ec974a4d0270091fe5c753483b0d53ecd46
-  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic v2.15.x-1608 # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
-#  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.51" dcpomatic-2.15.51
-  cd dcpomatic
+#  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic v2.15.x-1608 # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
+  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.71" dcpomatic-2.15.71
+  cd dcpomatic-2.15.71
     apply_patch file://${top_dir}/dcpomatic-wscript.patch
 #    apply_patch file://${top_dir}/dcpomatic-audio_ring_buffers.h.patch
 ##    apply_patch file://${top_dir}/dcpomatic-ffmpeg.patch
@@ -2020,9 +2038,9 @@ build_ncurses() {
     wget http://invisible-island.net/datafiles/current/terminfo.src.gz
     gunzip terminfo.src.gz
   fi
-  download_and_unpack_file ftp://ftp.invisible-island.net/ncurses/current/ncurses-6.2-20200215.tgz ncurses-6.2-20200215
+  download_and_unpack_file ftp://ftp.invisible-island.net/ncurses/current/ncurses-6.2-20200418.tgz ncurses-6.2-20200418
  # generic_configure "--build=x86_64-pc-linux --host=x86_64-w64-mingw32 --with-libtool --disable-termcap --enable-widec --enable-term-driver --enable-sp-funcs --without-ada --with-debug=no --with-shared=yes --with-normal=no --enable-database --with-progs --enable-interop --with-pkg-config-libdir=${mingw_w64_x86_64_prefix}/lib/pkgconfig --enable-pc-files"
-  cd ncurses-6.2-20200215
+  cd ncurses-6.2-20200418
 #    apply_patch file://${top_dir}/ncurses-rx.patch
 #    rm configure
     generic_configure "LIBS=-lgnurx --build=x86_64-pc-linux --host=x86_64-w64-mingw32 --disable-termcap --enable-widec --enable-term-driver --enable-sp-funcs --without-ada --without-cxx-binding --with-debug=no --with-shared=yes --with-normal=no --enable-database --with-probs --enable-interop --with-pkg-config-libdir=${mingw_w64_x86_64_prefix}/lib/pkgconfig --enable-pc-files --disable-static --enable-shared"
@@ -2233,6 +2251,7 @@ build_libopenshotaudio() {
 	do_git_checkout https://github.com/OpenShot/libopenshot-audio.git libopenshot-audio
 	cd libopenshot-audio
 		apply_patch file://${top_dir}/libopenshot-audio.patch
+		#apply_patch file://${top_dir}/libopenshot.patch
 		mkdir -p build
 		cd build
 			do_cmake ../ && ${top_dir}/correct_headers.sh
@@ -2245,6 +2264,7 @@ build_libopenshotaudio() {
 build_libopenshot() {
 	do_git_checkout https://github.com/OpenShot/libopenshot.git libopenshot
 	cd libopenshot
+		apply_patch file://${top_dir}/libopenshot.patch
 		mkdir -p build
 		cd build
 			do_cmake ../ "-DLIBOPENSHOT_AUDIO_INCLUDE_DIR=${mingw_w64_x86_64_prefix}/include/libopenshot-audio -DUNITTEST++_INCLUDE_DIR=${mingw_w64_x86_64_prefix}/include/UnitTest++" 
@@ -3525,7 +3545,7 @@ build_libsndfile() {
   cd ..
   export LIBS=$store_libs
   # Need to use a different name for the static library for traverso
-  ln -sv ${mingw_w64_x86_64_prefix}/lib/libsndfile.a ${mingw_w64_x86_64_prefix}/lib/libsndfile-1.a
+#  ln -sv ${mingw_w64_x86_64_prefix}/lib/libsndfile.a ${mingw_w64_x86_64_prefix}/lib/libsndfile-1.a
 }
 
 build_libbs2b() {
@@ -5569,8 +5589,8 @@ build_qjackctl() {
 }
 
 build_spirvtools() {
-do_git_checkout https://github.com/KhronosGroup/SPIRV-Headers.git SPIRV-Headers # 3ce3e49d73b8abbf2ffe33f829f941fb2a40f552
-do_git_checkout https://github.com/KhronosGroup/SPIRV-Tools.git SPIRV-Tools # 2d9a325264e3fc81317acc0a68a098f0546c352d # fe2fbee294a8ad4434f828a8b4d99eafe9aac88c
+do_git_checkout https://github.com/KhronosGroup/SPIRV-Headers.git SPIRV-Headers c0df742ec0b8178ad58c68cff3437ad4b6a06e26 # 3ce3e49d73b8abbf2ffe33f829f941fb2a40f552
+do_git_checkout https://github.com/KhronosGroup/SPIRV-Tools.git SPIRV-Tools d0a87194f7b9a3b7659e837b08cd404ccc8af222 # 2d9a325264e3fc81317acc0a68a098f0546c352d # fe2fbee294a8ad4434f828a8b4d99eafe9aac88c
     cd SPIRV-Tools
         ln -svf ../../SPIRV-Headers external
         # apply_patch file://${top_dir}/SPIRV-Tools-shared.patch
@@ -5581,7 +5601,7 @@ do_git_checkout https://github.com/KhronosGroup/SPIRV-Tools.git SPIRV-Tools # 2d
 }
 
 build_glslang() {
-    do_git_checkout https://github.com/KhronosGroup/glslang.git glslang #135e3e35ea87d07b51d977b73fde7bd637fcbe4a 
+    do_git_checkout https://github.com/KhronosGroup/glslang.git glslang 7d65f09b83112c1ec9e29313cb9913ed2b850aa0 #135e3e35ea87d07b51d977b73fde7bd637fcbe4a 
     #download_and_unpack_file https://github.com/KhronosGroup/glslang/archive/6.2.2596.tar.gz glslang-6.2.2596
     cd glslang #-6.2.2596
         #apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-glslang/001-install-missing-dll.patch
@@ -5595,9 +5615,9 @@ build_glslang() {
 }
 
 build_shaderc() {
-    do_git_checkout https://github.com/google/shaderc.git shaderc 3d99fad173cc0c00d370eeb6663784fc67efd480 #14ae0de47d34f14e09ae1c64327cd39c32c8f693 # a2c044c44d68c31014210f9b37a682d118c40388 # be8e0879750303a1de09385465d6b20ecb8b380d
+    do_git_checkout https://github.com/google/shaderc.git shaderc 687a83c645171a9beb22c5090c22d45bae5b7623 #3d99fad173cc0c00d370eeb6663784fc67efd480 #14ae0de47d34f14e09ae1c64327cd39c32c8f693 # a2c044c44d68c31014210f9b37a682d118c40388 # be8e0879750303a1de09385465d6b20ecb8b380d
     cd shaderc
-        export spirv-tools_SOURCE_DIR=${top_dir}/x86_64/SPIRV-Tools/
+    	export spirv-tools_SOURCE_DIR=${top_dir}/x86_64/SPIRV-Tools/
         export glslang_SOURCE_DIR=${top_dir}/x86_64/glslang/
         export shaderc_SOURCE_DIR=${top_dir}/x86_64/shaderc/
         apply_patch file://${top_dir}/shaderc.patch
@@ -6559,6 +6579,7 @@ build_dependencies() {
                                              # doesn't actually remove the installed library
   fi
   build_libfftw
+  build_leqm_nrt
   build_libchromaprint
   build_libsndfile
   # build_libnvenc

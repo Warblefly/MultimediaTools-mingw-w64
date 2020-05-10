@@ -1,0 +1,32 @@
+--- src/Makefile.am.orig	2020-05-09 20:58:29.243541817 +0100
++++ src/Makefile.am	2020-05-09 20:58:42.011202581 +0100
+@@ -1,4 +1,4 @@
+ bin_PROGRAMS = leqm-nrt
+ leqm_nrt_SOURCES = leqm-nrt.c
+ leqm_nrt_CCFLAGS = -I /usr/include/pthread -I /usr/include/sndfile  
+-leqm_nrt_LDFLAGS = -Wl,--no-as-needed -lsndfile -lm -lpthread  
++leqm_nrt_LDFLAGS = -Wl,--no-as-needed -lm -lpthread -lsndfile 
+--- src/Makefile.am.orig	2020-05-09 21:03:30.012327524 +0100
++++ src/Makefile.am	2020-05-09 21:07:09.735803770 +0100
+@@ -1,4 +1,4 @@
+ bin_PROGRAMS = leqm-nrt
+ leqm_nrt_SOURCES = leqm-nrt.c
+-leqm_nrt_CCFLAGS = -I /usr/include/pthread -I /usr/include/sndfile  
++leqm_nrt_CCFLAGS = -I $(includedir)/pthread -I $(includedir)/sndfile  
+ leqm_nrt_LDFLAGS = -Wl,--no-as-needed -lm -lpthread -lsndfile 
+--- src/Makefile.am.orig	2020-05-09 21:31:50.390877786 +0100
++++ src/Makefile.am	2020-05-09 21:33:02.471603429 +0100
+@@ -1,4 +1,4 @@
+ bin_PROGRAMS = leqm-nrt
+ leqm_nrt_SOURCES = leqm-nrt.c
+ leqm_nrt_CCFLAGS = -I $(includedir)/pthread -I $(includedir)/sndfile  
+-leqm_nrt_LDFLAGS = -Wl,--no-as-needed -lm -lpthread -lsndfile 
++leqm_nrt_LDFLAGS =  -lm -lpthread -lsndfile 
+--- src/Makefile.am.orig	2020-05-09 21:39:12.041204673 +0100
++++ src/Makefile.am	2020-05-09 21:39:20.537210443 +0100
+@@ -1,4 +1,4 @@
+ bin_PROGRAMS = leqm-nrt
+ leqm_nrt_SOURCES = leqm-nrt.c
+ leqm_nrt_CCFLAGS = -I $(includedir)/pthread -I $(includedir)/sndfile  
+-leqm_nrt_LDFLAGS =  -lm -lpthread -lsndfile 
++leqm_nrt_LDADD =  -lm -lpthread -lsndfile 

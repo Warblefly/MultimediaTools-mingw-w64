@@ -1,6 +1,9 @@
 #!/bin/bash
 
-export top_dir="$PWD"
+cd ..
+export top_dir=$(pwd)
+cd -
+
 echo "Setting top directory to $top_dir"
 
 echo "How many CPUs?"
@@ -57,6 +60,14 @@ cd mingw-w64/mingw-w64-headers
 	else
 		echo "Already patched."
 	fi
+	echo "patching _mingw.h.in..."
+
+	if [[ ! -f _mingw_h_in_patched ]]; then
+		cat $top_dir/_mingw.h.in.patch | patch -p0 --verbose || exit 1
+		touch _mingw_h_in_patched
+	else
+		echo "Already patched."
+	fi
 cd ../..
 
 echo "Going to install mingw-w64 headers..."
@@ -98,7 +109,7 @@ cd gcc-build
 	echo "Configuring GCC..."
 
 	if [[ ! -f gcc_configured ]]; then
-		../gcc/configure --target=$host --enable-targets=$host --enable-languages=c,c++,fortran --enable-shared --disable-multilib --prefix=$working_directory --with-sysroot=$working_directory --enable-threads=posix
+		../gcc/configure --target=$host --enable-targets=$host --enable-libgomp --enable-libgfortran --enable-languages=c,c++,fortran --enable-shared --disable-multilib --prefix=$working_directory --with-sysroot=$working_directory --enable-threads=posix || exit 1
 		touch gcc_configured
 	else
 		echo "GCC already configured."
@@ -165,14 +176,14 @@ cd mingw-winpthreads-build
 	fi
 
 	if [[ ! -f winpthreads_make ]]; then
-		make -j $cpu_count
+		make -j $cpu_count || exit 1
 		touch winpthreads_make
 	else
 		echo "winpthreads already made."
 	fi
 
 	if [[ ! -f winpthreads_make_install ]]; then
-		make install
+		make install || exit 1
 		touch winpthreads_make_install
 	else
 		echo "winpthreads already installed."
@@ -183,14 +194,14 @@ cd ..
 cd gcc-build
 	
 	if [[ ! -f gcc-make ]]; then
-		make -j $cpu_count
+		make -j $cpu_count || exit 1
 		touch gcc-make
 	else
 		echo "GCC full suite already made."
 	fi
 	
 	if [[ ! -f gcc-make-install ]]; then
-		make install
+		make install || exit 1
 		touch gcc-make-install
 	else
 		echo "GCC full suite already installed."
@@ -199,5 +210,5 @@ cd gcc-build
 cd ..
 echo "All tools built and installed."
 echo "Clean-up..."
-rm -rf binutils-2.34 binutils-build gcc gcc-build mingw-crt-build mingw-headers-build mingw-w64 mingw-winpthreads-build
+#rm -rf binutils-2.34 binutils-build gcc gcc-build mingw-crt-build mingw-headers-build mingw-w64 mingw-winpthreads-build
 echo "Cleaned-up."

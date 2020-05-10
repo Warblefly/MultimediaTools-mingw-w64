@@ -73,3 +73,33 @@
  add_dependencies(glslc_exe build-version)
  
  shaderc_add_tests(
+--- libshaderc_util/CMakeLists.txt.orig	2020-05-01 14:01:34.033540617 +0100
++++ libshaderc_util/CMakeLists.txt	2020-05-01 14:02:13.205173376 +0100
+@@ -25,7 +25,7 @@
+ 
+ shaderc_default_compile_options(shaderc_util)
+ target_include_directories(shaderc_util
+-  PUBLIC include PRIVATE ${glslang_SOURCE_DIR})
++	PUBLIC include PRIVATE ${glslang_SOURCE_DIR} "../../SPIRV-Headers/include")
+ # We use parts of Glslang's HLSL compilation interface, which
+ # now requires this preprocessor definition.
+ add_definitions(-DENABLE_HLSL)
+--- libshaderc/CMakeLists.txt.orig	2020-05-01 14:08:53.597459407 +0100
++++ libshaderc/CMakeLists.txt	2020-05-01 14:10:05.676796343 +0100
+@@ -15,14 +15,14 @@
+ target_include_directories(shaderc
+     PUBLIC include
+     PRIVATE ${glslang_SOURCE_DIR}
+-            ${SPIRV-Headers_SOURCE_DIR}/include)
++    "../../SPIRV-Headers/include")
+ 
+ add_library(shaderc_shared SHARED ${SHADERC_SOURCES})
+ shaderc_default_compile_options(shaderc_shared)
+ target_include_directories(shaderc_shared
+     PUBLIC include
+     PRIVATE ${glslang_SOURCE_DIR}
+-            ${SPIRV-Headers_SOURCE_DIR}/include)
++    "../../SPIRV-Headers/include")
+ target_compile_definitions(shaderc_shared
+     PRIVATE SHADERC_IMPLEMENTATION
+     PUBLIC SHADERC_SHAREDLIB
