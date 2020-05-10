@@ -4311,7 +4311,7 @@ build_libopusenc() {
 }
 
 build_opustools() {
-  do_git_checkout https://git.xiph.org/opus-tools.git opus-tools
+  do_git_checkout https://github.com/xiph/opus-tools.git opus-tools
   cd opus-tools
   apply_patch file://${top_dir}/opus-tools-fortify.patch
   if [[ ! -f "configure" ]]; then
@@ -4714,7 +4714,7 @@ build_ffms2() {
 }
 
 build_flac() {
-  do_git_checkout https://git.xiph.org/flac.git flac  # b821ac2
+  do_git_checkout https://github.com/xiph/flac.git flac  # b821ac2
 #  cpu_count=1
   cd flac
     # microbench target hasn't been tested on many platforms yet
