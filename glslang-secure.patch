@@ -1,0 +1,11 @@
+--- glslang/Include/Common.h.orig	2020-05-11 16:06:51.739950152 +0100
++++ glslang/Include/Common.h	2020-05-11 16:07:59.687026555 +0100
+@@ -53,7 +53,7 @@
+ #if (defined(_MSC_VER) && _MSC_VER < 1900 /*vs2015*/) || defined MINGW_HAS_SECURE_API
+     #include <basetsd.h>
+     #ifndef snprintf
+-    #define snprintf sprintf_s
++/*    #define snprintf sprintf_s // This is now in GCC-10 */
+     #endif
+     #define safe_vsprintf(buf,max,format,args) vsnprintf_s((buf), (max), (max), (format), (args))
+ #elif defined (solaris)

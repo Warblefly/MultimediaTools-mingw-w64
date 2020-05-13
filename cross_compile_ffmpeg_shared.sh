@@ -874,7 +874,7 @@ build_qt() {
       export PKG_CONFIG=${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config
       export PKG_CONFIG_LIBDIR=${mingw_w64_x86_64_prefix}/lib/pkgconfig
       export PKG_CONFIG_SYSROOT_DIR=${mingw_w64_x86_64_prefix}/
-      do_configure "-xplatform win32-g++ -prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -opensource -no-flite-alsa -qt-freetype -confirm-license -accessibility -nomake examples -nomake tests -skip qtwebglplugin -release -strip -openssl -opengl dynamic -device-option CROSS_COMPILE=$cross_prefix -force-pkg-config -device-option PKG_CONFIG=x86_64-w64-mingw32-pkg-config -device-option PKG_CONFIG_LIBDIR=${mingw_w64_x86_64_prefix}/lib/pkgconfig -device-option PKG_CONFIG_SYSROOT_DIR=${mingw_w64_x86_64_prefix} -pkg-config -webengine-proprietary-codecs -no-static -shared -no-use-gold-linker -D MINGW_HAS_SECURE_API -D _WIN32_IE=0x0A00 -v -skip qtactiveqt" "../qt-everywhere-src-${QT_VERSION}/configure" # "noclean" # -skip qtactiveqt
+      do_configure "-xplatform win32-g++ -prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -opensource -qt-freetype -confirm-license -accessibility -nomake examples -nomake tests -skip qtquickcontrols -skip qtwebglplugin -skip qt3d -skip qtandroidextras -skip qtcharts -skip qtconnectivity -skip qtdatavis3d -skip qtgamepad -skip qtimageformats -skip qtlocation -skip qtlottie -skip qtmacextras -skip qtnetworkauth -skip qtpurchasing -skip qtquick3d -skip qtquicktimeline -skip qtremoteobjects -skip qtscript -skip qtscxml -skip qtsensors -skip qtserialbus -skip qtserialport -skip qtspeech -skip qtvirtualkeyboard -skip qtwayland -skip qtwebchannel -skip qtwebengine -skip qtwebsockets -skip qtwinextras -skip qtx11extras -release -strip -openssl -opengl dynamic -device-option CROSS_COMPILE=$cross_prefix -force-pkg-config -device-option PKG_CONFIG=x86_64-w64-mingw32-pkg-config -device-option PKG_CONFIG_LIBDIR=${mingw_w64_x86_64_prefix}/lib/pkgconfig -device-option PKG_CONFIG_SYSROOT_DIR=${mingw_w64_x86_64_prefix} -pkg-config -no-static -shared -no-use-gold-linker -D MINGW_HAS_SECURE_API -D _WIN32_IE=0x0A00 -v -skip qtactiveqt" "../qt-everywhere-src-${QT_VERSION}/configure" # "noclean" # -skip qtactiveqt
       # For sone reason, the compiler doesn't set the include path properly!
       do_make || exit 1
       do_make_install || exit 1
@@ -1248,7 +1248,7 @@ build_mlt() {
     avformat_ldextra=`pkg-config --static --libs-only-l libavformat`
     apply_patch file://${top_dir}/mlt-melt.patch
 #    do_configure "--prefix=${mingw_w64_x86_64_prefix} --enable-gpl --enable-gpl3 --disable-gtk2 --target-os=mingw --target-arch=x86_64 --libdir=${mingw_w64_x86_64_prefix}/bin/lib --datadir=${mingw_w64_x86_64_prefix}/bin/share --mandir=${mingw_w64_x86_64_prefix}/share/man --avformat-swscale --avformat-ldextra=${avformat_ldextra}"
-    generic_configure_make_install "LIBS=-lole32 --disable-sdl --enable-gpl --enable-gpl3 --target-os=mingw --target-arch=x86_64 --prefix=${mingw_w64_x86_64_prefix} --libdir=${mingw_w64_x86_64_prefix}/bin/lib --datadir=${mingw_w64_x86_64_prefix}/bin/share --mandir=${mingw_w64_x86_64_prefix}/share/man --disable-opengl"
+    generic_configure_make_install "PKGCONFIG_PREFIX=${mingw_w64_x86_64_prefix}/lib/pkgconfig LIBS=-lole32 --disable-sdl --enable-opencv --enable-gpl --enable-gpl3 --target-os=mingw --target-arch=x86_64 --prefix=${mingw_w64_x86_64_prefix} --libdir=${mingw_w64_x86_64_prefix}/bin/lib --datadir=${mingw_w64_x86_64_prefix}/bin/share --mandir=${mingw_w64_x86_64_prefix}/share/man --disable-opengl"
 #    apply_patch file://${top_dir}/mlt-rtaudio.patch
 #    do_make
 #    do_make_install
@@ -1996,7 +1996,7 @@ build_lilv() {
 
 
 build_leptonica() {
-  do_git_checkout https://github.com/DanBloomberg/leptonica.git leptonica f1ebb73bf939bca13570c35db8cc656d2735c1d7
+  do_git_checkout https://github.com/DanBloomberg/leptonica.git leptonica #f1ebb73bf939bca13570c35db8cc656d2735c1d7
   cd leptonica
     generic_configure_make_install "LIBS=-lopenjpeg --disable-silent-rules --without-libopenjpeg"
 
@@ -2216,7 +2216,7 @@ build_libtheora() {
 #    cd examples
 #    apply_patch https://raw.githubusercontent.com/Warblefly/multimediaWin64/master/encoder_example.c.patch
 #    cd ..
-    do_svn_checkout http://svn.xiph.org/trunk/theora theora
+    do_git_checkout https://github.com/xiph/theora.git theora
     cd theora
       apply_patch file://${top_dir}/theora-examples-encoder_example.c.patch
       # .def files of theora use CRLF line terminators, which makes the most recent
@@ -2267,9 +2267,9 @@ build_libopenshot() {
 		apply_patch file://${top_dir}/libopenshot.patch
 		mkdir -p build
 		cd build
-			do_cmake ../ "-DLIBOPENSHOT_AUDIO_INCLUDE_DIR=${mingw_w64_x86_64_prefix}/include/libopenshot-audio -DUNITTEST++_INCLUDE_DIR=${mingw_w64_x86_64_prefix}/include/UnitTest++" 
+			do_cmake ../ "-DCMAKE_CXX_FLAGS=-fcommon -DLIBOPENSHOT_AUDIO_INCLUDE_DIR=${mingw_w64_x86_64_prefix}/include/libopenshot-audio -DUNITTEST++_INCLUDE_DIR=${mingw_w64_x86_64_prefix}/include/UnitTest++ -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_EXE_LINKER_FLAGS=-Wl,--allow-multiple-definition -DCMAKE_SHARED_LINKER_FLAGS=-Wl,--allow-multiple-definition" 
 			${top_dir}/correct_headers.sh 
-			do_make
+			do_make "V=1"
 			do_make_install
 		cd ..
 	cd ..
@@ -2318,7 +2318,7 @@ build_filezilla() {
     rm -vf configure Makefile.in config.in
     apply_patch file://${top_dir}/filezilla-wxWidgets.patch
     apply_patch file://${top_dir}/filezilla-wx31.patch
-    generic_configure_make_install "--disable-dependency-tracking"
+    generic_configure_make_install "CFLAGS=-fcommon --disable-dependency-tracking"
 #    unset CFLAGS
 #   generic_download_and_install https://download.filezilla-project.org/client/FileZilla_3.44.2_src.tar.bz2 filezilla-3.44.2
     #unset CFLAGS
@@ -2382,7 +2382,7 @@ build_orc() {
 	download_and_unpack_file https://github.com/GStreamer/orc/archive/0.4.30.tar.gz orc-0.4.30
 	cd orc-0.4.30
 	apply_patch file://${top_dir}/orc-cc.patch
-		generic_meson_ninja_install
+		generic_meson_ninja_install "-Dorc-test=disabled"
 	cd ..
 }
 
@@ -2475,7 +2475,7 @@ build_libbluray() {
 build_libschroedinger() {
   download_and_unpack_file http://download.videolan.org/contrib/schroedinger-1.0.11.tar.gz schroedinger-1.0.11
   cd schroedinger-1.0.11
-    generic_configure
+    generic_configure "CFLAGS=-fcommon"
     sed -i.bak 's/testsuite//' Makefile
     do_make_install
 
@@ -3170,7 +3170,7 @@ build_libgcrypt() {
 }
 
 build_tesseract() {
-  do_git_checkout https://github.com/tesseract-ocr/tesseract tesseract fef64d795cdb0db5315c11f936b7efd1424994b2
+  do_git_checkout https://github.com/tesseract-ocr/tesseract tesseract #fef64d795cdb0db5315c11f936b7efd1424994b2
   # Problem with latest tree and FFmpeg. Should be fixed soon
 #  download_and_unpack_file https://github.com/tesseract-ocr/tesseract/archive/3.05.00dev.tar.gz tesseract-3.05.00dev
   cd tesseract
@@ -3485,7 +3485,7 @@ build_gstreamer() {
         mkdir -vp tests/examples/gl/gtk/fxtest/include
         mkdir -vp tests/examples/gl/gtk/switchvideooverlay/include
         mkdir -vp tests/examples/gl/gtk/3dvideo/include
-        generic_configure_make_install "--disable-fatal-warnings --disable-examples"
+        generic_configure_make_install "CFLAGS=-fcommon --disable-fatal-warnings --disable-examples"
     cd ..
 }
 
@@ -3567,6 +3567,7 @@ build_libbs2b() {
 build_libgame-music-emu() {
   download_and_unpack_file https://bitbucket.org/mpyne/game-music-emu/downloads/game-music-emu-0.6.2.tar.xz game-music-emu-0.6.2
   cd game-music-emu-0.6.2
+    apply_patch file://${top_dir}/game-music-emu.patch
     # sed -i.bak "s|SHARED|STATIC|" gme/CMakeLists.txt
     do_cmake_and_install
 
@@ -4101,9 +4102,10 @@ build_SWFTools() {
     aclocal -I m4
     autoconf
     apply_patch file://${top_dir}/swftools-lib-pdf-Makefile-in.patch
+    apply_patch file://${top_dir}/swftools-extern.patch
     sed -i.bak 's/$(INSTALL_MAN1);//' src/Makefile.in
     sed -i.bak 's/cd swfs;$(MAKE) $@//' Makefile.in
-    generic_configure "CPPFLAGS=-I${mingw_w64_x86_64_prefix}/include/poppler/ --enable-poppler"
+    generic_configure "CFLAGS=-fcommon CPPFLAGS=-I${mingw_w64_x86_64_prefix}/include/poppler/ --enable-poppler"
     sed -i.bak 's/#define boolean int/typedef unsigned char boolean;/' config.h
     apply_patch file://${top_dir}/swftools-xpdf-unlink.patch
     do_make_and_make_install
@@ -4175,7 +4177,7 @@ build_gtk2() {
     rm -v configure Makefile.in
     export GTK_UPDATE_ICON_CACHE=/usr/bin/gtk-update-icon-cache
     export ac_cv_path_GTK_UPDATE_ICON_CACHE=/usr/bin/gtk-update-icon-cache
-    generic_configure "--build=x86_64-pc-linux-gnu --host=x86_64-w64-mingw32 --disable-gdiplus --enable-explicit-deps=no --with-gdktarget=win32 --disable-modules --disable-cups --disable-papi --disable-glibtest --with-included-immodules=ime"
+    generic_configure "CFLAGS=-fcommon --build=x86_64-pc-linux-gnu --host=x86_64-w64-mingw32 --disable-gdiplus --enable-explicit-deps=no --with-gdktarget=win32 --disable-modules --disable-cups --disable-papi --disable-glibtest --with-included-immodules=ime"
     rm -fv gtk/gtk.def
     do_make
     do_make_install
@@ -4216,7 +4218,7 @@ build_gtk() {
     export PYTHON=/usr/bin/python2
     export GLIB_COMPILE_RESOURCES=/usr/bin/glib-compile-resources
 #  export PYTHONPATH=${mingw_w64_x86_64_prefix}/share/glib-2.0/codegen
-    generic_configure_make_install "PYTHON=/usr/bin/python2 GLIB_COMPILE_RESOURCES=/usr/bin/glib-compile-resources --build=x86_64-unknown-linux-gnu --disable-introspection --disable-silent-rules --enable-win32-backend --disable-cups --disable-glibtest --with-included-immodules --disable-test-print-backend"
+    generic_configure_make_install "CFLAGS=-fcommon PYTHON=/usr/bin/python2 GLIB_COMPILE_RESOURCES=/usr/bin/glib-compile-resources --build=x86_64-unknown-linux-gnu --disable-introspection --disable-silent-rules --enable-win32-backend --disable-cups --disable-glibtest --with-included-immodules --disable-test-print-backend"
     export PYTHONPATH=${orig_pythonpath}
     unset GLIB_COMPILE_RESOURCES
 
@@ -4334,6 +4336,7 @@ build_curl() {
 #  generic_download_and_install http://curl.haxx.se/download/curl-7.51.0.tar.bz2 curl-7.51.0 "--enable-ipv6 --with-librtmp --with-ca-fallback"
   do_git_checkout https://github.com/curl/curl.git curl
   cd curl
+    apply_patch file://${top_dir}/curl.patch
     generic_configure_make_install "--enable-ipv6 --with-librtmp --with-ca-fallback"
 
   cd ..
@@ -5096,10 +5099,10 @@ build_pcre() {
 }
 
 build_glib() {
-  download_and_unpack_file http://ftp.gnome.org/pub/GNOME/sources/glib/2.62/glib-2.62.4.tar.xz glib-2.62.4 # Was 2.53.1
+  download_and_unpack_file http://ftp.gnome.org/pub/GNOME/sources/glib/2.64/glib-2.64.2.tar.xz glib-2.64.2 # Was 2.53.1
   export orig_cpu=$cpu_count
 #  export cpu_count=1
-  cd glib-2.62.4
+  cd glib-2.64.2
     export glib_cv_long_long_format=I64
     export glib_cv_stack_grows=no
   #  apply_patch file://${top_dir}/glib-no-tests.patch
@@ -5367,6 +5370,7 @@ build_zstd() {
 build_flacon() {
     do_git_checkout https://github.com/flacon/flacon.git flacon
         cd flacon
+	apply_patch file://${top_dir}/flacon.patch
         do_cmake && ${top_dir}/correct_headers.sh
         do_make
         do_make_install
@@ -5410,7 +5414,7 @@ build_netcdf() {
 #    apply_patch file://${top_dir}/netcdf-gcc.patch
 #    apply_patch file://${top_dir}/netcdf-mingw.patch
     apply_patch file://${top_dir}/netcdf-getopt.patch
-    generic_configure_make_install "--enable-dll --disable-netcdf4"
+    generic_configure_make_install "CFLAGS=-fcommon --enable-dll --disable-netcdf4"
   cd ..
 #  generic_download_and_install ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-4.5.0.tar.gz netcdf-4.5.0 "--enable-dll --disable-netcdf4"
 #  cd netcdf-4.5.0
@@ -5607,6 +5611,7 @@ build_glslang() {
         #apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-glslang/001-install-missing-dll.patch
         #apply_patch file://${top_dir}/glslang-threads.patch
     #    apply_patch file://${top_dir}/glslang-shared.patch
+    	apply_patch file://${top_dir}/glslang-secure.patch
         do_cmake_static "-DCMAKE_BUILD_TYPE=Release -DCMAKE_VERBOSE_MAKEFILE=YES"
         do_make "V=1"
         do_make_install
@@ -6708,7 +6713,7 @@ build_dependencies() {
   build_cmark
   build_opusfile
   build_libopusenc
-  build_medialibrary
+#  build_medialibrary
   build_yamlcc
   build_tinyxml
   build_ocio

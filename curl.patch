@@ -1,0 +1,31 @@
+--- configure.ac.orig	2020-05-13 09:03:45.651925359 +0100
++++ configure.ac	2020-05-13 09:04:09.939672497 +0100
+@@ -4727,14 +4727,6 @@
+ ENABLE_STATIC="$enable_static"
+ AC_SUBST(ENABLE_STATIC)
+ 
+-dnl merge the pkg-config Libs.private field into Libs when static-only
+-if test "x$enable_shared" = "xno"; then
+-  LIBCURL_NO_SHARED=$LIBCURL_LIBS
+-else
+-  LIBCURL_NO_SHARED=
+-fi
+-AC_SUBST(LIBCURL_NO_SHARED)
+-
+ dnl
+ dnl For keeping supported features and protocols also in pkg-config file
+ dnl since it is more cross-compile friendly than curl-config
+--- curl-config.in.orig	2020-05-13 09:04:34.259419306 +0100
++++ curl-config.in	2020-05-13 09:04:57.939172781 +0100
+@@ -160,11 +160,6 @@
+         else
+            CURLLIBDIR=""
+         fi
+-        if test "X@ENABLE_SHARED@" = "Xno" -o "X@REQUIRE_LIB_DEPS@" = "Xyes"; then
+-          echo ${CURLLIBDIR}-lcurl @LIBCURL_LIBS@
+-        else
+-          echo ${CURLLIBDIR}-lcurl
+-        fi
+         ;;
+     --ssl-backends)
+         echo "@SSL_BACKENDS@"

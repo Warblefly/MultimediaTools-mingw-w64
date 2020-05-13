@@ -68,6 +68,13 @@ cd mingw-w64/mingw-w64-headers
 	else
 		echo "Already patched."
 	fi
+
+#        if [[ ! -f stpcpy_patched ]]; then
+#                cat $top_dir/mingw-stpcpy.patch | patch -p0 --verbose || exit 1
+#                touch stpcpy_patched
+#        else
+#                echo "Already patched."
+#        fi
 cd ../..
 
 echo "Going to install mingw-w64 headers..."
@@ -85,7 +92,7 @@ cd ..
 echo "Mingw-w64 headers are installed."
 
 echo "Cloning GCC..."
-git clone --depth 1 -b releases/gcc-9 --single-branch https://github.com/gcc-mirror/gcc.git gcc || echo "Seems we have GCC."
+git clone --depth 1 -b releases/gcc-10 --single-branch https://github.com/gcc-mirror/gcc.git gcc || echo "Seems we have GCC."
 echo "GCC has arrived."
 
 cd gcc
