@@ -29,3 +29,13 @@
          ;;
      --ssl-backends)
          echo "@SSL_BACKENDS@"
+--- libcurl.pc.in.orig	2020-05-16 11:48:09.022998421 +0100
++++ libcurl.pc.in	2020-05-16 11:48:26.118825445 +0100
+@@ -34,6 +34,6 @@
+ URL: https://curl.haxx.se/
+ Description: Library to transfer files with ftp, http, etc.
+ Version: @CURLVERSION@
+-Libs: -L${libdir} -lcurl @LIBCURL_NO_SHARED@
++Libs: -L${libdir} -lcurl
+ Libs.private: @LIBCURL_LIBS@
+ Cflags: -I${includedir} @CPPFLAG_CURL_STATICLIB@

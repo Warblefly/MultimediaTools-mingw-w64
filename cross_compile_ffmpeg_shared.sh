@@ -2529,24 +2529,24 @@ build_icu() {
     echo "ICU is already built."
   fi
   # The ICU libraries are made without the prefix 'lib'. Also, the version is missing from the link library. Let's correct that.
-  cp -v ${mingw_w64_x86_64_prefix}/lib/icudt.dll ${mingw_w64_x86_64_prefix}/lib/libicudt.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/icudt66.dll ${mingw_w64_x86_64_prefix}/lib/libicudt66.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/icuin.dll ${mingw_w64_x86_64_prefix}/lib/libicuin.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/icuin66.dll ${mingw_w64_x86_64_prefix}/lib/libicuin66.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/icuio.dll ${mingw_w64_x86_64_prefix}/lib/libicuio.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/icuio66.dll ${mingw_w64_x86_64_prefix}/lib/libicuio66.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/icutest.dll ${mingw_w64_x86_64_prefix}/lib/libicutest.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/icutest66.dll ${mingw_w64_x86_64_prefix}/lib/libicutest66.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/icutu.dll ${mingw_w64_x86_64_prefix}/lib/libicutu.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/icutu66.dll ${mingw_w64_x86_64_prefix}/lib/libicutu66.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/icuuc.dll ${mingw_w64_x86_64_prefix}/lib/libicuuc.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/icuuc66.dll ${mingw_w64_x86_64_prefix}/lib/libicuuc66.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libicudt.dll.a ${mingw_w64_x86_64_prefix}/lib/libicudt66.dll.a
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuin.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuin66.dll.a
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuio.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuio66.dll.a
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libicutest.dll.a ${mingw_w64_x86_64_prefix}/lib/libicutest66.dll.a
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libicutu.dll.a ${mingw_w64_x86_64_prefix}/lib/libicutu66.dll.a
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuuc.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuuc66.dll.a
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/icudt.dll ${mingw_w64_x86_64_prefix}/lib/libicudt.dll
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/icudt66.dll ${mingw_w64_x86_64_prefix}/lib/libicudt66.dll
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/icuin.dll ${mingw_w64_x86_64_prefix}/lib/libicuin.dll
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/icuin66.dll ${mingw_w64_x86_64_prefix}/lib/libicuin66.dll
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/icuio.dll ${mingw_w64_x86_64_prefix}/lib/libicuio.dll
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/icuio66.dll ${mingw_w64_x86_64_prefix}/lib/libicuio66.dll
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/icutest.dll ${mingw_w64_x86_64_prefix}/lib/libicutest.dll
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/icutest66.dll ${mingw_w64_x86_64_prefix}/lib/libicutest66.dll
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/icutu.dll ${mingw_w64_x86_64_prefix}/lib/libicutu.dll
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/icutu66.dll ${mingw_w64_x86_64_prefix}/lib/libicutu66.dll
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/icuuc.dll ${mingw_w64_x86_64_prefix}/lib/libicuuc.dll
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/icuuc66.dll ${mingw_w64_x86_64_prefix}/lib/libicuuc66.dll
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/libicudt.dll.a ${mingw_w64_x86_64_prefix}/lib/libicudt66.dll.a
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuin.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuin66.dll.a
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuio.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuio66.dll.a
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/libicutest.dll.a ${mingw_w64_x86_64_prefix}/lib/libicutest66.dll.a
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/libicutu.dll.a ${mingw_w64_x86_64_prefix}/lib/libicutu66.dll.a
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuuc.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuuc66.dll.a
 }
 
 build_icu_with_iculehb() {
@@ -2563,7 +2563,7 @@ build_icu_with_iculehb() {
         export CXXFLAGS_ORIG=${CXXFLAGS}
         export CFLAGS="-fpermissive -DWINVER=0x0A00 -DMINGW_HAS_SECURE_API=1"
         export CXXFLAGS="-fpermissive -DWINVER=0x0A00 -DMINGW_HAS_SECURE_API=1"
-        generic_configure_make_install "--enable-extras --enable-icuio --enable-layoutex --host=x86_64-w64-mingw32 --with-cross-build=${top_dir}/sandbox/x86_64/icu_native/source"
+        generic_configure_make_install "LIBS=-lharfbuzz --enable-extras --enable-icuio --enable-layoutex --host=x86_64-w64-mingw32 --with-cross-build=${top_dir}/sandbox/x86_64/icu_native/source"
         export CFLAGS=${CFLAGS_ORIG}
         export CXXFLAGS=${CXXFLAGS_ORIG}
       cd ..
@@ -2574,27 +2574,27 @@ build_icu_with_iculehb() {
     echo "ICU with Harfbuzz is already built."
   fi
     # The ICU libraries are made without the prefix 'lib'. Also, the version is missing from the link library. Let's correct that.
-  cp -v ${mingw_w64_x86_64_prefix}/lib/icudt.dll ${mingw_w64_x86_64_prefix}/lib/libicudt.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/icudt66.dll ${mingw_w64_x86_64_prefix}/lib/libicudt66.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/icuin.dll ${mingw_w64_x86_64_prefix}/lib/libicuin.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/icuin66.dll ${mingw_w64_x86_64_prefix}/lib/libicuin66.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/icuio.dll ${mingw_w64_x86_64_prefix}/lib/libicuio.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/icuio66.dll ${mingw_w64_x86_64_prefix}/lib/libicuio66.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/icutest.dll ${mingw_w64_x86_64_prefix}/lib/libicutest.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/icutest66.dll ${mingw_w64_x86_64_prefix}/lib/libicutest66.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/icutu.dll ${mingw_w64_x86_64_prefix}/lib/libicutu.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/icutu66.dll ${mingw_w64_x86_64_prefix}/lib/libicutu66.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/icuuc.dll ${mingw_w64_x86_64_prefix}/lib/libicuuc.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/icuuc66.dll ${mingw_w64_x86_64_prefix}/lib/libicuuc66.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libicudt.dll.a ${mingw_w64_x86_64_prefix}/lib/libicudt66.dll.a
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuin.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuin66.dll.a
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuio.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuio66.dll.a
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libicutest.dll.a ${mingw_w64_x86_64_prefix}/lib/libicutest66.dll.a
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libicutu.dll.a ${mingw_w64_x86_64_prefix}/lib/libicutu66.dll.a
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuuc.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuuc66.dll.a
-  cp -v ${mingw_w64_x86_64_prefix}/lib/iculx.dll ${mingw_w64_x86_64_prefix}/lib/libiculx.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/iculx66.dll ${mingw_w64_x86_64_prefix}/lib/libiculx66.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libiculx.dll.a ${mingw_w64_x86_64_prefix}/lib/libiculx66.dll.a
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/icudt.dll ${mingw_w64_x86_64_prefix}/lib/libicudt.dll
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/icudt66.dll ${mingw_w64_x86_64_prefix}/lib/libicudt66.dll
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/icuin.dll ${mingw_w64_x86_64_prefix}/lib/libicuin.dll
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/icuin66.dll ${mingw_w64_x86_64_prefix}/lib/libicuin66.dll
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/icuio.dll ${mingw_w64_x86_64_prefix}/lib/libicuio.dll
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/icuio66.dll ${mingw_w64_x86_64_prefix}/lib/libicuio66.dll
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/icutest.dll ${mingw_w64_x86_64_prefix}/lib/libicutest.dll
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/icutest66.dll ${mingw_w64_x86_64_prefix}/lib/libicutest66.dll
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/icutu.dll ${mingw_w64_x86_64_prefix}/lib/libicutu.dll
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/icutu66.dll ${mingw_w64_x86_64_prefix}/lib/libicutu66.dll
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/icuuc.dll ${mingw_w64_x86_64_prefix}/lib/libicuuc.dll
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/icuuc66.dll ${mingw_w64_x86_64_prefix}/lib/libicuuc66.dll
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/libicudt.dll.a ${mingw_w64_x86_64_prefix}/lib/libicudt66.dll.a
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuin.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuin66.dll.a
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuio.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuio66.dll.a
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/libicutest.dll.a ${mingw_w64_x86_64_prefix}/lib/libicutest66.dll.a
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/libicutu.dll.a ${mingw_w64_x86_64_prefix}/lib/libicutu66.dll.a
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuuc.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuuc66.dll.a
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/iculx.dll ${mingw_w64_x86_64_prefix}/lib/libiculx.dll
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/iculx66.dll ${mingw_w64_x86_64_prefix}/lib/libiculx66.dll
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/libiculx.dll.a ${mingw_w64_x86_64_prefix}/lib/libiculx66.dll.a
 }
 
 
@@ -4346,6 +4346,7 @@ build_curl_early() {
 #  generic_download_and_install http://curl.haxx.se/download/curl-7.51.0.tar.bz2 curl-7.51.0 "--enable-ipv6 --with-librtmp --with-ca-fallback"
   do_git_checkout https://github.com/curl/curl.git curl_early
   cd curl_early
+    apply_patch file://${top_dir}/curl.patch
     generic_configure_make_install "--enable-ipv6 --with-ca-fallback"
 
   cd ..
@@ -4526,9 +4527,10 @@ build_libuuid() {
 }
 
 build_zmq() {
-  do_git_checkout https://github.com/zeromq/libzmq libzmq cb73745250dce53aa6e059751a47940b7518a1c3 # 4e2b9e6e07d4622d094febf8c4f61f9f191fd9ae
+  do_git_checkout https://github.com/zeromq/libzmq libzmq #cb73745250dce53aa6e059751a47940b7518a1c3 # 4e2b9e6e07d4622d094febf8c4f61f9f191fd9ae
   cd libzmq
-    generic_configure_make_install 
+    apply_patch file://${top_dir}/libzmq.patch
+    generic_configure_make_install "--with-poller=epoll" 
 
   cd ..
 }
@@ -6395,7 +6397,7 @@ build_ffmpeg() {
 #  apply_patch_p1 file://${top_dir}/ffmpeg-decklink-teletext-2-reverse.patch
   apply_patch file://${top_dir}/ffmpeg-bs2b.patch
 
-  config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --enable-libjack --disable-doc --enable-libxml2 --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-libmysofa --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-libcodec2 --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libxavs2 --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libvpx --enable-libilbc --enable-libwavpack --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --enable-d3d11va --enable-nvenc --enable-libzmq --enable-nonfree --enable-libfdk-aac --enable-libflite --enable-decoder=aac --enable-libaom --enable-runtime-cpudetect --enable-libpulse --enable-cuda-nvcc --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts" # $CFLAGS # other possibilities: --enable-w32threads --enable-libflite
+  config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --enable-libjack --disable-doc --enable-libxml2 --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-libmysofa --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-libcodec2 --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libxavs2 --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libvpx --enable-libilbc --enable-libwavpack --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --enable-d3d11va --enable-nvenc --enable-nonfree --enable-libfdk-aac --enable-libflite --enable-decoder=aac --enable-libaom --enable-runtime-cpudetect --enable-libpulse --enable-cuda-nvcc --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts" # $CFLAGS # other possibilities: --enable-w32threads --enable-libflite
   # sed -i 's/openjpeg-1.5/openjpeg-2.1/' configure # change library path for updated libopenjpeg
   export PKG_CONFIG="pkg-config" # --static
   export LDFLAGS="" # "-static"
@@ -6678,9 +6680,9 @@ build_dependencies() {
   build_lua
   build_ladspa # Not a real build: just copying the API header file into place
   build_librubberband # for mpv
-  build_zmq
+#  build_zmq
 #  build_libtasn1
-  build_cppzmq
+#  build_cppzmq
   build_libdsm
   build_dvbpsi
   build_libebml
