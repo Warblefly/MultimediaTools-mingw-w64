@@ -1515,7 +1515,7 @@ build_gcal() {
 }
 
 build_unbound() {
-  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.10.0 "CFLAGS=-O1 libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
+  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.10.1 "CFLAGS=-O1 libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
 }
 
 build_libxavs() {
@@ -4527,10 +4527,10 @@ build_libuuid() {
 }
 
 build_zmq() {
-  do_git_checkout https://github.com/zeromq/libzmq libzmq #cb73745250dce53aa6e059751a47940b7518a1c3 # 4e2b9e6e07d4622d094febf8c4f61f9f191fd9ae
+  do_git_checkout https://github.com/zeromq/libzmq libzmq cb73745250dce53aa6e059751a47940b7518a1c3 # 4e2b9e6e07d4622d094febf8c4f61f9f191fd9ae
   cd libzmq
-    apply_patch file://${top_dir}/libzmq.patch
-    generic_configure_make_install "--with-poller=epoll" 
+#    apply_patch file://${top_dir}/liibzmq.patch
+    generic_configure_make_install #"--with-poller=epoll" 
 
   cd ..
 }
@@ -5444,6 +5444,7 @@ build_vlc() {
 #    apply_patch file://${top_dir}/vlc-d3d11-deinterlace.patch
     apply_patch file://${top_dir}/vlc-stack.patch
     apply_patch file://${top_dir}/vlc-fortify.patch
+    apply_patch file://${top_dir}/vlc-dcomp-unpatch.patch # EGL unavailable in pure mingw-w64 build
     export LIVE555_CFLAGS="-I${mingw_w64_x86_64_prefix}/include/liveMedia -I${mingw_w64_x86_64_prefix}/include/UsageEnvironment -I${mingw_w64_x86_64_prefix}/include/BasicUsageEnvironment -I${mingw_w64_x86_64_prefix}/include/groupsock"
     export DSM_LIBS="-lws2_32 -ldsm"
     export AOM_LIBS="-laom -lpthread -lm"
@@ -6680,9 +6681,9 @@ build_dependencies() {
   build_lua
   build_ladspa # Not a real build: just copying the API header file into place
   build_librubberband # for mpv
-#  build_zmq
+  build_zmq
 #  build_libtasn1
-#  build_cppzmq
+  build_cppzmq
   build_libdsm
   build_dvbpsi
   build_libebml

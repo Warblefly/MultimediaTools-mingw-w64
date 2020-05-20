@@ -1,0 +1,1427 @@
+--- modules/gui/qt/Makefile.am
++++ modules/gui/qt/Makefile.am
+@@ -45,7 +45,7 @@
+ libqt_plugin_la_LIBADD += $(WAYLAND_CLIENT_LIBS)
+ endif
+ if HAVE_WIN32
++libqt_plugin_la_LIBADD += $(LIBCOM) -lcomctl32 -luuid
+-libqt_plugin_la_LIBADD += $(LIBCOM) -lcomctl32 -luuid -ld3d11
+ endif
+ if UPDATE_CHECK
+ libqt_plugin_la_CPPFLAGS += -DUPDATE_CHECK
+@@ -214,17 +214,7 @@
+ 	gui/qt/widgets/native/searchlineedit.cpp gui/qt/widgets/native/searchlineedit.hpp
+ if HAVE_WIN32
+ libqt_plugin_la_SOURCES += \
++	gui/qt/maininterface/main_interface_win32.cpp gui/qt/maininterface/main_interface_win32.hpp
+-	gui/qt/maininterface/main_interface_win32.cpp \
+-	gui/qt/maininterface/main_interface_win32.hpp
+-
+-if HAVE_DCOMP
+-libqt_plugin_la_SOURCES += \
+-	gui/qt/maininterface/compositor_dcomp.cpp \
+-	gui/qt/maininterface/compositor_dcomp.hpp \
+-	gui/qt/maininterface/compositor_error.hpp \
+-	gui/qt/maininterface/compositor_dcomp_uisurface.cpp \
+-	gui/qt/maininterface/compositor_dcomp_uisurface.hpp
+-endif
+ endif
+ 
+ # Meta-object compilation
+@@ -332,13 +322,6 @@
+ 
+ if HAVE_WIN32
+ nodist_libqt_plugin_la_SOURCES += gui/qt/maininterface/main_interface_win32.moc.cpp
+-
+-if HAVE_DCOMP
+-nodist_libqt_plugin_la_SOURCES += \
+-	gui/qt/maininterface/compositor_dcomp.moc.cpp \
+-	gui/qt/maininterface/compositor_dcomp_uisurface.moc.cpp
+-endif
+-
+ endif
+ 
+ nodist_libqt_plugin_la_SOURCES += \
+--- modules/gui/qt/maininterface/compositor.cpp
++++ modules/gui/qt/maininterface/compositor.cpp
+@@ -19,28 +19,10 @@
+ #include "compositor.hpp"
+ #include "compositor_dummy.hpp"
+ 
+-#ifdef _WIN32
+-#ifdef HAVE_DCOMP_H
+-#  include "compositor_dcomp.hpp"
+-#endif
+-#endif
+-
+ namespace vlc {
+ 
+ Compositor* Compositor::createCompositor(intf_thread_t *p_intf)
+ {
+-    bool ret;
+-    VLC_UNUSED(ret);
+-#ifdef _WIN32
+-#ifdef HAVE_DCOMP_H
+-    CompositorDirectComposition* dcomp_compositor = new CompositorDirectComposition(p_intf);
+-    ret = dcomp_compositor->init();
+-    if (ret)
+-        return dcomp_compositor;
+-    else
+-        delete dcomp_compositor;
+-#endif
+-#endif
+     return new CompositorDummy(p_intf);
+ }
+ 
+--- modules/gui/qt/maininterface/compositor_dcomp.cpp
++++ /dev/null
+@@ -1,294 +0,0 @@
+-/*****************************************************************************
+- * Copyright (C) 2020 VLC authors and VideoLAN
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2 of the License, or
+- * (at your option) any later version.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
+- *****************************************************************************/
+-
+-#ifdef HAVE_CONFIG_H
+-# include "config.h"
+-#endif
+-
+-#include "compositor_dcomp.hpp"
+-
+-#include "maininterface/main_interface_win32.hpp"
+-
+-#include <comdef.h>
+-
+-#include <QApplication>
+-#include <QDesktopWidget>
+-#include <QQuickWidget>
+-
+-#include <QOpenGLFunctions>
+-#include <QOpenGLFramebufferObject>
+-#include <QOpenGLExtraFunctions>
+-
+-#include <qpa/qplatformnativeinterface.h>
+-#include "compositor_dcomp_error.hpp"
+-
+-
+-namespace vlc {
+-
+-using namespace Microsoft::WRL;
+-
+-//Signature for DCompositionCreateDevice
+-typedef HRESULT (*DCompositionCreateDeviceFun)(IDXGIDevice *dxgiDevice, REFIID iid, void** dcompositionDevice);
+-
+-int CompositorDirectComposition::window_enable(struct vout_window_t * p_wnd, const vout_window_cfg_t *)
+-{
+-    CompositorDirectComposition* that = static_cast<CompositorDirectComposition*>(p_wnd->sys);
+-    msg_Dbg(that->m_intf, "window_enable");
+-    if (!that->m_videoVisual)
+-    {
+-        msg_Err(that->m_intf, "m_videoVisual is null");
+-        return VLC_EGENERIC;
+-    }
+-
+-    try
+-    {
+-        that->m_qmlVideoSurfaceProvider->enable(p_wnd);
+-        HR(that->m_rootVisual->AddVisual(that->m_videoVisual.Get(), FALSE, that->m_uiVisual.Get()), "add video visual to root");
+-        HR(that->m_dcompDevice->Commit(), "commit");
+-    }
+-    catch (const DXError& err)
+-    {
+-        msg_Err(that->m_intf, "failed to enable window: %s code 0x%lX", err.what(), err.code());
+-        return VLC_EGENERIC;
+-    }
+-    return VLC_SUCCESS;
+-}
+-
+-void CompositorDirectComposition::window_disable(struct vout_window_t * p_wnd)
+-{
+-    CompositorDirectComposition* that = static_cast<CompositorDirectComposition*>(p_wnd->sys);
+-    try
+-    {
+-        that->m_qmlVideoSurfaceProvider->disable();
+-        that->m_rootWindow->askVideoOnTop(false);
+-        that->m_rootWindow->askVideoSetFullScreen(false);
+-        msg_Dbg(that->m_intf, "window_disable");
+-        HR(that->m_rootVisual->RemoveVisual(that->m_videoVisual.Get()), "remove video visual from root");
+-        HR(that->m_dcompDevice->Commit(), "commit");
+-    }
+-    catch (const DXError& err)
+-    {
+-        msg_Err(that->m_intf, "failed to disable window: '%s' code: 0x%lX", err.what(), err.code());
+-    }
+-}
+-
+-void CompositorDirectComposition::window_resize(struct vout_window_t * p_wnd, unsigned width, unsigned height)
+-{
+-    CompositorDirectComposition* that = static_cast<CompositorDirectComposition*>(p_wnd->sys);
+-    msg_Dbg(that->m_intf, "window_resize %ux%u", width, height);
+-    that->m_rootWindow->requestResizeVideo(width, height);
+-}
+-
+-void CompositorDirectComposition::window_destroy(struct vout_window_t * p_wnd)
+-{
+-    CompositorDirectComposition* that = static_cast<CompositorDirectComposition*>(p_wnd->sys);
+-    msg_Dbg(that->m_intf, "window_destroy");
+-    that->m_window = nullptr;
+-    that->m_videoVisual.Reset();
+-}
+-
+-void CompositorDirectComposition::window_set_state(struct vout_window_t * p_wnd, unsigned state)
+-{
+-    CompositorDirectComposition* that = static_cast<CompositorDirectComposition*>(p_wnd->sys);
+-    msg_Dbg(that->m_intf, "window_set_state");
+-    that->m_rootWindow->requestVideoState(static_cast<vout_window_state>(state));
+-}
+-
+-void CompositorDirectComposition::window_unset_fullscreen(struct vout_window_t * p_wnd)
+-{
+-    CompositorDirectComposition* that = static_cast<CompositorDirectComposition*>(p_wnd->sys);
+-    msg_Dbg(that->m_intf, "window_unset_fullscreen");
+-    that->m_rootWindow->requestVideoWindowed();
+-}
+-
+-void CompositorDirectComposition::window_set_fullscreen(struct vout_window_t * p_wnd, const char *id)
+-{
+-    CompositorDirectComposition* that = static_cast<CompositorDirectComposition*>(p_wnd->sys);
+-    msg_Dbg(that->m_intf, "window_set_fullscreen");
+-    that->m_rootWindow->requestVideoFullScreen(id);
+-}
+-
+-CompositorDirectComposition::CompositorDirectComposition( intf_thread_t* p_intf,  QObject *parent)
+-    : QObject(parent)
+-    , m_intf(p_intf)
+-{
+-}
+-
+-CompositorDirectComposition::~CompositorDirectComposition()
+-{
+-    destroyMainInterface();
+-    m_dcompDevice.Reset();
+-    m_d3d11Device.Reset();
+-    if (m_dcomp_dll)
+-        FreeLibrary(m_dcomp_dll);
+-}
+-
+-bool CompositorDirectComposition::init()
+-{
+-    //import DirectComposition API (WIN8+)
+-    m_dcomp_dll = LoadLibrary(TEXT("DCOMP.dll"));
+-    if (!m_dcomp_dll)
+-        return false;
+-    DCompositionCreateDeviceFun myDCompositionCreateDevice = (DCompositionCreateDeviceFun)GetProcAddress(m_dcomp_dll, "DCompositionCreateDevice");
+-    if (!myDCompositionCreateDevice)
+-    {
+-        FreeLibrary(m_dcomp_dll);
+-        m_dcomp_dll = nullptr;
+-        return false;
+-    }
+-
+-    HRESULT hr;
+-    UINT creationFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT
+-        //| D3D11_CREATE_DEVICE_DEBUG
+-            ;
+-
+-    hr = D3D11CreateDevice(
+-        nullptr,    // Adapter
+-        D3D_DRIVER_TYPE_HARDWARE,
+-        nullptr,    // Module
+-        creationFlags,
+-        nullptr,
+-        0, // Highest available feature level
+-        D3D11_SDK_VERSION,
+-        m_d3d11Device.GetAddressOf(),
+-        nullptr,    // Actual feature level
+-        nullptr);
+-
+-    if (FAILED(hr))
+-        return false;
+-
+-    ComPtr<IDXGIDevice> dxgiDevice;
+-    m_d3d11Device.As(&dxgiDevice);
+-
+-    // Create the DirectComposition device object.
+-    hr = myDCompositionCreateDevice(dxgiDevice.Get(), __uuidof(IDCompositionDevice), &m_dcompDevice);
+-    if (FAILED(hr))
+-        return false;
+-
+-    QApplication::setAttribute( Qt::AA_UseOpenGLES ); //force usage of ANGLE backend
+-
+-    return true;
+-}
+-
+-MainInterface* CompositorDirectComposition::makeMainInterface()
+-{
+-    try
+-    {
+-        bool ret;
+-        m_rootWindow = new MainInterfaceWin32(m_intf);
+-        m_rootWindow->setAttribute(Qt::WA_NativeWindow);
+-        m_rootWindow->setAttribute(Qt::WA_DontCreateNativeAncestors);
+-        m_rootWindow->setAttribute(Qt::WA_TranslucentBackground);
+-        m_rootWindow->winId();
+-        m_rootWindow->show();
+-
+-        m_qmlVideoSurfaceProvider = std::make_unique<VideoSurfaceProvider>();
+-        m_rootWindow->setVideoSurfaceProvider(m_qmlVideoSurfaceProvider.get());
+-
+-        HR(m_dcompDevice->CreateTargetForHwnd((HWND)m_rootWindow->windowHandle()->winId(), TRUE, &m_dcompTarget), "create target");
+-        HR(m_dcompDevice->CreateVisual(&m_rootVisual), "create root visual");
+-        HR(m_dcompTarget->SetRoot(m_rootVisual.Get()), "set root visual");
+-
+-        HR(m_dcompDevice->CreateVisual(&m_uiVisual), "create ui visual");
+-
+-        m_uiSurface  = std::make_unique<CompositorDCompositionUISurface>(m_intf,
+-                                                                         m_rootWindow->windowHandle(),
+-                                                                         m_uiVisual);
+-        ret = m_uiSurface->init();
+-        if (!ret)
+-        {
+-            destroyMainInterface();
+-            return nullptr;
+-        }
+-
+-        m_ui = std::make_unique<MainUI>(m_intf, m_rootWindow);
+-        ret = m_ui->setup(m_uiSurface->engine());
+-        if (! ret)
+-        {
+-            destroyMainInterface();
+-            return nullptr;
+-        }
+-        m_uiSurface->setContent(m_ui->getComponent(), m_ui->createRootItem());
+-        HR(m_rootVisual->AddVisual(m_uiVisual.Get(), FALSE, nullptr), "add ui visual to root");
+-        HR(m_dcompDevice->Commit(), "commit UI visual");
+-        return m_rootWindow;
+-    }
+-    catch (const DXError& err)
+-    {
+-        msg_Err(m_intf, "failed to initialise compositor: '%s' code: 0x%lX", err.what(), err.code());
+-        destroyMainInterface();
+-        return nullptr;
+-    }
+-}
+-
+-void CompositorDirectComposition::destroyMainInterface()
+-{
+-    if (m_videoVisual)
+-        msg_Err(m_intf, "video surface still active while destroying main interface");
+-
+-    if (m_uiVisual)
+-    {
+-        m_rootVisual->RemoveVisual(m_uiVisual.Get());
+-        m_uiVisual.Reset();
+-    }
+-    m_uiSurface.reset();
+-    m_ui.reset();
+-    m_rootVisual.Reset();
+-    m_dcompTarget.Reset();
+-    m_qmlVideoSurfaceProvider.reset();
+-    if (m_rootWindow)
+-    {
+-        delete m_rootWindow;
+-        m_rootWindow = nullptr;
+-    }
+-}
+-
+-bool CompositorDirectComposition::setupVoutWindow(vout_window_t *p_wnd)
+-{
+-    //Only the first video is embedded
+-    if (m_videoVisual.Get())
+-        return false;
+-
+-    HRESULT hr = m_dcompDevice->CreateVisual(&m_videoVisual);
+-    if (FAILED(hr))
+-    {
+-        msg_Err(p_wnd, "create to create DComp video visual");
+-        return false;
+-    }
+-
+-    static const struct vout_window_operations ops = {
+-        CompositorDirectComposition::window_enable,
+-        CompositorDirectComposition::window_disable,
+-        CompositorDirectComposition::window_resize,
+-        CompositorDirectComposition::window_destroy,
+-        CompositorDirectComposition::window_set_state,
+-        CompositorDirectComposition::window_unset_fullscreen,
+-        CompositorDirectComposition::window_set_fullscreen,
+-        nullptr, //window_set_title
+-    };
+-    p_wnd->sys = this;
+-    p_wnd->type = VOUT_WINDOW_TYPE_DCOMP;
+-    p_wnd->display.dcomp_device = m_dcompDevice.Get();
+-    p_wnd->handle.dcomp_visual = m_videoVisual.Get();
+-    p_wnd->ops = &ops;
+-    p_wnd->info.has_double_click = true;
+-    m_window = p_wnd;
+-    return true;
+-}
+-
+-}
+--- modules/gui/qt/maininterface/compositor_dcomp.hpp
++++ /dev/null
+@@ -1,82 +0,0 @@
+-/*****************************************************************************
+- * Copyright (C) 2020 VLC authors and VideoLAN
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2 of the License, or
+- * (at your option) any later version.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
+- *****************************************************************************/
+-#ifndef VLC_COMPOSITOR_DIRECT_COMPOSITION
+-#define VLC_COMPOSITOR_DIRECT_COMPOSITION
+-
+-#include "compositor.hpp"
+-
+-#include <windows.h>
+-#include <dcomp.h>
+-#include <d3d11.h>
+-#include <wrl.h>
+-#include <dwmapi.h>
+-
+-#include "maininterface/mainui.hpp"
+-#include "compositor_dcomp_uisurface.hpp"
+-#include "videosurface.hpp"
+-
+-#include <QOpenGLContext>
+-
+-class MainInterface;
+-
+-namespace vlc {
+-
+-class CompositorDirectComposition : public QObject, public Compositor
+-{
+-    Q_OBJECT
+-public:
+-    CompositorDirectComposition(intf_thread_t *p_intf, QObject* parent = nullptr);
+-    ~CompositorDirectComposition();
+-
+-    bool init();
+-
+-    MainInterface *makeMainInterface() override;
+-    void destroyMainInterface() override;
+-
+-    bool setupVoutWindow(vout_window_t *p_wnd) override;
+-
+-private:
+-    static int window_enable(struct vout_window_t *, const vout_window_cfg_t *);
+-    static void window_disable(struct vout_window_t *);
+-    static void window_resize(struct vout_window_t *, unsigned width, unsigned height);
+-    static void window_destroy(struct vout_window_t *);
+-    static void window_set_state(struct vout_window_t *, unsigned state);
+-    static void window_unset_fullscreen(struct vout_window_t *);
+-    static void window_set_fullscreen(struct vout_window_t *, const char *id);
+-
+-    intf_thread_t *m_intf;
+-
+-    MainInterface* m_rootWindow;
+-    std::unique_ptr<CompositorDCompositionUISurface> m_uiSurface;
+-    vout_window_t *m_window = nullptr;
+-    std::unique_ptr<MainUI> m_ui;
+-    std::unique_ptr<VideoSurfaceProvider> m_qmlVideoSurfaceProvider;
+-
+-    //main window composition
+-    HINSTANCE m_dcomp_dll = nullptr;
+-    Microsoft::WRL::ComPtr<ID3D11Device> m_d3d11Device;
+-    Microsoft::WRL::ComPtr<IDCompositionDevice> m_dcompDevice;
+-    Microsoft::WRL::ComPtr<IDCompositionTarget> m_dcompTarget;
+-    Microsoft::WRL::ComPtr<IDCompositionVisual> m_rootVisual;
+-    Microsoft::WRL::ComPtr<IDCompositionVisual> m_uiVisual;
+-    Microsoft::WRL::ComPtr<IDCompositionVisual> m_videoVisual;
+-};
+-
+-}
+-
+-#endif /* VLC_COMPOSITOR_DIRECT_COMPOSITION */
+--- modules/gui/qt/maininterface/compositor_dcomp_error.hpp
++++ /dev/null
+@@ -1,66 +0,0 @@
+-/*****************************************************************************
+- * Copyright (C) 2020 VLC authors and VideoLAN
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2 of the License, or
+- * (at your option) any later version.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
+- *****************************************************************************/
+-#ifndef COMPOSITOR_DCOMP_ERROR_HPP
+-#define COMPOSITOR_DCOMP_ERROR_HPP
+-
+-
+-#include <stdexcept>
+-#include <windows.h>
+-
+-namespace vlc {
+-
+-class DXError : public std::runtime_error
+-{
+-public:
+-    explicit DXError(const std::string& msg, HRESULT code)
+-        : std::runtime_error(msg)
+-        , m_code(code)
+-    {
+-    }
+-
+-    explicit DXError(const char* msg, HRESULT code)
+-        : std::runtime_error(msg)
+-        , m_code(code)
+-    {
+-    }
+-
+-    inline HRESULT code() const
+-    {
+-        return m_code;
+-    }
+-
+-private:
+-    HRESULT m_code;
+-};
+-
+-inline void HR( HRESULT hr, const std::string& msg )
+-{
+-    if( FAILED( hr ) )
+-        throw DXError{ msg, hr };
+-}
+-
+-inline void HR( HRESULT hr, const char* msg = "" )
+-{
+-    if( FAILED( hr ) )
+-        throw DXError{ msg, hr  };
+-}
+-
+-}
+-
+-
+-#endif // COMPOSITOR_DCOMP_ERROR_HPP
+--- modules/gui/qt/maininterface/compositor_dcomp_uisurface.cpp
++++ /dev/null
+@@ -1,702 +0,0 @@
+-/*****************************************************************************
+- * Copyright (C) 2020 VLC authors and VideoLAN
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2 of the License, or
+- * (at your option) any later version.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
+- *****************************************************************************/
+-#include "compositor_dcomp_uisurface.hpp"
+-#include "compositor_dcomp_error.hpp"
+-#include <QSurfaceFormat>
+-#include <QOpenGLContext>
+-#include <QOpenGLFunctions>
+-#include <QOpenGLFramebufferObject>
+-#include <QOpenGLExtraFunctions>
+-#include <QQmlError>
+-#include <QQmlComponent>
+-#include <QQmlEngine>
+-#include <QQuickItem>
+-
+-#include <qpa/qplatformnativeinterface.h>
+-
+-#include <d3d11_1.h>
+-#include <d3dcompiler.h>
+-#include <comdef.h>
+-
+-namespace vlc {
+-
+-using namespace Microsoft::WRL;
+-
+-static const char *shaderStr = R"(
+-Texture2D shaderTexture;
+-SamplerState samplerState;
+-struct PS_INPUT
+-{
+-    float4 position     : SV_POSITION;
+-    float4 textureCoord : TEXCOORD0;
+-};
+-
+-float4 PShader(PS_INPUT In) : SV_TARGET
+-{
+-    return shaderTexture.Sample(samplerState, In.textureCoord);
+-}
+-
+-struct VS_INPUT
+-{
+-    float4 position     : POSITION;
+-    float4 textureCoord : TEXCOORD0;
+-};
+-
+-struct VS_OUTPUT
+-{
+-    float4 position     : SV_POSITION;
+-    float4 textureCoord : TEXCOORD0;
+-};
+-
+-VS_OUTPUT VShader(VS_INPUT In)
+-{
+-    return In;
+-}
+-)";
+-
+-struct SHADER_INPUT {
+-    struct {
+-        FLOAT x;
+-        FLOAT y;
+-        FLOAT z;
+-    } position;
+-    struct {
+-        FLOAT x;
+-        FLOAT y;
+-    } texture;
+-};
+-
+-
+-#define BORDER_LEFT    (-1.0f)
+-#define BORDER_RIGHT   ( 1.0f)
+-#define BORDER_TOP     ( 1.0f)
+-#define BORDER_BOTTOM  (-1.0f)
+-
+-static HINSTANCE Direct3D11LoadShaderLibrary(void)
+-{
+-    HINSTANCE instance = NULL;
+-    /* d3dcompiler_47 is the latest on windows 8.1 */
+-    for (int i = 47; i > 41; --i) {
+-        WCHAR filename[19];
+-        _snwprintf(filename, 19, TEXT("D3DCOMPILER_%d.dll"), i);
+-        instance = LoadLibrary(filename);
+-        if (instance) break;
+-    }
+-    return instance;
+-}
+-
+-class CompositorDCompositionUISurface::OurD3DCompiler
+-{
+-public:
+-
+-    ~OurD3DCompiler()
+-    {
+-        if (m_compiler_dll)
+-        {
+-            FreeLibrary(m_compiler_dll);
+-            m_compiler_dll = nullptr;
+-        }
+-        compile = nullptr;
+-    }
+-
+-    int init(vlc_object_t *obj)
+-    {
+-        m_compiler_dll = Direct3D11LoadShaderLibrary();
+-        if (!m_compiler_dll) {
+-            msg_Err(obj, "cannot load d3dcompiler.dll, aborting");
+-            return VLC_EGENERIC;
+-        }
+-
+-        compile = (pD3DCompile)GetProcAddress(m_compiler_dll, "D3DCompile");
+-        if (!compile) {
+-            msg_Err(obj, "Cannot locate reference to D3DCompile in d3dcompiler DLL");
+-            FreeLibrary(m_compiler_dll);
+-            m_compiler_dll = nullptr;
+-            return VLC_EGENERIC;
+-        }
+-        return VLC_SUCCESS;
+-    }
+-
+-    pD3DCompile               compile = nullptr;
+-
+-private:
+-    HINSTANCE                 m_compiler_dll = nullptr;
+-};
+-
+-CompositorDCompositionUISurface::CompositorDCompositionUISurface(intf_thread_t* p_intf,
+-                                                                 QWindow* window,
+-                                                                 Microsoft::WRL::ComPtr<IDCompositionVisual> dcVisual,
+-                                                                 QObject* parent)
+-    : QObject(parent)
+-    , m_intf(p_intf)
+-    , m_dcUiVisual(dcVisual)
+-    , m_rootWindow(window)
+-{
+-}
+-
+-bool CompositorDCompositionUISurface::init()
+-{
+-    EGLBoolean eglRet;
+-
+-    QSurfaceFormat format;
+-    // Qt Quick may need a depth and stencil buffer. Always make sure these are available.
+-    format.setDepthBufferSize(8);
+-    format.setStencilBufferSize(8);
+-    format.setAlphaBufferSize(8);
+-
+-    m_context = new QOpenGLContext(this);
+-    m_context->setScreen(m_rootWindow->screen());
+-    m_context->setFormat(format);
+-    assert(m_context->create());
+-    assert(m_context->isValid());
+-
+-    QPlatformNativeInterface *nativeInterface = QGuiApplication::platformNativeInterface();
+-    m_eglDisplay = static_cast<EGLDisplay>(nativeInterface->nativeResourceForContext("eglDisplay", m_context));
+-    m_eglCtx = static_cast<EGLContext>(nativeInterface->nativeResourceForContext("eglContext", m_context));
+-    m_eglConfig = static_cast<EGLConfig>(nativeInterface->nativeResourceForContext("eglConfig", m_context));
+-
+-    PFNEGLQUERYDISPLAYATTRIBEXTPROC eglQueryDisplayAttribEXT = (PFNEGLQUERYDISPLAYATTRIBEXTPROC)eglGetProcAddress("eglQueryDisplayAttribEXT");
+-    PFNEGLQUERYDEVICEATTRIBEXTPROC eglQueryDeviceAttribEXT = (PFNEGLQUERYDEVICEATTRIBEXTPROC)eglGetProcAddress("eglQueryDeviceAttribEXT");
+-
+-    EGLDeviceEXT m_eglDevice  = 0;
+-    eglRet = eglQueryDisplayAttribEXT(m_eglDisplay, EGL_DEVICE_EXT, reinterpret_cast<EGLAttrib*>(&m_eglDevice));
+-    if (!eglRet || m_eglDevice == 0)
+-    {
+-        msg_Err(m_intf, "failed to retreive egl device");
+-        return false;
+-    }
+-    eglRet = eglQueryDeviceAttribEXT(m_eglDevice, EGL_D3D11_DEVICE_ANGLE, reinterpret_cast<EGLAttrib*>(m_qtd3dDevice.GetAddressOf()));
+-    if (!eglRet)
+-    {
+-        msg_Err(m_intf, "failed to retreive egl device");
+-        return false;
+-    }
+-
+-    m_uiOffscreenSurface = new QOffscreenSurface();
+-    m_uiOffscreenSurface->setFormat(format);;
+-    m_uiOffscreenSurface->create();
+-
+-    m_uiRenderControl = new CompositorDCompositionRenderControl(m_rootWindow);
+-
+-    m_uiWindow = new QQuickWindow(m_uiRenderControl);
+-    m_uiWindow->setDefaultAlphaBuffer(true);
+-    m_uiWindow->setFormat(format);
+-    m_uiWindow->setClearBeforeRendering(false);
+-
+-    m_d3dCompiler = std::make_shared<OurD3DCompiler>();
+-    m_d3dCompiler->init(VLC_OBJECT(m_intf));
+-
+-    qreal dpr = m_rootWindow->devicePixelRatio();
+-    initialiseD3DSwapchain(dpr * m_rootWindow->width(), dpr * m_rootWindow->height());
+-
+-    HR(m_dcUiVisual->SetContent(m_d3dSwapChain.Get()), "fail to create surface");
+-
+-    m_qmlEngine = new QQmlEngine();
+-    if (!m_qmlEngine->incubationController())
+-        m_qmlEngine->setIncubationController(m_uiWindow->incubationController());
+-
+-    connect(m_uiWindow, &QQuickWindow::sceneGraphInitialized, this, &CompositorDCompositionUISurface::createFbo);
+-    connect(m_uiWindow, &QQuickWindow::sceneGraphInvalidated, this, &CompositorDCompositionUISurface::destroyFbo);
+-    connect(m_uiRenderControl, &QQuickRenderControl::renderRequested, this, &CompositorDCompositionUISurface::requestUpdate);
+-    connect(m_uiRenderControl, &QQuickRenderControl::sceneChanged, this, &CompositorDCompositionUISurface::requestUpdate);
+-
+-    m_rootWindow->installEventFilter(this);
+-    return true;
+-}
+-
+-CompositorDCompositionUISurface::~CompositorDCompositionUISurface()
+-{
+-    if (m_uiWindow)
+-        delete m_uiWindow;
+-    if (m_uiRenderControl)
+-        delete m_uiRenderControl;
+-    if (m_uiOffscreenSurface)
+-        delete m_uiOffscreenSurface;
+-    if (m_context)
+-        delete m_context;
+-    if (m_qmlEngine)
+-        delete m_qmlEngine;
+-    if (m_rootItem)
+-        delete m_rootItem;
+-    releaseSharedTexture();
+-}
+-
+-void CompositorDCompositionUISurface::initialiseD3DSwapchain(int width, int height)
+-{
+-    HRESULT hr;
+-    UINT creationFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT
+-            ;
+-
+-    HR(D3D11CreateDevice(
+-        nullptr,    // Adapter
+-        D3D_DRIVER_TYPE_HARDWARE,
+-        nullptr,    // Module
+-        creationFlags,
+-        nullptr,
+-        0,
+-        D3D11_SDK_VERSION,
+-        &m_d3dDevice,
+-        nullptr,
+-        &m_d3dContext), "create D3D11 Context");
+-
+-    ComPtr<ID3D10Multithread> pMultithread;
+-    hr = m_d3dDevice.As(&pMultithread);
+-    if (SUCCEEDED(hr)) {
+-        pMultithread->SetMultithreadProtected(TRUE);
+-        pMultithread.Reset();
+-    }
+-
+-    ComPtr<IDXGIDevice> dxgiDevice;
+-    HR(m_d3dDevice.As(&dxgiDevice));
+-
+-    ComPtr<IDXGIAdapter> dxgiAdapter;
+-    HR(dxgiDevice->GetAdapter(&dxgiAdapter));
+-
+-    ComPtr<IDXGIFactory2> dxgiFactory;
+-    HR(dxgiAdapter->GetParent(IID_PPV_ARGS(&dxgiFactory)));
+-
+-    //Create swapchain
+-    DXGI_SWAP_CHAIN_DESC1 scd = { };
+-    scd.Width = width;
+-    scd.Height = height;
+-    scd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+-    scd.SampleDesc.Count = 1;
+-    scd.SampleDesc.Quality = 0;
+-    scd.BufferCount = 2;
+-    scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+-    scd.Scaling = DXGI_SCALING_STRETCH;
+-    scd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+-    scd.AlphaMode = DXGI_ALPHA_MODE_PREMULTIPLIED;
+-    scd.Flags = 0;
+-
+-    HR(dxgiFactory->CreateSwapChainForComposition(m_d3dDevice.Get(), &scd, nullptr, &m_d3dSwapChain));
+-    ComPtr<ID3D11Texture2D> backTexture;
+-    HR(m_d3dSwapChain->GetBuffer(0, IID_PPV_ARGS(&backTexture)), "Get swapchain buffer");
+-    HR(m_d3dDevice->CreateRenderTargetView(backTexture.Get(), nullptr, &m_d3dRenderTarget));
+-
+-    D3D11_VIEWPORT viewport = { 0.f, 0.f, (float)width, (float)height, 0.f, 0.f};
+-    m_d3dContext->RSSetViewports(1, &viewport);
+-    m_d3dContext->OMSetRenderTargets(1, m_d3dRenderTarget.GetAddressOf(), nullptr);
+-
+-    //Create shaders
+-    ComPtr<ID3D10Blob> VS, PS, pErrBlob;
+-    assert(m_d3dCompiler->compile);
+-    hr = m_d3dCompiler->compile(shaderStr, strlen(shaderStr), nullptr, nullptr, nullptr, "VShader", "vs_4_0", 0, 0, &VS, &pErrBlob);
+-    if (FAILED(hr))
+-    {
+-        char* err = pErrBlob ? (char*)pErrBlob->GetBufferPointer() : nullptr;
+-        msg_Err(m_intf, "fail to compile vertex shader (0x%lX) : %s", hr, err);
+-        return;
+-    }
+-
+-    hr = m_d3dCompiler->compile(shaderStr, strlen(shaderStr), nullptr, nullptr, nullptr, "PShader", "ps_4_0", 0, 0, &PS, &pErrBlob);
+-    if (FAILED(hr))
+-    {
+-        char* err = pErrBlob ? (char*)pErrBlob->GetBufferPointer() : nullptr;
+-        msg_Err(m_intf, "fail to compile pixel shader (0x%lX) : %s", hr, err);
+-        return;
+-    }
+-
+-    HR(m_d3dDevice->CreateVertexShader(VS->GetBufferPointer(), VS->GetBufferSize(), nullptr, &m_VS), "CreateVertexShader");
+-    HR(m_d3dDevice->CreatePixelShader(PS->GetBufferPointer(), PS->GetBufferSize(), nullptr, &m_PS), "CreatePixelShader");
+-
+-    D3D11_INPUT_ELEMENT_DESC ied[] =
+-    {
+-        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+-        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+-    };
+-
+-    HR(m_d3dDevice->CreateInputLayout(ied, 2, VS->GetBufferPointer(), VS->GetBufferSize(), &m_ShadersInputLayout));
+-    //the texture is rendered upside down
+-    SHADER_INPUT OurVertices[] =
+-    {
+-        {{BORDER_LEFT,  BORDER_BOTTOM, 0.0f},  {0.0f, 0.0f}},
+-        {{BORDER_RIGHT, BORDER_BOTTOM, 0.0f},  {1.0f, 0.0f}},
+-        {{BORDER_RIGHT, BORDER_TOP,    0.0f},  {1.0f, 1.0f}},
+-        {{BORDER_LEFT,  BORDER_TOP,    0.0f},  {0.0f, 1.0f}},
+-    };
+-
+-    D3D11_BUFFER_DESC bd = {};
+-    bd.Usage = D3D11_USAGE_DYNAMIC;
+-    bd.ByteWidth = sizeof(OurVertices);
+-    bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+-    bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+-
+-    HR(m_d3dDevice->CreateBuffer(&bd, nullptr, &m_VertexBuffer), "create vertex buffer");
+-    m_vertexBufferStride = sizeof(OurVertices[0]);
+-
+-    D3D11_MAPPED_SUBRESOURCE ms;
+-    HR(m_d3dContext->Map(m_VertexBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms));
+-    memcpy(ms.pData, OurVertices, sizeof(OurVertices));
+-    m_d3dContext->Unmap(m_VertexBuffer.Get(), 0);
+-
+-    m_quadIndexCount = 6;
+-    D3D11_BUFFER_DESC quadDesc = { };
+-    quadDesc.Usage = D3D11_USAGE_DYNAMIC;
+-    quadDesc.ByteWidth = sizeof(WORD) * m_quadIndexCount;
+-    quadDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+-    quadDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+-    HR(m_d3dDevice->CreateBuffer(&quadDesc, nullptr, &m_IndexBuffer), "create triangle list buffer");
+-
+-    HR(m_d3dContext->Map(m_IndexBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms));
+-    WORD *triangle_pos = static_cast<WORD*>(ms.pData);
+-    triangle_pos[0] = 3;
+-    triangle_pos[1] = 1;
+-    triangle_pos[2] = 0;
+-    triangle_pos[3] = 2;
+-    triangle_pos[4] = 1;
+-    triangle_pos[5] = 3;
+-    m_d3dContext->Unmap(m_IndexBuffer.Get(), 0);
+-
+-    m_d3dContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+-    m_d3dContext->IASetInputLayout(m_ShadersInputLayout.Get());
+-    UINT offset = 0;
+-    m_d3dContext->IASetVertexBuffers(0, 1, m_VertexBuffer.GetAddressOf(), &m_vertexBufferStride, &offset);
+-    m_d3dContext->IASetIndexBuffer(m_IndexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0);
+-
+-    m_d3dContext->VSSetShader(m_VS.Get(), 0, 0);
+-    m_d3dContext->PSSetShader(m_PS.Get(), 0, 0);
+-
+-    D3D11_SAMPLER_DESC sampDesc {};
+-    sampDesc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+-    sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+-    sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+-    sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+-    sampDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+-    sampDesc.MinLOD = 0;
+-    sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+-
+-    HR(m_d3dDevice->CreateSamplerState(&sampDesc, &m_samplerState));
+-    m_d3dContext->PSSetSamplers(0, 1, m_samplerState.GetAddressOf());
+-
+-    updateSharedTexture(width, height);
+-}
+-
+-void CompositorDCompositionUISurface::resizeSwapchain(int width, int height)
+-{
+-    try
+-    {
+-        m_d3dContext->OMSetRenderTargets(0, 0, 0);
+-        m_d3dRenderTarget.Reset();
+-
+-        HR(m_d3dSwapChain->ResizeBuffers(0, width, height, DXGI_FORMAT_UNKNOWN, 0), "resize buffer");
+-
+-        ComPtr<ID3D11Texture2D> backTexture;
+-        HR(m_d3dSwapChain->GetBuffer(0, IID_PPV_ARGS(&backTexture)), "get back buffer");
+-        HR(m_d3dDevice->CreateRenderTargetView(backTexture.Get(), nullptr, &m_d3dRenderTarget));
+-    }
+-    catch( const DXError& err )
+-    {
+-        msg_Warn(m_intf, "failed to resize: %s, code 0x%lX", err.what(), err.code());
+-    }
+-}
+-
+-void CompositorDCompositionUISurface::releaseSharedTexture()
+-{
+-    if (m_eglInterimTextureQt)
+-        eglDestroySurface(m_eglDisplay, m_eglInterimTextureQt);
+-    if (m_sharedTextureHandled) {
+-        CloseHandle(m_sharedTextureHandled);
+-    }
+-    m_d3dInterimTexture.Reset();
+-    m_textureShaderInput.Reset();
+-    m_d3dInterimTextureQt.Reset();
+-}
+-
+-void CompositorDCompositionUISurface::updateSharedTexture(int width, int height)
+-{
+-    try
+-    {
+-        releaseSharedTexture();
+-        /* interim texture */
+-        D3D11_TEXTURE2D_DESC texDesc = { };
+-        texDesc.MipLevels = 1;
+-        texDesc.SampleDesc.Count = 1;
+-        texDesc.MiscFlags = 0;
+-        texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+-        texDesc.Usage = D3D11_USAGE_DEFAULT;
+-        texDesc.CPUAccessFlags = 0;
+-        texDesc.ArraySize = 1;
+-        texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+-        texDesc.Height = height;
+-        texDesc.Width  = width;
+-        texDesc.MiscFlags = D3D11_RESOURCE_MISC_SHARED | D3D11_RESOURCE_MISC_SHARED_NTHANDLE;
+-
+-        HR(m_d3dDevice->CreateTexture2D( &texDesc, NULL, &m_d3dInterimTexture ), "create texture");
+-
+-        //share texture between our swapchain and Qt
+-        ComPtr<IDXGIResource1> sharedResource;
+-        HR(m_d3dInterimTexture.As(&sharedResource));
+-        HR(sharedResource->CreateSharedHandle(NULL, DXGI_SHARED_RESOURCE_READ|DXGI_SHARED_RESOURCE_WRITE, NULL, &m_sharedTextureHandled), "create shared texture (d3d)");
+-
+-        D3D11_SHADER_RESOURCE_VIEW_DESC resviewDesc = {};
+-        resviewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+-        resviewDesc.Texture2D.MipLevels = 1;
+-        resviewDesc.Format = texDesc.Format;
+-        HR(m_d3dDevice->CreateShaderResourceView(m_d3dInterimTexture.Get(), &resviewDesc, &m_textureShaderInput ), "create share resource view");
+-
+-        m_d3dContext->PSSetShaderResources(0, 1, m_textureShaderInput.GetAddressOf());
+-
+-        //bind shared texture on Qt side
+-        ComPtr<ID3D11Device1> m_qtd3dDevice1;
+-        HR(m_qtd3dDevice.As(&m_qtd3dDevice1));
+-        HR(m_qtd3dDevice1->OpenSharedResource1(m_sharedTextureHandled, IID_PPV_ARGS(&m_d3dInterimTextureQt)), "open shared texture (Qt)");
+-
+-        EGLClientBuffer buffer = reinterpret_cast<EGLClientBuffer>(m_d3dInterimTextureQt.Get());
+-        EGLint pBufferAttributes[] =
+-        {
+-            EGL_WIDTH, width,
+-            EGL_HEIGHT, height,
+-            EGL_FLEXIBLE_SURFACE_COMPATIBILITY_SUPPORTED_ANGLE, EGL_TRUE,
+-            EGL_NONE
+-        };
+-
+-        m_eglInterimTextureQt = eglCreatePbufferFromClientBuffer(m_eglDisplay, EGL_D3D_TEXTURE_ANGLE, buffer, m_eglConfig, pBufferAttributes);
+-    }
+-    catch (const DXError& err)
+-    {
+-        msg_Warn(m_intf, "failed to update shared texture: %s, code 0x%lX", err.what(), err.code());
+-    }
+-}
+-
+-
+-void CompositorDCompositionUISurface::setContent(QQmlComponent*,  QQuickItem* rootItem)
+-{
+-    m_rootItem = rootItem;
+-
+-    QQuickItem* contentItem  = m_uiWindow->contentItem();
+-
+-    m_rootItem->setParentItem(contentItem);
+-
+-    updateSizes();
+-
+-    m_context->makeCurrent(m_uiOffscreenSurface);
+-    m_uiRenderControl->initialize(m_context);
+-    m_context->doneCurrent();
+-
+-    requestUpdate();
+-}
+-
+-void CompositorDCompositionUISurface::render()
+-{
+-    EGLBoolean eglRet;
+-
+-    QSize realSize = m_rootWindow->size() * m_rootWindow->devicePixelRatio();
+-    if (realSize != m_surfaceSize)
+-    {
+-        m_surfaceSize = realSize;
+-    }
+-
+-    //Draw on Qt side
+-    m_context->makeCurrent(m_uiOffscreenSurface);
+-    eglRet = eglMakeCurrent(m_eglDisplay, m_eglInterimTextureQt, m_eglInterimTextureQt, m_eglCtx);
+-    if (!eglRet)
+-    {
+-        msg_Warn(m_intf, "failed to make current egl context");
+-        return;
+-    }
+-    m_context->functions()->glViewport(0, 0, realSize.width(), realSize.height());
+-    m_context->functions()->glScissor( 0, 0, realSize.width(), realSize.height());
+-    m_context->functions()->glEnable(GL_SCISSOR_TEST);
+-    m_context->functions()->glClearColor(0.,0.,0.,0.);
+-    m_context->functions()->glClear(GL_COLOR_BUFFER_BIT);
+-
+-    m_uiRenderControl->polishItems();
+-    m_uiRenderControl->sync();
+-    m_uiRenderControl->render();
+-
+-    //glFinish will present, glFlush isn't enough
+-    m_context->functions()->glFinish();
+-    m_context->doneCurrent();
+-
+-    //Draw on D3D side side
+-    m_d3dContext->OMSetRenderTargets(1, m_d3dRenderTarget.GetAddressOf(), nullptr);
+-    D3D11_VIEWPORT viewport = { 0.f, 0.f, (float)m_surfaceSize.width(), (float)m_surfaceSize.height(), 0.f, 0.f};
+-    m_d3dContext->RSSetViewports(1, &viewport);
+-    m_d3dContext->DrawIndexed(m_quadIndexCount, 0, 0);
+-
+-    HRESULT hr = m_d3dSwapChain->Present(0, 0);
+-    if ( hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET )
+-    {
+-        msg_Err( m_intf, "SwapChain Present failed. code 0x%lX)", hr );
+-    }
+-}
+-
+-void CompositorDCompositionUISurface::timerEvent(QTimerEvent *event)
+-{
+-    if (!event)
+-        return;
+-    if (event->timerId() == m_renderTimer.timerId())
+-    {
+-        m_renderPending = false;
+-        m_renderTimer.stop();
+-        render();
+-    }
+-}
+-
+-static void remapInputMethodQueryEvent(QObject *object, QInputMethodQueryEvent *e)
+-{
+-    auto item = qobject_cast<QQuickItem *>(object);
+-    if (!item)
+-        return;
+-    // Remap all QRectF values.
+-    for (auto query : {Qt::ImCursorRectangle, Qt::ImAnchorRectangle, Qt::ImInputItemClipRectangle})
+-    {
+-        if (e->queries() & query)
+-        {
+-            auto value = e->value(query);
+-            if (value.canConvert<QRectF>())
+-                e->setValue(query, item->mapRectToScene(value.toRectF()));
+-        }
+-    }
+-    // Remap all QPointF values.
+-    if (e->queries() & Qt::ImCursorPosition)
+-    {
+-        auto value = e->value(Qt::ImCursorPosition);
+-        if (value.canConvert<QPointF>())
+-            e->setValue(Qt::ImCursorPosition, item->mapToScene(value.toPointF()));
+-    }
+-}
+-
+-bool CompositorDCompositionUISurface::eventFilter(QObject* object, QEvent* event)
+-{
+-    if (object != m_rootWindow)
+-        return false;
+-
+-    switch (event->type()) {
+-    case QEvent::Move:
+-    case QEvent::Show:
+-        updatePosition();
+-        break;
+-
+-    case QEvent::Resize:
+-        updateSizes();
+-        break;
+-
+-    case QEvent::WindowActivate:
+-    case QEvent::WindowDeactivate:
+-    case QEvent::Leave:
+-        return QCoreApplication::sendEvent(m_uiWindow, event);
+-    case QEvent::Enter:
+-    {
+-        QEnterEvent *enterEvent = static_cast<QEnterEvent *>(event);
+-        QEnterEvent mappedEvent(enterEvent->localPos(), enterEvent->windowPos(),
+-                                enterEvent->screenPos());
+-        bool ret = QCoreApplication::sendEvent(m_uiWindow, &mappedEvent);
+-        event->setAccepted(mappedEvent.isAccepted());
+-        return ret;
+-    }
+-
+-    case QEvent::InputMethod:
+-        return QCoreApplication::sendEvent(m_uiWindow->focusObject(), event);
+-    case QEvent::InputMethodQuery:
+-    {
+-        bool eventResult = QCoreApplication::sendEvent(m_uiWindow->focusObject(), event);
+-        // The result in focusObject are based on offscreenWindow. But
+-        // the inputMethodTransform won't get updated because the focus
+-        // is on QQuickWidget. We need to remap the value based on the
+-        // widget.
+-        remapInputMethodQueryEvent(m_uiWindow->focusObject(), static_cast<QInputMethodQueryEvent *>(event));
+-        return eventResult;
+-    }
+-
+-    case QEvent::MouseButtonPress:
+-    case QEvent::MouseButtonRelease:
+-    case QEvent::MouseButtonDblClick:
+-    case QEvent::MouseMove:
+-    {
+-        QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
+-        QMouseEvent mappedEvent(mouseEvent->type(), mouseEvent->localPos(),
+-                                mouseEvent->localPos(), mouseEvent->screenPos(),
+-                                mouseEvent->button(), mouseEvent->buttons(),
+-                                mouseEvent->modifiers(), mouseEvent->source());
+-        QCoreApplication::sendEvent(m_uiWindow, &mappedEvent);
+-        return true;
+-    }
+-    case QEvent::Wheel:
+-    case QEvent::HoverEnter:
+-    case QEvent::HoverLeave:
+-    case QEvent::HoverMove:
+-
+-    case QEvent::DragEnter:
+-    case QEvent::DragMove:
+-    case QEvent::DragLeave:
+-    case QEvent::DragResponse:
+-    case QEvent::Drop:
+-        return QCoreApplication::sendEvent(m_uiWindow, event);
+-
+-    case QEvent::KeyPress:
+-    case QEvent::KeyRelease:
+-        return QCoreApplication::sendEvent(m_uiWindow, event);
+-
+-    case QEvent::ScreenChangeInternal:
+-        m_uiWindow->setScreen(m_rootWindow->screen());
+-        break;
+-    default:
+-        break;
+-    }
+-    return false;
+-}
+-
+-void CompositorDCompositionUISurface::createFbo()
+-{
+-    //write to the immediate context
+-    m_uiWindow->setRenderTarget(0, m_rootWindow->size());
+-}
+-
+-void CompositorDCompositionUISurface::destroyFbo()
+-{
+-}
+-
+-void CompositorDCompositionUISurface::updateSizes()
+-{
+-    qreal dpr = m_rootWindow->devicePixelRatio();
+-    QSize windowSize = m_rootWindow->size();
+-
+-    resizeSwapchain(windowSize.width() * dpr, windowSize.height() * dpr);
+-    updateSharedTexture(windowSize.width() * dpr, windowSize.height() * dpr);
+-
+-    // Behave like SizeRootObjectToView.
+-    m_rootItem->setSize(windowSize);
+-    m_uiWindow->resize(windowSize);
+-}
+-
+-void CompositorDCompositionUISurface::updatePosition()
+-{
+-    QPoint windowPosition = m_rootWindow->mapToGlobal(QPoint(0,0));
+-    if (m_uiWindow->position() != windowPosition)
+-        m_uiWindow->setPosition(windowPosition);
+-}
+-
+-void CompositorDCompositionUISurface::requestUpdate()
+-{
+-    //Don't flood the redering with requests
+-    if (!m_renderPending) {
+-        m_renderPending = true;
+-        m_renderTimer.start(5, Qt::PreciseTimer, this);
+-    }
+-}
+-
+-void CompositorDCompositionUISurface::handleScreenChange()
+-{
+-    msg_Info(m_intf, "handle screen change");
+-    m_uiWindow->setGeometry(0, 0, m_rootWindow->width(), m_rootWindow->height());;
+-    requestUpdate();
+-}
+-
+-}
+--- modules/gui/qt/maininterface/compositor_dcomp_uisurface.hpp
++++ /dev/null
+@@ -1,182 +0,0 @@
+-/*****************************************************************************
+- * Copyright (C) 2020 VLC authors and VideoLAN
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2 of the License, or
+- * (at your option) any later version.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
+- *****************************************************************************/
+-#ifndef COMPOSITOR_DCOMP_UISURFACE_H
+-#define COMPOSITOR_DCOMP_UISURFACE_H
+-
+-#ifdef HAVE_CONFIG_H
+-# include "config.h"
+-#endif
+-
+-#include <memory>
+-
+-#include <vlc_common.h>
+-#include <vlc_interface.h> /* intf_thread_t */
+-
+-#include <windows.h>
+-#include <d3d11.h>
+-#include <dcomp.h>
+-#include <wrl.h>
+-
+-#include <qconfig.h>
+-//we link statically with ANGLE
+-#if defined(QT_STATIC) && !defined(KHRONOS_STATIC)
+-# define KHRONOS_STATIC 1
+-#endif
+-
+-#include <QObject>
+-#include <QApplication>
+-#include <QObject>
+-#include <QBasicTimer>
+-#include <QMainWindow>
+-#include <QQuickWindow>
+-#include <QQuickView>
+-#include <QQuickItem>
+-#include <QSGRectangleNode>
+-#include <QQuickRenderControl>
+-#include <QOpenGLContext>
+-#include <QOffscreenSurface>
+-#include <QOpenGLTexture>
+-
+-#include <QtANGLE/EGL/egl.h>
+-#include <QtANGLE/EGL/eglext.h>
+-#include <QtPlatformHeaders/QEGLNativeContext>
+-
+-namespace vlc {
+-
+-class CompositorDCompositionRenderControl : public QQuickRenderControl
+-{
+-    Q_OBJECT
+-public:
+-    CompositorDCompositionRenderControl(QWindow *w)
+-        : m_window(w)
+-    {
+-    }
+-
+-    QWindow *renderWindow(QPoint *) override
+-    {
+-        return m_window;
+-    }
+-
+-private:
+-    QWindow *m_window;
+-};
+-
+-class CompositorDCompositionUISurface : public QObject
+-{
+-    Q_OBJECT
+-public:
+-    explicit CompositorDCompositionUISurface(intf_thread_t* p_intf,
+-                                             QWindow* window,
+-                                             Microsoft::WRL::ComPtr<IDCompositionVisual> dcVisual,
+-                                             QObject *parent = nullptr);
+-
+-    ~CompositorDCompositionUISurface();
+-
+-    bool init();
+-
+-    QQmlEngine* engine() const { return m_qmlEngine; }
+-
+-    void setContent(QQmlComponent* component,  QQuickItem* rootItem);
+-
+-    void timerEvent(QTimerEvent *event) override;
+-    bool eventFilter(QObject* object, QEvent* event) override;
+-
+-private:
+-    void initialiseD3DSwapchain(int width, int height);
+-    void releaseSharedTexture();
+-    void updateSharedTexture(int width, int height);
+-    void resizeSwapchain(int width, int height);
+-
+-    void requestUpdate();
+-    void render();
+-
+-    void handleScreenChange();
+-
+-    void createFbo();
+-    void destroyFbo();
+-
+-    void updateSizes();
+-    void updatePosition();
+-
+-private:
+-    intf_thread_t* m_intf = nullptr;
+-
+-    class OurD3DCompiler;
+-    std::shared_ptr<OurD3DCompiler> m_d3dCompiler;
+-
+-    //Direct composition visual
+-    Microsoft::WRL::ComPtr<IDCompositionVisual> m_dcUiVisual;
+-
+-    //D3D11 rendering
+-    Microsoft::WRL::ComPtr<ID3D11Device> m_d3dDevice;
+-    Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_d3dContext;
+-
+-    Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_d3dRenderTarget;
+-    Microsoft::WRL::ComPtr<IDXGISwapChain1> m_d3dSwapChain;
+-
+-    Microsoft::WRL::ComPtr<ID3D11VertexShader> m_VS;
+-    Microsoft::WRL::ComPtr<ID3D11PixelShader>  m_PS;
+-    Microsoft::WRL::ComPtr<ID3D11InputLayout>  m_ShadersInputLayout;
+-
+-    UINT m_vertexBufferStride = 0;
+-    Microsoft::WRL::ComPtr<ID3D11Buffer> m_VertexBuffer;
+-
+-    UINT m_quadIndexCount = 0;
+-    Microsoft::WRL::ComPtr<ID3D11Buffer> m_IndexBuffer;
+-
+-    Microsoft::WRL::ComPtr<ID3D11SamplerState> m_samplerState;
+-
+-
+-    //Shared texture D3D side
+-    Microsoft::WRL::ComPtr<ID3D11Texture2D> m_d3dInterimTexture;
+-    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_textureShaderInput;
+-    HANDLE m_sharedTextureHandled;
+-
+-    //Shared texture D3D side
+-    Microsoft::WRL::ComPtr<ID3D11Device> m_qtd3dDevice;
+-    Microsoft::WRL::ComPtr<ID3D11Texture2D> m_d3dInterimTextureQt;
+-    EGLSurface m_eglInterimTextureQt = 0;
+-
+-    //Qt opengl context
+-    QOpenGLContext* m_context = nullptr;
+-    EGLDisplay m_eglDisplay  = 0;
+-    EGLContext m_eglCtx  = 0;
+-    EGLConfig m_eglConfig = 0;
+-
+-
+-    //offscreen surface and controller
+-    QOffscreenSurface* m_uiOffscreenSurface = nullptr;
+-    CompositorDCompositionRenderControl* m_uiRenderControl = nullptr;
+-
+-    //the actual window where we render
+-    QWindow* m_rootWindow = nullptr;
+-
+-    QQuickWindow* m_uiWindow = nullptr;
+-    QQmlEngine* m_qmlEngine = nullptr;
+-    QQmlComponent* m_qmlComponent = nullptr;
+-    QQuickItem* m_rootItem = nullptr;
+-
+-    QSize m_surfaceSize;
+-
+-    QBasicTimer m_renderTimer;
+-    bool m_renderPending = false;
+-};
+-
+-} //namespace vlc
+-
+-#endif // COMPOSITOR_DCOMP_UISURFACE_H
+--- modules/gui/qt/maininterface/main_interface_win32.cpp
++++ modules/gui/qt/maininterface/main_interface_win32.cpp
+@@ -349,7 +349,7 @@
+ 
+ void MainInterfaceWin32::resizeEvent(QResizeEvent *event)
+ {
++    QWidget::resizeEvent(event);
+-    MainInterface::resizeEvent(event);
+ 
+     /*
+      * Detects if window placement is not in its normal position (ex: win7 aero snap)
