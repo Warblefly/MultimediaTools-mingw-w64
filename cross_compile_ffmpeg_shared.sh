@@ -6980,7 +6980,7 @@ if [ -d "x86_64-w64-mingw32" ]; then # they installed a 64-bit compiler
   echo "Building 64-bit ffmpeg..."
   host_target='x86_64-w64-mingw32'
   mingw_w64_x86_64_prefix="$cur_dir/x86_64-w64-mingw32/$host_target"
-  export PATH="$cur_dir/x86_64-w64-mingw32/bin:$original_path"
+  export PATH="$cur_dur/depot_tools:$cur_dir/x86_64-w64-mingw32/bin:$original_path"
   export PKG_CONFIG_PATH="$cur_dir/x86_64-w64-mingw32/x86_64-w64-mingw32/lib/pkgconfig"
   export mingw_compiler_path="$cur_dir/mingw"
   mkdir -p x86_64

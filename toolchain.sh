@@ -219,3 +219,6 @@ echo "All tools built and installed."
 echo "Clean-up..."
 #rm -rf binutils-2.34 binutils-build gcc gcc-build mingw-crt-build mingw-headers-build mingw-w64 mingw-winpthreads-build
 echo "Cleaned-up."
+
+# Need to get the "depot_tools" for building ANGLE
+#git clone --depth 1 --single-branch https://chromium.googlesource.com/chromium/tools/depot_tools.git depot_tools || echo "Seems we have depot_tools."
