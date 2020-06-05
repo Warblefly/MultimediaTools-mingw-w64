@@ -21,7 +21,7 @@
 -libqt_plugin_la_SOURCES += \
 -	gui/qt/maininterface/compositor_dcomp.cpp \
 -	gui/qt/maininterface/compositor_dcomp.hpp \
--	gui/qt/maininterface/compositor_error.hpp \
+-	gui/qt/maininterface/compositor_dcomp_error.hpp \
 -	gui/qt/maininterface/compositor_dcomp_uisurface.cpp \
 -	gui/qt/maininterface/compositor_dcomp_uisurface.hpp
 -endif
@@ -526,7 +526,7 @@
 -#endif // COMPOSITOR_DCOMP_ERROR_HPP
 --- modules/gui/qt/maininterface/compositor_dcomp_uisurface.cpp
 +++ /dev/null
-@@ -1,702 +0,0 @@
+@@ -1,706 +0,0 @@
 -/*****************************************************************************
 - * Copyright (C) 2020 VLC authors and VideoLAN
 - *
@@ -758,10 +758,10 @@
 -        delete m_uiOffscreenSurface;
 -    if (m_context)
 -        delete m_context;
--    if (m_qmlEngine)
--        delete m_qmlEngine;
 -    if (m_rootItem)
 -        delete m_rootItem;
+-    if (m_qmlEngine)
+-        delete m_qmlEngine;
 -    releaseSharedTexture();
 -}
 -
@@ -938,9 +938,13 @@
 -void CompositorDCompositionUISurface::releaseSharedTexture()
 -{
 -    if (m_eglInterimTextureQt)
+-    {
 -        eglDestroySurface(m_eglDisplay, m_eglInterimTextureQt);
+-        m_eglInterimTextureQt = 0;
+-    }
 -    if (m_sharedTextureHandled) {
 -        CloseHandle(m_sharedTextureHandled);
+-        m_sharedTextureHandled = nullptr;
 -    }
 -    m_d3dInterimTexture.Reset();
 -    m_textureShaderInput.Reset();
@@ -1379,7 +1383,7 @@
 -    //Shared texture D3D side
 -    Microsoft::WRL::ComPtr<ID3D11Texture2D> m_d3dInterimTexture;
 -    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_textureShaderInput;
--    HANDLE m_sharedTextureHandled;
+-    HANDLE m_sharedTextureHandled = nullptr;
 -
 -    //Shared texture D3D side
 -    Microsoft::WRL::ComPtr<ID3D11Device> m_qtd3dDevice;

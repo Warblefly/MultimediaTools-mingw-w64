@@ -1,36 +1,35 @@
---- ncdump/ocprint.c.orig	2019-04-09 20:33:50.337293930 +0100
-+++ ncdump/ocprint.c	2019-04-09 20:34:13.305100468 +0100
-@@ -31,9 +31,9 @@
+--- ncdump/ocprint.c.orig	2020-05-22 13:56:21.003456724 +0100
++++ ncdump/ocprint.c	2020-05-22 13:57:15.113203261 +0100
+@@ -31,7 +31,7 @@
  #include "ocx.h"
  
  #ifdef _MSC_VER
 -#include "XGetopt.h"
-+/* #include "XGetopt.h"
- int opterr, optind;
--char* optarg;
-+char* optarg; */
++/* #include "XGetopt.h" */
  #endif
  
  #ifndef nulldup
---- ncdump/ncdump.c.orig	2019-06-09 15:30:16.021385981 +0100
-+++ ncdump/ncdump.c	2019-06-09 15:30:28.029156268 +0100
-@@ -20,7 +20,7 @@
- 
- #ifdef _MSC_VER
- #define snprintf _snprintf
--#include "XGetopt.h"
-+/*#include "XGetopt.h"*/
- int opterr;
- int optind;
+--- ncdump/ncdump.c.orig	2020-05-22 13:58:04.471286796 +0100
++++ ncdump/ncdump.c	2020-05-22 13:58:37.558070058 +0100
+@@ -9,7 +9,7 @@
+ #include <getopt.h>
  #endif
---- ncdump/ncvalidator.c.orig	2019-06-09 15:35:07.303838094 +0100
-+++ ncdump/ncvalidator.c	2019-06-09 15:35:22.079557792 +0100
-@@ -76,7 +76,7 @@
  #ifdef _MSC_VER
+-#include "XGetopt.h"
++/* #include "XGetopt.h" */
+ #define snprintf _snprintf
+ #endif
+ 
+--- ncdump/ncvalidator.c.orig	2020-06-03 11:55:14.462310636 +0100
++++ ncdump/ncvalidator.c	2020-06-03 11:55:33.581997658 +0100
+@@ -73,8 +73,8 @@
+ #include <unistd.h>     /* read() getopt() */
+ #endif
+ 
+-#ifdef _MSC_VER
+-#include "XGetopt.h"
++#ifdef _WIN32
++/* #include "XGetopt.h" */
  #include <io.h>
  #define snprintf _snprintf
--#include "XGetopt.h"
-+/*#include "XGetopt.h"*/
- int opterr;
- int optind;
  #endif

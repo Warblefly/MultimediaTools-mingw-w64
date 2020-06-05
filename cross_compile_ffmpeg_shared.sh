@@ -1476,8 +1476,8 @@ build_opendcp() {
 build_dcpomatic() {
 #do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic 9cff6ec974a4d0270091fe5c753483b0d53ecd46
 #  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic v2.15.x-1608 # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
-  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.71" dcpomatic-2.15.71
-  cd dcpomatic-2.15.71
+  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.77" dcpomatic-2.15.77
+  cd dcpomatic-2.15.77
     apply_patch file://${top_dir}/dcpomatic-wscript.patch
 #    apply_patch file://${top_dir}/dcpomatic-audio_ring_buffers.h.patch
 ##    apply_patch file://${top_dir}/dcpomatic-ffmpeg.patch
@@ -2065,7 +2065,7 @@ build_less() {
 }
 
 build_dvdbackup() {
-	download_and_unpack_file http://downloads.sourceforge.net/dvdbackup/dvdbackup-0.4.2.tar.xz dvdbackup-0.4.2
+	download_and_unpack_file https://launchpad.net/dvdbackup/trunk/0.4.2/+download/dvdbackup-0.4.2.tar.xz dvdbackup-0.4.2
 	cd dvdbackup-0.4.2
 	#  bzr branch lp:dvdbackup
 #  cd dvdbackup
@@ -2318,7 +2318,7 @@ build_filezilla() {
     rm -vf configure Makefile.in config.in
     apply_patch file://${top_dir}/filezilla-wxWidgets.patch
     apply_patch file://${top_dir}/filezilla-wx31.patch
-    generic_configure_make_install "CFLAGS=-fcommon --disable-dependency-tracking"
+    generic_configure_make_install "CFLAGS=-fcommon --disable-dependency-tracking --with-pugixml=system"
 #    unset CFLAGS
 #   generic_download_and_install https://download.filezilla-project.org/client/FileZilla_3.44.2_src.tar.bz2 filezilla-3.44.2
     #unset CFLAGS
@@ -4413,8 +4413,8 @@ build_asdcplib() {
 
 
 build_libtiff() {
-  generic_download_and_install http://download.osgeo.org/libtiff/tiff-4.0.9.tar.gz tiff-4.0.9
-  cd tiff-4.0.9
+  generic_download_and_install http://download.osgeo.org/libtiff/tiff-4.1.0.tar.gz tiff-4.1.0
+  cd tiff-4.1.0
 
   cd ..
 }
@@ -5931,6 +5931,16 @@ build_synaesthesia() {
   cd ..
 }
 
+build_pugixml() {
+	do_git_checkout https://github.com/zeux/pugixml.git pugixml
+	cd pugixml
+		apply_patch file://${top_dir}/pugixml-rc.patch
+		do_cmake "-DCMAKE_VERBOSE_MAKEFILE=ON"
+		do_make "V=1"
+		do_make_install
+	cd ..
+}
+
 build_harfbuzz() {
   download_and_unpack_file https://www.freedesktop.org/software/harfbuzz/release/harfbuzz-2.1.3.tar.bz2 harfbuzz-2.1.3
 #  download_and_unpack_file https://www.freedesktop.org/software/harfbuzz/release/harfbuzz-1.7.6.tar.bz2 harfbuzz-1.7.6
@@ -6688,6 +6698,7 @@ build_dependencies() {
   build_dvbpsi
   build_libebml
   build_libmatroska
+  build_pugixml
   build_1394camera
   build_libdc1394
   build_libmpeg2
