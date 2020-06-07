@@ -749,7 +749,8 @@ build_libx265() {
 #    apply_patch file://${top_dir}/x265-headers-revert.patch
   cd ..
   cd x265/source
-    local cmake_params="-DENABLE_SHARED=ON -DENABLE_STATIC=OFF -DENABLE_HDR10_PLUS=ON -DENABLE_ASSEMBLY=ON -DHIGH_BIT_DEPTH=1 -DCMAKE_C_FLAGS=-fpermissive -DCMAKE_CXX_FLAGS=-fpermissive"
+    local cmake_params="-DENABLE_SHARED=ON -DENABLE_STATIC=OFF -DENABLE_HDR10_PLUS=OFF -DENABLE_ASSEMBLY=ON -DHIGH_BIT_DEPTH=OFF -DCMAKE_C_FLAGS=-fpermissive -DCMAKE_CXX_FLAGS=-fpermissive -DLINKED_8BIT=OFF -DLINKED_10BIT=OFF -DENABLE_CLI=ON"
+#    local cmake_params="-DENABLE_SHARED=ON -DENABLE_STATIC=OFF -DENABLE_HDR10_PLUS=ON -DENABLE_ASSEMBLY=ON -DHIGH_BIT_DEPTH=ON -DCMAKE_C_FLAGS=-fpermissive -DCMAKE_CXX_FLAGS=-fpermissive -DLINKED_8BIT=ON -DLINKED_10BIT=ON -DENABLE_CLI=ON"
     #if [[ $high_bitdepth == "y" ]]; then
     #  cmake_params="$cmake_params -DHIGH_BIT_DEPTH=ON -DMAIN12=ON" # Enable 10 bits (main10) and 12 bits (???) per pixels profiles.
     #  if grep "DHIGH_BIT_DEPTH=0" CMakeFiles/cli.dir/flags.make; then
@@ -5445,6 +5446,7 @@ build_vlc() {
     apply_patch file://${top_dir}/vlc-stack.patch
     apply_patch file://${top_dir}/vlc-fortify.patch
     apply_patch file://${top_dir}/vlc-dcomp-unpatch.patch # EGL unavailable in pure mingw-w64 build
+    apply_patch file://${top_dir}/vlc-trunc.patch
     export LIVE555_CFLAGS="-I${mingw_w64_x86_64_prefix}/include/liveMedia -I${mingw_w64_x86_64_prefix}/include/UsageEnvironment -I${mingw_w64_x86_64_prefix}/include/BasicUsageEnvironment -I${mingw_w64_x86_64_prefix}/include/groupsock"
     export DSM_LIBS="-lws2_32 -ldsm"
     export AOM_LIBS="-laom -lpthread -lm"
