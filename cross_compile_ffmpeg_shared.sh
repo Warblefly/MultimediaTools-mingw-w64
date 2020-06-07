@@ -748,8 +748,45 @@ build_libx265() {
     apply_patch file://${top_dir}/x265-CMakeVersion.patch
 #    apply_patch file://${top_dir}/x265-headers-revert.patch
   cd ..
-  cd x265/source
-    local cmake_params="-DENABLE_SHARED=ON -DENABLE_STATIC=OFF -DENABLE_HDR10_PLUS=OFF -DENABLE_ASSEMBLY=ON -DHIGH_BIT_DEPTH=OFF -DCMAKE_C_FLAGS=-fpermissive -DCMAKE_CXX_FLAGS=-fpermissive -DLINKED_8BIT=OFF -DLINKED_10BIT=OFF -DENABLE_CLI=ON"
+  cd x265
+    cd source
+	mkdir -p 12bit 10bit 8bit
+	cd 12bit
+    		local cmake_params="-DENABLE_STATIC=ON -DENABLE_SHARED=OFF -DENABLE_ASSEMBLY=ON -DHIGH_BIT_DEPTH=ON -DMAIN12=1 -DEXPORT_C_API=0 -DENABLE_CLI=0"
+		do_cmake .. "$cmake_params"
+		do_make
+		cp -vf libx265.a ../8bit/libx265_main12.a
+	cd ..
+	cd 10bit
+		local cmake_params="-DENABLE_STATIC=ON -DENABLE_SHARED=OFF -DENABLE_ASSEMBLY=ON -DHIGH_BIT_DEPTH=ON -DENABLE_HDR10_PLUS=1 -DENABLE_CLI=0 -DEXPORT_C_API=0"
+		do_cmake .. "$cmake_params"
+		do_make
+		cp -vf libx265.a ../8bit/libx265_main10.a
+	cd ..
+	cd 8bit
+		local cmake_params="-DENABLE_STATIC=ON -DENABLE_SHARED=OFF -DENABLE_ASSEMBLY=ON -DENABLE_CLI=1 -DEXTRA_LINK_FLAGS=-L -DLINKED_10BIT=1 -DLINKED_12BIT=1 -DEXTRA_LIB='$(pwd)/libx265_main10.a;$(pwd)/libx265_main12.a'"
+		do_cmake .. "$cmake_params"
+		do_make
+		mv -vf libx265.a libx265_main.a
+		${cross_prefix}ar -M <<EOF
+CREATE libx265.a
+ADDLIB libx265_main.a
+ADDLIB libx265_main10.a
+ADDLIB libx265_main12.a
+SAVE
+END
+EOF
+		do_make_install
+		# Now we must make a shared DLL and install that.
+		${cross_prefix}g++ -v -shared -o libx265.dll -Wl,--whole-archive ./libx265.a -Wl,--whole-archive -Wl,--out-implib,libx265.dll.a -Wl,--no-whole-archive
+		cp -vf libx265.dll ${mingw_w64_x86_64_prefix}/bin
+		cp -vf libx265.dll.a ${mingw_w64_x86_64_prefix}/lib
+	cd ../..
+    cd ..
+
+
+
+#    	local cmake_params="-DENABLE_SHARED=ON -DENABLE_STATIC=OFF -DENABLE_HDR10_PLUS=OFF -DENABLE_ASSEMBLY=ON -DHIGH_BIT_DEPTH=OFF -DCMAKE_C_FLAGS=-fpermissive -DCMAKE_CXX_FLAGS=-fpermissive -DLINKED_8BIT=OFF -DLINKED_10BIT=OFF -DENABLE_CLI=ON"
 #    local cmake_params="-DENABLE_SHARED=ON -DENABLE_STATIC=OFF -DENABLE_HDR10_PLUS=ON -DENABLE_ASSEMBLY=ON -DHIGH_BIT_DEPTH=ON -DCMAKE_C_FLAGS=-fpermissive -DCMAKE_CXX_FLAGS=-fpermissive -DLINKED_8BIT=ON -DLINKED_10BIT=ON -DENABLE_CLI=ON"
     #if [[ $high_bitdepth == "y" ]]; then
     #  cmake_params="$cmake_params -DHIGH_BIT_DEPTH=ON -DMAIN12=ON" # Enable 10 bits (main10) and 12 bits (???) per pixels profiles.
@@ -763,13 +800,13 @@ build_libx265() {
     #fi
 #  apply_patch_p1 file://${top_dir}/x265-missing-bool.patch
   # Fixed by x265 developers now
-    do_cmake "$cmake_params"
+#    do_cmake "$cmake_params"
   # x265 seems to fail on parallel builds
 #    export cpu_count=1
-    do_make_install
+#    do_make_install
 
 #    export cpu_count=$original_cpu_count
-  cd ../..
+#  cd ../..
   # We must remove the x265.exe executable because FFmpeg gets linked against it. I do not understand this.
   # Furthermore, this makes x265.exe as an executable completely unuseable.
 #  cp -v ${mingw_w64_x86_64_prefix}/bin/libx265.dll ${mingw_w64_x86_64_prefix}/bin/x265.exe
