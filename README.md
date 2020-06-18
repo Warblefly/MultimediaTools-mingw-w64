@@ -642,7 +642,7 @@ BINARY DISTRIBUTION
 ===================
 
 I keep a binary installer on my website.
-<a href="http://gallery.johnwarburton.net/MultimediaTools-mingw-w64-Open-source.exe">http://gallery.johnwarburton.net/MultimediaTools-mingw-w64-Open-source.exe</a>
+<a href="http://gallery.johnwarburton.net/MultimediaTools-mingw-w64-Open-source.exe.xz">http://gallery.johnwarburton.net/MultimediaTools-mingw-w64-Open-source.exe.xz</a>
 
 Some of the binaries use shared libraries, ending in .dll. Like the executable programs, they're in the /bin/ directory of the distribution. Please keep them together with the .exe programs.
 
