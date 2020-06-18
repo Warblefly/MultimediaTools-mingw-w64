@@ -644,6 +644,8 @@ BINARY DISTRIBUTION
 I keep a binary installer on my website.
 <a href="http://gallery.johnwarburton.net/MultimediaTools-mingw-w64-Open-source.exe.xz">http://gallery.johnwarburton.net/MultimediaTools-mingw-w64-Open-source.exe.xz</a>
 
+This is an XZ archive, which can be opened using popular tools such as 7zip. Otherwise, making the EXE takes a desperately long time in the single-threaded nsis application.
+
 Some of the binaries use shared libraries, ending in .dll. Like the executable programs, they're in the /bin/ directory of the distribution. Please keep them together with the .exe programs.
 
 
