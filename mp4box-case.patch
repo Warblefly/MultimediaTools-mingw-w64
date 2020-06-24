@@ -1,0 +1,22 @@
+--- applications/mp4client/main.c.orig	2020-06-22 08:08:04.470000000 +0100
++++ applications/mp4client/main.c	2020-06-22 08:08:39.570000000 +0100
+@@ -130,7 +130,7 @@
+ static HWND console_hwnd = NULL;
+ static Bool owns_wnd = GF_FALSE;
+ #include <tlhelp32.h>
+-#include <Psapi.h>
++#include <psapi.h>
+ static DWORD getParentPID(DWORD pid)
+ {
+ 	DWORD ppid = 0;
+--- applications/mp4client/Makefile.orig	2020-06-22 09:10:55.090000000 +0100
++++ applications/mp4client/Makefile	2020-06-22 09:11:35.560000000 +0100
+@@ -40,7 +40,7 @@
+ LINKFLAGS+=$(shell pkg-config ../../gpac.pc --libs --static | sed 's/-lgpac //'  )
+ LINKFLAGS+=$(GPAC_SH_FLAGS) $(EXTRALIBS)
+ else
+-LINKFLAGS+=-lgpac
++LINKFLAGS+=-lgpac -lpsapi
+ ifeq ($(CONFIG_DARWIN),yes)
+ #LINKFLAGS+= -Wl,-rpath,'@loader_path'
+ else

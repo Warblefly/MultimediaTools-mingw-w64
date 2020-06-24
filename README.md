@@ -36,8 +36,8 @@ You might also want to play with the defaults for the mpv player, in %APPDATA%\R
 
 
 # How To Compile
-0. Compiling is becoming increasingly difficult. Source packages are constantly being updated (for which we rejoice, of course), and I am keeping up with these changes quite well. However, some changes that might break compilation go un-noticed because I only accomplish a completely clean build about once a month. Otherwise, packages such as GCC and QT-5.11.2 remain at reasonable recent release levels, with some patches applied. This does not affect the latest and greatest versions of ffmpeg, mpv, vim/gvim, x264, x265 and their associated libraries that are all compiled from development sources.
-1. Ensure your development requirement is adequate. I now develop on a virtual machine, using Debian Testing. Allow Docker to use all your CPUs, 8GB of RAM, and have an 80GB virtual disk.
+0. Compiling is becoming increasingly difficult. Source packages are constantly being updated (for which we rejoice, of course), and I am keeping up with these changes quite well. However, some changes that might break compilation go un-noticed because I only accomplish a completely clean build about once a month. Otherwise, packages such as GCC and QT remain at reasonable recent release levels, with some patches applied. This does not affect the latest and greatest versions of ffmpeg, mpv, vim/gvim, x264, x265 and their associated libraries that are all compiled from development sources.
+1. Ensure your development requirement is adequate. I now develop on a virtual machine, using Debian Testing running under WSL2. Remember to include contrib and non-free in your sources under /etc/apt/sources.list
 2. Update everything.
 ```
 apt update
@@ -46,9 +46,9 @@ apt upgrade
 
 3. Install the pre-requisites. On Debian running under Windows, you can do this.
 ```
-apt install software-properties-common extra-cmake-modules libsdl1.2debian libsdl1.2-dev libsdl2-2.0 libsdl2-dev ant asciidoc autoconf autoconf-archive autogen autopoint bison bzr cmake curl cvs docbook2x ed flex g++ libgdk-pixbuf2.0-dev gengetopt git gperf gtk-doc-tools gtk-update-icon-cache gyp intltool liborc-0.4 libsamplerate-dev libtasn1-bin librhash0 libtool libtool-bin libunittest++ lua5.3 mercurial meson nsis mm-common nasm nvidia-cuda-toolkit patchutils pax python-dev ragel rsync ronn ruby-json rake-compiler ruby-ronn sassc libspeex-dev libspeexdsp-dev ssh sshpass sssd-tools subversion swig libwxbase3.0-dev wget wx-common xutils-dev yasm
+apt install software-properties-common extra-cmake-modules libsdl1.2debian libsdl1.2-dev libsdl2-2.0-0 libsdl2-dev ant asciidoc autoconf autoconf-archive autogen autopoint bison bzr cmake curl cvs docbook2x ed flex g++ libgdk-pixbuf2.0-dev gengetopt git gperf gtk-doc-tools gtk-update-icon-cache gyp intltool liborc-0.4-0 liborc-dev libsamplerate-dev libtasn1-bin librhash0 libtool libtool-bin libunittest++2 lua5.3 mercurial meson nsis mm-common nasm nvidia-cuda-toolkit patchutils pax python-dev ragel rsync ronn ruby-json rake-compiler ruby-ronn sassc scons libspeex-dev libspeexdsp-dev ssh sshpass sssd-tools subversion swig libwxbase3.0-dev wget wx-common xutils-dev yasm
 ```
-Then, switch your Java development kit to an earlier version. You'll need this to compile libbluray:
+Then, switch your Java development kit to an earlier version. You used to need this to compile libbluray but its code is so old, and I don't need to play Blu-Ray discs other than to duplicate their contents, that I no longer do this.
 ```
 apt-key adv --keyserver keyserver.ubuntu.com --recv-keys C2518248EEA14886  
 apt update

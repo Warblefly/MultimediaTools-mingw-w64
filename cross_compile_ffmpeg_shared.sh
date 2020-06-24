@@ -74,6 +74,15 @@ check_missing_packages () {
     exit 1
   fi
 
+  if uname -a | grep -i -q -- "microsoft" ; then
+    if cat /proc/sys/fs/binfmt_misc/WSLInterop | grep -q enabled ; then
+      echo "windows WSL detected: you must first disable 'binfmt' by running this 
+      sudo bash -c 'echo 0 > /proc/sys/fs/binfmt_misc/WSLInterop'
+      then try again"
+      exit 1
+    fi
+  fi
+
 }
 
 
@@ -251,47 +260,50 @@ do_git_checkout() {
   local repo_url="$1"
   local to_dir="$2"
   if [[ -z $to_dir ]]; then
-    echo "got empty to dir for git checkout?"
-    exit 1
+    to_dir=$(basename $repo_url | sed s/\.git/_git/) # http://y/abc.git -> abc_git
   fi
   local desired_branch="$3"
   if [ ! -d $to_dir ]; then
-    echo "Downloading (via git clone) $to_dir"
+    echo "Downloading (via git clone) $to_dir from $repo_url"
     rm -rf $to_dir.tmp # just in case it was interrupted previously...
-    # prevent partial checkouts by renaming it only after success
     git clone $repo_url $to_dir.tmp || exit 1
+    # prevent partial checkouts by renaming it only after success
     mv $to_dir.tmp $to_dir
-    echo "done downloading $to_dir"
-    update_to_desired_git_branch_or_revision $to_dir $desired_branch
+    echo "done git cloning to $to_dir"
+    cd $to_dir
   else
     cd $to_dir
-    old_git_version=`git rev-parse HEAD`
-
-    if [[ -z $desired_branch ]]; then
-      if [[ $git_get_latest = "y" ]]; then
-        echo "Updating to latest $to_dir version... $desired_branch"
-        git pull
-      else
-        echo "not doing git get latest pull for latest code $to_dir"
-      fi
+    if [[ $git_get_latest = "y" ]]; then
+      git fetch # want this for later...
     else
-      if [[ $git_get_latest = "y" ]]; then
-        echo "Doing git fetch $to_dir in case it affects the desired branch [$desired_branch]"
-        git fetch
-      else
-        echo "not doing git fetch $to_dir to see if it affected desired branch [$desired_branch]"
-      fi
+      echo "not doing git get latest pull for latest code $to_dir" # too slow'ish...
     fi
-    update_to_desired_git_branch_or_revision "." $desired_branch
-    new_git_version=`git rev-parse HEAD`
-    if [[ "$old_git_version" != "$new_git_version" ]]; then
-     echo "got upstream changes, forcing re-configure."
-     rm -v `find ./ -name "already*"`
-    else
-     echo "this pull got no new upstream changes, not forcing re-configure..."
-    fi
-    cd ..
   fi
+
+  # reset will be useless if they didn't git_get_latest but pretty fast so who cares...plus what if they changed branches? :)
+  old_git_version=`git rev-parse HEAD`
+  if [[ -z $desired_branch ]]; then
+    desired_branch="origin/master"
+  fi
+  echo "doing git checkout $desired_branch" 
+  git checkout "$desired_branch" || (git_hard_reset && git checkout "$desired_branch") || (git reset --hard "$desired_branch") || exit 1 # can't just use merge -f because might "think" patch files already applied when their changes have been lost, etc...
+  # vmaf on 16.04 needed that weird reset --hard? huh?
+  if git show-ref --verify --quiet "refs/remotes/origin/$desired_branch"; then # $desired_branch is actually a branch, not a tag or commit
+    git merge "origin/$desired_branch" || exit 1 # get incoming changes to a branch
+  fi
+  new_git_version=`git rev-parse HEAD`
+  if [[ "$old_git_version" != "$new_git_version" ]]; then
+    echo "got upstream changes, forcing re-configure. Doing git clean -f"
+    git_hard_reset
+  else
+    echo "fetched no code changes, not forcing reconfigure for that..."
+  fi
+  cd ..
+}
+
+git_hard_reset() {
+	git reset --hard # delete results of any patches
+	git clean -f # remove local changes and monitoring files
 }
 
 download_config_files() {
@@ -777,6 +789,7 @@ SAVE
 END
 EOF
 		do_make_install
+		rm -vf libx265.dll.a libx265.dll
 		# Now we must make a shared DLL and install that.
 		${cross_prefix}g++ -v -shared -o libx265.dll -Wl,--whole-archive ./libx265.a -Wl,--whole-archive -Wl,--out-implib,libx265.dll.a -Wl,--no-whole-archive
 		cp -vf libx265.dll ${mingw_w64_x86_64_prefix}/bin
@@ -1514,8 +1527,8 @@ build_opendcp() {
 build_dcpomatic() {
 #do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic 9cff6ec974a4d0270091fe5c753483b0d53ecd46
 #  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic v2.15.x-1608 # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
-  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.77" dcpomatic-2.15.77
-  cd dcpomatic-2.15.77
+  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.81" dcpomatic-2.15.81
+  cd dcpomatic-2.15.81
     apply_patch file://${top_dir}/dcpomatic-wscript.patch
 #    apply_patch file://${top_dir}/dcpomatic-audio_ring_buffers.h.patch
 ##    apply_patch file://${top_dir}/dcpomatic-ffmpeg.patch
@@ -1795,6 +1808,7 @@ build_libdvdread() {
   # Need this to help libtool not object
   sed -i.bak 's/libdvdread_la_LDFLAGS = -version-info $(DVDREAD_LTVERSION)/libdvdread_la_LDFLAGS = -version-info $(DVDREAD_LTVERSION) -no-undefined/' Makefile.am
 #  apply_patch file://${top_dir}/libdvdread.patch
+  rm -v aclocal.m4
   generic_configure "--with-libdvdcss CFLAGS=-DHAVE_DVDCSS_DVDCSS_H LDFLAGS=-ldvdcss" # vlc patch: "--enable-libdvdcss" # XXX ask how I'm *supposed* to do this to the dvdread peeps [svn?]
   #apply_patch https://raw.githubusercontent.com/rdp/ffmpeg-windows-build-helpers/master/patches/dvdread-win32.patch # has been reported to them...
   do_make_install
@@ -2425,7 +2439,7 @@ build_orc() {
 }
 
 build_libxml2() {
-  do_git_checkout https://github.com/GNOME/libxml2.git libxml2
+  do_git_checkout https://gitlab.gnome.org/GNOME/libxml2.git libxml2
 #  download_and_unpack_file https://github.com/GNOME/libxml2/archive/v2.9.9-rc2.tar.gz libxml2-2.9.9-rc2
   cd libxml2 # -2.9.9-rc2
     # Remove libxml2 autogen because it sets variables that interfere with our cross-compile
@@ -2439,7 +2453,7 @@ build_libxml2() {
 }
 
 build_libxslt() {
-  do_git_checkout https://github.com/GNOME/libxslt.git libxslt
+  do_git_checkout https://github.com/GNOME/libxslt.git libxslt mainline
 #  cd libxslt-1.1.28/libxslt
 #      apply_patch https://raw.githubusercontent.com/Warblefly/multimediaWin64/master/libxslt-security.c.patch
 #    cd ..
@@ -4025,7 +4039,7 @@ build_boost() {
 }
 
 build_mkvtoolnix() {
-  do_git_checkout https://gitlab.com/mbunkus/mkvtoolnix mkvtoolnix #16772170030715717341c3d5460d3d1fecf501a4
+  do_git_checkout https://gitlab.com/mbunkus/mkvtoolnix mkvtoolnix main #16772170030715717341c3d5460d3d1fecf501a4
 #    download_and_unpack_file https://mkvtoolnix.download/sources/mkvtoolnix-43.0.0.tar.xz mkvtoolnix-43.0.0
   cd mkvtoolnix # -43.0.0
     # Two libraries needed for mkvtoolnix
@@ -4624,7 +4638,7 @@ build_cairo() {
 }
 
 build_mmcommon() {
-  do_git_checkout https://github.com/GNOME/mm-common.git mm-common
+  do_git_checkout https://github.com/GNOME/mm-common.git mm-common mainline
   cd mm-common
 #    generic_configure_make_install "--enable-network"
 	generic_meson_ninja_install "-Duse-network=true"
@@ -5352,7 +5366,7 @@ build_libxml++ () {
 #  orig_aclocalpath=${ACLOCAL_PATH}
 #  export ACLOCAL_PATH="/usr/local/share/aclocal"
 #  download_and_unpack_file http://ftp.gnome.org/pub/GNOME/sources/libxml++/2.40/libxml++-2.40.1.tar.xz libxml++-2.40.1
-  do_git_checkout https://github.com/GNOME/libxmlplusplus.git libxmlplusplus
+  do_git_checkout https://github.com/GNOME/libxmlplusplus.git libxmlplusplus mainline
   cd libxmlplusplus
 #  cd libxml++-2.40.1
     rm -v configure
@@ -5557,6 +5571,7 @@ build_mp4box() { # like build_gpac
   # sed -i "s/has_dvb4linux=\"yes\"/has_dvb4linux=\"no\"/g" configure
   # sed -i "s/`uname -s`/MINGW32/g" configure
   # XXX do I want to disable more things here?
+    apply_patch file://${top_dir}/mp4box-case.patch
     sed -i.bak 's#bin/gcc/MP4Box #bin/gcc/MP4Box.exe #' Makefile
     sed -i.bak 's#bin/gcc/MP42TS #bin/gcc/MP42TS.exe #' Makefile
     sed -i.bak 's#bin/gcc/MP4Client #bin/gcc/MP4Client.exe #' Makefile
@@ -6080,7 +6095,7 @@ build_xz() {
 }
 
 build_libjson() {
-do_git_checkout https://github.com/json-c/json-c.git json-c
+do_git_checkout https://github.com/json-c/json-c.git json-c da76ee26e7977cc4d796ed8c7e263d95cd94a199
     cd json-c
 #    	apply_patch file://${top_dir}/json-c-control.patch
 	do_cmake "-DENABLE_THREADING=ON"

@@ -140,7 +140,7 @@ SetCompress off
   !ifndef Un${StrFuncName}_INCLUDED
     ${Un${StrFuncName}}
   !endif
-  !define un.${StrFuncName} "${Un${StrFuncName}}"
+  !define un.${StrFuncName} '${Un${StrFuncName}}'
 !macroend
 
 !insertmacro _IncludeStrFunction StrTok
