@@ -95,6 +95,7 @@ if  [[ "$dump_archive" = [Yy] ]]; then
   rm -v install_mm.nsi
 # Preamble
   cat << 'EOF' >> install_mm.nsi
+Unicode true
 /**
  *  EnvVarUpdate.nsh
  *    : Environmental Variables: append, prepend, and remove entries
@@ -123,7 +124,7 @@ if  [[ "$dump_archive" = [Yy] ]]; then
  *
  **/
 
-SetCompress off
+;SetCompress off
 !ifndef ENVVARUPDATE_FUNCTION
 !define ENVVARUPDATE_FUNCTION
 !verbose push
@@ -433,9 +434,9 @@ LicenseData LICENSE.rtf
 LicenseForceSelection radiobuttons "Accept" "Decline"
 ShowInstDetails show
 ShowUninstDetails show
-;SetCompressor /SOLID lzma
+SetCompressor /SOLID lzma
 ;SetCompressor lzma
-;SetCompressorDictSize 512
+SetCompressorDictSize 512
 XPStyle off
 
 
@@ -446,7 +447,8 @@ Page instfiles
 
 
 Section "install"
-SetCompress off
+BringToFront
+;SetCompress off
 setOutPath $INSTDIR
 
 setOutPath "$INSTDIR\bin"
@@ -542,7 +544,7 @@ SectionEnd
 
 
 Section "uninstall"
-SetCompress off
+;SetCompress off
 RMDir /r "$INSTDIR\bin"
 RMDir /r "$INSTDIR\lib"
 RMDir /r "$INSTDIR\plugins"
@@ -550,7 +552,7 @@ RMDir /r "$INSTDIR\share"
 RMDir /r "$INSTDIR\doc"
 Delete "$INSTDIR\uninstall.exe"
 SectionEnd
-SetCompress off
+;SetCompress off
 EOF
 
   # Make the Windows installer
@@ -559,13 +561,13 @@ EOF
   # Move the Windows installer into the root of the build tree
   mv -v  MultimediaTools-mingw-w64-Open-source.exe ../../..
   cd ../../..
-  xz -zf9vv --threads=0 MultimediaTools-mingw-w64-Open-source.exe
-  echo "Archive made and stored in MultimediaTools-mingw-w64-Open-source.exe.xz"
+#  xz -zf9vv --threads=0 MultimediaTools-mingw-w64-Open-source.exe
+  echo "Archive made and stored in MultimediaTools-mingw-w64-Open-source.exe"
 fi
 
 if [[ "${upload_archive}" = [Yy] ]]; then
   echo "Uploading archive to ${upload_location}..."
-  sshpass -p "${upload_password}" rsync --bwlimit=40 -avP -e ssh --progress MultimediaTools-mingw-w64-Open-source.exe.xz "${upload_location}"
+  sshpass -p "${upload_password}" rsync --bwlimit=40 -avP -e ssh --progress MultimediaTools-mingw-w64-Open-source.exe "${upload_location}"
 # We also upload the installation command files separately.
 #  echo "Uploading installation scripts to ${upload_location}..."
 #  sshpass -p "${upload_password}" scp -v -l 250 "install-zipfile.ps1" "install-zipfile.cmd" "${upload_location}"
@@ -574,7 +576,7 @@ fi
 
 if [[ "${upload_local}" = [Yy] ]]; then
   echo "Uploading archive locally to ${upload_local_location}..."
-  sshpass -p "${upload_local_password}" rsync -avP -e ssh --progress MultimediaTools-mingw-w64-Open-source.exe.xz "${upload_local_location}"
+  sshpass -p "${upload_local_password}" rsync -avP -e ssh --progress MultimediaTools-mingw-w64-Open-source.exe "${upload_local_location}"
   echo "SSH local upload complete."
 fi
 echo "Build script finished."

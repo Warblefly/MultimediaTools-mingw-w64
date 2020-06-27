@@ -2356,7 +2356,7 @@ do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfile
 
 build_filezilla() {
 
-  do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla #9530 #9450 # 9262 # 9056
+  do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla 9844 #9530 #9450 # 9262 # 9056
 #  download_and_unpack_file "https://dl3.cdn.filezilla-project.org/client/FileZilla_3.46.3_src.tar.bz2?h=oLc72s8yghgbX19g_lnNNw&x=1580289968" filezilla-3.46.3
   cd filezilla
     export CC=x86_64-w64-mingw32-gcc
