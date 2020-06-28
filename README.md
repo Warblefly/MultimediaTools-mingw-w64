@@ -4,7 +4,7 @@ Scripts and patches to cross-compile, for Windows 64-bit, many multimedia utilit
 # How To Install
 
 A compressed binary package is available for download from this address:
-<a href="http://gallery.johnwarburton.net/MultimediaTools-mingw-w64-Open-source.exe.xz">http://gallery.johnwarburton.net/MultimediaTools-mingw-w64-Open-source.exe.xz</a>
+<a href="http://gallery.johnwarburton.net/MultimediaTools-mingw-w64-Open-source.exe">http://gallery.johnwarburton.net/MultimediaTools-mingw-w64-Open-source.exe</a>
 
 These files are tested here when installed to C:\Program Files\ffmpeg. Other locations may work, but have not been tested.
 
@@ -642,7 +642,7 @@ BINARY DISTRIBUTION
 ===================
 
 I keep a binary installer on my website.
-<a href="http://gallery.johnwarburton.net/MultimediaTools-mingw-w64-Open-source.exe.xz">http://gallery.johnwarburton.net/MultimediaTools-mingw-w64-Open-source.exe.xz</a>
+<a href="http://gallery.johnwarburton.net/MultimediaTools-mingw-w64-Open-source.exe">http://gallery.johnwarburton.net/MultimediaTools-mingw-w64-Open-source.exe</a>
 
 This is an XZ archive, which can be opened using popular tools such as 7zip. Otherwise, making the EXE takes a desperately long time in the single-threaded nsis application.
 

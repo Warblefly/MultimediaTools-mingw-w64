@@ -1,25 +1,12 @@
---- src/qjackctlMainForm.cpp.orig	2017-11-06 22:27:54.371148100 +0000
-+++ src/qjackctlMainForm.cpp	2017-11-06 22:29:49.664060300 +0000
-@@ -54,9 +54,10 @@
- #include <QCloseEvent>
- 
- #if defined(__WIN32__) || defined(_WIN32) || defined(WIN32)
-+#if 0
- #include <QPlastiqueStyle>
- #endif
--
-+#endif
- 
- #if QT_VERSION < 0x040500
- namespace Qt {
-@@ -317,8 +318,10 @@
- 	: QWidget(pParent, wflags)
- {
- #if defined(__WIN32__) || defined(_WIN32) || defined(WIN32)
-+#if 0
- 	QApplication::setStyle(new QPlastiqueStyle());
- #endif
-+#endif
- 
- 	// Setup UI struct...
- 	m_ui.setupUi(this);
+--- src/qjackctlMainForm.cpp.orig	2020-06-27 23:00:28.460000000 +0100
++++ src/qjackctlMainForm.cpp	2020-06-27 23:00:39.200000000 +0100
+@@ -2655,9 +2655,6 @@
+ 		jackFinished();
+ 		break;
+ 	case QProcess::Crashed:
+-	#if defined(__WIN32__) || defined(_WIN32) || defined(WIN32)
+-		if (!m_bJackStopped)
+-	#endif
+ 		appendMessagesColor(tr("JACK has crashed."), "#cc3366");
+ 		break;
+ 	case QProcess::Timedout:

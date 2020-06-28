@@ -71,22 +71,6 @@
                  }
              }
  
---- wscript.orig	2016-07-26 21:57:29.336000000 +0000
-+++ wscript	2016-07-26 22:02:46.157000000 +0000
-@@ -816,6 +816,13 @@
-         'linux/firewire/JackFFADOMidiSendQueue.cpp'
-     ]
- 
-+    winmme_src = [
-+        'windows/winmme/JackWinMMEDriver.cpp',
-+        'windows/winmme/JackWinMMEInputPort.cpp',
-+        'windows/winmme/JackWinMMEOutputPort.cpp',
-+        'windows/winmme/JackWinMMEPort.cpp'
-+    ]
-+
-     freebob_src = [
-         'linux/freebob/JackFreebobDriver.cpp'
-     ]
 --- common/JackProxyDriver.cpp.orig	2017-07-17 09:35:19.466995700 +0100
 +++ common/JackProxyDriver.cpp	2017-07-17 09:36:01.057817300 +0100
 @@ -24,7 +24,7 @@
@@ -98,3 +82,12 @@
  inline int setenv(const char* name, const char* value, int) {
      static const char* const kFakeZero = "0";
      if (*value == '\0')
+--- common/JackConstants.h.orig	2020-06-27 21:59:01.050000000 +0100
++++ common/JackConstants.h	2020-06-27 21:59:42.840000000 +0100
+@@ -88,4 +88,6 @@
+ 
+ #define JACK_DEFAULT_SELF_CONNECT_MODE ' ' /* allow all requests */
+ 
++#define ADDON_DIR "jack"
++
+ #endif
