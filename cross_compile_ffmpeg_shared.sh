@@ -2090,9 +2090,9 @@ build_ncurses() {
     wget http://invisible-island.net/datafiles/current/terminfo.src.gz
     gunzip terminfo.src.gz
   fi
-  download_and_unpack_file ftp://ftp.invisible-island.net/ncurses/current/ncurses-6.2-20200418.tgz ncurses-6.2-20200418
+  download_and_unpack_file ftp://ftp.invisible-island.net/ncurses/current/ncurses-6.2-20200627.tgz ncurses-6.2-20200627
  # generic_configure "--build=x86_64-pc-linux --host=x86_64-w64-mingw32 --with-libtool --disable-termcap --enable-widec --enable-term-driver --enable-sp-funcs --without-ada --with-debug=no --with-shared=yes --with-normal=no --enable-database --with-progs --enable-interop --with-pkg-config-libdir=${mingw_w64_x86_64_prefix}/lib/pkgconfig --enable-pc-files"
-  cd ncurses-6.2-20200418
+  cd ncurses-6.2-20200627
 #    apply_patch file://${top_dir}/ncurses-rx.patch
 #    rm configure
     generic_configure "LIBS=-lgnurx --build=x86_64-pc-linux --host=x86_64-w64-mingw32 --disable-termcap --enable-widec --enable-term-driver --enable-sp-funcs --without-ada --without-cxx-binding --with-debug=no --with-shared=yes --with-normal=no --enable-database --with-probs --enable-interop --with-pkg-config-libdir=${mingw_w64_x86_64_prefix}/lib/pkgconfig --enable-pc-files --disable-static --enable-shared"
@@ -3464,6 +3464,8 @@ build_mpv() {
   do_git_checkout https://github.com/mpv-player/mpv.git mpv # 4c516a064a8246c9067eee32578a7a78feb371dc
   cd mpv
 #    apply_patch file://${top_dir}/mpv-disable-rectangle.patch
+    export oldpath="${PATH}"
+    export PATH=${mingw_w64_x86_64_prefix}/../bin:/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin
     ./bootstrap.py
     export DEST_OS=win32
     export TARGET=x86_64-w64-mingw32
@@ -3485,6 +3487,7 @@ build_mpv() {
     cp -vf ${top_dir}/mpv.conf ${mingw_w64_x86_64_prefix}/share/mpv/mpv.conf
     unset DEST_OS
     unset TARGET
+    export PATH="${oldpath}"
   cd ..
 }
 
@@ -5077,8 +5080,9 @@ build_aubio() {
 build_libdsm() {
   do_git_checkout https://github.com/videolabs/libdsm.git libdsm #03e98f930c45f4b9c34a98cc1f9a69c78567e9a3
   cd libdsm
-    apply_patch file://${top_dir}/libdsm-fortify.patch
-    generic_configure_make_install "--disable-silent-rules"
+    apply_patch file://${top_dir}/libdsm-meson.patch
+#    apply_patch file://${top_dir}/libdsm-fortify.patch
+    generic_meson_ninja_install #"--disable-silent-rules"
 
   cd ..
 #  cd ${mingw_w64_x86_64_prefix}/lib/pkgconfig
@@ -5461,13 +5465,13 @@ build_hdf() {
 }
 
 build_netcdf() {
-  do_git_checkout https://github.com/Unidata/netcdf-c.git netcdf-c #383f1cbe321e16ec82c6eb8e1774e16d8ed1962c
+  do_git_checkout https://github.com/Unidata/netcdf-c.git netcdf-c ba24e3c08e52e869c18f8f34e2d78622e60e6ce7
   cd netcdf-c
     apply_patch file://${top_dir}/netcdf-shared.patch
 #    apply_patch file://${top_dir}/netcdf-errno.patch
 #    apply_patch file://${top_dir}/netcdf-gcc.patch
 #    apply_patch file://${top_dir}/netcdf-mingw.patch
-    apply_patch file://${top_dir}/netcdf-getopt.patch
+#    apply_patch file://${top_dir}/netcdf-getopt.patch
     generic_configure_make_install "CFLAGS=-fcommon --enable-dll --disable-netcdf4"
   cd ..
 #  generic_download_and_install ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-4.5.0.tar.gz netcdf-4.5.0 "--enable-dll --disable-netcdf4"
