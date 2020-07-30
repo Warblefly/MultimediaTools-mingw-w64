@@ -1,13 +1,13 @@
---- src/wx/wscript.orig	2020-01-11 10:18:37.762109456 +0000
-+++ src/wx/wscript	2020-01-11 10:19:31.169536603 +0000
-@@ -207,8 +207,8 @@
+--- src/wx/wscript.orig	2020-07-29 12:09:33.670000000 +0100
++++ src/wx/wscript	2020-07-29 12:10:09.510000000 +0100
+@@ -220,8 +220,8 @@
      conf.in_msg = 1
      wx_version = conf.check_cfg(package='wxwidgets', path=wx_config, args='--version').strip()
-     conf.im_msg = 0
+     conf.in_msg = 0
 -    if not wx_version.startswith('3.0.'):
 -        conf.fatal('wxwidgets version 3.0.x is required; %s found' % wx_version)
 +    if not wx_version.startswith('3.'):
 +        conf.fatal('wxwidgets version 3.x.x is required; %s found' % wx_version)
  
-     try:
-         conf.check_cfg(msg='Checking for RtAudio using pkg-config',
+     config = conf.check_cfg(package='wxwidgets', path=wx_config, args='--selected-config').strip()
+     if config.find('gtk2') != -1:

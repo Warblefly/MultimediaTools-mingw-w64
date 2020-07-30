@@ -1448,6 +1448,8 @@ build_libspatialaudio() {
     do_cmake "-DCMAKE_SHARED_LINKER_FLAGS=-lz -DCMAKE_VERBOSE_MAKEFILE=ON"
     apply_patch file://${top_dir}/libspatialaudio-pc.patch
     do_make_install "V=1"
+    # The dll doesn't get copied. I don't understand why.
+    cp -v libspatialaudio.dll ${mingw_w64_x86_64_prefix}/bin/
 
   cd ..
 }
@@ -1461,7 +1463,7 @@ build_libmysofa() {
   #    sed -i.bak 's/CUnit\.h/Cunit\.h/' tests.h
     cd ../..
     apply_patch file://${top_dir}/libmysofa-shared.patch
-    do_cmake "-DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_COLOR_MAKEFILE=ON"
+    do_cmake "-DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_COLOR_MAKEFILE=ON -DBUILD_TESTS=OFF"
     do_make
     do_make_install
 
@@ -1527,8 +1529,8 @@ build_opendcp() {
 build_dcpomatic() {
 #do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic 9cff6ec974a4d0270091fe5c753483b0d53ecd46
 #  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic v2.15.x-1608 # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
-  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.81" dcpomatic-2.15.81
-  cd dcpomatic-2.15.81
+  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.90" dcpomatic-2.15.90
+  cd dcpomatic-2.15.90
     apply_patch file://${top_dir}/dcpomatic-wscript.patch
 #    apply_patch file://${top_dir}/dcpomatic-audio_ring_buffers.h.patch
 ##    apply_patch file://${top_dir}/dcpomatic-ffmpeg.patch
@@ -4093,7 +4095,7 @@ build_mkvtoolnix() {
 
 build_gavl() {
 #  generic_download_and_install https://downloads.sourceforge.net/project/gmerlin/gavl/1.4.0/gavl-1.4.0.tar.gz gavl-1.4.0 "--enable-shared=yes"
- do_svn_checkout svn://svn.code.sf.net/p/gmerlin/code/trunk/gavl gavl # 5412
+ do_svn_checkout svn://svn.code.sf.net/p/gmerlin/code/trunk/gavl gavl 5729 # 5412
  cd gavl
    apply_patch file://${top_dir}/gavl-ac-try-run.patch
    export ac_cv_have_clock_monotonic=yes 

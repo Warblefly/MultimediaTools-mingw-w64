@@ -1,13 +1,5 @@
 --- src/CMakeLists.txt.orig	2020-02-28 22:51:40.149792495 +0000
 +++ src/CMakeLists.txt	2020-02-28 22:54:35.435801021 +0000
-@@ -81,6 +81,7 @@
-   mysofa-static
-   PROPERTIES OUTPUT_NAME mysofa CLEAN_DIRECT_OUTPUT 1 POSITION_INDEPENDENT_CODE
-                                                       ON)
-+target_compile_definitions(mysofa-static PUBLIC MYSOFA_STATIC_DEFINE)
- install(TARGETS mysofa-static ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
- 
- if(UNIX
 @@ -127,6 +128,7 @@
    install(
      TARGETS mysofa-shared
@@ -15,12 +7,3 @@
 +    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
      LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
  else()
-   generate_export_header(mysofa-static BASE_NAME mysofa EXPORT_FILE_NAME
-@@ -161,6 +163,7 @@
- 
-   add_executable(internal tests/internal.c tests/tools.c hrtf/tools.c)
-   target_link_libraries(internal m ${CUNIT_LIBRARIES})
-+  target_link_libraries(internal mysofa-static m ${CUNIT_LIBRARIES})
-   add_test(
-     NAME internal
-     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
