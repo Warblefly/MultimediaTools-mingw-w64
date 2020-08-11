@@ -1,16 +1,3 @@
---- CMakeLists.txt.orig	2020-01-18 17:01:46.972822338 +0000
-+++ CMakeLists.txt	2020-01-18 17:02:15.404551441 +0000
-@@ -75,8 +75,8 @@
- elseif(WIN32)
-     set(DJV_PLATFORM_WINDOWS TRUE)
-     add_definitions(-DDJV_PLATFORM_WINDOWS)
--	set(CMAKE_C_FLAGS "/MP /EHsc")
--	set(CMAKE_CXX_FLAGS "/MP /EHsc")
-+    #	set(CMAKE_C_FLAGS "/MP /EHsc")
-+    #	set(CMAKE_CXX_FLAGS "/MP /EHsc")
- endif()
- 
- # Set the output directories for the build.
 --- cmake/Modules/FindOCIO.cmake.orig	2020-01-24 15:12:03.165692835 +0000
 +++ cmake/Modules/FindOCIO.cmake	2020-01-24 15:12:36.445381375 +0000
 @@ -43,7 +43,7 @@
@@ -45,25 +32,6 @@
  elseif (APPLE)
      find_library(CORE_SERVICES CoreServices)
      set(LIBRARIES ${LIBRARIES} ${CORE_SERVICES})
---- cmake/Modules/FindIlmBase.cmake.orig	2020-02-04 22:12:15.376664079 +0000
-+++ cmake/Modules/FindIlmBase.cmake	2020-02-04 22:13:31.943857630 +0000
-@@ -37,11 +37,11 @@
- find_library(ILMBASE_ILMTHREAD_STATIC_LIBRARY NAMES IlmThread_s)
- find_library(ILMBASE_IMATH_STATIC_LIBRARY NAMES Imath_s)
- if(ILMBASE_SHARED_LIBS)
--    find_library(ILMBASE_HALF_LIBRARY NAMES Half)
--    find_library(ILMBASE_IEX_LIBRARY NAMES Iex)
--    find_library(ILMBASE_IEXMATH_LIBRARY NAMES IexMath)
--    find_library(ILMBASE_ILMTHREAD_LIBRARY NAMES IlmThread)
--    find_library(ILMBASE_IMATH_LIBRARY NAMES Imath)
-+    find_library(ILMBASE_HALF_LIBRARY NAMES Half-2_4)
-+    find_library(ILMBASE_IEX_LIBRARY NAMES Iex-2_4)
-+    find_library(ILMBASE_IEXMATH_LIBRARY NAMES IexMath-2_4)
-+    find_library(ILMBASE_ILMTHREAD_LIBRARY NAMES IlmThread-2_4)
-+    find_library(ILMBASE_IMATH_LIBRARY NAMES Imath-2_4)
-     if(WIN32)
-         set(ILMBASE_DEFINES OPENEXR_DLL)
-     endif()
 --- lib/djvCore/DirectoryWatcherWin32.cpp.orig	2020-02-04 22:29:09.429981659 +0000
 +++ lib/djvCore/DirectoryWatcherWin32.cpp	2020-02-04 22:29:34.849713850 +0000
 @@ -62,7 +62,7 @@
@@ -112,17 +80,6 @@
      OpenGL::GL
      djvCore)
  if(FFmpeg_FOUND)
---- CMakeLists.txt.orig	2020-02-04 22:56:39.030739915 +0000
-+++ CMakeLists.txt	2020-02-04 22:57:07.462514823 +0000
-@@ -344,7 +344,7 @@
- 
- add_subdirectory(third-party)
- add_subdirectory(lib)
--add_subdirectory(tests)
-+#add_subdirectory(tests)
- if(NOT DJV_BUILD_TINY)
-     if(DJV_BUILD_BIN)
-         add_subdirectory(bin)
 --- bin/djv/win.rc.orig	2020-02-06 18:36:03.506931711 +0000
 +++ bin/djv/win.rc	2020-02-06 18:36:17.118797808 +0000
 @@ -1,3 +1,3 @@
@@ -135,7 +92,7 @@
 @@ -77,7 +77,7 @@
  
  #if defined(DJV_PLATFORM_WINDOWS)
- //! \bug [S 1.0] https://social.msdn.microsoft.com/Forums/vstudio/en-US/8f40dcd8-c67f-4eba-9134-a19b9178e481/vs-2015-rc-linker-stdcodecvt-error?forum=vcgeneral
+ //! \bug https://social.msdn.microsoft.com/Forums/vstudio/en-US/8f40dcd8-c67f-4eba-9134-a19b9178e481/vs-2015-rc-linker-stdcodecvt-error?forum=vcgeneral
 -typedef unsigned int djv_char_t;
 +typedef char16_t djv_char_t;
  #define DJV_SNPRINTF sprintf_s
@@ -174,17 +131,6 @@
  
  namespace djv
  {
---- lib/djvViewApp/Media.cpp.orig	2020-04-04 23:13:16.811978708 +0100
-+++ lib/djvViewApp/Media.cpp	2020-04-04 23:13:31.151832785 +0100
-@@ -37,7 +37,7 @@
- #include <djvCore/LogSystem.h>
- #include <djvCore/Timer.h>
- 
--#include <RtAudio.h>
-+#include <rtaudio/RtAudio.h>
- 
- using namespace djv::Core;
- 
 --- lib/djvAV/PNGRead.cpp.orig	2020-04-13 21:28:28.509935857 +0100
 +++ lib/djvAV/PNGRead.cpp	2020-04-13 21:29:29.404968651 +0100
 @@ -135,7 +135,7 @@
@@ -214,25 +160,6 @@
                          {
                              return false;
                          }
---- lib/djvAV/PNG.cpp.orig	2020-04-13 21:30:25.812093347 +0100
-+++ lib/djvAV/PNG.cpp	2020-04-13 21:30:54.715651818 +0100
-@@ -76,14 +76,14 @@
-     {
-         auto error = reinterpret_cast<djv::AV::IO::PNG::ErrorStruct *>(png_get_error_ptr(in));
-         DJV_STRNCPY(error->msg, msg, djv::Core::String::cStringLength);
--        longjmp(png_jmpbuf(in), 1);
-+        __builtin_longjmp(png_jmpbuf(in), 1);
-     }
- 
-     void djvPngWarning(png_structp in, png_const_charp msg)
-     {
-         auto error = reinterpret_cast<djv::AV::IO::PNG::ErrorStruct *>(png_get_error_ptr(in));
-         DJV_STRNCPY(error->msg, msg, djv::Core::String::cStringLength);
--        longjmp(png_jmpbuf(in), 1);
-+        __builtin_longjmp(png_jmpbuf(in), 1);
-     }
- 
- } // extern "C"
 --- lib/djvAV/JPEGWrite.cpp.orig	2020-04-13 21:31:49.810822144 +0100
 +++ lib/djvAV/JPEGWrite.cpp	2020-04-13 21:32:23.258325555 +0100
 @@ -102,7 +102,7 @@
@@ -271,44 +198,6 @@
                          {
                              return false;
                          }
---- lib/djvAV/JPEGRead.cpp.orig	2020-04-13 21:33:00.553777653 +0100
-+++ lib/djvAV/JPEGRead.cpp	2020-04-13 21:34:01.408895732 +0100
-@@ -102,7 +102,7 @@
-                         uint8_t *                out,
-                         JPEGErrorStruct *        error)
-                     {
--                        if (::setjmp(error->jump))
-+                        if (::__builtin_setjmp(error->jump))
-                         {
-                             return false;
-                         }
-@@ -118,7 +118,7 @@
-                         jpeg_decompress_struct * jpeg,
-                         JPEGErrorStruct *        error)
-                     {
--                        if (::setjmp(error->jump))
-+                        if (::__builtin_setjmp(error->jump))
-                         {
-                             return false;
-                         }
-@@ -158,7 +158,7 @@
-                         jpeg_decompress_struct * jpeg,
-                         JPEGErrorStruct *        error)
-                     {
--                        if (::setjmp(error->jump))
-+                        if (::__builtin_setjmp(error->jump))
-                         {
-                             return false;
-                         }
-@@ -171,7 +171,7 @@
-                         jpeg_decompress_struct * jpeg,
-                         JPEGErrorStruct *        error)
-                     {
--                        if (::setjmp(error->jump))
-+                        if (::__builtin_setjmp(error->jump))
-                         {
-                             return false;
-                         }
 --- lib/djvAV/PNGWrite.cpp.orig	2020-04-13 21:34:46.648248971 +0100
 +++ lib/djvAV/PNGWrite.cpp	2020-04-13 21:35:24.335715421 +0100
 @@ -136,7 +136,7 @@
@@ -338,23 +227,60 @@
                              return false;
                          png_write_end(png, pngInfo);
                          return true;
---- lib/djvAV/JPEG.cpp.orig	2020-04-13 21:37:19.614109456 +0100
-+++ lib/djvAV/JPEG.cpp	2020-04-13 21:37:43.181785440 +0100
-@@ -91,7 +91,7 @@
-                     {
-                         auto error = reinterpret_cast<JPEGErrorStruct *>(in->err);
-                         in->err->format_message(in, error->msg);
+--- CMakeLists.txt.orig	2020-08-09 13:48:59.510000000 +0100
++++ CMakeLists.txt	2020-08-09 13:49:11.050000000 +0100
+@@ -303,7 +303,7 @@
+ include(djvPackage)
+ 
+ add_subdirectory(lib)
+-add_subdirectory(tests)
++#add_subdirectory(tests)
+ if(DJV_BUILD_TINY)
+ elseif(DJV_BUILD_MINIMAL)
+     add_subdirectory(examples)
+--- CMakeLists.txt.orig	2020-08-09 13:59:35.350000000 +0100
++++ CMakeLists.txt	2020-08-09 14:00:01.820000000 +0100
+@@ -68,8 +68,8 @@
+ elseif(WIN32)
+     set(DJV_PLATFORM_WINDOWS TRUE)
+     add_definitions(-DDJV_PLATFORM_WINDOWS)
+-    set(CMAKE_C_FLAGS "/MP /EHsc")
+-    set(CMAKE_CXX_FLAGS "/MP /EHsc")
++    #set(CMAKE_C_FLAGS "/MP /EHsc")
++    #set(CMAKE_CXX_FLAGS "/MP /EHsc")
+ endif()
+ 
+ # Set the output directories for the build.
+--- lib/djvAV/PNG.cpp.orig	2020-08-09 14:16:05.570000000 +0100
++++ lib/djvAV/PNG.cpp	2020-08-09 14:16:24.640000000 +0100
+@@ -51,7 +51,7 @@
+     {
+         auto error = reinterpret_cast<djv::AV::IO::PNG::ErrorStruct *>(png_get_error_ptr(in));
+         error->messages.push_back(msg);
+-        longjmp(png_jmpbuf(in), 1);
++        __builtin_longjmp(png_jmpbuf(in), 1);
+     }
+ 
+     void djvPngWarning(png_structp in, png_const_charp msg)
+--- lib/djvAV/JPEG.cpp.orig	2020-08-09 14:25:43.160000000 +0100
++++ lib/djvAV/JPEG.cpp	2020-08-09 14:26:15.600000000 +0100
+@@ -68,7 +68,7 @@
+                         char message[JMSG_LENGTH_MAX] = "";
+                         in->err->format_message(in, message);
+                         error->messages.push_back(message);
 -                        ::longjmp(error->jump, 1);
 +                        ::__builtin_longjmp(error->jump, 1);
                      }
  
                      void djvJPEGWarning(j_common_ptr in, int level)
-@@ -103,7 +103,7 @@
-                         }
-                         auto error = reinterpret_cast<JPEGErrorStruct *>(in->err);
-                         in->err->format_message(in, error->msg);
--                        ::longjmp(error->jump, 1);
-+                        ::__builtin_longjmp(error->jump, 1);
-                     }
- 
-                 } // extern "C"
+--- lib/djvCore/RapidJSONTemplatesInline.h.orig	2020-08-09 17:44:47.620000000 +0100
++++ lib/djvCore/RapidJSONTemplatesInline.h	2020-08-09 17:45:20.150000000 +0100
+@@ -1,7 +1,7 @@
+ // SPDX-License-Identifier: BSD-3-Clause
+ // Copyright (c) 2004-2020 Darby Johnston
+ // All rights reserved.
+-
++#undef GetObject
+ namespace djv
+ {
+     template<typename T>

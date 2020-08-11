@@ -49,25 +49,3 @@
  #include <libxml/parser.h>
  #include <libxml/xmlmemory.h>
  #include <libxml/nanoftp.h>
---- magick/nt_base.c.orig	2020-07-29 11:31:43.280000000 +0100
-+++ magick/nt_base.c	2020-07-29 11:32:13.450000000 +0100
-@@ -1455,7 +1455,7 @@
- 
-   return MagickFail;
- }
--if defined(HasGS)
-+#if defined(HasGS)
- 
- /*
- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
---- magick/nt_base.c.orig	2020-07-29 11:39:37.380000000 +0100
-+++ magick/nt_base.c	2020-07-29 11:39:58.440000000 +0100
-@@ -1779,7 +1779,7 @@
- 
-   return FALSE;
- }
--if defined(HasGS)
-+#if defined(HasGS)
- 
- /*
- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

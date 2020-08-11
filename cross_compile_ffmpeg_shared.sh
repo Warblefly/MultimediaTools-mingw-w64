@@ -200,7 +200,7 @@ install_cross_compiler() {
 #    cp -v ${top_dir}/dxgi*.h .
 #    apply_patch file://${top_dir}/d3d11.h.patch
     apply_patch file://${top_dir}/cfgmgr32.h.patch
-    apply_patch file://${top_dir}/devpkey.h.patch
+#    apply_patch file://${top_dir}/devpkey.h.patch
 #    apply_patch file://${top_dir}/sal.h.patch
 #    apply_patch file://${top_dir}/dxgitype-missing.patch
 #     cp -v ${top_dir}/dxgi1_3.h .
@@ -912,14 +912,15 @@ build_qt() {
     apply_patch file://${top_dir}/qt-pkg-config.patch
     apply_patch file://${top_dir}/qt-include.patch
     apply_patch file://${top_dir}/qt-evrdefs.patch
+    apply_patch file://${top_dir}/qt-qmake.patch
     # Change a type for updates in ANGLE project
     grep -rl "EGL_PLATFORM_ANGLE_DEVICE_TYPE_WARP_ANGLE" ./ | xargs sed -i.bak 's/EGL_PLATFORM_ANGLE_DEVICE_TYPE_WARP_ANGLE/EGL_PLATFORM_ANGLE_DEVICE_TYPE_D3D_WARP_ANGLE/g'
     cd ..
     mkdir -p "${QT_BUILD}"
     ln -vs "qt-everywhere-src-${QT_VERSION}" "${QT_SOURCE}"
     cd "${QT_SOURCE}"
-      echo "QMAKE_LINK_OBJECT_MAX = 10" >> qtbase/mkspecs/win32-g++/qmake.conf
-      echo "QMAKE_LINK_OBJECT_SCRIPT = object_script" >> qtbase/mkspecs/win32-g++/qmake.conf
+#      echo "QMAKE_LINK_OBJECT_MAX = 10" >> qtbase/mkspecs/win32-g++/qmake.conf
+#      echo "QMAKE_LINK_OBJECT_SCRIPT = object_script" >> qtbase/mkspecs/win32-g++/qmake.conf
     cd ..
     cd "${QT_BUILD}"
       export PKG_CONFIG=${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config
@@ -1370,13 +1371,39 @@ build_DJV() {
   cd ..
 }
 
+build_FSeq() {
+	do_git_checkout https://github.com/darbyjohnston/FSeq.git FSeq
+	cd FSeq
+		do_cmake "-DFSEQ_BUILD_BIN=TRUE"
+		do_make "V=1"
+		do_make_install "V=1"
+	cd ..
+}
+
+build_rapidjson() {
+	do_git_checkout https://github.com/Tencent/rapidjson.git rapidjson
+	cd rapidjson
+		do_cmake "-DCMAKE_BUILD_TYPE=Release -DRAPIDJSON_BUILD_TESTS=OFF -DRAPIDJSON_BUILD_CXX11=ON -DRAPIDJSON_ENABLE_INSTRUMENTATION_OPT=ON"
+		do_make
+		do_make_install
+	cd ..
+}
+
+
+
 build_DJVnew() {
-	do_git_checkout https://github.com/darbyjohnston/DJV.git DJV 2.0.5
+	do_git_checkout https://github.com/darbyjohnston/DJV.git DJV 2.0.8
 	cd DJV
 		apply_patch file://${top_dir}/DJVnew.patch
 		find . -name 'CMakeLists.txt' -exec sed -i.bak 's/CXX_STANDARD 11/CXX_STANDARD 20/' {} \;
 		cp -v ${top_dir}/FindOTIO.cmake cmake/Modules/
-		do_cmake "-DDJV_THIRD_PARTY=FALSE -DCMAKE_VERBOSE_MAKEFILE=ON" && ${top_dir}/correct_headers.sh		
+		cd third-party/gladGL4_1
+			apply_patch file://${top_dir}/glad.patch
+			do_cmake
+			do_make
+			do_make_install
+		cd ../..
+		do_cmake "-DDJV_THIRD_PARTY=FALSE -DCMAKE_VERBOSE_MAKEFILE=ON -Dglad_INCLUDE_DIR=${mingw_w64_x86_64_prefix}/include" && ${top_dir}/correct_headers.sh		
 		do_make "V=1"
 		do_make_install "V=1"
 		# The DLLs need to be installed, too
@@ -1529,8 +1556,8 @@ build_opendcp() {
 build_dcpomatic() {
 #do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic 9cff6ec974a4d0270091fe5c753483b0d53ecd46
 #  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic v2.15.x-1608 # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
-  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.90" dcpomatic-2.15.90
-  cd dcpomatic-2.15.90
+  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.95" dcpomatic-2.15.95
+  cd dcpomatic-2.15.95
     apply_patch file://${top_dir}/dcpomatic-wscript.patch
 #    apply_patch file://${top_dir}/dcpomatic-audio_ring_buffers.h.patch
 ##    apply_patch file://${top_dir}/dcpomatic-ffmpeg.patch
@@ -1540,6 +1567,7 @@ build_dcpomatic() {
     apply_patch file://${top_dir}/dcpomatic-unicode.patch
     apply_patch file://${top_dir}/dcpomatic-rc.patch
     apply_patch file://${top_dir}/dcpomatic-display.patch
+    apply_patch file://${top_dir}/dcpomatic-j2k.patch
 ##    apply_patch file://${top_dir}/dcpomatic-test-wscript.patch
 ##    apply_patch file://${top_dir}/dcpomatic-libsub.patch
 ##    apply_patch file://${top_dir}/dcpomatic-LogColorspace.patch
@@ -1551,12 +1579,14 @@ build_dcpomatic() {
 #    sed -i.bak 's!wx-3\.0/wx/msw/wx\.rc!wx-3.1/wx/msw/wx.rc!' platform/windows/dcpomatic_server.rc
 #    sed -i.bak 's!wx-3\.0/wx/msw/wx\.rc!wx-3.1/wx/msw/wx.rc!' platform/windows/dcpomatic_kdm.rc
     export CFLAGS="-fpermissive" # -DBOOST_ASIO_DISABLE_STD_FUTURE=1"
+    export CXXFLAGS="-fpermissive"
     env
     do_configure "configure WINRC=x86_64-w64-mingw32-windres CXX=x86_64-w64-mingw32-g++ -v -pp --static-dcpomatic --prefix=${mingw_w64_x86_64_prefix} --target-windows --check-cxx-compiler=gxx --disable-tests" "./waf"
     ./waf build -v || exit 1
     ./waf install || exit 1
     # ./waf clean || exit 1
     export CFLAGS="${original_cflags}"
+    unset CXXFLAGS
   cd ..
 }
 
@@ -1568,7 +1598,7 @@ build_gcal() {
 }
 
 build_unbound() {
-  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.10.1 "CFLAGS=-O1 libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
+  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.11.0 "CFLAGS=-O1 libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
 }
 
 build_libxavs() {
@@ -2092,13 +2122,13 @@ build_ncurses() {
     wget http://invisible-island.net/datafiles/current/terminfo.src.gz
     gunzip terminfo.src.gz
   fi
-  download_and_unpack_file ftp://ftp.invisible-island.net/ncurses/current/ncurses-6.2-20200627.tgz ncurses-6.2-20200627
+  download_and_unpack_file ftp://ftp.invisible-island.net/ncurses/current/ncurses-6.2-20200801.tgz ncurses-6.2-20200801
  # generic_configure "--build=x86_64-pc-linux --host=x86_64-w64-mingw32 --with-libtool --disable-termcap --enable-widec --enable-term-driver --enable-sp-funcs --without-ada --with-debug=no --with-shared=yes --with-normal=no --enable-database --with-progs --enable-interop --with-pkg-config-libdir=${mingw_w64_x86_64_prefix}/lib/pkgconfig --enable-pc-files"
-  cd ncurses-6.2-20200627
+  cd ncurses-6.2-20200801
 #    apply_patch file://${top_dir}/ncurses-rx.patch
 #    rm configure
     generic_configure "LIBS=-lgnurx --build=x86_64-pc-linux --host=x86_64-w64-mingw32 --disable-termcap --enable-widec --enable-term-driver --enable-sp-funcs --without-ada --without-cxx-binding --with-debug=no --with-shared=yes --with-normal=no --enable-database --with-probs --enable-interop --with-pkg-config-libdir=${mingw_w64_x86_64_prefix}/lib/pkgconfig --enable-pc-files --disable-static --enable-shared"
-    apply_patch file://${top_dir}/ncurses-rx.patch
+#    apply_patch file://${top_dir}/ncurses-rx.patch
     do_make
 #    do_make "dlls"
     do_make_install
@@ -4005,7 +4035,7 @@ build_fmt() {
 }
 
 build_boost() {
-  download_and_unpack_file "http://mirror.nienbo.com/boost/1.72.0/boost_1_72_0.tar.bz2" boost_1_72_0
+  download_and_unpack_file "https://dl.bintray.com/boostorg/release/1.72.0/source/boost_1_72_0.tar.bz2" boost_1_72_0
   cd boost_1_72_0
   #  cd libs/serialization
   #    apply_patch file://${top_dir}/boost-codecvt.patch
@@ -4568,7 +4598,7 @@ build_sox() {
   if [[ ! -f "configure" ]]; then
     autoreconf -fiv
   fi
-  generic_configure_make_install
+  generic_configure_make_install "--with-oss=no"
 
   cd ..
 }
@@ -4643,7 +4673,7 @@ build_cairo() {
 }
 
 build_mmcommon() {
-  do_git_checkout https://github.com/GNOME/mm-common.git mm-common mainline
+  do_git_checkout https://github.com/GNOME/mm-common.git mm-common 
   cd mm-common
 #    generic_configure_make_install "--enable-network"
 	generic_meson_ninja_install "-Duse-network=true"
@@ -6794,7 +6824,9 @@ build_dependencies() {
   build_otio
   build_GLM
   build_GLFW
+  build_FSeq
   build_picoJSON
+  build_rapidjson
   build_libaec
   build_gctpc
   build_avisynthplus
@@ -6909,7 +6941,7 @@ build_apps() {
 #  build_traverso
   build_mlt # Framework, but relies on FFmpeg, Qt, and many other libraries we've built.
   build_movit
-  build_DJVnew # Requires FFmpeg libraries
+  #build_DJVnew # Requires FFmpeg libraries
   build_qjackctl
 #  build_jackmix
   build_flacon
@@ -7021,6 +7053,8 @@ cd ${cur_dir}/x86_64-w64-mingw32/x86_64-w64-mingw32/include
   ln -s shlobj.h ShlObj.h
   ln -s setupapi.h SetupAPI.h
   ln -s uiviewsettingsinterop.h UIViewSettingsInterop.h
+  # OpenGL loader of some description needed for DJV
+  cp -v ${cur_dir}/glad.h .
 cd -
 cd ${cur_dir}/x86_64-w64-mingw32/x86_64-w64-mingw32/lib
   ln -s libversion.a libVersion.a
