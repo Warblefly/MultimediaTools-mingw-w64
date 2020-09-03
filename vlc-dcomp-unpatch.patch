@@ -9,14 +9,12 @@
  endif
  if UPDATE_CHECK
  libqt_plugin_la_CPPFLAGS += -DUPDATE_CHECK
-@@ -214,17 +214,7 @@
- 	gui/qt/widgets/native/searchlineedit.cpp gui/qt/widgets/native/searchlineedit.hpp
- if HAVE_WIN32
- libqt_plugin_la_SOURCES += \
-+	gui/qt/maininterface/main_interface_win32.cpp gui/qt/maininterface/main_interface_win32.hpp
--	gui/qt/maininterface/main_interface_win32.cpp \
--	gui/qt/maininterface/main_interface_win32.hpp
--
+--- modules/gui/qt/Makefile.am.orig	2020-08-27 21:40:07.120000000 +0100
++++ modules/gui/qt/Makefile.am	2020-08-27 21:40:20.200000000 +0100
+@@ -228,14 +228,6 @@
+ 	gui/qt/maininterface/compositor_win7.cpp \
+ 	gui/qt/maininterface/compositor_win7.hpp
+ 
 -if HAVE_DCOMP
 -libqt_plugin_la_SOURCES += \
 -	gui/qt/maininterface/compositor_dcomp.cpp \
@@ -28,11 +26,12 @@
  endif
  
  # Meta-object compilation
-@@ -332,13 +322,6 @@
+--- modules/gui/qt/Makefile.am.orig	2020-08-27 21:54:47.030000000 +0100
++++ modules/gui/qt/Makefile.am	2020-08-27 21:54:58.530000000 +0100
+@@ -348,12 +348,6 @@
+ nodist_libqt_plugin_la_SOURCES += gui/qt/maininterface/main_interface_win32.moc.cpp \
+ 	gui/qt/maininterface/compositor_win7.moc.cpp
  
- if HAVE_WIN32
- nodist_libqt_plugin_la_SOURCES += gui/qt/maininterface/main_interface_win32.moc.cpp
--
 -if HAVE_DCOMP
 -nodist_libqt_plugin_la_SOURCES += \
 -	gui/qt/maininterface/compositor_dcomp.moc.cpp \
@@ -42,9 +41,9 @@
  endif
  
  nodist_libqt_plugin_la_SOURCES += \
---- modules/gui/qt/maininterface/compositor.cpp
-+++ modules/gui/qt/maininterface/compositor.cpp
-@@ -19,28 +19,10 @@
+--- modules/gui/qt/maininterface/compositor.cpp.orig	2020-08-27 22:04:05.800000000 +0100
++++ modules/gui/qt/maininterface/compositor.cpp	2020-08-27 22:04:28.540000000 +0100
+@@ -19,34 +19,10 @@
  #include "compositor.hpp"
  #include "compositor_dummy.hpp"
  
@@ -52,6 +51,7 @@
 -#ifdef HAVE_DCOMP_H
 -#  include "compositor_dcomp.hpp"
 -#endif
+-#  include "compositor_win7.hpp"
 -#endif
 -
  namespace vlc {
@@ -66,16 +66,21 @@
 -    ret = dcomp_compositor->init();
 -    if (ret)
 -        return dcomp_compositor;
--    else
--        delete dcomp_compositor;
+-    delete dcomp_compositor;
+-    msg_Dbg(p_intf, "failed to create DirectComposition backend, use fallback");
 -#endif
+-    CompositorWin7* win7_compositor = new CompositorWin7(p_intf);
+-    if (win7_compositor->init())
+-        return win7_compositor;
+-    delete win7_compositor;
+-    msg_Dbg(p_intf, "failed to create Win7 compositor backend, use fallback");
 -#endif
      return new CompositorDummy(p_intf);
  }
  
---- modules/gui/qt/maininterface/compositor_dcomp.cpp
-+++ /dev/null
-@@ -1,294 +0,0 @@
+--- modules/gui/qt/maininterface/compositor_dcomp.cpp	2020-08-26 10:46:26.910000000 +0100
++++ /dev/null	2020-08-24 19:02:49.050000000 +0100
+@@ -1,310 +0,0 @@
 -/*****************************************************************************
 - * Copyright (C) 2020 VLC authors and VideoLAN
 - *
@@ -114,7 +119,7 @@
 -
 -#include <qpa/qplatformnativeinterface.h>
 -#include "compositor_dcomp_error.hpp"
--
+-#include "maininterface/interface_window_handler.hpp"
 -
 -namespace vlc {
 -
@@ -153,8 +158,7 @@
 -    try
 -    {
 -        that->m_qmlVideoSurfaceProvider->disable();
--        that->m_rootWindow->askVideoOnTop(false);
--        that->m_rootWindow->askVideoSetFullScreen(false);
+-        that->m_videoWindowHandler->disable();
 -        msg_Dbg(that->m_intf, "window_disable");
 -        HR(that->m_rootVisual->RemoveVisual(that->m_videoVisual.Get()), "remove video visual from root");
 -        HR(that->m_dcompDevice->Commit(), "commit");
@@ -169,7 +173,7 @@
 -{
 -    CompositorDirectComposition* that = static_cast<CompositorDirectComposition*>(p_wnd->sys);
 -    msg_Dbg(that->m_intf, "window_resize %ux%u", width, height);
--    that->m_rootWindow->requestResizeVideo(width, height);
+-    that->m_videoWindowHandler->requestResizeVideo(width, height);
 -}
 -
 -void CompositorDirectComposition::window_destroy(struct vout_window_t * p_wnd)
@@ -184,21 +188,21 @@
 -{
 -    CompositorDirectComposition* that = static_cast<CompositorDirectComposition*>(p_wnd->sys);
 -    msg_Dbg(that->m_intf, "window_set_state");
--    that->m_rootWindow->requestVideoState(static_cast<vout_window_state>(state));
+-    that->m_videoWindowHandler->requestVideoState(static_cast<vout_window_state>(state));
 -}
 -
 -void CompositorDirectComposition::window_unset_fullscreen(struct vout_window_t * p_wnd)
 -{
 -    CompositorDirectComposition* that = static_cast<CompositorDirectComposition*>(p_wnd->sys);
 -    msg_Dbg(that->m_intf, "window_unset_fullscreen");
--    that->m_rootWindow->requestVideoWindowed();
+-    that->m_videoWindowHandler->requestVideoWindowed();
 -}
 -
 -void CompositorDirectComposition::window_set_fullscreen(struct vout_window_t * p_wnd, const char *id)
 -{
 -    CompositorDirectComposition* that = static_cast<CompositorDirectComposition*>(p_wnd->sys);
 -    msg_Dbg(that->m_intf, "window_set_fullscreen");
--    that->m_rootWindow->requestVideoFullScreen(id);
+-    that->m_videoWindowHandler->requestVideoFullScreen(id);
 -}
 -
 -CompositorDirectComposition::CompositorDirectComposition( intf_thread_t* p_intf,  QObject *parent)
@@ -235,13 +239,18 @@
 -        //| D3D11_CREATE_DEVICE_DEBUG
 -            ;
 -
+-    D3D_FEATURE_LEVEL requestedFeatureLevels[] = {
+-        D3D_FEATURE_LEVEL_11_1,
+-        D3D_FEATURE_LEVEL_11_0,
+-    };
+-
 -    hr = D3D11CreateDevice(
 -        nullptr,    // Adapter
 -        D3D_DRIVER_TYPE_HARDWARE,
 -        nullptr,    // Module
 -        creationFlags,
--        nullptr,
--        0, // Highest available feature level
+-        requestedFeatureLevels,
+-        ARRAY_SIZE(requestedFeatureLevels),
 -        D3D11_SDK_VERSION,
 -        m_d3d11Device.GetAddressOf(),
 -        nullptr,    // Actual feature level
@@ -275,8 +284,20 @@
 -        m_rootWindow->winId();
 -        m_rootWindow->show();
 -
+-        WinTaskbarWidget* taskbarWidget = new WinTaskbarWidget(m_intf, m_rootWindow->windowHandle(), this);
+-        qApp->installNativeEventFilter(taskbarWidget);
+-
+-        m_videoWindowHandler = std::make_unique<VideoWindowHandler>(m_intf, m_rootWindow);
+-        m_videoWindowHandler->setWindow( m_rootWindow->windowHandle() );
+-
+-        m_interfaceWindowHandler = new InterfaceWindowHandlerWin32(m_intf, m_rootWindow, m_rootWindow->windowHandle(), m_rootWindow);
+-
 -        m_qmlVideoSurfaceProvider = std::make_unique<VideoSurfaceProvider>();
 -        m_rootWindow->setVideoSurfaceProvider(m_qmlVideoSurfaceProvider.get());
+-
+-        connect(m_qmlVideoSurfaceProvider.get(), &VideoSurfaceProvider::hasVideoChanged,
+-                m_interfaceWindowHandler, &InterfaceWindowHandlerWin32::onVideoEmbedChanged);
+-
 -
 -        HR(m_dcompDevice->CreateTargetForHwnd((HWND)m_rootWindow->windowHandle()->winId(), TRUE, &m_dcompTarget), "create target");
 -        HR(m_dcompDevice->CreateVisual(&m_rootVisual), "create root visual");
@@ -370,9 +391,9 @@
 -}
 -
 -}
---- modules/gui/qt/maininterface/compositor_dcomp.hpp
-+++ /dev/null
-@@ -1,82 +0,0 @@
+--- modules/gui/qt/maininterface/compositor_dcomp.hpp	2020-08-26 10:46:26.910000000 +0100
++++ /dev/null	2020-08-24 19:02:49.050000000 +0100
+@@ -1,86 +0,0 @@
 -/*****************************************************************************
 - * Copyright (C) 2020 VLC authors and VideoLAN
 - *
@@ -404,6 +425,8 @@
 -#include "maininterface/mainui.hpp"
 -#include "compositor_dcomp_uisurface.hpp"
 -#include "videosurface.hpp"
+-#include "interface_window_handler.hpp"
+-#include "video_window_handler.hpp"
 -
 -#include <QOpenGLContext>
 -
@@ -440,7 +463,9 @@
 -    std::unique_ptr<CompositorDCompositionUISurface> m_uiSurface;
 -    vout_window_t *m_window = nullptr;
 -    std::unique_ptr<MainUI> m_ui;
+-    std::unique_ptr<VideoWindowHandler> m_videoWindowHandler;
 -    std::unique_ptr<VideoSurfaceProvider> m_qmlVideoSurfaceProvider;
+-    InterfaceWindowHandler* m_interfaceWindowHandler = nullptr;
 -
 -    //main window composition
 -    HINSTANCE m_dcomp_dll = nullptr;
@@ -455,8 +480,8 @@
 -}
 -
 -#endif /* VLC_COMPOSITOR_DIRECT_COMPOSITION */
---- modules/gui/qt/maininterface/compositor_dcomp_error.hpp
-+++ /dev/null
+--- modules/gui/qt/maininterface/compositor_dcomp_error.hpp	2020-08-26 10:46:26.910000000 +0100
++++ /dev/null	2020-08-24 19:02:49.050000000 +0100
 @@ -1,66 +0,0 @@
 -/*****************************************************************************
 - * Copyright (C) 2020 VLC authors and VideoLAN
@@ -524,9 +549,9 @@
 -
 -
 -#endif // COMPOSITOR_DCOMP_ERROR_HPP
---- modules/gui/qt/maininterface/compositor_dcomp_uisurface.cpp
-+++ /dev/null
-@@ -1,706 +0,0 @@
+--- modules/gui/qt/maininterface/compositor_dcomp_uisurface.cpp	2020-08-26 10:46:26.910000000 +0100
++++ /dev/null	2020-08-24 19:02:49.050000000 +0100
+@@ -1,722 +0,0 @@
 -/*****************************************************************************
 - * Copyright (C) 2020 VLC authors and VideoLAN
 - *
@@ -643,12 +668,12 @@
 -        compile = nullptr;
 -    }
 -
--    int init(vlc_object_t *obj)
+-    bool init(vlc_object_t *obj)
 -    {
 -        m_compiler_dll = Direct3D11LoadShaderLibrary();
 -        if (!m_compiler_dll) {
 -            msg_Err(obj, "cannot load d3dcompiler.dll, aborting");
--            return VLC_EGENERIC;
+-            return false;
 -        }
 -
 -        compile = (pD3DCompile)GetProcAddress(m_compiler_dll, "D3DCompile");
@@ -656,9 +681,9 @@
 -            msg_Err(obj, "Cannot locate reference to D3DCompile in d3dcompiler DLL");
 -            FreeLibrary(m_compiler_dll);
 -            m_compiler_dll = nullptr;
--            return VLC_EGENERIC;
+-            return false;
 -        }
--        return VLC_SUCCESS;
+-        return true;
 -    }
 -
 -    pD3DCompile               compile = nullptr;
@@ -681,6 +706,7 @@
 -bool CompositorDCompositionUISurface::init()
 -{
 -    EGLBoolean eglRet;
+-    bool ret;
 -
 -    QSurfaceFormat format;
 -    // Qt Quick may need a depth and stencil buffer. Always make sure these are available.
@@ -728,10 +754,16 @@
 -    m_uiWindow->setClearBeforeRendering(false);
 -
 -    m_d3dCompiler = std::make_shared<OurD3DCompiler>();
--    m_d3dCompiler->init(VLC_OBJECT(m_intf));
+-    ret = m_d3dCompiler->init(VLC_OBJECT(m_intf));
+-    if (!ret) {
+-        msg_Err(m_intf, "failed to initialize D3D compiler");
+-        return false;
+-    }
 -
 -    qreal dpr = m_rootWindow->devicePixelRatio();
--    initialiseD3DSwapchain(dpr * m_rootWindow->width(), dpr * m_rootWindow->height());
+-    ret = initialiseD3DSwapchain(dpr * m_rootWindow->width(), dpr * m_rootWindow->height());
+-    if (!ret)
+-        return false;
 -
 -    HR(m_dcUiVisual->SetContent(m_d3dSwapChain.Get()), "fail to create surface");
 -
@@ -765,7 +797,7 @@
 -    releaseSharedTexture();
 -}
 -
--void CompositorDCompositionUISurface::initialiseD3DSwapchain(int width, int height)
+-bool CompositorDCompositionUISurface::initialiseD3DSwapchain(int width, int height)
 -{
 -    HRESULT hr;
 -    UINT creationFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT
@@ -830,7 +862,7 @@
 -    {
 -        char* err = pErrBlob ? (char*)pErrBlob->GetBufferPointer() : nullptr;
 -        msg_Err(m_intf, "fail to compile vertex shader (0x%lX) : %s", hr, err);
--        return;
+-        return false;
 -    }
 -
 -    hr = m_d3dCompiler->compile(shaderStr, strlen(shaderStr), nullptr, nullptr, nullptr, "PShader", "ps_4_0", 0, 0, &PS, &pErrBlob);
@@ -838,7 +870,7 @@
 -    {
 -        char* err = pErrBlob ? (char*)pErrBlob->GetBufferPointer() : nullptr;
 -        msg_Err(m_intf, "fail to compile pixel shader (0x%lX) : %s", hr, err);
--        return;
+-        return false;
 -    }
 -
 -    HR(m_d3dDevice->CreateVertexShader(VS->GetBufferPointer(), VS->GetBufferSize(), nullptr, &m_VS), "CreateVertexShader");
@@ -913,7 +945,7 @@
 -    HR(m_d3dDevice->CreateSamplerState(&sampDesc, &m_samplerState));
 -    m_d3dContext->PSSetSamplers(0, 1, m_samplerState.GetAddressOf());
 -
--    updateSharedTexture(width, height);
+-    return updateSharedTexture(width, height);
 -}
 -
 -void CompositorDCompositionUISurface::resizeSwapchain(int width, int height)
@@ -951,11 +983,15 @@
 -    m_d3dInterimTextureQt.Reset();
 -}
 -
--void CompositorDCompositionUISurface::updateSharedTexture(int width, int height)
+-bool CompositorDCompositionUISurface::updateSharedTexture(int width, int height)
 -{
 -    try
 -    {
 -        releaseSharedTexture();
+-
+-        D3D11_FEATURE_DATA_D3D11_OPTIONS d3d11Options;
+-        HRESULT checkFeatureHR = m_d3dDevice->CheckFeatureSupport(D3D11_FEATURE_D3D11_OPTIONS, &d3d11Options, sizeof(d3d11Options));
+-
 -        /* interim texture */
 -        D3D11_TEXTURE2D_DESC texDesc = { };
 -        texDesc.MipLevels = 1;
@@ -968,7 +1004,10 @@
 -        texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 -        texDesc.Height = height;
 -        texDesc.Width  = width;
--        texDesc.MiscFlags = D3D11_RESOURCE_MISC_SHARED | D3D11_RESOURCE_MISC_SHARED_NTHANDLE;
+-        if (SUCCEEDED(checkFeatureHR) && d3d11Options.ExtendedResourceSharing) //D3D11.1 feature
+-            texDesc.MiscFlags = D3D11_RESOURCE_MISC_SHARED | D3D11_RESOURCE_MISC_SHARED_NTHANDLE;
+-        else
+-            texDesc.MiscFlags = D3D11_RESOURCE_MISC_SHARED;
 -
 -        HR(m_d3dDevice->CreateTexture2D( &texDesc, NULL, &m_d3dInterimTexture ), "create texture");
 -
@@ -1000,10 +1039,12 @@
 -        };
 -
 -        m_eglInterimTextureQt = eglCreatePbufferFromClientBuffer(m_eglDisplay, EGL_D3D_TEXTURE_ANGLE, buffer, m_eglConfig, pBufferAttributes);
+-        return true;
 -    }
 -    catch (const DXError& err)
 -    {
 -        msg_Warn(m_intf, "failed to update shared texture: %s, code 0x%lX", err.what(), err.code());
+-        return false;
 -    }
 -}
 -
@@ -1233,8 +1274,8 @@
 -}
 -
 -}
---- modules/gui/qt/maininterface/compositor_dcomp_uisurface.hpp
-+++ /dev/null
+--- modules/gui/qt/maininterface/compositor_dcomp_uisurface.hpp	2020-08-26 10:46:26.910000000 +0100
++++ /dev/null	2020-08-24 19:02:49.050000000 +0100
 @@ -1,182 +0,0 @@
 -/*****************************************************************************
 - * Copyright (C) 2020 VLC authors and VideoLAN
@@ -1335,9 +1376,9 @@
 -    bool eventFilter(QObject* object, QEvent* event) override;
 -
 -private:
--    void initialiseD3DSwapchain(int width, int height);
+-    bool initialiseD3DSwapchain(int width, int height);
 -    void releaseSharedTexture();
--    void updateSharedTexture(int width, int height);
+-    bool updateSharedTexture(int width, int height);
 -    void resizeSwapchain(int width, int height);
 -
 -    void requestUpdate();
@@ -1418,14 +1459,442 @@
 -} //namespace vlc
 -
 -#endif // COMPOSITOR_DCOMP_UISURFACE_H
---- modules/gui/qt/maininterface/main_interface_win32.cpp
-+++ modules/gui/qt/maininterface/main_interface_win32.cpp
-@@ -349,7 +349,7 @@
+--- modules/gui/qt/maininterface/compositor_win7.cpp	2020-08-26 10:46:26.910000000 +0100
++++ /dev/null	2020-08-24 19:02:49.050000000 +0100
+@@ -1,323 +0,0 @@
+-/*****************************************************************************
+- * Copyright (C) 2020 VLC authors and VideoLAN
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2 of the License, or
+- * (at your option) any later version.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
+- *****************************************************************************/
+-#include "compositor_win7.hpp"
+-#include "main_interface_win32.hpp"
+-#include "mainui.hpp"
+-
+-#include <d3d11.h>
+-
+-#include <dwmapi.h>
+-#include <QLibrary>
+-
+-using namespace vlc;
+-
+-int CompositorWin7::window_enable(struct vout_window_t * p_wnd, const vout_window_cfg_t *)
+-{
+-    CompositorWin7* that = static_cast<CompositorWin7*>(p_wnd->sys);
+-    msg_Dbg(that->m_intf, "window_enable");
+-    that->m_qmlVideoSurfaceProvider->enable(p_wnd);
+-    return VLC_SUCCESS;
+-}
+-
+-void CompositorWin7::window_disable(struct vout_window_t * p_wnd)
+-{
+-    CompositorWin7* that = static_cast<CompositorWin7*>(p_wnd->sys);
+-    that->m_qmlVideoSurfaceProvider->disable();
+-    that->m_videoWindowHandler->disable();
+-    msg_Dbg(that->m_intf, "window_disable");
+-}
+-
+-void CompositorWin7::window_resize(struct vout_window_t * p_wnd, unsigned width, unsigned height)
+-{
+-    CompositorWin7* that = static_cast<CompositorWin7*>(p_wnd->sys);
+-    msg_Dbg(that->m_intf, "window_resize %ux%u", width, height);
+-    that->m_videoWindowHandler->requestResizeVideo(width, height);
+-}
+-
+-void CompositorWin7::window_destroy(struct vout_window_t * p_wnd)
+-{
+-    CompositorWin7* that = static_cast<CompositorWin7*>(p_wnd->sys);
+-    msg_Dbg(that->m_intf, "window_destroy");
+-}
+-
+-void CompositorWin7::window_set_state(struct vout_window_t * p_wnd, unsigned state)
+-{
+-    CompositorWin7* that = static_cast<CompositorWin7*>(p_wnd->sys);
+-    msg_Dbg(that->m_intf, "window_set_state");
+-    that->m_videoWindowHandler->requestVideoState(static_cast<vout_window_state>(state));
+-}
+-
+-void CompositorWin7::window_unset_fullscreen(struct vout_window_t * p_wnd)
+-{
+-    CompositorWin7* that = static_cast<CompositorWin7*>(p_wnd->sys);
+-    msg_Dbg(that->m_intf, "window_unset_fullscreen");
+-    that->m_videoWindowHandler->requestVideoWindowed();
+-}
+-
+-void CompositorWin7::window_set_fullscreen(struct vout_window_t * p_wnd, const char *id)
+-{
+-    CompositorWin7* that = static_cast<CompositorWin7*>(p_wnd->sys);
+-    msg_Dbg(that->m_intf, "window_set_fullscreen");
+-    that->m_videoWindowHandler->requestVideoFullScreen(id);
+-}
+-
+-
+-CompositorWin7::CompositorWin7(intf_thread_t *p_intf, QObject* parent)
+-    : CompositorDummy(p_intf, parent)
+-{
+-}
+-
+-CompositorWin7::~CompositorWin7()
+-{
+-    if (m_taskbarWidget)
+-        qApp->removeNativeEventFilter(m_taskbarWidget);
+-    if (m_nativeEventFilter)
+-        qApp->removeNativeEventFilter(m_nativeEventFilter);
+-    if (m_stable)
+-        delete m_stable;
+-}
+-
+-bool CompositorWin7::init()
+-{
+-    //check whether D3DCompiler is available. whitout it Angle won't work
+-    QLibrary d3dCompilerDll;
+-    for (int i = 47; i > 41; --i)
+-    {
+-        d3dCompilerDll.setFileName(QString("D3DCOMPILER_%1.dll").arg(i));
+-        if (d3dCompilerDll.load())
+-            break;
+-    }
+-
+-    D3D_FEATURE_LEVEL requestedFeatureLevels[] = {
+-        D3D_FEATURE_LEVEL_9_1,
+-        D3D_FEATURE_LEVEL_9_2,
+-        D3D_FEATURE_LEVEL_9_3,
+-        D3D_FEATURE_LEVEL_10_0,
+-        D3D_FEATURE_LEVEL_10_1,
+-        D3D_FEATURE_LEVEL_11_1,
+-        D3D_FEATURE_LEVEL_11_0,
+-    };
+-
+-    HRESULT hr = D3D11CreateDevice(
+-        nullptr,    // Adapter
+-        D3D_DRIVER_TYPE_HARDWARE,
+-        nullptr,    // Module
+-        D3D11_CREATE_DEVICE_BGRA_SUPPORT,
+-        requestedFeatureLevels,
+-        ARRAY_SIZE(requestedFeatureLevels),
+-        D3D11_SDK_VERSION,
+-        nullptr, //D3D device
+-        nullptr,    // Actual feature level
+-        nullptr //D3D context
+-        );
+-
+-    //no hw acceleration, manually select the software backend
+-    //otherwise Qt will load angle and fail.
+-    if (!d3dCompilerDll.isLoaded() || FAILED(hr))
+-    {
+-        msg_Info(m_intf, "no D3D support, use software backend");
+-        QQuickWindow::setSceneGraphBackend(QSGRendererInterface::Software);
+-    }
+-
+-    return true;
+-}
+-
+-MainInterface* CompositorWin7::makeMainInterface()
+-{
+-    //Tool flag needs to be passed in the window constructor otherwise the
+-    //window will still appears int the taskbar
+-    MainInterfaceWin32* rootWindowW32 =  new MainInterfaceWin32(m_intf, nullptr, Qt::Tool | Qt::FramelessWindowHint );
+-    m_rootWindow = rootWindowW32;
+-    //m_rootWindow6>show() is not called on purpose
+-
+-    /*
+-     * m_stable is not attached to the main interface because dialogs are attached to the mainInterface
+-     * and showing them would raise the video widget above the interface
+-     */
+-    m_stable = new QWidget(nullptr, Qt::Tool | Qt::FramelessWindowHint);
+-    m_stable->setContextMenuPolicy( Qt::PreventContextMenu );
+-
+-    QPalette plt = m_rootWindow->palette();
+-    plt.setColor( QPalette::Window, Qt::black );
+-    m_stable->setPalette( plt );
+-    m_stable->setAutoFillBackground(true);
+-    /* Force the widget to be native so that it gets a winId() */
+-    m_stable->setAttribute( Qt::WA_NativeWindow, true );
+-    m_stable->setAttribute( Qt::WA_PaintOnScreen, true );
+-    m_stable->setMouseTracking( true );
+-    m_stable->setWindowFlags( Qt::Tool | Qt::FramelessWindowHint | Qt::WindowDoesNotAcceptFocus );
+-    m_stable->setAttribute( Qt::WA_ShowWithoutActivating );
+-    m_stable->show();
+-
+-    m_videoWindowHWND = (HWND)m_stable->winId();
+-
+-    BOOL excluseFromPeek = TRUE;
+-    DwmSetWindowAttribute(m_videoWindowHWND, DWMWA_EXCLUDED_FROM_PEEK, &excluseFromPeek, sizeof(excluseFromPeek));
+-    DwmSetWindowAttribute(m_videoWindowHWND, DWMWA_DISALLOW_PEEK, &excluseFromPeek, sizeof(excluseFromPeek));
+-
+-    m_qmlVideoSurfaceProvider = std::make_unique<VideoSurfaceProvider>();
+-    m_rootWindow->setVideoSurfaceProvider(m_qmlVideoSurfaceProvider.get());
+-
+-    m_qmlView = std::make_unique<QQuickView>();
+-    m_qmlView->setResizeMode(QQuickView::SizeRootObjectToView);
+-    m_qmlView->setClearBeforeRendering(true);
+-    m_qmlView->setColor(QColor(Qt::transparent));
+-    m_qmlView->setGeometry(m_rootWindow->geometry());
+-    m_qmlView->setMinimumSize( m_rootWindow->minimumSize() );
+-
+-    m_qmlView->installEventFilter(this);
+-    Win7NativeEventFilter* m_nativeEventFilter = new Win7NativeEventFilter(this);
+-    qApp->installNativeEventFilter(m_nativeEventFilter);
+-    connect(m_nativeEventFilter, &Win7NativeEventFilter::windowStyleChanged,
+-            this, &CompositorWin7::resetVideoZOrder);
+-
+-    m_qmlView->show();
+-
+-    m_qmlWindowHWND = (HWND)m_qmlView->winId();
+-
+-    m_videoWindowHandler = std::make_unique<VideoWindowHandler>(m_intf, m_rootWindow);
+-    m_videoWindowHandler->setWindow( m_qmlView.get() );
+-
+-    new InterfaceWindowHandlerWin32(m_intf, m_rootWindow, m_qmlView.get(), m_qmlView.get());
+-
+-    m_taskbarWidget = new WinTaskbarWidget(m_intf, m_qmlView.get(), this);
+-    qApp->installNativeEventFilter(m_taskbarWidget);
+-
+-    MainUI* m_ui = new MainUI(m_intf, m_rootWindow, this);
+-    m_ui->setup(m_qmlView->engine());
+-
+-
+-    m_qmlView->setContent(QUrl(), m_ui->getComponent(), m_ui->createRootItem());
+-
+-    connect(m_rootWindow, &MainInterface::windowTitleChanged,
+-            m_qmlView.get(), &QQuickView::setTitle);
+-    connect(m_rootWindow, &MainInterface::windowIconChanged,
+-            m_qmlView.get(), &QQuickView::setIcon);
+-
+-    return m_rootWindow;
+-}
+-
+-bool CompositorWin7::setupVoutWindow(vout_window_t *p_wnd)
+-{
+-    BOOL isCompositionEnabled;
+-    HRESULT hr = DwmIsCompositionEnabled(&isCompositionEnabled);
+-
+-    //composition is disabled, video can't be seen through the interface,
+-    //so we fallback to a separate window.
+-    if (FAILED(hr) || !isCompositionEnabled)
+-        return false;
+-
+-    static const struct vout_window_operations ops = {
+-        CompositorWin7::window_enable,
+-        CompositorWin7::window_disable,
+-        CompositorWin7::window_resize,
+-        CompositorWin7::window_destroy,
+-        CompositorWin7::window_set_state,
+-        CompositorWin7::window_unset_fullscreen,
+-        CompositorWin7::window_set_fullscreen,
+-        nullptr, //window_set_title
+-    };
+-
+-    p_wnd->sys = this;
+-    p_wnd->type = VOUT_WINDOW_TYPE_HWND;
+-    p_wnd->handle.hwnd = (HWND)m_stable->winId();
+-    p_wnd->display.x11 = nullptr;
+-    p_wnd->ops = &ops;
+-    p_wnd->info.has_double_click = true;
+-    return true;
+-}
+-
+-bool CompositorWin7::eventFilter(QObject*, QEvent* ev)
+-{
+-    switch (ev->type())
+-    {
+-    case QEvent::Close:
+-        m_rootWindow->close();
+-        break;
+-    case QEvent::Move:
+-    case QEvent::Resize:
+-    case QEvent::ApplicationStateChange:
+-        m_stable->setGeometry(m_qmlView->geometry());
+-        resetVideoZOrder();
+-        break;
+-    case QEvent::WindowStateChange:
+-        if (m_qmlView->windowStates() & Qt::WindowMinimized)
+-            m_stable->hide();
+-        else
+-        {
+-            m_stable->show();
+-            m_stable->setGeometry(m_qmlView->geometry());
+-            resetVideoZOrder();
+-        }
+-        break;
+-
+-    case QEvent::FocusIn:
+-        resetVideoZOrder();
+-        break;
+-    case QEvent::Show:
+-        m_stable->show();
+-        resetVideoZOrder();
+-        break;
+-    case QEvent::Hide:
+-        m_stable->hide();
+-        break;
+-    default:
+-        break;
+-    }
+-
+-    return false;
+-}
+-
+-void CompositorWin7::resetVideoZOrder()
+-{
+-    //Place the video wdiget right behind the interface
+-    HWND bottomHWND = m_qmlWindowHWND;
+-    HWND currentHWND = bottomHWND;
+-    while (currentHWND != nullptr)
+-    {
+-        bottomHWND = currentHWND;
+-        currentHWND = GetWindow(bottomHWND, GW_OWNER);
+-    }
+-
+-    SetWindowPos(
+-        m_videoWindowHWND,
+-        bottomHWND,
+-        0,0,0,0,
+-        SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE
+-    );
+-}
+-
+-Win7NativeEventFilter::Win7NativeEventFilter(QObject* parent)
+-    : QObject(parent)
+-{
+-}
+-
+-//parse native events that are not reported by Qt
+-bool Win7NativeEventFilter::nativeEventFilter(const QByteArray&, void* message, long*)
+-{
+-    MSG * msg = static_cast<MSG*>( message );
+-
+-    switch( msg->message )
+-    {
+-        //style like "always on top" changed
+-        case WM_STYLECHANGED:
+-            emit windowStyleChanged();
+-            break;
+-    }
+-    return false;
+-}
+--- modules/gui/qt/maininterface/compositor_win7.hpp	2020-08-26 10:46:26.910000000 +0100
++++ /dev/null	2020-08-24 19:02:49.050000000 +0100
+@@ -1,85 +0,0 @@
+-/*****************************************************************************
+- * Copyright (C) 2020 VLC authors and VideoLAN
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2 of the License, or
+- * (at your option) any later version.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
+- *****************************************************************************/
+-#ifndef COMPOSITORDUMMYWIN32_H
+-#define COMPOSITORDUMMYWIN32_H
+-
+-#include "compositor_dummy.hpp"
+-#include "videosurface.hpp"
+-#include "video_window_handler.hpp"
+-#include <QAbstractNativeEventFilter>
+-#include <memory>
+-
+-class WinTaskbarWidget;
+-
+-namespace vlc {
+-
+-class Win7NativeEventFilter : public QObject, public QAbstractNativeEventFilter {
+-    Q_OBJECT
+-public:
+-    Win7NativeEventFilter( QObject* parent = nullptr );
+-
+-    bool nativeEventFilter(const QByteArray &, void *message, long* /* result */);
+-signals:
+-    void windowStyleChanged();
+-};
+-
+-class CompositorWin7 : public CompositorDummy
+-{
+-    Q_OBJECT
+-public:
+-    CompositorWin7(intf_thread_t *p_intf, QObject* parent = nullptr);
+-
+-    virtual ~CompositorWin7();
+-
+-    bool init();
+-
+-    virtual MainInterface *makeMainInterface() override;
+-    virtual bool setupVoutWindow(vout_window_t*) override;
+-
+-protected:
+-    bool eventFilter(QObject *obj, QEvent *ev) override;
+-
+-private:
+-    static int window_enable(struct vout_window_t *, const vout_window_cfg_t *);
+-    static void window_disable(struct vout_window_t *);
+-    static void window_resize(struct vout_window_t *, unsigned width, unsigned height);
+-    static void window_destroy(struct vout_window_t *);
+-    static void window_set_state(struct vout_window_t *, unsigned state);
+-    static void window_unset_fullscreen(struct vout_window_t *);
+-    static void window_set_fullscreen(struct vout_window_t *, const char *id);
+-
+-private slots:
+-    void resetVideoZOrder();
+-
+-private:
+-    QWidget* m_stable = nullptr;
+-    std::unique_ptr<QQuickView> m_qmlView;
+-    std::unique_ptr<VideoWindowHandler> m_videoWindowHandler;
+-    std::unique_ptr<VideoSurfaceProvider> m_qmlVideoSurfaceProvider;
+-    WinTaskbarWidget* m_taskbarWidget = nullptr;
+-    Win7NativeEventFilter* m_nativeEventFilter = nullptr;
+-
+-    HWND m_qmlWindowHWND = nullptr;
+-    HWND m_videoWindowHWND = nullptr;
+-
+-};
+-
+-}
+-
+-
+-#endif // COMPOSITORDUMMYWIN32_H
+--- modules/gui/qt/Makefile.am.orig	2020-08-28 10:24:41.680000000 +0100
++++ modules/gui/qt/Makefile.am	2020-08-28 10:24:59.520000000 +0100
+@@ -337,8 +337,7 @@
+ 	gui/qt/widgets/native/searchlineedit.moc.cpp
  
- void MainInterfaceWin32::resizeEvent(QResizeEvent *event)
- {
-+    QWidget::resizeEvent(event);
--    MainInterface::resizeEvent(event);
+ if HAVE_WIN32
+-nodist_libqt_plugin_la_SOURCES += gui/qt/maininterface/main_interface_win32.moc.cpp \
+-	gui/qt/maininterface/compositor_win7.moc.cpp
++nodist_libqt_plugin_la_SOURCES += gui/qt/maininterface/main_interface_win32.moc.cpp
  
-     /*
-      * Detects if window placement is not in its normal position (ex: win7 aero snap)
+ endif
+ 
+--- modules/gui/qt/Makefile.am.orig	2020-08-28 10:30:12.870000000 +0100
++++ modules/gui/qt/Makefile.am	2020-08-28 10:31:37.510000000 +0100
+@@ -224,9 +224,7 @@
+ if HAVE_WIN32
+ libqt_plugin_la_SOURCES += \
+ 	gui/qt/maininterface/main_interface_win32.cpp \
+-	gui/qt/maininterface/main_interface_win32.hpp \
+-	gui/qt/maininterface/compositor_win7.cpp \
+-	gui/qt/maininterface/compositor_win7.hpp
++	gui/qt/maininterface/main_interface_win32.hpp 
+ 
+ endif
+ 

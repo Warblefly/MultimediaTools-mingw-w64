@@ -1556,8 +1556,8 @@ build_opendcp() {
 build_dcpomatic() {
 #do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic 9cff6ec974a4d0270091fe5c753483b0d53ecd46
 #  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic v2.15.x-1608 # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
-  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.95" dcpomatic-2.15.95
-  cd dcpomatic-2.15.95
+  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.98" dcpomatic-2.15.98
+  cd dcpomatic-2.15.98
     apply_patch file://${top_dir}/dcpomatic-wscript.patch
 #    apply_patch file://${top_dir}/dcpomatic-audio_ring_buffers.h.patch
 ##    apply_patch file://${top_dir}/dcpomatic-ffmpeg.patch
@@ -2485,7 +2485,7 @@ build_libxml2() {
 }
 
 build_libxslt() {
-  do_git_checkout https://github.com/GNOME/libxslt.git libxslt mainline
+  do_git_checkout https://github.com/GNOME/libxslt.git libxslt 
 #  cd libxslt-1.1.28/libxslt
 #      apply_patch https://raw.githubusercontent.com/Warblefly/multimediaWin64/master/libxslt-security.c.patch
 #    cd ..
@@ -5185,7 +5185,11 @@ build_gettext() {
 }
 
 build_pcre() {
-  generic_download_and_install https://ftp.pcre.org/pub/pcre/pcre-8.43.tar.bz2 pcre-8.43 "--enable-pcre16 --enable-pcre32 --enable-newline-is-any --enable-jit --enable-utf --enable-pcregrep-libz --enable-pcregrep-libbz2 --enable-pcregrep-libreadline --enable-unicode-properties"
+  generic_download_and_install https://ftp.pcre.org/pub/pcre/pcre-8.44.tar.bz2 pcre-8.44 "--enable-pcre16 --enable-pcre32 --enable-newline-is-any --enable-jit --enable-utf --enable-pcregrep-libz --enable-pcregrep-libbz2 --enable-pcregrep-libreadline --enable-unicode-properties"
+}
+
+build_pcre2() {
+	generic_download_and_install https://ftp.pcre.org/pub/pcre/pcre2-10.35.tar.bz2 pcre2-10.35 "--enable-pcre2-16 --enable-pcre2-32 --enable-jit --enable-newline-is-any --enable-utf --enable-pcre2grep-libz --enable-pcre2grep-libbz2"
 }
 
 build_glib() {
@@ -5677,7 +5681,7 @@ build_mimedb() {
 build_qjackctl() {
   do_git_checkout https://github.com/rncbc/qjackctl.git qjackctl #e76e58ea6e67b74ab1fcc539a4d1f18ea0686144 # b2ae94121d368bb2498a3fa09173e99263fe8c39 # 568b076f1ddd0fcb18a78828e0e5b833e52fd7a1
   cd qjackctl
-    apply_patch file://${top_dir}/qjackctl-MainForm.patch
+#    apply_patch file://${top_dir}/qjackctl-MainForm.patch
     generic_configure_make_install "LIBS=-lportaudio --enable-xunique=no --disable-alsa-seq" # enable-jack-version=yes
     # make install doesn't work
     cp -vf src/qjackctl.exe ${mingw_w64_x86_64_prefix}/bin
@@ -6576,6 +6580,7 @@ build_dependencies() {
   build_libpng # for openjpeg, needs zlib
   build_gmp # for libnettle
   build_pcre # for glib and others
+  build_pcre2
   build_libnettle # needs gmp
   build_openssl
   build_openssl11
