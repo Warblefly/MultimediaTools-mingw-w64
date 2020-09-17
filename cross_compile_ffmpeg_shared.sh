@@ -2089,7 +2089,7 @@ build_leptonica() {
 }
 
 build_libpopt() {
-  download_and_unpack_file https://fossies.org/linux/misc/popt-1.16.tar.gz popt-1.16
+  download_and_unpack_file https://src.fedoraproject.org/repo/pkgs/popt/popt-1.16.tar.gz/3743beefa3dd6247a73f8f7a32c14c33/popt-1.16.tar.gz popt-1.16
   cd popt-1.16
     apply_patch file://${top_dir}/popt-get-w32-console-maxcols.patch
     apply_patch file://${top_dir}/popt-no-uid.patch
@@ -3076,7 +3076,7 @@ build_libsub() {
 }
 
 build_intel_quicksync_mfx() { # qsv
-  do_git_checkout https://github.com/lu-zero/mfx_dispatch.git mfx_dispatch_git
+  do_git_checkout https://github.com/lu-zero/mfx_dispatch.git mfx_dispatch_git 61807e192749af236df520625ee284e221a20ef2
   cd mfx_dispatch_git
     sed -i.bak 's/-version-info/-no-undefined -version-info/' Makefile.am
 #    sed -i.bak 's/-DMINGW_HAS_SECURE_API=1//' Makefile.am
@@ -5682,7 +5682,7 @@ build_qjackctl() {
   do_git_checkout https://github.com/rncbc/qjackctl.git qjackctl #e76e58ea6e67b74ab1fcc539a4d1f18ea0686144 # b2ae94121d368bb2498a3fa09173e99263fe8c39 # 568b076f1ddd0fcb18a78828e0e5b833e52fd7a1
   cd qjackctl
 #    apply_patch file://${top_dir}/qjackctl-MainForm.patch
-    generic_configure_make_install "LIBS=-lportaudio --enable-xunique=no --disable-alsa-seq" # enable-jack-version=yes
+    generic_configure_make_install "LIBS=-lportaudio CFLAGS=-D_GNU_SOURCE CXXFLAGS=-D_GNU_SOURCE --enable-xunique=no --disable-alsa-seq" # enable-jack-version=yes
     # make install doesn't work
     cp -vf src/qjackctl.exe ${mingw_w64_x86_64_prefix}/bin
 
