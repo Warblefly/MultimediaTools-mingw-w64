@@ -899,18 +899,22 @@ build_drm() {
 
 
 build_qt() {
-  export QT_VERSION="5.14.1"
+  echo "PATH now is $PATH"
+  original_path="$PATH"
+  export PATH="${top_dir}/sandbox/x86_64-w64-mingw32/bin:/bin:/usr/bin:/usr/local/bin"
+  echo "PATH changed to $PATH"
+  export QT_VERSION="5.14.2"
   export QT_SOURCE="qt-source"
   export QT_BUILD="qt-build"
 #  orig_cpu_count=$cpu_count
 #  export cpu_count=1
   if [ ! -f qt.built ]; then
-    download_and_unpack_file http://download.qt.io/official_releases/qt/5.14/5.14.1/single/qt-everywhere-src-5.14.1.tar.xz "qt-everywhere-src-${QT_VERSION}"
+    download_and_unpack_file http://download.qt.io/official_releases/qt/5.14/5.14.2/single/qt-everywhere-src-5.14.2.tar.xz "qt-everywhere-src-${QT_VERSION}"
     cd "qt-everywhere-src-${QT_VERSION}"
 #      apply_patch file://${top_dir}/qt-permissive.patch
 #    apply_patch file://${top_dir}/qt5-skip-mapboxglnative.patch
     apply_patch file://${top_dir}/qt-pkg-config.patch
-    apply_patch file://${top_dir}/qt-include.patch
+#    apply_patch file://${top_dir}/qt-include.patch
     apply_patch file://${top_dir}/qt-evrdefs.patch
     apply_patch file://${top_dir}/qt-qmake.patch
     # Change a type for updates in ANGLE project
@@ -926,7 +930,7 @@ build_qt() {
       export PKG_CONFIG=${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config
       export PKG_CONFIG_LIBDIR=${mingw_w64_x86_64_prefix}/lib/pkgconfig
       export PKG_CONFIG_SYSROOT_DIR=${mingw_w64_x86_64_prefix}/
-      do_configure "-xplatform win32-g++ -prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -opensource -qt-freetype -confirm-license -accessibility -nomake examples -nomake tests -skip qtquickcontrols -skip qtwebglplugin -skip qt3d -skip qtandroidextras -skip qtcharts -skip qtconnectivity -skip qtdatavis3d -skip qtgamepad -skip qtimageformats -skip qtlocation -skip qtlottie -skip qtmacextras -skip qtnetworkauth -skip qtpurchasing -skip qtquick3d -skip qtquicktimeline -skip qtremoteobjects -skip qtscript -skip qtscxml -skip qtsensors -skip qtserialbus -skip qtserialport -skip qtspeech -skip qtvirtualkeyboard -skip qtwayland -skip qtwebchannel -skip qtwebengine -skip qtwebsockets -skip qtwinextras -skip qtx11extras -release -strip -openssl -opengl dynamic -device-option CROSS_COMPILE=$cross_prefix -force-pkg-config -device-option PKG_CONFIG=x86_64-w64-mingw32-pkg-config -device-option PKG_CONFIG_LIBDIR=${mingw_w64_x86_64_prefix}/lib/pkgconfig -device-option PKG_CONFIG_SYSROOT_DIR=${mingw_w64_x86_64_prefix} -pkg-config -no-static -shared -no-use-gold-linker -D MINGW_HAS_SECURE_API -D _WIN32_IE=0x0A00 -v -skip qtactiveqt" "../qt-everywhere-src-${QT_VERSION}/configure" # "noclean" # -skip qtactiveqt
+      do_configure "-xplatform win32-g++ -prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -opensource -qt-freetype -confirm-license -accessibility -nomake examples -nomake tests -no-d3d12 -skip qtquickcontrols -skip qtwebglplugin -skip qt3d -skip qtandroidextras -skip qtcharts -skip qtconnectivity -skip qtdatavis3d -skip qtgamepad -skip qtimageformats -skip qtlocation -skip qtlottie -skip qtmacextras -skip qtnetworkauth -skip qtpurchasing -skip qtquick3d -skip qtquicktimeline -skip qtremoteobjects -skip qtscript -skip qtscxml -skip qtsensors -skip qtserialbus -skip qtserialport -skip qtspeech -skip qtvirtualkeyboard -skip qtwayland -skip qtwebchannel -skip qtwebengine -skip qtwebsockets -skip qtwinextras -skip qtx11extras -release -strip -openssl -opengl dynamic -device-option CROSS_COMPILE=$cross_prefix -force-pkg-config -device-option PKG_CONFIG=x86_64-w64-mingw32-pkg-config -device-option PKG_CONFIG_LIBDIR=${mingw_w64_x86_64_prefix}/lib/pkgconfig -device-option PKG_CONFIG_SYSROOT_DIR=${mingw_w64_x86_64_prefix} -pkg-config -no-static -shared -no-use-gold-linker -D MINGW_HAS_SECURE_API -D _WIN32_IE=0x0A00 -v -skip qtactiveqt" "../qt-everywhere-src-${QT_VERSION}/configure" # "noclean" # -skip qtactiveqt
       # For sone reason, the compiler doesn't set the include path properly!
       do_make || exit 1
       do_make_install || exit 1
@@ -950,7 +954,7 @@ build_qt() {
     # Remove the debug versions of libQt5 libraries
     rm -v ${mingw_w64_x86_64_prefix}/bin/Qt5*d.dll
   fi
-  ln -sv ${mingw_w64_x86_64_prefix}/include/QtCore/5.14.1/QtCore/private ${mingw_w64_x86_64_prefix}/include/QtCore/private
+  ln -sv ${mingw_w64_x86_64_prefix}/include/QtCore/5.14.2/QtCore/private ${mingw_w64_x86_64_prefix}/include/QtCore/private
   ln -sv ${mingw_w64_x86_64_prefix}/bin/Qt*.dll ${mingw_w64_x86_64_prefix}/../bin
   ln -sv ${mingw_w64_x86_64_prefix}/plugins ${mingw_w64_x86_64_prefix}/../plugins
   sed -i.bak 's! /libQt5Core\.a! -lQt5Core!' ${mingw_w64_x86_64_prefix}/lib/qtmain.prl
@@ -959,6 +963,7 @@ build_qt() {
   unset QT_BUILD
 #  export cpu_count=$orig_cpu_count
   unset PKG_CONFIG
+  export PATH="$original_path"
 }
 
 build_kf5_config() {
@@ -1556,8 +1561,8 @@ build_opendcp() {
 build_dcpomatic() {
 #do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic 9cff6ec974a4d0270091fe5c753483b0d53ecd46
 #  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic v2.15.x-1608 # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
-  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.98" dcpomatic-2.15.98
-  cd dcpomatic-2.15.98
+  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.101" dcpomatic-2.15.101
+  cd dcpomatic-2.15.101
     apply_patch file://${top_dir}/dcpomatic-wscript.patch
 #    apply_patch file://${top_dir}/dcpomatic-audio_ring_buffers.h.patch
 ##    apply_patch file://${top_dir}/dcpomatic-ffmpeg.patch
@@ -1567,7 +1572,7 @@ build_dcpomatic() {
     apply_patch file://${top_dir}/dcpomatic-unicode.patch
     apply_patch file://${top_dir}/dcpomatic-rc.patch
     apply_patch file://${top_dir}/dcpomatic-display.patch
-    apply_patch file://${top_dir}/dcpomatic-j2k.patch
+##    apply_patch file://${top_dir}/dcpomatic-j2k.patch
 ##    apply_patch file://${top_dir}/dcpomatic-test-wscript.patch
 ##    apply_patch file://${top_dir}/dcpomatic-libsub.patch
 ##    apply_patch file://${top_dir}/dcpomatic-LogColorspace.patch
@@ -1584,6 +1589,9 @@ build_dcpomatic() {
     do_configure "configure WINRC=x86_64-w64-mingw32-windres CXX=x86_64-w64-mingw32-g++ -v -pp --static-dcpomatic --prefix=${mingw_w64_x86_64_prefix} --target-windows --check-cxx-compiler=gxx --disable-tests" "./waf"
     ./waf build -v || exit 1
     ./waf install || exit 1
+    # Now put the graphics in the correct place
+    cp -v graphics/*png graphics/*jpg ${mingw_w64_x86_64_prefix}/bin/
+
     # ./waf clean || exit 1
     export CFLAGS="${original_cflags}"
     unset CXXFLAGS
@@ -1944,7 +1952,7 @@ build_portaudio_without_jack() {
 }
 
 build_jack() {
-  do_git_checkout https://github.com/jackaudio/jack2.git jack2 #394e02b2bb87ed8dfb0341f274c5b41aded8efdc
+  do_git_checkout https://github.com/jackaudio/jack2.git jack2 dd24ce321078fa4401fe10846132c5e6712ebf41 #394e02b2bb87ed8dfb0341f274c5b41aded8efdc
 #  download_and_unpack_file https://dl.dropboxusercontent.com/u/28869550/jack-1.9.10.tar.bz2 jack-1.9.10
   cd jack2
     if [ ! -f "jack.built" ] ; then
@@ -5543,7 +5551,7 @@ build_vlc() {
     export AOM_LIBS="-laom -lpthread -lm"
     export BUILDCC=/usr/bin/gcc
     #export cpu_count=1
-    generic_configure_make_install "--enable-qt --disable-medialibrary --disable-dvbpsi --disable-gst-decode --disable-asdcp --disable-ncurses --disable-opencv --disable-dbus --disable-sdl --disable-telx --disable-silent-rules --disable-pulse JACK_LIBS=-ljack JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib LIVE555_LIBS=-llivemedia ASDCP_LIBS=lasdcp ASDCP_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/asdcp"
+    generic_configure_make_install "--enable-qt --disable-medialibrary --disable-dvbpsi --disable-gst-decode --disable-asdcp --disable-ncurses --disable-opencv --disable-dbus --disable-sdl --disable-telx --disable-silent-rules --disable-pulse JACK_LIBS=-ljack64 JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib LIVE555_LIBS=-llivemedia ASDCP_LIBS=lasdcp ASDCP_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/asdcp"
     # X264 is disabled because of an API change. We ought to be able to re-enable it when vlc has caught up.
     #export cpu_count=8
   cd ..
@@ -5619,6 +5627,7 @@ build_mp4box() { # like build_gpac
     sed -i.bak 's#/bin/gcc -lgpac -L/usr/lib#/bin/gcc -lgpac -L${mingw_w64_x86_64_prefix}/lib#' modules/jack/Makefile
   # The object dll seems to have the wrong link
     sed -i.bak 's#FLAGS) -m 755 bin/gcc/libgpac\.dll\.a \$(DESTDIR)\$(prefix)/\$(libdir)#FLAGS) -m 755 bin/gcc/libgpac.dll $(DESTDIR)$(prefix)/$(libdir)/libgpac.dll.a#' Makefile
+    apply_patch file://${top_dir}/mp4box-jackd.patch
 #  sed -i.bak 's/	$(MAKE) installdylib/#	$(MAKE) installdylib/' Makefile
 #  sed -i.bak 's/-DDIRECTSOUND_VERSION=0x0500/-DDIRECTSOUND_VERSION=0x0800/' src/Makefile
 #  generic_configure_make_install "--verbose --static-mp4box --enable-static-bin --target-os=MINGW32 --cross-prefix=x86_64-w64-mingw32- --prefix=${mingw_w64_x86_64_prefix} --static-mp4box --extra-libs=-lz --enable-all --enable-ffmpeg"
@@ -7090,7 +7099,7 @@ if [ -d "x86_64-w64-mingw32" ]; then # they installed a 64-bit compiler
   echo "Building 64-bit ffmpeg..."
   host_target='x86_64-w64-mingw32'
   mingw_w64_x86_64_prefix="$cur_dir/x86_64-w64-mingw32/$host_target"
-  export PATH="$cur_dur/depot_tools:$cur_dir/x86_64-w64-mingw32/bin:$original_path"
+  export PATH="$cur_dur/depot_tools:$cur_dir/x86_64-w64-mingw32/bin:/bin:/usr/bin:/usr/local/bin"
   export PKG_CONFIG_PATH="$cur_dir/x86_64-w64-mingw32/x86_64-w64-mingw32/lib/pkgconfig"
   export mingw_compiler_path="$cur_dir/mingw"
   mkdir -p x86_64

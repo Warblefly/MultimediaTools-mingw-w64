@@ -28,7 +28,7 @@
  
  #include <QWindow>
 -#include <qpa/qplatformnativeinterface.h>
-+#include <5.14.1/QtGui/qpa/qplatformnativeinterface.h>
++#include <5.14.2/QtGui/qpa/qplatformnativeinterface.h>
  
  #define WM_APPCOMMAND 0x0319
  
@@ -39,7 +39,7 @@
  #if defined(_WIN32)
  #include <QWindow>
 -#include <qpa/qplatformnativeinterface.h>
-+#include <5.14.1/QtGui/qpa/qplatformnativeinterface.h>
++#include <5.14.2/QtGui/qpa/qplatformnativeinterface.h>
  #endif
  
  #include <math.h>
