@@ -4554,6 +4554,15 @@ https://raw.githubusercontent.com/google/angle/master/include/EGL/eglplatform.h
   cd -
 }
 
+build_openmaxil() {
+	cd ${mingw_w64_x86_64_prefix}/include
+	wget --no-clobber https://www.khronos.org/registry/OpenMAX-IL/api/1.1.2/OpenMAX_IL_1_1_2_Header.zip
+	unzip OpenMAX_IL_1_1_2_Header.zip
+	rm OpenMAX_IL_1_1_2_Header.zip
+	cd -
+}	
+
+
 build_lua() {
   # Needed for mpv to use YouTube URLs. mpv looks for it in pkg-config path so might be
   # best to compile our own mingw version
@@ -6476,7 +6485,7 @@ build_ffmpeg() {
 
   # FFmpeg + libav compatible options
   # add libpsapi to enable libdlfcn for Windows to work, thereby enabling frei0r plugins
-  local extra_configure_opts="--enable-libsoxr --enable-fontconfig --enable-libass --enable-libbluray --enable-iconv --enable-libtwolame --enable-libzvbi --enable-libcaca --enable-libmodplug --extra-libs=-lstdc++ --extra-libs=-lpsapi --enable-opengl --extra-libs=-lz --extra-libs=-lpng --enable-libvidstab --enable-decklink --extra-libs=-loleaut32 --enable-libcdio --enable-libzimg --enable-chromaprint --enable-libsnappy --enable-libx265 --enable-lv2 --enable-libklvanc --logfile=/dev/tty"
+  local extra_configure_opts="--enable-libsoxr --enable-fontconfig --enable-libass --enable-libbluray --enable-iconv --enable-libtwolame --enable-libzvbi --enable-libcaca --enable-libmodplug --extra-libs=-lstdc++ --extra-libs=-lpsapi --enable-opengl --extra-libs=-lz --extra-libs=-lpng --enable-libvidstab --enable-decklink --extra-libs=-loleaut32 --enable-libcdio --enable-libzimg --enable-chromaprint --enable-libsnappy --enable-libx265 --enable-lv2 --enable-omx --enable-vulkan --enable-libklvanc --logfile=/dev/tty"
 
 # The -Wno-narrowing is because libutvideo triggers a compiler strictness with the narrowing of a constant inside a curly-bracketed declaration
   extra_configure_opts="$extra_configure_opts --extra-cflags=$CFLAGS --extra-version=COMPILED_BY_JohnWarburton --extra-cxxflags=-Wno-narrowing" # extra-cflags is not needed, but adds it to the console output which I lke
@@ -6834,6 +6843,7 @@ build_dependencies() {
 #  build_medialibrary
   build_yamlcc
   build_tinyxml
+  build_openmaxil
   build_ocio
   build_otio
   build_GLM
