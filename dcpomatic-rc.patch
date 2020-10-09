@@ -34,3 +34,15 @@
  id ICON "../../graphics/windows/dcpomatic2_player.ico"
 -#include "wx-3.0/wx/msw/wx.rc"
 +#include "wx-3.1/wx/msw/wx.rc"
+--- platform/windows/dcpomatic_combiner.rc.orig	2020-10-08 19:32:42.190000000 +0100
++++ platform/windows/dcpomatic_combiner.rc	2020-10-08 19:32:55.680000000 +0100
+@@ -1,2 +1,2 @@
+ id ICON "../../graphics/windows/dcpomatic2_combiner.ico"
+-#include "wx-3.0/wx/msw/wx.rc"
++#include "wx-3.1/wx/msw/wx.rc"
+--- platform/windows/dcpomatic_disk.rc.orig	2020-10-08 19:34:05.160000000 +0100
++++ platform/windows/dcpomatic_disk.rc	2020-10-08 19:34:16.510000000 +0100
+@@ -1,2 +1,2 @@
+ id ICON "../../graphics/windows/dcpomatic2_disk.ico"
+-#include "wx-3.0/wx/msw/wx.rc"
++#include "wx-3.1/wx/msw/wx.rc"

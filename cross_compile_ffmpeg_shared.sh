@@ -1559,19 +1559,19 @@ build_opendcp() {
 }
 
 build_dcpomatic() {
-#do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic 9cff6ec974a4d0270091fe5c753483b0d53ecd46
-#  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic v2.15.x-1608 # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
-  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.101" dcpomatic-2.15.101
-  cd dcpomatic-2.15.101
-    apply_patch file://${top_dir}/dcpomatic-wscript.patch
+  do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic v2.15.x #9cff6ec974a4d0270091fe5c753483b0d53ecd46
+#  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic #v2.15.103 # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
+#  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.102" dcpomatic-2.15.102
+  cd dcpomatic
+#    apply_patch file://${top_dir}/dcpomatic-wscript.patch
 #    apply_patch file://${top_dir}/dcpomatic-audio_ring_buffers.h.patch
 ##    apply_patch file://${top_dir}/dcpomatic-ffmpeg.patch
     apply_patch file://${top_dir}/dcpomatic-boost.patch
     apply_patch file://${top_dir}/dcpomatic-gl.patch
-    apply_patch file://${top_dir}/dcpomatic-src-wx-wscript.patch
+#    apply_patch file://${top_dir}/dcpomatic-src-wx-wscript.patch
     apply_patch file://${top_dir}/dcpomatic-unicode.patch
     apply_patch file://${top_dir}/dcpomatic-rc.patch
-    apply_patch file://${top_dir}/dcpomatic-display.patch
+#    apply_patch file://${top_dir}/dcpomatic-display.patch
 ##    apply_patch file://${top_dir}/dcpomatic-j2k.patch
 ##    apply_patch file://${top_dir}/dcpomatic-test-wscript.patch
 ##    apply_patch file://${top_dir}/dcpomatic-libsub.patch
@@ -2989,7 +2989,9 @@ build_libssh() {
 
 build_asdcplib-cth() {
    # Use brance cth because this is the version the writer works on, and has modified
-  do_git_checkout git://git.carlh.net/git/asdcplib.git asdcplib-carl carl
+#  do_git_checkout git://git.carlh.net/git/asdcplib-cth.git asdcplib-carl carl
+#  do_git_checkout https://github.com/cth103/asdcplib.git asdcplib carl
+  download_and_unpack_file https://github.com/cth103/asdcplib/archive/carl.zip asdcplib-carl
 #  download_and_unpack_file https://www.carlh.net/downloads/libasdcp-cth/libasdcp-cth-0.1.5.tar.bz2 libasdcp-cth-0.1.5
   cd asdcplib-carl
     export PKG_CONFIG_PATH=${mingw_w64_x86_64_prefix}/lib/pkgconfig
@@ -3022,8 +3024,8 @@ build_asdcplib-cth() {
 
 build_libdcp() {
   # Branches are slightly askew. 1.0 is where development takes place
-#  do_git_checkout https://github.com/cth103/libdcp.git libdcp # f3058b2f1b48ec613bda5781fe97e83a0dca83a9
-  do_git_checkout git://git.carlh.net/git/libdcp.git libdcp # 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
+  do_git_checkout https://github.com/cth103/libdcp.git libdcp # f3058b2f1b48ec613bda5781fe97e83a0dca83a9
+  do_git_checkout git://git.carlh.net/git/libdcp.git libdcp master #v1.6.x # 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
   #download_and_unpack_file https://carlh.net/downloads/libdcp/libdcp-1.6.14.tar.bz2 libdcp-1.6.14
   cd libdcp
     # M_PI is required. This is a quick way of defining it
@@ -4043,8 +4045,8 @@ build_fmt() {
 }
 
 build_boost() {
-  download_and_unpack_file "https://dl.bintray.com/boostorg/release/1.72.0/source/boost_1_72_0.tar.bz2" boost_1_72_0
-  cd boost_1_72_0
+  download_and_unpack_file "https://dl.bintray.com/boostorg/release/1.74.0/source/boost_1_74_0.tar.bz2" boost_1_74_0
+  cd boost_1_74_0
   #  cd libs/serialization
   #    apply_patch file://${top_dir}/boost-codecvt.patch
   #  cd ../..
@@ -4557,7 +4559,7 @@ https://raw.githubusercontent.com/google/angle/master/include/EGL/eglplatform.h
 build_openmaxil() {
 	cd ${mingw_w64_x86_64_prefix}/include
 	wget --no-clobber https://www.khronos.org/registry/OpenMAX-IL/api/1.1.2/OpenMAX_IL_1_1_2_Header.zip
-	unzip OpenMAX_IL_1_1_2_Header.zip
+	unzip -o OpenMAX_IL_1_1_2_Header.zip
 	rm OpenMAX_IL_1_1_2_Header.zip
 	cd -
 }	
@@ -5423,7 +5425,7 @@ build_libxml++ () {
 #  orig_aclocalpath=${ACLOCAL_PATH}
 #  export ACLOCAL_PATH="/usr/local/share/aclocal"
 #  download_and_unpack_file http://ftp.gnome.org/pub/GNOME/sources/libxml++/2.40/libxml++-2.40.1.tar.xz libxml++-2.40.1
-  do_git_checkout https://github.com/GNOME/libxmlplusplus.git libxmlplusplus mainline
+  do_git_checkout https://gitlab.gnome.org/Archive/libxmlplusplus.git libxmlplusplus 
   cd libxmlplusplus
 #  cd libxml++-2.40.1
     rm -v configure
@@ -6520,7 +6522,7 @@ build_ffmpeg() {
 #  apply_patch_p1 file://${top_dir}/ffmpeg-decklink-teletext-2-reverse.patch
   apply_patch file://${top_dir}/ffmpeg-bs2b.patch
 
-  config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --enable-libjack --disable-doc --enable-libxml2 --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-libmysofa --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-libcodec2 --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libxavs2 --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libvpx --enable-libilbc --enable-libwavpack --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --enable-d3d11va --enable-nvenc --enable-nonfree --enable-libfdk-aac --enable-libflite --enable-decoder=aac --enable-libaom --enable-runtime-cpudetect --enable-libpulse --enable-cuda-nvcc --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts" # $CFLAGS # other possibilities: --enable-w32threads --enable-libflite
+  config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --enable-libjack --disable-doc --enable-libxml2 --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-libmysofa --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-libcodec2 --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libxavs2 --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libvpx --enable-libilbc --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --enable-d3d11va --enable-nvenc --enable-nonfree --enable-libfdk-aac --enable-libflite --enable-decoder=aac --enable-libaom --enable-runtime-cpudetect --enable-libpulse --enable-cuda-nvcc --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts" # $CFLAGS # other possibilities: --enable-w32threads --enable-libflite
   # sed -i 's/openjpeg-1.5/openjpeg-2.1/' configure # change library path for updated libopenjpeg
   export PKG_CONFIG="pkg-config" # --static
   export LDFLAGS="" # "-static"
