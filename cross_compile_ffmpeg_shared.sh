@@ -3047,6 +3047,9 @@ build_libdcp() {
     #sed -i.bak 's/1\.4\.4devel/1.4.4/' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/libdcp-1.0.pc
     cp -v build/libdcp.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig/libdcp.pc
     cp -v build/src/libdcp.dll.a ${mingw_w64_x86_64_prefix}/lib
+    mkdir -vp ${mingw_w64_x86_64_prefix}/tags
+    cp -vR tags/* ${mingw_w64_x86_64_prefix}/tags/
+    cp -v graphics/splash.png ${mingw_w64_x86_64_prefix}/splash.png
     cd ${mingw_w64_x86_64_prefix}/include
       ln -s libdcp-1.0/dcp libdcp
     cd -

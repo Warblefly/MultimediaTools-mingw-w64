@@ -463,6 +463,7 @@ File /nonfatal /r "./bin/*.pl"
 File /nonfatal /r "./bin/*.cmd"
 File /nonfatal /r "./bin/*config"
 File /nonfatal /r "./bin/*.config"
+File /nonfatal /r "./bin/*.png"
 
 setOutPath "$INSTDIR\bin\platforms"
 File /nonfatal /r "./bin/platforms/*.dll"
@@ -511,6 +512,12 @@ File /nonfatal /r "./doc/*.*"
 
 setOutPath "$INSTDIR\etc"
 File /nonfatal /r "./etc/*.*"
+
+setOutPath "$INSTDIR\tags"
+File /nonfatal /r "./tags/*.*"
+
+setOutPath "$INSTDIR"
+File /nonfatal "splash.png"
 
 setOutPath "$LOCALAPPDATA\fontconfig"
 File /nonfatal fonts.conf
