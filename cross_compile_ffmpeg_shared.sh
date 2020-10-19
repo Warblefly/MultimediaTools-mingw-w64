@@ -1397,10 +1397,10 @@ build_rapidjson() {
 
 
 build_DJVnew() {
-	do_git_checkout https://github.com/darbyjohnston/DJV.git DJV 2.0.8
+	do_git_checkout https://github.com/darbyjohnston/DJV.git DJV # 2.0.8
 	cd DJV
 		apply_patch file://${top_dir}/DJVnew.patch
-		find . -name 'CMakeLists.txt' -exec sed -i.bak 's/CXX_STANDARD 11/CXX_STANDARD 20/' {} \;
+#		find . -name 'CMakeLists.txt' -exec sed -i.bak 's/CXX_STANDARD 11/CXX_STANDARD 20/' {} \;
 		cp -v ${top_dir}/FindOTIO.cmake cmake/Modules/
 		cd third-party/gladGL4_1
 			apply_patch file://${top_dir}/glad.patch
@@ -1474,7 +1474,7 @@ build_cunit() {
 }
 
 build_libspatialaudio() {
-  do_git_checkout https://github.com/videolabs/libspatialaudio.git libspatialaudio # 5420ba0c660236bd319da94fe9bec7d38c13705b
+  do_git_checkout https://github.com/videolabs/libspatialaudio.git libspatialaudio d926a2ee469a3fefd50a9364fb9ac6fb484c3f70 # 546d3cc1957d353b8abcdf02ee845d92cb9e2599 # 5420ba0c660236bd319da94fe9bec7d38c13705b
   cd libspatialaudio
     apply_patch file://${top_dir}/libspatialaudio-install.patch
     do_cmake "-DCMAKE_SHARED_LINKER_FLAGS=-lz -DCMAKE_VERBOSE_MAKEFILE=ON"
@@ -1606,7 +1606,7 @@ build_gcal() {
 }
 
 build_unbound() {
-  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.11.0 "CFLAGS=-O1 libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
+  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.12.0 "CFLAGS=-O1 libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
 }
 
 build_libxavs() {
@@ -1843,8 +1843,8 @@ build_libopus() {
 build_libdvdread() {
   build_libdvdcss
 #  do_git_checkout https://code.videolan.org/videolan/libdvdread.git libdvdread
-  download_and_unpack_file https://get.videolan.org/libdvdread/6.0.2/libdvdread-6.0.2.tar.bz2 libdvdread-6.0.2
-  cd libdvdread-6.0.2
+  download_and_unpack_file https://get.videolan.org/libdvdread/6.1.1/libdvdread-6.1.1.tar.bz2 libdvdread-6.1.1
+  cd libdvdread-6.1.1
   # Need this to help libtool not object
   sed -i.bak 's/libdvdread_la_LDFLAGS = -version-info $(DVDREAD_LTVERSION)/libdvdread_la_LDFLAGS = -version-info $(DVDREAD_LTVERSION) -no-undefined/' Makefile.am
 #  apply_patch file://${top_dir}/libdvdread.patch
@@ -2159,6 +2159,7 @@ build_less() {
 build_dvdbackup() {
 	download_and_unpack_file https://launchpad.net/dvdbackup/trunk/0.4.2/+download/dvdbackup-0.4.2.tar.xz dvdbackup-0.4.2
 	cd dvdbackup-0.4.2
+	apply_patch file://${top_dir}/dvdbackup-dvdread6.1.patch
 	#  bzr branch lp:dvdbackup
 #  cd dvdbackup
 		export ac_cv_func_malloc_0_nonnull=yes
@@ -3558,14 +3559,14 @@ build_atomicparsley() {
 build_gstreamer() {
 	
     #do_git_checkout https://github.com/GStreamer/gstreamer.git gstreamer # 6babf1f086cce9cc392e2dc8a6cdf252d9b4cc48
-	download_and_unpack_file https://gstreamer.freedesktop.org/src/gstreamer/gstreamer-1.16.2.tar.xz gstreamer-1.16.2
-	cd gstreamer-1.16.2
+	download_and_unpack_file https://gstreamer.freedesktop.org/src/gstreamer/gstreamer-1.18.0.tar.xz gstreamer-1.18.0
+	cd gstreamer-1.18.0
     #cd gstreamer
         	mkdir -vp tests/examples/controller/include # to work around a bad include directory
-        	generic_configure_make_install "--disable-silent-rules --disable-fatal-warnings"
+        	generic_meson_ninja_install #"--disable-silent-rules --disable-fatal-warnings"
   	cd ..
-	download_and_unpack_file https://gstreamer.freedesktop.org/src/gst-plugins-base/gst-plugins-base-1.16.2.tar.xz gst-plugins-base-1.16.2
-	cd gst-plugins-base-1.16.2
+	download_and_unpack_file https://gstreamer.freedesktop.org/src/gst-plugins-base/gst-plugins-base-1.18.0.tar.xz gst-plugins-base-1.18.0
+	cd gst-plugins-base-1.18.0
 #    do_git_checkout https://github.com/GStreamer/gst-plugins-base.git gst-plugins-base 909baa2360f7ba7b6e2e27a2ad565e3142630abe
  #   cd gst-plugins-base
         mkdir -vp gst-libs/gst/video/include
@@ -3585,7 +3586,7 @@ build_gstreamer() {
         mkdir -vp tests/examples/gl/gtk/fxtest/include
         mkdir -vp tests/examples/gl/gtk/switchvideooverlay/include
         mkdir -vp tests/examples/gl/gtk/3dvideo/include
-        generic_configure_make_install "CFLAGS=-fcommon --disable-fatal-warnings --disable-examples"
+        generic_meson_ninja_install "-Dexamples=disabled -Dc_args=-fcommon" #"CFLAGS=-fcommon -Dexamples=false"
     cd ..
 }
 
@@ -5192,18 +5193,19 @@ build_makemkv() { # THIS IS NOT WORKING - MAKEMKV NEEDS MORE THAN MINGW OFFERS
 
 build_gettext() {
 	# Later versions of GNU gettext have a mingw incompatibility
-  do_git_checkout https://git.savannah.gnu.org/git/gettext.git gettext  5ed70829a2a78b38f8fddf3543a34f9f22ea110e
-  cd gettext
-    generic_configure "CFLAGS=-O2 CXXFLAGS=-O2 LIBS=-lpthread"
-    cd gettext-runtime/intl
-      do_make
-      do_make_install
-
-    cd ../..
-  cd ..
+#  do_git_checkout https://git.savannah.gnu.org/git/gettext.git gettext # 5ed70829a2a78b38f8fddf3543a34f9f22ea110e
+#  cd gettext
+#    generic_configure "CFLAGS=-O2 CXXFLAGS=-O2 LIBS=-lpthread"
+#    cd gettext-runtime/intl
+#      do_make
+#      do_make_install
+#
+#    cd ../..
+#  cd ..
 #    apply_patch file://${top_dir}/gettext-cross.patch
 #    generic_configure_make_install "CFLAGS=-O2 CXXFLAGS=-O2 LIBS=-lpthread"
 #  generic_download_and_install http://ftp.gnu.org/pub/gnu/gettext/gettext-0.19.8.1.tar.xz gettext-0.19.8.1 "CFLAGS=-O2 CXXFLAGS=-O2 LIBS=-lpthread --without-libexpat-prefix --without-libxml2-prefix"
+	generic_download_and_install https://ftp.gnu.org/pub/gnu/gettext/gettext-0.20.tar.gz gettext-0.20
 }
 
 build_pcre() {

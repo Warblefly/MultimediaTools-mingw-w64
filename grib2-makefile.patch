@@ -196,3 +196,272 @@
  
  fast:        $w/*.c $w/*.h ${jlib} ${aeclib} ${netcdf3lib} ${pnglib} ${hdf5lib} ${g2clib} ${netcdf4lib} ${iplib} ${spectrallib} ${gctpclib} ${proj4lib}
  	cd "$w" && export LDFLAGS="${wLDFLAGS}" && export CPPFLAGS="${wCPPFLAGS}" && ${MAKE} fast
+--- makefile.orig	2020-10-18 18:13:53.170000000 +0100
++++ makefile	2020-10-18 18:17:09.760000000 +0100
+@@ -182,27 +182,27 @@
+ endif
+ 
+ ifeq ($(USE_REGEX),1)
+-   a:=$(shell echo "\#define USE_REGEX" >> ${CONFIG_H})
++   a:=$(shell echo "#define USE_REGEX" >> ${CONFIG_H})
+ else
+-   a:=$(shell echo "//\#define USE_REGEX" >> ${CONFIG_H})
++   a:=$(shell echo "//#define USE_REGEX" >> ${CONFIG_H})
+ endif
+ 
+ ifeq ($(USE_TIGGE),1)
+-   a:=$(shell echo "\#define USE_TIGGE" >> ${CONFIG_H})
++   a:=$(shell echo "#define USE_TIGGE" >> ${CONFIG_H})
+ else
+-   a:=$(shell echo "//\#define USE_TIGGE" >> ${CONFIG_H})
++   a:=$(shell echo "//#define USE_TIGGE" >> ${CONFIG_H})
+ endif
+ 
+ ifeq ($(DISABLE_ALARM),1)
+    a:=$(shell echo "#define DISABLE_ALARM" >> ${CONFIG_H})
+ else
+-   a:=$(shell echo "//\#define DISABLE_ALARM" >> ${CONFIG_H})
++   a:=$(shell echo "//#define DISABLE_ALARM" >> ${CONFIG_H})
+ endif
+ 
+ ifeq ($(DISABLE_TIMEZONE),1)
+-   a:=$(shell echo "\#define DISABLE_TIMEZONE" >> ${CONFIG_H})
++   a:=$(shell echo "#define DISABLE_TIMEZONE" >> ${CONFIG_H})
+ else
+-   a:=$(shell echo "//\#define DISABLE_TIMEZONE" >> ${CONFIG_H})
++   a:=$(shell echo "//#define DISABLE_TIMEZONE" >> ${CONFIG_H})
+ endif
+ 
+ need_ftn=0
+@@ -214,9 +214,9 @@
+ endif
+ 
+ ifeq ($(USE_UDF),1)
+-   a:=$(shell echo "\#define USE_UDF" >> ${CONFIG_H})
++   a:=$(shell echo "#define USE_UDF" >> ${CONFIG_H})
+ else
+-   a:=$(shell echo "//\#define USE_UDF" >> ${CONFIG_H})
++   a:=$(shell echo "//#define USE_UDF" >> ${CONFIG_H})
+ endif
+ 
+ ifeq ($(USE_IPOLATES),1)
+@@ -229,13 +229,13 @@
+    ipdir:=${cwd}/ip2lib_d
+    iplib=${lib}/libip2_d.a
+    wLDFLAGS+=-lip2_d
+-   a:=$(shell echo "\#define USE_SPECTRAL ${USE_SPECTRAL}" > ${ipdir}/config.h)
++   a:=$(shell echo "#define USE_SPECTRAL ${USE_SPECTRAL}" > ${ipdir}/config.h)
+ endif
+ 
+ ifneq ($(USE_IPOLATES),0)
+-a:=$(shell echo "\#define IPOLATES_LIB \"`basename ${ipdir}`\"" >> ${CONFIG_H})
++a:=$(shell echo "#define IPOLATES_LIB \"`basename ${ipdir}`\"" >> ${CONFIG_H})
+ endif
+-a:=$(shell echo "\#define USE_IPOLATES ${USE_IPOLATES}" >> ${CONFIG_H})
++a:=$(shell echo "#define USE_IPOLATES ${USE_IPOLATES}" >> ${CONFIG_H})
+ 
+ # C compile and load commmands
+ # wCPPFLAGS has the directory of the includes 
+@@ -308,7 +308,7 @@
+       FTN_REAL8:="-fdefault-real-8 -fdefault-double-8"
+    endif
+    ifeq ($(USE_OPENMP),1)
+-      a:=$(shell echo "\#define USE_OPENMP" >> ${CONFIG_H})
++      a:=$(shell echo "#define USE_OPENMP" >> ${CONFIG_H})
+       wCPPFLAGS+=-fopenmp
+       wFFLAGS+=-fopenmp
+    endif
+@@ -347,7 +347,7 @@
+    hdf5CFLAGS+=-O2
+    ifeq ($(USE_JASPER),1)
+       CCjasper:=gcc
+-      a:=$(shell echo "\#define CC_jasper \"${CCjasper}\"" >> ${CONFIG_H})
++      a:=$(shell echo "#define CC_jasper \"${CCjasper}\"" >> ${CONFIG_H})
+    endif
+    ifeq ($(need_ftn),1)
+       wCPPFLAGS+=-DIFORT -cxxlib
+@@ -356,7 +356,7 @@
+       FTN_REAL8:="-r8"
+    endif
+    ifeq ($(USE_OPENMP),1)
+-      a:=$(shell echo "\#define USE_OPENMP" >> ${CONFIG_H})
++      a:=$(shell echo "#define USE_OPENMP" >> ${CONFIG_H})
+       wCPPFLAGS+=-qopenmp
+       wFFLAGS+=-qopenmp
+    endif
+@@ -374,7 +374,7 @@
+       FTN_REAL8:=???
+    endif
+    ifeq ($(USE_OPENMP),1)
+-      a:=$(shell echo "\#define USE_OPENMP" >> ${CONFIG_H})
++      a:=$(shell echo "#define USE_OPENMP" >> ${CONFIG_H})
+       wCPPFLAGS+=-xopenmp
+       wFFLAGS+=-xopenmp
+    endif
+@@ -438,9 +438,9 @@
+    g2clib:=${lib}/libgrib2c.a
+    wLDFLAGS+=-lgrib2c
+    wCPPFLAGS+=-I$g
+-   a:=$(shell echo "\#define USE_G2CLIB" >> ${CONFIG_H})
++   a:=$(shell echo "#define USE_G2CLIB" >> ${CONFIG_H})
+ else
+-   a:=$(shell echo "//\#define USE_G2CLIB" >> ${CONFIG_H})
++   a:=$(shell echo "//#define USE_G2CLIB" >> ${CONFIG_H})
+ endif
+ 
+ # gctpc library
+@@ -457,9 +457,9 @@
+    proj4lib:=${lib}/libproj.a
+    wLDFLAGS+=-lproj
+ #   wCPPFLAGS+=-I${proj4dir}/src
+-   a:=$(shell echo "\#define USE_PROJ4" >> ${CONFIG_H})
++   a:=$(shell echo "#define USE_PROJ4" >> ${CONFIG_H})
+ else
+-   a:=$(shell echo "//\#define USE_PROJ4" >> ${CONFIG_H})
++   a:=$(shell echo "//#define USE_PROJ4" >> ${CONFIG_H})
+ endif
+ 
+ # Jasper
+@@ -470,9 +470,9 @@
+    jlib=${lib}/libjasper.a
+    wLDFLAGS+=-ljasper
+    wCPPFLAGS+=-I${mingw_w64_x86_64_prefix}/include/jasper
+-   a:=$(shell echo "\#define USE_JASPER" >> ${CONFIG_H})
++   a:=$(shell echo "#define USE_JASPER" >> ${CONFIG_H})
+ else
+-   a:=$(shell echo "//\#define USE_JASPER" >> ${CONFIG_H})
++   a:=$(shell echo "//#define USE_JASPER" >> ${CONFIG_H})
+ endif
+ 
+ # AEC
+@@ -482,9 +482,9 @@
+ #   aecsrc=libaec-1.0.2.tar.gz
+    aeclib=${lib}/libaec.a
+    wLDFLAGS+=-laec
+-   a:=$(shell echo "\#define USE_AEC \"${aecsrc}\"" >> ${CONFIG_H})
++   a:=$(shell echo "#define USE_AEC \"${aecsrc}\"" >> ${CONFIG_H})
+ else
+-   a:=$(shell echo "//\#define USE_AEC" >> ${CONFIG_H})
++   a:=$(shell echo "//#define USE_AEC" >> ${CONFIG_H})
+ endif
+ 
+ # SPECTRAL (optional used by ip2_d)
+@@ -492,7 +492,7 @@
+ ifeq ($(USE_SPECTRAL),1)
+    spectrallib:=${lib}/libsp_v2.0.2_d.a
+    wLDFLAGS+=-lsp_v2.0.2_d
+-   a:=$(shell echo "\#define USE_SPECTRAL 1" >> ${CONFIG_H})
++   a:=$(shell echo "#define USE_SPECTRAL 1" >> ${CONFIG_H})
+ endif
+ 
+ netcdf3dir:=${cwd}/netcdf-3.6.3
+@@ -501,9 +501,9 @@
+    netcdf3lib:=${lib}/libnetcdf.a
+    wLDFLAGS+=-lnetcdf
+ #   wCPPFLAGS+=-I$n/libsrc
+-   a:=$(shell echo "\#define USE_NETCDF3" >> ${CONFIG_H})
++   a:=$(shell echo "#define USE_NETCDF3" >> ${CONFIG_H})
+ else
+-   a:=$(shell echo "//\#define USE_NETCDF3" >> ${CONFIG_H})
++   a:=$(shell echo "//#define USE_NETCDF3" >> ${CONFIG_H})
+ endif
+ 
+ hdf5dir:=${cwd}/hdf5-1.10.4
+@@ -515,18 +515,18 @@
+    hdf5lib:=${lib}/libhdf5.a
+    wLDFLAGS+=-lnetcdf -lhdf5_hl -lhdf5 -ldl
+ #   wCPPFLAGS+=-I${netcdf4dir}/include -I${hdf5dir}/src -I${hdf5dir}/hl/src
+-   a:=$(shell echo "\#define USE_NETCDF4" >> ${CONFIG_H})
+-   a:=$(shell echo "\#define HDF5 \"${hdf5src}\"" >> ${CONFIG_H})
++   a:=$(shell echo "#define USE_NETCDF4" >> ${CONFIG_H})
++   a:=$(shell echo "#define HDF5 \"${hdf5src}\"" >> ${CONFIG_H})
+ else
+-   a:=$(shell echo "//\#define USE_NETCDF4" >> ${CONFIG_H})
++   a:=$(shell echo "//#define USE_NETCDF4" >> ${CONFIG_H})
+ endif
+ 
+ ifeq ($(USE_MYSQL),1)
+    wCPPFLAGS+=`mysql_config --cflags`
+    wLDFLAGS+=`mysql_config --libs`
+-   a:=$(shell echo "\#define USE_MYSQL" >> ${CONFIG_H})
++   a:=$(shell echo "#define USE_MYSQL" >> ${CONFIG_H})
+ else
+-   a:=$(shell echo "//\#define USE_MYSQL" >> ${CONFIG_H})
++   a:=$(shell echo "//#define USE_MYSQL" >> ${CONFIG_H})
+ endif
+ 
+ # OPENMP .. only select configurations
+@@ -534,14 +534,14 @@
+ ifeq ($(USE_OPENMP),1)
+    ifeq ($(findstring opencc,$(notdir $(CC))),opencc)
+       ifeq ($(findstring openf95,$(notdir $(FC))),openf95)
+-	 a:=$(shell echo "\#define USE_OPENMP" >> ${CONFIG_H})
++	 a:=$(shell echo "#define USE_OPENMP" >> ${CONFIG_H})
+ 	 wCPPFLAGS+=-fopenmp
+ 	 wFFLAGS+=-fopenmp
+       endif
+    endif
+    ifeq ($(findstring xlc_r,$(notdir $(CC))),xlc_r)
+       ifeq ($(findstring xlf_r,$(notdir $(FC))),xlf_r)
+-	 a:=$(shell echo "\#define USE_OPENMP" >> ${CONFIG_H})
++	 a:=$(shell echo "#define USE_OPENMP" >> ${CONFIG_H})
+ 	 wCPPFLAGS+=-qsmp=omp
+ 	 wFFLAGS+=-qsmp=omp
+       endif
+@@ -552,22 +552,22 @@
+ # save fortran and C compiler names in config.h file
+ 
+ ifeq ($(findstring gcc,$(notdir $(CC))),gcc)
+-   a:=$(shell echo "\#define CC \"`${CC} --version | head -n 1`\"" >> ${CONFIG_H})
++   a:=$(shell echo "#define CC \"`${CC} --version | head -n 1`\"" >> ${CONFIG_H})
+ else ifeq ($(findstring icc,$(notdir $(CC))),icc)
+-   a:=$(shell echo "\#define CC \"`${CC} --version | head -n 1`\"" >> ${CONFIG_H})
++   a:=$(shell echo "#define CC \"`${CC} --version | head -n 1`\"" >> ${CONFIG_H})
+ else
+-   a:=$(shell echo "\#define CC \"${CC}\"" >> ${CONFIG_H})
++   a:=$(shell echo "#define CC \"${CC}\"" >> ${CONFIG_H})
+ endif
+ 
+ ifeq ($(findstring gfortran,$(notdir $(FC))),gfortran)
+-   a:=$(shell echo "\#define FORTRAN \"`${FC} --version | head -n 1`\"" >> ${CONFIG_H})
++   a:=$(shell echo "#define FORTRAN \"`${FC} --version | head -n 1`\"" >> ${CONFIG_H})
+ else ifeq ($(findstring ifort,$(notdir $(FC))),ifort)
+-   a:=$(shell echo "\#define FORTRAN \"`${FC} --version | head -n 1`\"" >> ${CONFIG_H})
++   a:=$(shell echo "#define FORTRAN \"`${FC} --version | head -n 1`\"" >> ${CONFIG_H})
+ else
+-   a:=$(shell echo "\#define FORTRAN \"${FC}\"" >> ${CONFIG_H})
++   a:=$(shell echo "#define FORTRAN \"${FC}\"" >> ${CONFIG_H})
+ endif
+ 
+-a:=$(shell echo "\#define BUILD_COMMENTS \"${BUILD_COMMENTS}\"" >> ${CONFIG_H})
++a:=$(shell echo "#define BUILD_COMMENTS \"${BUILD_COMMENTS}\"" >> ${CONFIG_H})
+ 
+ # png 
+ 
+@@ -577,7 +577,7 @@
+    pnglib=${lib}/libpng.a
+    wLDFLAGS+=-lpng
+ # wCPPFLAGS+=-I$p
+-   a:=$(shell echo "\#define USE_PNG" >> ${CONFIG_H})
++   a:=$(shell echo "#define USE_PNG" >> ${CONFIG_H})
+ 
+ zdir=${cwd}/zlib-1.2.11
+ # z
+@@ -586,14 +586,14 @@
+    wLDFLAGS+=-lz
+    # wCPPFLAGS+=-I$z
+ else
+-   a:=$(shell echo "//\#define USE_PNG" >> ${CONFIG_H})
++   a:=$(shell echo "//#define USE_PNG" >> ${CONFIG_H})
+ endif
+ 
+ # WMO Validation testing mode
+ ifeq ($(USE_WMO_VALIDATION),1)
+-   a:=$(shell echo "\#define WMO_VALIDATION" >> ${CONFIG_H})
++   a:=$(shell echo "#define WMO_VALIDATION" >> ${CONFIG_H})
+ else
+-   a:=$(shell echo "//\#define WMO_VALIDATION" >> ${CONFIG_H})
++   a:=$(shell echo "//#define WMO_VALIDATION" >> ${CONFIG_H})
+ endif
+ 
+ wLDFLAGS+=-lm

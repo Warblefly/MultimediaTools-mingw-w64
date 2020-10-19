@@ -16,23 +16,3 @@
  endif(BUILD_SHARED_LIBS)
  
  option(HAVE_MIT_HRTF "Should MIT HRTF be built-in" ON)
---- CMakeLists.txt.orig	2020-04-04 12:10:40.891216458 +0100
-+++ CMakeLists.txt	2020-04-04 12:11:08.598948630 +0100
-@@ -56,6 +56,7 @@
-     source/AmbisonicProcessor.cpp
-     source/AmbisonicDecoder.cpp
-     source/AmbisonicBinauralizer.cpp
-+    source/AmbisonicShelfFilters.cpp
-     source/AmbisonicSource.cpp
-     source/hrtf/mit_hrtf.cpp
-     source/hrtf/sofa_hrtf.cpp
---- CMakeLists.txt.orig	2020-04-05 17:34:01.742107948 +0100
-+++ CMakeLists.txt	2020-04-05 17:34:26.473861566 +0100
-@@ -27,6 +27,7 @@
-     include/AmbisonicPsychoacousticFilters.h
-     include/AmbisonicTypesDefinesCommons.h
-     include/SpeakersBinauralizer.h
-+    include/AmbisonicShelfFilters.h
-     include/AmbisonicCommons.h
-     include/AmbisonicEncoder.h
-     include/Ambisonics.h
