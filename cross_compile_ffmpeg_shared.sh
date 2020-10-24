@@ -4848,7 +4848,7 @@ build_flac() {
 }
 
 build_youtube-dl() {
-  do_git_checkout https://github.com/rg3/youtube-dl youtube-dl
+  do_git_checkout https://source.netsyms.com/Mirrors/youtube-dl.git youtube-dl #https://github.com/rg3/youtube-dl
   cd youtube-dl
     do_make youtube-dl
     cp youtube-dl "${mingw_w64_x86_64_prefix}/bin/youtube-dl.py"
