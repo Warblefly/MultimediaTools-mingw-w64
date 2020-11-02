@@ -3885,14 +3885,19 @@ build_live555() {
 }
 
 build_exiv2() {
-  do_svn_checkout svn://dev.exiv2.org/svn/trunk exiv2
-  cd exiv2
+#  do_git_checkout https://github.com/Exiv2/exiv2.git exiv2
+  download_and_unpack_file https://exiv2.org/builds/exiv2-0.27.3-Source.tar.gz exiv2-0.27.3-Source
+  cd exiv2-0.27.3-Source
 #    apply_patch file://${top_dir}/exiv2-makernote.patch
      cpu_count=1 # svn_version.h gets written too early otherwise
     # export LIBS="-lws2_32 -lwldap32"
-     apply_patch file://${top_dir}/exiv2-vsnprintf.patch
-     make config
-     generic_configure_make_install "CXXFLAGS=-std=gnu++98 --enable-video --enable-webready"
+#     apply_patch file://${top_dir}/exiv2-vsnprintf.patch
+     apply_patch file://${top_dir}/exiv2-time.patch
+#     make config
+     do_cmake "-DEXIV2_ENABLE_WIN_UNICODE=ON -DEXIV2_ENABLE_WEBREADY=ON -DEXIV2_ENABLE_CURL=ON"
+     do_make
+     do_make_install
+#     generic_configure_make_install "CXXFLAGS=-std=gnu++98 --enable-video --enable-webready"
 
 #  download_and_unpack_file http://www.exiv2.org/exiv2-0.25.tar.gz exiv2-0.25
 #  cd exiv2-0.25
@@ -6480,7 +6485,7 @@ build_get_iplayer() {
   # Don't forget - you MUST have a working Perl interpreter to run this program.
   # Note that this is the development version, that closely tracks the developers' work on changes
   # to the BBC website. It is NOT supported, but may have fixes before the release version.
-  curl -o ${mingw_w64_x86_64_prefix}/bin/get_iplayer.pl https://raw.githubusercontent.com/get-iplayer/get_iplayer/contribute/get_iplayer
+  curl -o ${mingw_w64_x86_64_prefix}/bin/get_iplayer.pl https://raw.githubusercontent.com/get-iplayer/get_iplayer/master/get_iplayer
 }
 
 build_libdecklink() {

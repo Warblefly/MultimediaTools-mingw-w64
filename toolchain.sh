@@ -3,7 +3,6 @@
 cd ..
 export top_dir=$(pwd)
 cd -
-
 echo "Setting top directory to $top_dir"
 
 echo "How many CPUs?"
@@ -18,7 +17,7 @@ cd x86_64-w64-mingw32
 export working_directory="$PWD"
 export host="x86_64-w64-mingw32"
 export prefix="$working_directory/$host"
-export PATH="$working_directory/bin:$PATH"
+export PATH="$working_directory/bin:/usr/local/bin:/usr/bin:/bin"
 
 echo "Cloning binutils..."
 git clone --depth 1 --single-branch -b binutils-2_35-branch git://sourceware.org/git/binutils-gdb.git binutils-2.35 || echo "Seems we have binutils."

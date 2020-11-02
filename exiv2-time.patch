@@ -1,0 +1,11 @@
+--- xmpsdk/src/XMPUtils.cpp.orig	2020-11-02 18:57:12.690000000 +0000
++++ xmpsdk/src/XMPUtils.cpp	2020-11-02 18:58:07.680000000 +0000
+@@ -15,7 +15,7 @@
+ 
+ #include <map>
+ #include <limits>
+-
++#define _POSIX_THREAD_SAFE_FUNCTIONS
+ #include <time.h>
+ #include <string.h>
+ #include <cstdlib>
