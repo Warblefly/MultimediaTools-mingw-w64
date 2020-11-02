@@ -962,7 +962,9 @@ build_qt() {
   unset QT_SOURCE
   unset QT_BUILD
 #  export cpu_count=$orig_cpu_count
-  unset PKG_CONFIG
+#  unset PKG_CONFIG
+#  unset PKG_CONFIG_LIBDIR
+#  unset PKG_CONFIG_SYSROOT_DIR
   export PATH="$original_path"
 }
 
@@ -3195,8 +3197,8 @@ build_vamp-sdk() {
 }
 
 build_librubberband() {
-  download_and_unpack_file https://code.breakfastquay.com/attachments/download/34/rubberband-1.8.2.tar.bz2 rubberband-1.8.2
-  cd rubberband-1.8.2
+  download_and_unpack_file https://breakfastquay.com/files/releases/rubberband-1.9.0.tar.bz2 rubberband-1.9.0
+  cd rubberband-1.9.0
 ##     sed -i.bak 's/:= ar/:= x86_64-w64-mingw32-ar/' Makefile.in
 #     sed -i.bak 's#:= bin/rubberband#:= bin/rubberband.exe#' Makefile.in
 #     export SNDFILE_LIBS="-lsndfile -lspeex -logg -lspeexdsp -lFLAC -lvorbisenc -lvorbis -logg -lvorbisfile -logg -lFLAC++ -lsndfile"
@@ -4848,10 +4850,10 @@ build_flac() {
 }
 
 build_youtube-dl() {
-  do_git_checkout https://source.netsyms.com/Mirrors/youtube-dl.git youtube-dl #https://github.com/rg3/youtube-dl
-  cd youtube-dl
-    do_make youtube-dl
-    cp youtube-dl "${mingw_w64_x86_64_prefix}/bin/youtube-dl.py"
+  do_git_checkout https://github.com/blackjack4494/yt-dlc.git yt-dlc #https://github.com/rg3/youtube-dl
+  cd yt-dlc
+    do_make youtube-dlc
+    cp youtube-dlc "${mingw_w64_x86_64_prefix}/bin/youtube-dl.py"
   cd ..
 }
 
@@ -5562,6 +5564,7 @@ build_vlc() {
     apply_patch file://${top_dir}/vlc-fortify.patch
     apply_patch file://${top_dir}/vlc-dcomp-unpatch.patch # EGL unavailable in pure mingw-w64 build
     apply_patch file://${top_dir}/vlc-trunc.patch
+    apply_patch file://${top_dir}/vlc-swapbuffers-conflict.patch
     export LIVE555_CFLAGS="-I${mingw_w64_x86_64_prefix}/include/liveMedia -I${mingw_w64_x86_64_prefix}/include/UsageEnvironment -I${mingw_w64_x86_64_prefix}/include/BasicUsageEnvironment -I${mingw_w64_x86_64_prefix}/include/groupsock"
     export DSM_LIBS="-lws2_32 -ldsm"
     export AOM_LIBS="-laom -lpthread -lm"
@@ -5791,9 +5794,10 @@ build_vulkan() {
         #apply_patch_p1 file://${top_dir}/004-installation-commands.patch
         #apply_patch_p1 file://${top_dir}/005-mingw-dll-name.patch
         #apply_patch file://${top_dir}/006-commit.patch
-        apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vulkan-loader/001-build-fix.patch
-        apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vulkan-loader/002-proper-def-files-for-32bit.patch
-        apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vulkan-loader/003-generate-pkgconfig-files.patch
+        apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/c84f02724d2dbb67760cf733091349f400549656/mingw-w64-vulkan-loader/001-build-fix.patch
+        apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/c84f02724d2dbb67760cf733091349f400549656/mingw-w64-vulkan-loader/002-proper-def-files-for-32bit.patch
+        apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/c84f02724d2dbb67760cf733091349f400549656/mingw-w64-vulkan-loader/003-generate-pkgconfig-files.patch
+	apply_patch file://${top_dir}/Vulkan-Loader-pc-for-qt-fix.patch
         #echo "#define SPIRV_TOOLS_COMMIT_ID \"8d8a71278bf9e83dd0fb30d5474386d30870b74d\"" > spirv_tools_commit_id.h
         #cp -fv spirv_tools_commit_id.h loader/
         # Missing defines are already added to MinGW by our scripts earlier in the build process.
@@ -5813,14 +5817,14 @@ build_vulkan() {
 
 
 build_angle() {
-#  do_git_checkout https://chromium.googlesource.com/angle/angle angle # dd1b0c485561e0ce825a9426d7e223b4e158a358 # 57ce9ea23e54e7beb0526502bdf9094d1ddfde68 # 9f09037b073a7481bc5d94984a26b7c9d3427b16
+  do_git_checkout https://chromium.googlesource.com/angle/angle angle chromium/3497 # dd1b0c485561e0ce825a9426d7e223b4e158a358 # 57ce9ea23e54e7beb0526502bdf9094d1ddfde68 # 9f09037b073a7481bc5d94984a26b7c9d3427b16
     # If Angle has been built, then skip the whole process because Git barfs
     if [[ ! -f "angle/already_built_angle" ]]; then
       echo "Angle not built: building from scratch."
-      do_git_checkout https://github.com/google/angle.git angle 76c1d14b8e212db9822a6398343a344ff9028298 # fa7cc9da878b1eba4df568084b97a981e046709c
+#      do_git_checkout https://github.com/google/angle.git angle 76c1d14b8e212db9822a6398343a344ff9028298 # fa7cc9da878b1eba4df568084b97a981e046709c
       cd angle
         # remove .git directory to prevent: No rule to make target '../build-x86_64/.git/index', needed by 'out/Debug/obj/gen/angle/id/commit.h'.
-        rm -rvf .git || exit 1
+#        rm -rvf .git || exit 1
         # These patches from the AUR linux project
 #        apply_patch_p1 file://${top_dir}/angle-Fix-dynamic-libraries.patch
 #        apply_patch_p1 file://${top_dir}/angle-Link-against-dxguid-d3d9-and-gdi32.patch
@@ -5834,34 +5838,66 @@ build_angle() {
 #        apply_patch file://${top_dir}/angle-future.patch
         # executing .bat scripts on Linux is a no-go so make this a no-op
 
-        echo "" > src/copy_compiler_dll.bat
-        chmod +x src/copy_compiler_dll.bat
+#        echo "" > src/copy_compiler_dll.bat
+#        chmod +x src/copy_compiler_dll.bat
         # provide a file to export symbols declared in ShaderLang.h as part of libGLESv2.dll
         # (required to build Qt WebKit which uses shader interface)
     #    cp ${top_dir}/angle-entry_points_shader.cpp src/libGLESv2/entry_points_shader.cpp
-        apply_patch_p1 file://${top_dir}/0000-build-fix.patch
-        apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-angleproject-git/angleproject-include-import-library-and-use-def-file.patch
-        apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-angleproject-git/0001-static-build-workaround.patch
-        apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-angleproject-git/0002-redist.patch
+#        apply_patch_p1 file://${top_dir}/0000-build-fix.patch
+#        apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-angleproject-git/angleproject-include-import-library-and-use-def-file.patch
+#        apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-angleproject-git/0001-static-build-workaround.patch
+#        apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-angleproject-git/0002-redist.patch
+	apply_patch_p1 https://raw.githubusercontent.com/gk7huki/mingw-w64-angleproject/master/0001-build-fix.patch
+	apply_patch_p1 https://raw.githubusercontent.com/gk7huki/mingw-w64-angleproject/master/0002-windows-xp-support.patch
+	apply_patch_p1 https://raw.githubusercontent.com/gk7huki/mingw-w64-angleproject/master/0003-add-link-libraries.patch
+	apply_patch_p1 https://raw.githubusercontent.com/gk7huki/mingw-w64-angleproject/master/0004-use-import-library-and-def-file.patch
+	apply_patch_p1 https://raw.githubusercontent.com/gk7huki/mingw-w64-angleproject/master/0005-fix-python2-references.patch
         mkdir -pv build-x86_64
-        cd build-x86_64
+	  export CC=x86_64-w64-mingw32-gcc
           export CXX=x86_64-w64-mingw32-g++
           export AR=x86_64-w64-mingw32-ar
+	  export AS=x86_64-w64-mingw32-as
+	  export RANLIB=x86_64-w64-mingw32-ranlib
+	  export LINK=x86_64-w64-mingw32-g++
           old_cxxflags=${CXXFLAGS}
-          export CXXFLAGS="-O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions --param=ssp-buffer-size=4 -std=c++14 -msse2 -DANGLE_STD_ASYNC_WORKERS=ANGLE_DISABLED -DUNICODE -D_UNICODE -I./../src -I./../include -I./../src/common/third_party/numerics -I./../src/common/third_party/base"
+	  #export CXXFLAGS="-O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions --param=ssp-buffer-size=4 -std=c++14 -msse2 -DANGLE_STD_ASYNC_WORKERS=ANGLE_DISABLED -DUNICODE -D_UNICODE -I./../src -I./../include -I./../src/common/third_party/numerics -I./../src/common/third_party/base"
+	  export CXXFLAGS="-O2 -pipe -Wall -std=c++14 -DUNICODE -D_UNICODE"
           # Prepare the Makefile
-          gyp -D angle_enable_vulkan=0 -D use_ozone=0 -D OS=win -D TARGET=win64 --format make -DMSVS_VERSION="" --depth . -I ../gyp/common.gypi ../src/angle.gyp
-          make V=1 LIBS="-lmingw32 -lm -lsetupapi -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -lwinmm -limm32 -lole32 -loleaut32 -lshell32 -lversion -luuid -ld3d9 -ld3d11" -j $cpu_count || exit 1
+          gyp -D angle_enable_vulkan=0 -D use_ozone=0 -D OS=win -D TARGET=win64 --format make -D MSVS_VERSION="" --generator-output=build-x86_64 --depth . -I gyp/common.gypi src/angle.gyp
+	  cd src
+	  	  mkdir -pv common/id
+		  python2 ./commit_id.py gen .. common/id/commit.h
+	  cd -
+	  make -C build-x86_64 -j $cpu_count V=1 BUILDTYPE=Release_x64 || exit 1
+#          make V=1 LIBS="-lmingw32 -lm -lsetupapi -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -lwinmm -limm32 -lole32 -loleaut32 -lshell32 -lversion -luuid -ld3d9 -ld3d11" -j $cpu_count || exit 1
           # The libraries are built but have the wrong suffix
           # There is no make install target
-          cp -v out/Debug/src/libGLESv2.so "${mingw_w64_x86_64_prefix}/bin/libGLESv2.dll"
-          cp -v out/Debug/src/libEGL.so "${mingw_w64_x86_64_prefix}/bin/libEGL.dll"
-          cp -v libGLESv2.dll.a libEGL.dll.a out/Debug/src/lib*.a "${mingw_w64_x86_64_prefix}/lib/"
-          cp -Rv ../include/* "${mingw_w64_x86_64_prefix}/include/"
-          unset CXX
+          cp -v ./build-x86_64/out/Release_x64/obj.target/src/libGLESv2.so "${mingw_w64_x86_64_prefix}/bin/libGLESv2.dll" || exit 1
+          cp -v build-x86_64/out/Release_x64/obj.target/src/libEGL.so "${mingw_w64_x86_64_prefix}/bin/libEGL.dll" || exit 1
+          cp -v build-x86_64/out/libGLESv2.dll.a build-x86_64/out/libEGL.dll.a build-x86_64/out/lib*.a "${mingw_w64_x86_64_prefix}/lib/"
+          cp -Rv include/* "${mingw_w64_x86_64_prefix}/include/"
+	  unset CC
+	  unset CXX
           unset AR
+	  unset AS
+	  unset RANLIB
+	  unset LINK
           export CXXFLAGS=${old_cxxflags}
-        cd ..
+	  # Now we must make an egl.pc
+	  cat > egl.pc <<- EOM
+prefix=${mingw_w64_x86_64_prefix}/
+exec_prefix=${mingw_w64_x86_64_prefix}/
+libdir=${mingw_w64_x86_64_prefix}/lib
+includedir=${mingw_w64_x86_64_prefix}/include
+
+Name: egl
+Description: Angle project implementation of EGL
+Version: 2.1
+Requires: 
+Libs: -L${mingw_w64_x86_64_prefix}/lib -lEGL -lGLESv2
+Cflags:  
+EOM
+      cp -vf egl.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig
       touch already_built_angle
 
       cd ..
@@ -6053,7 +6089,7 @@ build_synaesthesia() {
 build_pugixml() {
 	do_git_checkout https://github.com/zeux/pugixml.git pugixml
 	cd pugixml
-		apply_patch file://${top_dir}/pugixml-rc.patch
+#		apply_patch file://${top_dir}/pugixml-rc.patch
 		do_cmake "-DCMAKE_VERBOSE_MAKEFILE=ON"
 		do_make "V=1"
 		do_make_install
@@ -6786,7 +6822,7 @@ build_dependencies() {
   build_glslang
   build_shaderc
   build_vulkan
-  #build_angle
+  build_angle
   build_cairo
   build_cairomm
 #  build_pango
