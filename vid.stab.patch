@@ -1,0 +1,20 @@
+--- src/serialize.c.orig	2020-11-06 21:21:43.830000000 +0000
++++ src/serialize.c	2020-11-06 21:22:53.870000000 +0000
+@@ -30,7 +30,7 @@
+ #include "transformtype_operations.h"
+ #include "motiondetect.h"
+ 
+-#if defined(__BYTE_ORDER) && __BYTE_ORDER == __BIG_ENDIAN || \
++#if defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __BIG_ENDIAN || \
+     defined(__BIG_ENDIAN__) || \
+     defined(__ARMEB__) || \
+     defined(__THUMBEB__) || \
+@@ -55,7 +55,7 @@
+     memcpy(&result, out, 8);
+     return result;
+ }
+-#elif defined(__BYTE_ORDER) && __BYTE_ORDER == __LITTLE_ENDIAN || \
++#elif defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__ || \
+     defined(__LITTLE_ENDIAN__) || \
+     defined(__ARMEL__) || \
+     defined(__THUMBEL__) || \

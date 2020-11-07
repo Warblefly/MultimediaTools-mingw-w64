@@ -4365,6 +4365,7 @@ build_snappy () {
 build_vidstab() {
   do_git_checkout https://github.com/georgmartius/vid.stab.git vid.stab # "430b4cffeb" # 0.9.8
   cd vid.stab
+    apply_patch file://${top_dir}/vid.stab.patch
 #    sed -i.bak "s/SHARED/STATIC/g" CMakeLists.txt # static build-ify
     do_cmake "-DUSE_OMP:bool=off"
     do_make_install
