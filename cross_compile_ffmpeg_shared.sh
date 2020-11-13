@@ -3164,7 +3164,7 @@ build_libfftw() {
 }
 
 build_libsamplerate() {
-  do_git_checkout https://github.com/erikd/libsamplerate.git libsamplerate
+  do_git_checkout https://github.com/erikd/libsamplerate.git libsamplerate 401c9d6ba23498cf1e350eef1a73b7214875bbc5
   cd libsamplerate
     generic_configure_make_install
 
@@ -4365,7 +4365,7 @@ build_snappy () {
 build_vidstab() {
   do_git_checkout https://github.com/georgmartius/vid.stab.git vid.stab # "430b4cffeb" # 0.9.8
   cd vid.stab
-    apply_patch file://${top_dir}/vid.stab.patch
+#    apply_patch file://${top_dir}/vid.stab.patch
 #    sed -i.bak "s/SHARED/STATIC/g" CMakeLists.txt # static build-ify
     do_cmake "-DUSE_OMP:bool=off"
     do_make_install
@@ -6472,6 +6472,7 @@ build_GLFW() {
 		do_make "V=1"
 		do_make_install "V=1"
 	cd ..
+	cp -v ${mingw_w64_x86_64_prefix}/lib/libglfw3dll.a ${mingw_w64_x86_64_prefix}/lib/libglfw3.a
 }
 build_picoJSON() {
 	do_git_checkout https://github.com/kazuho/picojson.git picojson
@@ -7014,7 +7015,7 @@ build_apps() {
 #  build_traverso
   build_mlt # Framework, but relies on FFmpeg, Qt, and many other libraries we've built.
   build_movit
-  #build_DJVnew # Requires FFmpeg libraries
+  build_DJVnew # Requires FFmpeg libraries
   build_qjackctl
 #  build_jackmix
   build_flacon

@@ -1,85 +1,3 @@
---- cmake/Modules/FindOCIO.cmake.orig	2020-01-24 15:12:03.165692835 +0000
-+++ cmake/Modules/FindOCIO.cmake	2020-01-24 15:12:36.445381375 +0000
-@@ -43,7 +43,7 @@
-     set_target_properties(OCIO::OCIO PROPERTIES
-         IMPORTED_LOCATION "${OCIO_LIBRARY}"
-         INTERFACE_INCLUDE_DIRECTORIES "${OCIO_INCLUDE_DIRS}"
--		INTERFACE_COMPILE_DEFINITIONS ${OCIO_DEFINES})
-+		INTERFACE_COMPILE_DEFINITIONS "${OCIO_DEFINES}")
- endif()
- if(OCIO_FOUND AND NOT TARGET OCIO)
-     add_library(OCIO INTERFACE)
---- lib/djvCore/OSWin32.cpp.orig	2020-01-27 12:49:11.266413690 +0000
-+++ lib/djvCore/OSWin32.cpp	2020-01-27 12:51:55.864802866 +0000
-@@ -31,7 +31,8 @@
- 
- #include <djvCore/FileInfo.h>
- #include <djvCore/Memory.h>
--
-+#define NTDDI_VERSION 0x06000000
-+#define _WIN32_WINNT 0x0600
- #ifndef WIN32_LEAN_AND_MEAN
- #define WIN32_LEAN_AND_MEAN
- #endif // WIN32_LEAN_AND_MEAN
---- lib/djvCore/CMakeLists.txt.orig	2020-01-27 12:58:37.528880701 +0000
-+++ lib/djvCore/CMakeLists.txt	2020-01-27 12:58:58.916672088 +0000
-@@ -139,7 +139,7 @@
-     Threads::Threads
-     ${CMAKE_DL_LIBS})
- if (WIN32)
--    set(LIBRARIES ${LIBRARIES} Netapi32.lib mpr.lib)
-+    set(LIBRARIES ${LIBRARIES} netapi32.lib mpr.lib)
- elseif (APPLE)
-     find_library(CORE_SERVICES CoreServices)
-     set(LIBRARIES ${LIBRARIES} ${CORE_SERVICES})
---- lib/djvCore/DirectoryWatcherWin32.cpp.orig	2020-02-04 22:29:09.429981659 +0000
-+++ lib/djvCore/DirectoryWatcherWin32.cpp	2020-02-04 22:29:34.849713850 +0000
-@@ -62,7 +62,7 @@
-                 std::condition_variable changedCV;
-                 std::mutex mutex;
-                 std::thread thread;
--                std::atomic<bool> running = true;
-+		std::atomic<bool> running = { true };
-                 std::function<void(void)> callback;
-                 std::shared_ptr<Time::Timer> timer;
-             };
---- lib/djvCore/OSWin32.cpp.orig	2020-02-04 22:28:40.446287015 +0000
-+++ lib/djvCore/OSWin32.cpp	2020-02-04 22:30:31.009122182 +0000
-@@ -40,10 +40,10 @@
- #define NOMINMAX
- #endif // NOMINMAX
- #include <windows.h>
--#include <Shlobj.h>
-+#include <shlobj.h>
- #include <shellapi.h>
- #include <stdlib.h>
--#include <VersionHelpers.h>
-+#include <versionhelpers.h>
- 
- #include <codecvt>
- #include <locale>
---- lib/djvCore/CMakeLists.txt.orig	2020-02-04 22:38:04.132348218 +0000
-+++ lib/djvCore/CMakeLists.txt	2020-02-04 22:38:44.903918657 +0000
-@@ -139,7 +139,7 @@
-     Threads::Threads
-     ${CMAKE_DL_LIBS})
- if (WIN32)
--    set(LIBRARIES ${LIBRARIES} netapi32.lib mpr.lib)
-+    set(LIBRARIES ${LIBRARIES} msvcr120.lib netapi32.lib mpr.lib)
- elseif (APPLE)
-     find_library(CORE_SERVICES CoreServices)
-     set(LIBRARIES ${LIBRARIES} ${CORE_SERVICES})
---- lib/djvAV/CMakeLists.txt.orig	2020-02-04 22:55:02.643479825 +0000
-+++ lib/djvAV/CMakeLists.txt	2020-02-04 22:55:21.079341269 +0000
-@@ -151,7 +151,7 @@
- 	OCIO
-     IlmBase
-     #OpenAL
--    RtAudio
-+    rtaudio
-     OpenGL::GL
-     djvCore)
- if(FFmpeg_FOUND)
 --- bin/djv/win.rc.orig	2020-02-06 18:36:03.506931711 +0000
 +++ bin/djv/win.rc	2020-02-06 18:36:17.118797808 +0000
 @@ -1,3 +1,3 @@
@@ -87,50 +5,6 @@
  
 -DJV_ICON ICON "..\\..\\etc\\Windows\\djv.ico"
 +DJV_ICON ICON "../../etc/Windows/djv.ico"
---- lib/djvCore/Core.h.orig	2020-02-08 11:30:55.806774567 +0000
-+++ lib/djvCore/Core.h	2020-02-08 11:31:10.978629111 +0000
-@@ -77,7 +77,7 @@
- 
- #if defined(DJV_PLATFORM_WINDOWS)
- //! \bug https://social.msdn.microsoft.com/Forums/vstudio/en-US/8f40dcd8-c67f-4eba-9134-a19b9178e481/vs-2015-rc-linker-stdcodecvt-error?forum=vcgeneral
--typedef unsigned int djv_char_t;
-+typedef char16_t djv_char_t;
- #define DJV_SNPRINTF sprintf_s
- #define DJV_STRNCPY strncpy_s
- #else // DJV_PLATFORM_WINDOWS
---- lib/djvAV/Audio.h.orig	2020-04-04 21:54:48.715943723 +0100
-+++ lib/djvAV/Audio.h	2020-04-04 21:55:06.291765310 +0100
-@@ -37,7 +37,7 @@
- //#include <AL/al.h>
- //#include <AL/alc.h>
- //#include <AL/alext.h>
--#include <RtAudio.h>
-+#include <rtaudio/RtAudio.h>
- 
- #include <limits>
- 
---- lib/djvAV/AudioSystem.cpp.orig	2020-04-04 23:00:06.524020720 +0100
-+++ lib/djvAV/AudioSystem.cpp	2020-04-04 23:00:21.919864050 +0100
-@@ -34,7 +34,7 @@
- #include <djvCore/Error.h>
- #include <djvCore/OS.h>
- 
--#include <RtAudio.h>
-+#include <rtaudio/RtAudio.h>
- 
- using namespace djv::Core;
- 
---- lib/djvViewApp/Media.h.orig	2020-04-04 23:06:40.396012651 +0100
-+++ lib/djvViewApp/Media.h	2020-04-04 23:06:55.683857081 +0100
-@@ -36,7 +36,7 @@
- #include <djvCore/ListObserver.h>
- #include <djvCore/ValueObserver.h>
- 
--#include <RtAudio.h>
-+#include <rtaudio/RtAudio.h>
- 
- namespace djv
- {
 --- lib/djvAV/PNGRead.cpp.orig	2020-04-13 21:28:28.509935857 +0100
 +++ lib/djvAV/PNGRead.cpp	2020-04-13 21:29:29.404968651 +0100
 @@ -135,7 +135,7 @@
@@ -251,17 +125,6 @@
  endif()
  
  # Set the output directories for the build.
---- lib/djvAV/PNG.cpp.orig	2020-08-09 14:16:05.570000000 +0100
-+++ lib/djvAV/PNG.cpp	2020-08-09 14:16:24.640000000 +0100
-@@ -51,7 +51,7 @@
-     {
-         auto error = reinterpret_cast<djv::AV::IO::PNG::ErrorStruct *>(png_get_error_ptr(in));
-         error->messages.push_back(msg);
--        longjmp(png_jmpbuf(in), 1);
-+        __builtin_longjmp(png_jmpbuf(in), 1);
-     }
- 
-     void djvPngWarning(png_structp in, png_const_charp msg)
 --- lib/djvAV/JPEG.cpp.orig	2020-08-09 14:25:43.160000000 +0100
 +++ lib/djvAV/JPEG.cpp	2020-08-09 14:26:15.600000000 +0100
 @@ -68,7 +68,7 @@
@@ -273,14 +136,334 @@
                      }
  
                      void djvJPEGWarning(j_common_ptr in, int level)
---- lib/djvCore/RapidJSONTemplatesInline.h.orig	2020-08-09 17:44:47.620000000 +0100
-+++ lib/djvCore/RapidJSONTemplatesInline.h	2020-08-09 17:45:20.150000000 +0100
+--- lib/djvCore/Core.h.orig	2020-11-11 20:11:29.410000000 +0000
++++ lib/djvCore/Core.h	2020-11-11 20:12:05.730000000 +0000
+@@ -43,7 +43,7 @@
+ 
+ #if defined(DJV_PLATFORM_WINDOWS)
+ //! \bug https://social.msdn.microsoft.com/Forums/vstudio/en-US/8f40dcd8-c67f-4eba-9134-a19b9178e481/vs-2015-rc-linker-stdcodecvt-error?forum=vcgeneral
+-typedef unsigned int djv_char_t;
++typedef char16_t djv_char_t;
+ #else // DJV_PLATFORM_WINDOWS
+ typedef char32_t djv_char_t;
+ #endif // DJV_PLATFORM_WINDOWS
+--- lib/djvAV/CMakeLists.txt.orig	2020-11-11 20:15:46.060000000 +0000
++++ lib/djvAV/CMakeLists.txt	2020-11-11 20:16:25.860000000 +0000
+@@ -117,7 +117,7 @@
+     djvOCIO
+     djvAudio
+     #OpenAL
+-    RtAudio)
++    rtaudio)
+ if(FFmpeg_FOUND)
+     set(LIBRARIES ${LIBRARIES} FFmpeg)
+ endif()
+--- lib/djvCore/RapidJSONTemplatesInline.h.orig	2020-11-11 20:35:51.800000000 +0000
++++ lib/djvCore/RapidJSONTemplatesInline.h	2020-11-11 20:36:17.710000000 +0000
+@@ -3,6 +3,7 @@
+ // All rights reserved.
+ 
+ #include <stdexcept>
++#undef GetObject
+ 
+ namespace djv
+ {
+--- lib/djvCore/OSFuncWin32.cpp.orig	2020-11-11 21:24:07.650000000 +0000
++++ lib/djvCore/OSFuncWin32.cpp	2020-11-11 21:24:23.620000000 +0000
+@@ -14,7 +14,7 @@
+ #define NOMINMAX
+ #endif // NOMINMAX
+ #include <windows.h>
+-#include <Shlobj.h>
++#include <shlobj.h>
+ #include <shellapi.h>
+ #include <stdlib.h>
+ #include <VersionHelpers.h>
+--- lib/djvCore/OSFuncWin32.cpp.orig	2020-11-11 21:33:35.840000000 +0000
++++ lib/djvCore/OSFuncWin32.cpp	2020-11-11 21:33:51.810000000 +0000
+@@ -17,7 +17,7 @@
+ #include <shlobj.h>
+ #include <shellapi.h>
+ #include <stdlib.h>
+-#include <VersionHelpers.h>
++#include <versionhelpers.h>
+ 
+ #include <array>
+ #include <codecvt>
+--- lib/djvCore/CMakeLists.txt.orig	2020-11-11 21:46:10.610000000 +0000
++++ lib/djvCore/CMakeLists.txt	2020-11-11 21:47:12.880000000 +0000
+@@ -62,7 +62,7 @@
+ 
+ add_library(djvCore ${header} ${source})
+ set(LIBRARIES
+-    RapidJSON)
++    RapidJSON msvcr120.lib)
+ if (${CMAKE_HOST_SYSTEM_PROCESSOR} MATCHES "arm")
+     set(LIBRARIES ${LIBRARIES} atomic)
+ endif()
+--- lib/djvMath/FrameNumber.h.orig	2020-11-11 21:55:22.480000000 +0000
++++ lib/djvMath/FrameNumber.h	2020-11-11 21:56:17.150000000 +0000
+@@ -5,7 +5,7 @@
+ #pragma once
+ 
+ #include <djvMath/Range.h>
+-
++#include <cstdint>
+ #include <vector>
+ 
+ namespace djv
+--- lib/djvSystem/PathFuncWin32.cpp.orig	2020-11-11 22:00:08.950000000 +0000
++++ lib/djvSystem/PathFuncWin32.cpp	2020-11-11 22:00:18.380000000 +0000
+@@ -15,7 +15,7 @@
+ #endif // NOMINMAX
+ #include <windows.h>
+ #include <direct.h>
+-#include <Shlobj.h>
++#include <shlobj.h>
+ #include <shellapi.h>
+ 
+ #include <codecvt>
+--- lib/djvSystem/DirectoryWatcherWin32.cpp.orig	2020-11-11 22:09:59.430000000 +0000
++++ lib/djvSystem/DirectoryWatcherWin32.cpp	2020-11-11 22:10:29.270000000 +0000
+@@ -41,7 +41,7 @@
+                 std::condition_variable changedCV;
+                 std::mutex mutex;
+                 std::thread thread;
+-                std::atomic<bool> running = true;
++                std::atomic<bool> running{true};
+                 std::function<void(void)> callback;
+                 std::shared_ptr<Timer> timer;
+             };
+--- lib/djvSystem/PathFuncWin32.cpp.orig	2020-11-11 22:15:19.250000000 +0000
++++ lib/djvSystem/PathFuncWin32.cpp	2020-11-11 22:17:32.280000000 +0000
 @@ -1,7 +1,7 @@
  // SPDX-License-Identifier: BSD-3-Clause
  // Copyright (c) 2004-2020 Darby Johnston
  // All rights reserved.
 -
-+#undef GetObject
++#define NTDDI_VERSION 0x06000000
+ #include <djvSystem/PathFunc.h>
+ 
+ #include <djvCore/StringFormat.h>
+--- lib/djvSystem/CMakeLists.txt.orig	2020-11-11 22:22:29.510000000 +0000
++++ lib/djvSystem/CMakeLists.txt	2020-11-11 22:22:47.640000000 +0000
+@@ -94,7 +94,7 @@
+     Threads::Threads
+     ${CMAKE_DL_LIBS})
+ if (WIN32)
+-    set(LIBRARIES ${LIBRARIES} Netapi32.lib mpr.lib)
++    set(LIBRARIES ${LIBRARIES} netapi32.lib mpr.lib)
+ elseif (APPLE)
+     find_library(CORE_SERVICES CoreServices)
+     set(LIBRARIES ${LIBRARIES} ${CORE_SERVICES})
+--- lib/djvAudio/Type.h.orig	2020-11-11 22:27:07.330000000 +0000
++++ lib/djvAudio/Type.h	2020-11-11 22:27:28.630000000 +0000
+@@ -7,7 +7,7 @@
+ #include <djvCore/Core.h>
+ 
+ #include <djvMath/Range.h>
+-
++#include <cstdint>
+ #include <limits>
+ 
  namespace djv
- {
-     template<typename T>
+--- bin/djv_info/CMakeLists.txt.orig	2020-11-11 22:50:23.640000000 +0000
++++ bin/djv_info/CMakeLists.txt	2020-11-11 22:51:11.320000000 +0000
+@@ -1,6 +1,9 @@
+ set(header)
+ set(source main.cpp)
+ 
++set(CMAKE_C_FLAGS "-municode")
++set(CMAKE_CXX_FLAGS "-municode")
++
+ add_executable(djv_info ${header} ${source})
+ target_link_libraries(djv_info djvCmdLineApp)
+ set_target_properties(
+@@ -11,4 +14,4 @@
+ 
+ install(
+     TARGETS djv_info
+-    RUNTIME DESTINATION ${DJV_INSTALL_BIN})
+\ No newline at end of file
++    RUNTIME DESTINATION ${DJV_INSTALL_BIN})
+--- bin/djv_ls/CMakeLists.txt.orig	2020-11-11 22:56:19.970000000 +0000
++++ bin/djv_ls/CMakeLists.txt	2020-11-11 22:57:00.090000000 +0000
+@@ -1,6 +1,9 @@
+ set(header)
+ set(source main.cpp)
+ 
++set(CMAKE_C_FLAGS "-municode")
++set(CMAKE_CXX_FLAGS "-municode")
++
+ add_executable(djv_ls ${header} ${source})
+ target_link_libraries(djv_ls djvCmdLineApp)
+ set_target_properties(
+--- bin/djv_test_pattern/CMakeLists.txt.orig	2020-11-11 23:03:08.240000000 +0000
++++ bin/djv_test_pattern/CMakeLists.txt	2020-11-11 23:03:37.690000000 +0000
+@@ -1,6 +1,9 @@
+ set(header)
+ set(source main.cpp)
+ 
++set(CMAKE_C_FLAGS "-municode")
++set(CMAKE_CXX_FLAGS "-municode")
++
+ add_executable(djv_test_pattern ${header} ${source})
+ target_link_libraries(djv_test_pattern djvRender2D djvCmdLineApp)
+ set_target_properties(
+--- CMakeLists.txt.orig	2020-11-11 23:15:58.650000000 +0000
++++ CMakeLists.txt	2020-11-11 23:16:04.680000000 +0000
+@@ -321,7 +321,7 @@
+     add_subdirectory(bin)
+     add_subdirectory(docs)
+     add_subdirectory(examples)
+-    add_subdirectory(experiments)
++    #    add_subdirectory(experiments)
+ endif()
+ 
+ include(CPack)
+--- bin/djv/CMakeLists.txt.orig	2020-11-11 23:24:23.410000000 +0000
++++ bin/djv/CMakeLists.txt	2020-11-11 23:25:45.620000000 +0000
+@@ -21,6 +21,8 @@
+     RUNTIME DESTINATION ${DJV_INSTALL_BIN})
+ 
+ if (WIN32)
++	set(CMAKE_C_FLAGS "-municode")
++	set(CMAKE_CXX_FLAGS "-municode")
+     add_executable(djv. ${header} ${source})
+     target_link_libraries(djv. djvViewApp)    
+     set_target_properties(
+--- cmake/Modules/FindFFmpeg.cmake.orig	2020-11-11 23:52:52.640000000 +0000
++++ cmake/Modules/FindFFmpeg.cmake	2020-11-11 23:53:29.850000000 +0000
+@@ -106,68 +106,68 @@
+     target_link_libraries(FFmpeg INTERFACE FFmpeg::swscale)
+ endif()
+ 
+-if(FFmpeg_FOUND)
+-	if(WIN32)
+-		install(
+-			FILES
+-			${CMAKE_PREFIX_PATH}/bin/avcodec-58.dll
+-			${CMAKE_PREFIX_PATH}/bin/avdevice-58.dll
+-			${CMAKE_PREFIX_PATH}/bin/avfilter-7.dll
+-			${CMAKE_PREFIX_PATH}/bin/avformat-58.dll
+-			${CMAKE_PREFIX_PATH}/bin/avutil-56.dll
+-			${CMAKE_PREFIX_PATH}/bin/swresample-3.dll
+-			${CMAKE_PREFIX_PATH}/bin/swscale-5.dll
+-			DESTINATION bin)
+-	elseif(APPLE)
+-		install(
+-			FILES
+-			${FFmpeg_LIBAVCODEC}
+-			${CMAKE_PREFIX_PATH}/lib/libavcodec.58.dylib
+-			${CMAKE_PREFIX_PATH}/lib/libavcodec.58.54.100.dylib
+-			${FFmpeg_LIBAVDEVICE}
+-			${CMAKE_PREFIX_PATH}/lib/libavdevice.58.dylib
+-			${CMAKE_PREFIX_PATH}/lib/libavdevice.58.8.100.dylib
+-			${FFmpeg_LIBAVFILTER}
+-			${CMAKE_PREFIX_PATH}/lib/libavfilter.7.dylib
+-			${CMAKE_PREFIX_PATH}/lib/libavfilter.7.57.100.dylib
+-			${FFmpeg_LIBAVFORMAT}
+-			${CMAKE_PREFIX_PATH}/lib/libavformat.58.dylib
+-			${CMAKE_PREFIX_PATH}/lib/libavformat.58.29.100.dylib
+-			${FFmpeg_LIBAVUTIL}
+-			${CMAKE_PREFIX_PATH}/lib/libavutil.56.dylib
+-			${CMAKE_PREFIX_PATH}/lib/libavutil.56.31.100.dylib
+-			${FFmpeg_LIBSWRESAMPLE}
+-			${CMAKE_PREFIX_PATH}/lib/libswresample.3.dylib
+-			${CMAKE_PREFIX_PATH}/lib/libswresample.3.5.100.dylib
+-			${FFmpeg_LIBSWSCALE}
+-			${CMAKE_PREFIX_PATH}/lib/libswscale.5.dylib
+-			${CMAKE_PREFIX_PATH}/lib/libswscale.5.5.100.dylib
+-			DESTINATION lib)
+-	else()
+-		install(
+-			FILES
+-			${FFmpeg_LIBAVCODEC}
+-			${FFmpeg_LIBAVCODEC}.58
+-			${FFmpeg_LIBAVCODEC}.58.54.100
+-			${FFmpeg_LIBAVDEVICE}
+-			${FFmpeg_LIBAVDEVICE}.58
+-			${FFmpeg_LIBAVDEVICE}.58.8.100
+-			${FFmpeg_LIBAVFILTER}
+-			${FFmpeg_LIBAVFILTER}.7
+-			${FFmpeg_LIBAVFILTER}.7.57.100
+-			${FFmpeg_LIBAVFORMAT}
+-			${FFmpeg_LIBAVFORMAT}.58
+-			${FFmpeg_LIBAVFORMAT}.58.29.100
+-			${FFmpeg_LIBAVUTIL}
+-			${FFmpeg_LIBAVUTIL}.56
+-			${FFmpeg_LIBAVUTIL}.56.31.100
+-			${FFmpeg_LIBSWRESAMPLE}
+-			${FFmpeg_LIBSWRESAMPLE}.3
+-			${FFmpeg_LIBSWRESAMPLE}.3.5.100
+-			${FFmpeg_LIBSWSCALE}
+-			${FFmpeg_LIBSWSCALE}.5
+-			${FFmpeg_LIBSWSCALE}.5.5.100
+-			DESTINATION lib)
+-	endif()
+-endif()
++#if(FFmpeg_FOUND)
++#	if(WIN32)
++#		install(
++#			FILES
++#			${CMAKE_PREFIX_PATH}/bin/avcodec-58.dll
++#			${CMAKE_PREFIX_PATH}/bin/avdevice-58.dll
++#			${CMAKE_PREFIX_PATH}/bin/avfilter-7.dll
++#			${CMAKE_PREFIX_PATH}/bin/avformat-58.dll
++#			${CMAKE_PREFIX_PATH}/bin/avutil-56.dll
++#			${CMAKE_PREFIX_PATH}/bin/swresample-3.dll
++#			${CMAKE_PREFIX_PATH}/bin/swscale-5.dll
++#			DESTINATION bin)
++#	elseif(APPLE)
++#		install(
++#			FILES
++#			${FFmpeg_LIBAVCODEC}
++#			${CMAKE_PREFIX_PATH}/lib/libavcodec.58.dylib
++#			${CMAKE_PREFIX_PATH}/lib/libavcodec.58.54.100.dylib
++#			${FFmpeg_LIBAVDEVICE}
++#			${CMAKE_PREFIX_PATH}/lib/libavdevice.58.dylib
++#			${CMAKE_PREFIX_PATH}/lib/libavdevice.58.8.100.dylib
++#			${FFmpeg_LIBAVFILTER}
++#			${CMAKE_PREFIX_PATH}/lib/libavfilter.7.dylib
++#			${CMAKE_PREFIX_PATH}/lib/libavfilter.7.57.100.dylib
++#			${FFmpeg_LIBAVFORMAT}
++#			${CMAKE_PREFIX_PATH}/lib/libavformat.58.dylib
++#			${CMAKE_PREFIX_PATH}/lib/libavformat.58.29.100.dylib
++#			${FFmpeg_LIBAVUTIL}
++#			${CMAKE_PREFIX_PATH}/lib/libavutil.56.dylib
++#			${CMAKE_PREFIX_PATH}/lib/libavutil.56.31.100.dylib
++#			${FFmpeg_LIBSWRESAMPLE}
++#			${CMAKE_PREFIX_PATH}/lib/libswresample.3.dylib
++#			${CMAKE_PREFIX_PATH}/lib/libswresample.3.5.100.dylib
++#			${FFmpeg_LIBSWSCALE}
++#			${CMAKE_PREFIX_PATH}/lib/libswscale.5.dylib
++#			${CMAKE_PREFIX_PATH}/lib/libswscale.5.5.100.dylib
++#			DESTINATION lib)
++#	else()
++#		install(
++#			FILES
++#			${FFmpeg_LIBAVCODEC}
++#			${FFmpeg_LIBAVCODEC}.58
++#			${FFmpeg_LIBAVCODEC}.58.54.100
++#			${FFmpeg_LIBAVDEVICE}
++#			${FFmpeg_LIBAVDEVICE}.58
++#			${FFmpeg_LIBAVDEVICE}.58.8.100
++#			${FFmpeg_LIBAVFILTER}
++#			${FFmpeg_LIBAVFILTER}.7
++#			${FFmpeg_LIBAVFILTER}.7.57.100
++#			${FFmpeg_LIBAVFORMAT}
++#			${FFmpeg_LIBAVFORMAT}.58
++#			${FFmpeg_LIBAVFORMAT}.58.29.100
++#			${FFmpeg_LIBAVUTIL}
++#			${FFmpeg_LIBAVUTIL}.56
++#			${FFmpeg_LIBAVUTIL}.56.31.100
++#			${FFmpeg_LIBSWRESAMPLE}
++#			${FFmpeg_LIBSWRESAMPLE}.3
++#			${FFmpeg_LIBSWRESAMPLE}.3.5.100
++#			${FFmpeg_LIBSWSCALE}
++#			${FFmpeg_LIBSWSCALE}.5
++#			${FFmpeg_LIBSWSCALE}.5.5.100
++#			DESTINATION lib)
++#	endif()
++#endif()
+ 
