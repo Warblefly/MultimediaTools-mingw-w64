@@ -899,6 +899,7 @@ build_drm() {
 
 
 build_qt() {
+	#was 5.14.2 
   echo "PATH now is $PATH"
   original_path="$PATH"
   export PATH="${top_dir}/sandbox/x86_64-w64-mingw32/bin:/bin:/usr/bin:/usr/local/bin"
@@ -3027,8 +3028,8 @@ build_asdcplib-cth() {
 
 build_libdcp() {
   # Branches are slightly askew. 1.0 is where development takes place
-  do_git_checkout https://github.com/cth103/libdcp.git libdcp # f3058b2f1b48ec613bda5781fe97e83a0dca83a9
-  do_git_checkout git://git.carlh.net/git/libdcp.git libdcp master #v1.6.x # 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
+  do_git_checkout https://github.com/cth103/libdcp.git libdcp d989a83517fd77aa241c1423ac00cfed62d567fe # f3058b2f1b48ec613bda5781fe97e83a0dca83a9
+#  do_git_checkout git://git.carlh.net/git/libdcp.git libdcp master #v1.6.x # 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
   #download_and_unpack_file https://carlh.net/downloads/libdcp/libdcp-1.6.14.tar.bz2 libdcp-1.6.14
   cd libdcp
     # M_PI is required. This is a quick way of defining it
@@ -5077,9 +5078,9 @@ build_dvbpsi() {
 }
 
 build_lz4() {
-  do_git_checkout https://github.com/lz4/lz4.git lz4
+  do_git_checkout https://github.com/lz4/lz4.git lz4 dev
   cd lz4
-    cd contrib/cmake_unofficial
+    cd build/cmake
       do_cmake
       do_make_install
 
@@ -6347,8 +6348,8 @@ build_graphicsmagick() {
 }
 
 build_graphicsmagicksnapshot() {
-  download_and_unpack_file ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020190523.tar.xz GraphicsMagick-1.4.020190523
-  cd GraphicsMagick-1.4.020190523
+  download_and_unpack_file ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020201116.tar.xz GraphicsMagick-1.4.020201116
+  cd GraphicsMagick-1.4.020201116
     apply_patch file://${top_dir}/graphicmagick-mingw64.patch
     mkdir -pv build
     cd build
@@ -6881,7 +6882,7 @@ build_dependencies() {
   build_gtk2
   build_gtk
   build_gtkmm
-  build_graphicsmagick
+  build_graphicsmagicksnapshot
   build_eigen
   build_libdv
   #build_lash
