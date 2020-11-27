@@ -1,4 +1,4 @@
-AC_INIT([bzip2],[1.0.6])
+AC_INIT([bzip2],[1.0.8])
 # ------------------------------------------------------------------
 # This file is part of bzip2/libbzip2, a program and library for
 # lossless, block-sorting data compression.

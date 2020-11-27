@@ -1562,7 +1562,7 @@ build_opendcp() {
 }
 
 build_dcpomatic() {
-  do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic 402fa9a3577975e9cf9728c815da1b17796fe325 # v2.15.x #9cff6ec974a4d0270091fe5c753483b0d53ecd46
+  do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic v2.15.x #402fa9a3577975e9cf9728c815da1b17796fe325 # v2.15.x #9cff6ec974a4d0270091fe5c753483b0d53ecd46
 #  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic #v2.15.103 # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
 #  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.102" dcpomatic-2.15.102
   cd dcpomatic
@@ -2700,8 +2700,8 @@ build_icu_with_iculehb() {
 
 
 build_libunistring() {
-  generic_download_and_install http://ftp.gnu.org/gnu/libunistring/libunistring-0.9.9.tar.xz libunistring-0.9.9 "LIBS=-lpthread"
-  cd libunistring-0.9.9
+  generic_download_and_install http://ftp.gnu.org/gnu/libunistring/libunistring-0.9.10.tar.xz libunistring-0.9.10 "LIBS=-lpthread"
+  cd libunistring-0.9.10
 
   cd ..
 }
@@ -2804,8 +2804,8 @@ build_libnettle() {
 }
 
 build_bzlib2() {
-  download_and_unpack_file https://web.archive.org/web/20180624184806/http://www.bzip.org/1.0.6/bzip2-1.0.6.tar.gz bzip2-1.0.6
-  cd bzip2-1.0.6
+  download_and_unpack_file ftp://sourceware.org/pub/bzip2/bzip2-1.0.8.tar.gz bzip2-1.0.8
+  cd bzip2-1.0.8
     if [ ! -f bzip2.built ]; then
   # These are MinGW autotools files
       cp $top_dir/bzip2-1.0.6/* .
@@ -2814,8 +2814,8 @@ build_bzlib2() {
       # The following patch is already included in bzip-2-cygming.patch
       # There is a backslash as a directory separator in a pre-processor call
 #      apply_patch file://$top_dir/bzip2_cross_compile.diff
-      apply_patch file://${top_dir}/bzip-2-cygming.patch
-      apply_patch file://${top_dir}/bzip2-1.0.6-progress.patch
+#      apply_patch file://${top_dir}/bzip-2-cygming.patch
+#      apply_patch file://${top_dir}/bzip2-1.0.6-progress.patch
       do_make
       do_make_install
       touch bzip2.built
@@ -3032,7 +3032,7 @@ build_asdcplib-cth() {
 
 build_libdcp() {
   # Branches are slightly askew. 1.0 is where development takes place
-  do_git_checkout https://github.com/cth103/libdcp.git libdcp d989a83517fd77aa241c1423ac00cfed62d567fe # f3058b2f1b48ec613bda5781fe97e83a0dca83a9
+  do_git_checkout https://github.com/cth103/libdcp.git libdcp # d989a83517fd77aa241c1423ac00cfed62d567fe # f3058b2f1b48ec613bda5781fe97e83a0dca83a9
 #  do_git_checkout git://git.carlh.net/git/libdcp.git libdcp master #v1.6.x # 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
   #download_and_unpack_file https://carlh.net/downloads/libdcp/libdcp-1.6.14.tar.bz2 libdcp-1.6.14
   cd libdcp
@@ -3170,10 +3170,12 @@ build_libfftw() {
 }
 
 build_libsamplerate() {
-  do_git_checkout https://github.com/erikd/libsamplerate.git libsamplerate 401c9d6ba23498cf1e350eef1a73b7214875bbc5
+#  generic_download_and_install https://github.com/libsndfile/libsamplerate/releases/download/v0.1.9/libsamplerate-0.1.9.tar.gz libsamplerate-0.1.9
+  do_git_checkout https://github.com/erikd/libsamplerate.git libsamplerate #ca5618deb1a747f3b46f6240a2b232e632c37b0e # 401c9d6ba23498cf1e350eef1a73b7214875bbc5
   cd libsamplerate
-    generic_configure_make_install
-
+    do_cmake
+    do_make
+    do_make_install
   cd ..
 #  generic_download_and_install http://www.mega-nerd.com/SRC/libsamplerate-0.1.9.tar.gz libsamplerate-0.1.9
 }
@@ -3312,8 +3314,8 @@ build_tesseract() {
 }
 
 build_freetype() {
-  download_and_unpack_file https://downloads.sourceforge.net/project/freetype/freetype2/2.10.0/freetype-2.10.0.tar.bz2 freetype-2.10.0
-  cd freetype-2.10.0
+  download_and_unpack_file https://download.savannah.gnu.org/releases/freetype/freetype-2.10.4.tar.xz freetype-2.10.4
+  cd freetype-2.10.4
   # Need to make a directory for the build library
   mkdir -pv lib
   generic_configure "--with-png=yes --host=x86_64-w64-mingw32 --build=x86_64-redhat-linux"
@@ -4185,8 +4187,8 @@ build_fdkaac-commandline() {
 
 build_poppler() {
 #  do_git_checkout git://git.freedesktop.org/git/poppler/poppler poppler poppler-0.67.0
-  do_git_checkout https://anongit.freedesktop.org/git/poppler/poppler.git poppler poppler-0.84.0
-  cd poppler
+  do_git_checkout https://github.com/freedesktop/poppler.git poppler-0.84.0
+  cd poppler-0.84.0
 #    apply_patch file://${top_dir}/poppler-threads.patch
     sed -i.bak 's!string\.h!sec_api/string_s.h!' test/perf-test.cc
     #sed -i.bak 's/noinst_PROGRAMS += perf-test/noinst_PROGRAMS += /' test/Makefile.am
@@ -5219,7 +5221,11 @@ build_gettext() {
 #    apply_patch file://${top_dir}/gettext-cross.patch
 #    generic_configure_make_install "CFLAGS=-O2 CXXFLAGS=-O2 LIBS=-lpthread"
 #  generic_download_and_install http://ftp.gnu.org/pub/gnu/gettext/gettext-0.19.8.1.tar.xz gettext-0.19.8.1 "CFLAGS=-O2 CXXFLAGS=-O2 LIBS=-lpthread --without-libexpat-prefix --without-libxml2-prefix"
-	generic_download_and_install https://ftp.gnu.org/pub/gnu/gettext/gettext-0.20.tar.gz gettext-0.20
+	download_and_unpack_file https://ftp.gnu.org/pub/gnu/gettext/gettext-0.21.tar.gz gettext-0.21
+	cd gettext-0.21
+		apply_patch file://${top_dir}/gettext-ruby.patch
+		generic_configure_make_install
+	cd ..
 }
 
 build_pcre() {
@@ -6354,8 +6360,8 @@ build_graphicsmagick() {
 }
 
 build_graphicsmagicksnapshot() {
-  download_and_unpack_file ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020201121.tar.xz GraphicsMagick-1.4.020201121
-  cd GraphicsMagick-1.4.020201121
+  download_and_unpack_file ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020201125.tar.xz GraphicsMagick-1.4.020201125
+  cd GraphicsMagick-1.4.020201125
     apply_patch file://${top_dir}/graphicmagick-mingw64.patch
     mkdir -pv build
     cd build

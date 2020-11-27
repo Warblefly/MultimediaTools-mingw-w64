@@ -22,7 +22,7 @@ VERSION	   =	@PACKAGE_VERSION@
 # If building libbz2 as a shared library, we use these version tags,
 SO_VER	   =	1
 SO_AGE	   =    0
-SO_REV	   =	6
+SO_REV	   =	8
 #
 # This yields a shared object library name below, following the
 # normal naming rules -- most linux distributions patch Julian's
