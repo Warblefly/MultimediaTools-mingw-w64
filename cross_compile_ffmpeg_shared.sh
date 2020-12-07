@@ -1609,7 +1609,7 @@ build_gcal() {
 }
 
 build_unbound() {
-  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.12.0 "CFLAGS=-O1 libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
+  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.13.0 "CFLAGS=-O1 libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
 }
 
 build_libxavs() {
@@ -4209,7 +4209,7 @@ build_poppler() {
 }
 
 build_SWFTools() {
-  do_git_checkout https://github.com/matthiaskramm/swftools swftools
+  do_git_checkout https://github.com/matthiaskramm/swftools swftools 1f7b90bd283bdb60b80849779a805a4fb63175cb
   cd swftools
     download_config_files # The version of config.guess is too old here.
     export DISABLEPDF2SWF=true
@@ -4671,8 +4671,8 @@ build_cppzmq() {
 }
 
 build_wxsvg() {
-  generic_download_and_install http://downloads.sourceforge.net/project/wxsvg/wxsvg/1.5.13/wxsvg-1.5.13.tar.bz2 wxsvg-1.5.13 "--with-wx-config=${mingw_w64_x86_64_prefix}/bin/wx-config"
-  cd wxsvg-1.5.13
+  generic_download_and_install http://downloads.sourceforge.net/project/wxsvg/wxsvg/1.5.22/wxsvg-1.5.22.tar.bz2 wxsvg-1.5.22 "--with-wx-config=${mingw_w64_x86_64_prefix}/bin/wx-config"
+  cd wxsvg-1.5.22
 
   cd ..
 }
@@ -6360,8 +6360,8 @@ build_graphicsmagick() {
 }
 
 build_graphicsmagicksnapshot() {
-  download_and_unpack_file ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020201125.tar.xz GraphicsMagick-1.4.020201125
-  cd GraphicsMagick-1.4.020201125
+  download_and_unpack_file ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020201205.tar.xz GraphicsMagick-1.4.020201205
+  cd GraphicsMagick-1.4.020201205
     apply_patch file://${top_dir}/graphicmagick-mingw64.patch
     mkdir -pv build
     cd build
