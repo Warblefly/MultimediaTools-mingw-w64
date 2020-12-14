@@ -910,7 +910,7 @@ build_qt() {
 #  orig_cpu_count=$cpu_count
 #  export cpu_count=1
   if [ ! -f qt.built ]; then
-    download_and_unpack_file http://download.qt.io/official_releases/qt/5.14/5.14.2/single/qt-everywhere-src-5.14.2.tar.xz "qt-everywhere-src-${QT_VERSION}"
+    download_and_unpack_file https://download.qt.io/archive/qt/5.14/5.14.2/single/qt-everywhere-src-5.14.2.tar.xz "qt-everywhere-src-${QT_VERSION}"
     cd "qt-everywhere-src-${QT_VERSION}"
 #      apply_patch file://${top_dir}/qt-permissive.patch
 #    apply_patch file://${top_dir}/qt5-skip-mapboxglnative.patch
@@ -4863,6 +4863,15 @@ build_flac() {
   cd ..
 }
 
+build_libde265() {
+	do_git_checkout https://github.com/strukturag/libde265.git libde265
+	cd libde265
+		do_cmake
+		do_make
+		do_make_install
+	cd ..
+}
+
 build_youtube-dl() {
   do_git_checkout https://github.com/blackjack4494/yt-dlc.git yt-dlc #https://github.com/rg3/youtube-dl
   cd yt-dlc
@@ -4909,8 +4918,8 @@ build_mjpegtools() {
 
 build_file() {
   # Also contains libmagic
-  do_git_checkout https://github.com/file/file.git file_native #13ba1a3639f7a40f3bffbabf2737cbdde314faf4
-  do_git_checkout https://github.com/file/file.git file #13ba1a3639f7a40f3bffbabf2737cbdde314faf4
+  do_git_checkout https://github.com/file/file.git file_native 3dc9066f0b59513951626d8596ea67e23a0fd42e #13ba1a3639f7a40f3bffbabf2737cbdde314faf4
+  do_git_checkout https://github.com/file/file.git file 3dc9066f0b59513951626d8596ea67e23a0fd42e #13ba1a3639f7a40f3bffbabf2737cbdde314faf4
   # We use the git version of file and libmagic, which is updated more
   # often than distributions track. File requires its own binary to compile
   # its list of magic numbers. Therefore, because we are cross-compiling,
@@ -6360,8 +6369,8 @@ build_graphicsmagick() {
 }
 
 build_graphicsmagicksnapshot() {
-  download_and_unpack_file ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020201205.tar.xz GraphicsMagick-1.4.020201205
-  cd GraphicsMagick-1.4.020201205
+  download_and_unpack_file ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020201208.tar.xz GraphicsMagick-1.4.020201208
+  cd GraphicsMagick-1.4.020201208
     apply_patch file://${top_dir}/graphicmagick-mingw64.patch
     mkdir -pv build
     cd build
@@ -6974,6 +6983,7 @@ build_apps() {
   #build_kf5_solid
   #build_kf5_threadweaver
   #build_digikam
+  build_libde265
   build_youtube-dl
   build_mjpegtools
   build_unittest
@@ -7028,7 +7038,7 @@ build_apps() {
 #  build_traverso
   build_mlt # Framework, but relies on FFmpeg, Qt, and many other libraries we've built.
   build_movit
-  build_DJVnew # Requires FFmpeg libraries
+  #build_DJVnew # Requires FFmpeg libraries
   build_qjackctl
 #  build_jackmix
   build_flacon
