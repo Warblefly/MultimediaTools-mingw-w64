@@ -899,6 +899,85 @@ build_drm() {
 
 
 build_qt() {
+	export QT_VERSION="5.15.2"
+	export QT_BASE="5.15"
+	export QT_SOURCE="qt-source"
+	export QT_BUILD="qt-build"
+	export MAKEFLAGS="-j8"
+	if [ ! -f qt.built ]; then
+		download_and_unpack_file https://download.qt.io/archive/qt/${QT_BASE}/${QT_VERSION}/single/qt-everywhere-src-${QT_VERSION}.tar.xz "qt-everywhere-src-${QT_VERSION}"
+		cd "qt-everywhere-src-${QT_VERSION}"
+			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0000-adjust-qmake-conf-mingw.patch
+			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0001-qt-5.8.0-fix-sql-libraries-mingw.patch
+			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0002-qt-5.8.0-configure-gcc-before-clang.patch
+			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0004-fix-linking-again-different-static-libs.patch
+			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0006-qt-5.3.0-win_flex-replace.patch
+			#apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0007-qt-5.3.0-win32-g-Enable-static-builds.patch
+			#apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0008-qt-5.3.0-win32-g-Add-QMAKE_EXTENSION_IMPORTLIB-defaulting-to-.patch
+			#apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0011-qt-5.8.0-mingw-dbus-and-pkg-config.patch
+			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0016-qt-5.8.0-win32-g%2B%2B-use-qpa-genericunixfontdatabase.patch
+			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0017-qt-5.3.0-fix-examples-building.patch
+			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0025-qt-5.8.0-force-using-make-on-msys.patch
+			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0028-qt-5.8.0-Revert-untangle-use-of-system-vs.-shell-path-list-se.patch
+			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0029-qt-5.8.0-Revert-fix-quoting-and-path-separators-in-qtPrepareT.patch
+			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0030-qt-5.3.1-workaround-ansidecl-h-PTR-define-conflict.patch
+			#apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0035-qt-5.3.2-dont-add-resource-files-to-qmake-libs.patch
+			#apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0036-qt-5.3.2-win32-qt5-static-cmake-link-ws2_32-and--static.patch
+			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0048-qt-5.4.2-win32-Avoid-platformNativeInterface-segfaults-with-minimal-platform.patch
+			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0049-qt-5.8.0-win32-do-not-use-fontconfig.patch
+			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0051-qt-5.9.1-disable-qtlocation-mapboxgl-plugin.patch
+			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0052-qt-5.11-mingw-fix-link-qdoc-with-clang.patch
+			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0054-win32-dont-need-flatpack-theme.patch
+			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0056-qt-5.11-static_icu.patch
+			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0057-fix-and-enable-iconv-codec.patch
+			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0060-activeqt-handle-win64-in-dumpcpp.patch
+			#apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0062-fix-static-build-big-resources.patch
+			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0063-enable-mingw-schannel-alpn.patch
+			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0125-qt5-windeployqt-fixes.patch
+			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0300-qt-5.8.0-cast-errors.patch
+			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0304-qtdeclarative-disable-dx12.patch
+			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0310-fix-assimp-not-found.patch
+			apply_patch file://${top_dir}/qt-labs.patch
+			_ARCH_TUNE="-march=nocona -mtune=core2"
+			_HARD_FLAGS=""
+#			_HARD_FLAGS="-Wl,--high-entropy-va,--nxcompat,--default-image-base-high"
+			BIGOBJ_FLAGS="-Wa,-mbig-obj"
+			LTCG_CFLAGS="" # Don't use link-time optimization yet
+			LTCG_LFLAGS=""
+#			LTCG_CFLAGS="-flto-partition=1to1 -flto -ffat-lto-objects"
+#			LTCG_LFLAGS="-flto-partition=1to1 -flto -ffat-lto-objects"
+			sed -i "s|^QMAKE_CFLAGS .*= \(.*\)$|QMAKE_CFLAGS            = \1 ${_ARCH_TUNE} ${BIGOBJ_FLAGS} ${LTCG_CFLAGS}|g" qtbase/mkspecs/win32-g++/qmake.conf
+			sed -i "s|^QMAKE_LFLAGS           +=\(.*\)$|QMAKE_LFLAGS            += \1 ${LTCG_LFLAGS} ${_HARD_FLAGS}|g" qtbase/mkspecs/common/gcc-base.conf
+		cd ..
+		mkdir qt-build
+		cd qt-build
+			unset CFLAGS
+			unset CXXFLAGS
+			unset LDFLAGS
+			unset QMAKESPEC
+			unset XQMAKESPEC
+			unset QMAKEPATH
+			unset QMAKEFEATURES
+			export PKG_CONFIG=${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config
+			export PKG_CONFIG_LIBDIR=${mingw_w64_x86_64_prefix}/lib/pkgconfig
+			export PKG_CONFIG_SYSROOT_DIR=${mingw_w64_x86_64_prefix}/
+			do_configure "-xplatform win32-g++ -prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -opensource -no-ltcg -qt-freetype -confirm-license -accessibility -nomake examples -nomake tests -no-d3d12 -skip qtquickcontrols -skip qtwebglplugin -skip qt3d -skip qtandroidextras -skip qtcharts -skip qtconnectivity -skip qtdatavis3d -skip qtgamepad -skip qtimageformats -skip qtlocation -skip qtlottie -skip qtmacextras -skip qtnetworkauth -skip qtpurchasing -skip qtquick3d -skip qtquicktimeline -skip qtremoteobjects -skip qtscript -skip qtscxml -skip qtsensors -skip qtserialbus -skip qtserialport -skip qtspeech -skip qtvirtualkeyboard -skip qtwayland -skip qtwebchannel -skip qtwebengine -skip qtwebsockets -skip qtwinextras -skip qtx11extras -release -strip -openssl -opengl desktop -device-option CROSS_COMPILE=$cross_prefix -force-pkg-config -device-option PKG_CONFIG=x86_64-w64-mingw32-pkg-config -device-option PKG_CONFIG_LIBDIR=${mingw_w64_x86_64_prefix}/lib/pkgconfig -device-option PKG_CONFIG_SYSROOT_DIR=${mingw_w64_x86_64_prefix} -pkg-config -shared -no-static -no-use-gold-linker -v -skip qtactiveqt" "../qt-everywhere-src-${QT_VERSION}/configure"
+			do_make || exit 1
+			do_make_install || exit 1
+		cd ..
+		touch "qt.built"
+	else
+		echo "Skipping QT build... already completed."
+	fi
+	# Remove any debug versions around
+	rm -v ${mingw_w64_x86_64_prefix}/bin/Qt5*d.dll
+	ln -sv ${mingw_w64_x86_64_prefix}/include/QtCore/${QT_VERSION}/QtCore/private ${mingw_w64_x86_64_prefix}/include/QtCore/private
+	ln -sv ${mingw_w64_x86_64_prefix}/bin/Qt*.dll ${mingw_w64_x86_64_prefix}/../bin
+	ln -sv ${mingw_w64_x86_64_prefix}/plugins ${mingw_w64_x86_64_prefix}/../plugins
+	sed -i.bak 's! /libQt5Core\.a! -lQt5Core!' ${mingw_w64_x86_64_prefix}/lib/qtmain.prl
+}
+
+build_qt_old() {
 	#was 5.14.2 
   echo "PATH now is $PATH"
   original_path="$PATH"
@@ -907,6 +986,7 @@ build_qt() {
   export QT_VERSION="5.14.2"
   export QT_SOURCE="qt-source"
   export QT_BUILD="qt-build"
+  export MAKEFLAGS="-j$(cpu_count)"
 #  orig_cpu_count=$cpu_count
 #  export cpu_count=1
   if [ ! -f qt.built ]; then
@@ -931,7 +1011,7 @@ build_qt() {
       export PKG_CONFIG=${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config
       export PKG_CONFIG_LIBDIR=${mingw_w64_x86_64_prefix}/lib/pkgconfig
       export PKG_CONFIG_SYSROOT_DIR=${mingw_w64_x86_64_prefix}/
-      do_configure "-xplatform win32-g++ -prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -opensource -qt-freetype -confirm-license -accessibility -nomake examples -nomake tests -no-d3d12 -skip qtquickcontrols -skip qtwebglplugin -skip qt3d -skip qtandroidextras -skip qtcharts -skip qtconnectivity -skip qtdatavis3d -skip qtgamepad -skip qtimageformats -skip qtlocation -skip qtlottie -skip qtmacextras -skip qtnetworkauth -skip qtpurchasing -skip qtquick3d -skip qtquicktimeline -skip qtremoteobjects -skip qtscript -skip qtscxml -skip qtsensors -skip qtserialbus -skip qtserialport -skip qtspeech -skip qtvirtualkeyboard -skip qtwayland -skip qtwebchannel -skip qtwebengine -skip qtwebsockets -skip qtwinextras -skip qtx11extras -release -strip -openssl -opengl dynamic -device-option CROSS_COMPILE=$cross_prefix -force-pkg-config -device-option PKG_CONFIG=x86_64-w64-mingw32-pkg-config -device-option PKG_CONFIG_LIBDIR=${mingw_w64_x86_64_prefix}/lib/pkgconfig -device-option PKG_CONFIG_SYSROOT_DIR=${mingw_w64_x86_64_prefix} -pkg-config -no-static -shared -no-use-gold-linker -D MINGW_HAS_SECURE_API -D _WIN32_IE=0x0A00 -v -skip qtactiveqt" "../qt-everywhere-src-${QT_VERSION}/configure" # "noclean" # -skip qtactiveqt
+      do_configure "-xplatform win32-g++ -prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -opensource -qt-freetype -confirm-license -accessibility -nomake examples -nomake tests -no-d3d12 -skip qtquickcontrols -skip qtwebglplugin -skip qt3d -skip qtandroidextras -skip qtcharts -skip qtconnectivity -skip qtdatavis3d -skip qtgamepad -skip qtimageformats -skip qtlocation -skip qtlottie -skip qtmacextras -skip qtnetworkauth -skip qtpurchasing -skip qtquick3d -skip qtquicktimeline -skip qtremoteobjects -skip qtscript -skip qtscxml -skip qtsensors -skip qtserialbus -skip qtserialport -skip qtspeech -skip qtvirtualkeyboard -skip qtwayland -skip qtwebchannel -skip qtwebengine -skip qtwebsockets -skip qtwinextras -skip qtx11extras -release -strip -openssl -opengl desktop -device-option CROSS_COMPILE=$cross_prefix -force-pkg-config -device-option PKG_CONFIG=x86_64-w64-mingw32-pkg-config -device-option PKG_CONFIG_LIBDIR=${mingw_w64_x86_64_prefix}/lib/pkgconfig -device-option PKG_CONFIG_SYSROOT_DIR=${mingw_w64_x86_64_prefix} -pkg-config -no-static -shared -no-use-gold-linker -v -skip qtactiveqt" "../qt-everywhere-src-${QT_VERSION}/configure" # "noclean" # -skip qtactiveqt
       # For sone reason, the compiler doesn't set the include path properly!
       do_make || exit 1
       do_make_install || exit 1
@@ -1740,13 +1820,13 @@ build_libutvideo() {
 
 
 build_libilbc() {
-  do_git_checkout https://github.com/dekkers/libilbc.git libilbc_git
+  do_git_checkout https://github.com/TimothyGu/libilbc.git libilbc_git v2.0.2
   cd libilbc_git
+  
   if [[ ! -f "configure" ]]; then
     autoreconf -fiv || exit 1 # failure here, OS X means "you need libtoolize" perhaps? http://betterlogic.com/roger/2014/12/ilbc-cross-compile-os-x-mac-woe/
   fi
   generic_configure_make_install
-
   cd ..
 }
 
@@ -3278,7 +3358,7 @@ build_libgcrypt() {
 }
 
 build_tesseract() {
-  do_git_checkout https://github.com/tesseract-ocr/tesseract tesseract #fef64d795cdb0db5315c11f936b7efd1424994b2
+  do_git_checkout https://github.com/tesseract-ocr/tesseract tesseract 1188e0a516a963ae6f7dd741fead17e43dae463c #fef64d795cdb0db5315c11f936b7efd1424994b2
   # Problem with latest tree and FFmpeg. Should be fixed soon
 #  download_and_unpack_file https://github.com/tesseract-ocr/tesseract/archive/3.05.00dev.tar.gz tesseract-3.05.00dev
   cd tesseract
@@ -6369,8 +6449,8 @@ build_graphicsmagick() {
 }
 
 build_graphicsmagicksnapshot() {
-  download_and_unpack_file ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020201208.tar.xz GraphicsMagick-1.4.020201208
-  cd GraphicsMagick-1.4.020201208
+  download_and_unpack_file ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020201225.tar.xz GraphicsMagick-1.4.020201225
+  cd GraphicsMagick-1.4.020201225
     apply_patch file://${top_dir}/graphicmagick-mingw64.patch
     mkdir -pv build
     cd build
@@ -6957,7 +7037,7 @@ build_apps() {
   build_lsdvd
   build_fdkaac-commandline
 #  build_cdrecord
-  build_qt
+  build_qt_old
   #build_kf5_config
   #build_kf5_coreaddons
   #build_kf5_itemmodels
