@@ -1,5 +1,5 @@
---- modules/highgui/src/window_w32.cpp.orig	2017-03-24 11:58:54.376195100 +0000
-+++ modules/highgui/src/window_w32.cpp	2017-03-24 11:59:10.973582700 +0000
+--- modules/highgui/src/window_w32.cpp.orig	2021-01-01 20:42:13.200000000 +0000
++++ modules/highgui/src/window_w32.cpp	2021-01-01 20:42:31.540000000 +0000
 @@ -60,7 +60,7 @@
  #include <vector>
  #include <functional>

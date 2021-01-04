@@ -97,12 +97,12 @@ echo "GCC has arrived."
 cd gcc
 	echo "To build GCC, we need some accessories."
 	if [[ ! -f gcc_accessories_source ]]; then
-		wget https://ftp.gnu.org/gnu/gmp/gmp-6.1.2.tar.xz || exit 1
-		tar xvvf gmp-6.1.2.tar.xz && ln -sv gmp-6.1.2 gmp
-		wget https://ftp.gnu.org/gnu/mpfr/mpfr-4.0.2.tar.xz || exit 1
-		tar xvvf mpfr-4.0.2.tar.xz && ln -sv mpfr-4.0.2 mpfr
-		wget https://ftp.gnu.org/gnu/mpc/mpc-1.1.0.tar.gz || exit 1
-		tar xvvf mpc-1.1.0.tar.gz && ln -sv mpc-1.1.0 mpc
+		wget https://gmplib.org/download/gmp/gmp-6.2.1.tar.lz || exit 1
+		tar xvvf gmp-6.2.1.tar.lz && ln -sv gmp-6.2.1 gmp
+		wget https://ftp.gnu.org/gnu/mpfr/mpfr-4.1.0.tar.xz || exit 1
+		tar xvvf mpfr-4.1.0.tar.xz && ln -sv mpfr-4.1.0 mpfr
+		wget https://ftp.gnu.org/gnu/mpc/mpc-1.2.1.tar.gz || exit 1
+		tar xvvf mpc-1.2.1.tar.gz && ln -sv mpc-1.2.1 mpc
 		touch gcc_accessories_source
 	else
 		echo "Accessories already downloaded and linked."

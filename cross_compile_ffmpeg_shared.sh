@@ -187,7 +187,7 @@ install_cross_compiler() {
 #  sed -i.bak 's#gendef/configure" --build="$system_type" --prefix="$mingw_w64_prefix" --target#gendef/configure" --build="$system_type" --prefix="$mingw_w64_prefix" --host#' mingw-w64-build-3.6.6
 #  ./mingw-w64-build-3.6.6 --gcc-langs=c,c++,fortran --default-configure --mingw-w64-ver=git --gcc-ver=svn --pthreads-w32-ver=2-9-1 --cpu-count=$gcc_cpu_count --build-type=$build_choice --enable-gendef --enable-widl --binutils-ver=2.29 --verbose || exit 1 # --disable-shared allows c++ to be distributed at all...which seemed necessary for some random dependency...
 #  ./mingw-w64-build x86_64
-  ${top_dir}/toolchain.sh
+  ${top_dir}/toolchain.sh || exit 1
   #mv bld ${top_dir}/sandbox/x86_64-w64-mingw32
   export CFLAGS=$original_cflags # reset it
 # We need to move the plain cross-compiling versions of bintools out of the way
@@ -937,7 +937,8 @@ build_qt() {
 			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0300-qt-5.8.0-cast-errors.patch
 			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0304-qtdeclarative-disable-dx12.patch
 			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0310-fix-assimp-not-found.patch
-			apply_patch file://${top_dir}/qt-labs.patch
+			apply_patch file://${top_dir}/qt-imports.patch
+			apply_patch file://${top_dir}/qt-unused.patch
 			_ARCH_TUNE="-march=nocona -mtune=core2"
 			_HARD_FLAGS=""
 #			_HARD_FLAGS="-Wl,--high-entropy-va,--nxcompat,--default-image-base-high"
@@ -1512,7 +1513,7 @@ build_openblas() {
 }
 
 build_opencv() {
-  do_git_checkout https://github.com/opencv/opencv.git "opencv" 2bd0844be39a799d100e1ac00833ca946a7bfbf7 #3.4 # 2.4
+  do_git_checkout https://github.com/opencv/opencv.git "opencv" 2.4 # 2bd0844be39a799d100e1ac00833ca946a7bfbf7 #3.4 # 2.4
   cd opencv
   # This is only used for a couple of frei0r filters. Surely we can switch off more options than this?
   # WEBP is switched off because it triggers a Cmake bug that removes #define-s of EPSILON and variants
@@ -1522,12 +1523,12 @@ build_opencv() {
 
 #    apply_patch file://${top_dir}/opencv-mutex-boost.patch
 #    apply_patch file://${top_dir}/opencv-boost-thread.patch
-#    apply_patch file://${top_dir}/opencv-wrong-slash.patch
+    apply_patch file://${top_dir}/opencv-wrong-slash.patch
     apply_patch file://${top_dir}/opencv-location.patch
-    apply_patch file://${top_dir}/opencv-strict.patch
+#    apply_patch file://${top_dir}/opencv-strict.patch
     mkdir -pv build
     cd build
-      do_cmake ".. -DWITH_IPP=OFF -DWITH_EIGEN=ON -DWITH_VFW=ON -DWITH_DSHOW=ON -DOPENCV_ENABLE_NONFREE=ON -DWITH_GTK=ON -DWITH_WIN32UI=ON -DWITH_DIRECTX=ON -DBUILD_SHARED_LIBS=ON -DBUILD_opencv_apps=ON -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_JASPER=OFF -DBUILD_JPEG=OFF -DBUILD_OPENEXR=OFF -DBUILD_PNG=OFF -DBUILD_TIFF=OFF -DBUILD_ZLIB=OFF -DENABLE_SSE41=ON -DENABLE_SSE42=ON -DWITH_WEBP=OFF -DBUILD_EXAMPLES=ON -DINSTALL_C_EXAMPLES=ON -DWITH_OPENGL=ON -DINSTALL_PYTHON_EXAMPLES=ON -DCMAKE_CXX_FLAGS=-DMINGW_HAS_SECURE_API=1 -DCMAKE_C_FLAGS=-DMINGW_HAS_SECURE_API=1 -DOPENCV_LINKER_LIBS=boost_thread-mt-x64;boost_system-mt-x64 -DCMAKE_VERBOSE=ON -DINSTALL_TO_MANGLED_PATHS=OFF" && ${top_dir}/correct_headers.sh
+      do_cmake ".. -DCMAKE_CXX_STANDARD=14 -DWITH_IPP=OFF -DWITH_EIGEN=ON -DWITH_VFW=ON -DWITH_DSHOW=ON -DOPENCV_ENABLE_NONFREE=ON -DWITH_GTK=ON -DWITH_WIN32UI=ON -DWITH_DIRECTX=ON -DBUILD_SHARED_LIBS=ON -DBUILD_opencv_apps=ON -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_JASPER=OFF -DBUILD_JPEG=OFF -DBUILD_OPENEXR=OFF -DBUILD_PNG=OFF -DBUILD_TIFF=OFF -DBUILD_ZLIB=OFF -DENABLE_SSE41=ON -DENABLE_SSE42=ON -DWITH_WEBP=OFF -DBUILD_EXAMPLES=ON -DINSTALL_C_EXAMPLES=ON -DWITH_OPENGL=ON -DINSTALL_PYTHON_EXAMPLES=ON -DCMAKE_CXX_FLAGS=-DMINGW_HAS_SECURE_API=1 -DCMAKE_C_FLAGS=-DMINGW_HAS_SECURE_API=1 -DOPENCV_LINKER_LIBS=boost_thread-mt-x64;boost_system-mt-x64 -DCMAKE_VERBOSE=ON -DINSTALL_TO_MANGLED_PATHS=OFF" && ${top_dir}/correct_headers.sh
       sed -i.bak "s|DBL_EPSILON|2.2204460492503131E-16|g" modules/imgproc/include/opencv2/imgproc/types_c.h
       do_make_install
 #      cp -v ${mingw_w64_x86_64_prefix}/lib/libopencv_core320.dll.a ${mingw_w64_x86_64_prefix}/lib/libopencv_core.dll.a
@@ -2467,6 +2468,7 @@ build_libfilezilla() {
 do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfilezilla 
     cd libfilezilla
         #apply_patch file://${top_dir}/libfilezilla-typo.patch
+	apply_patch file://${top_dir}/libfilezilla-limits.patch
         export CC=x86_64-w64-mingw32-gcc
         export CXX=x86_64-w64-mingw32-g++
         export WINDRES=x86_64-w64-mingw32-windres
@@ -3564,7 +3566,7 @@ build_OpenCL() {
 }
 
 build_vim() {
-  do_git_checkout https://github.com/vim/vim.git vim
+  do_git_checkout https://github.com/vim/vim.git vim 3e0107ea16349b354e0e9712e95b09ef019e99e5
   cd vim
 #  	apply_patch file://${top_dir}/vim_uuid.patch
   cd ..
@@ -3582,7 +3584,7 @@ build_vim() {
       mkdir -pv ${mingw_w64_x86_64_prefix}/share/vim && cp -Rv ../runtime/* ${mingw_w64_x86_64_prefix}/share/vim
   cd ../..
 
-  do_git_checkout https://github.com/vim/vim.git vim_console
+  do_git_checkout https://github.com/vim/vim.git vim_console 3e0107ea16349b354e0e9712e95b09ef019e99e5
   cd vim_console/src
     sed -i.bak 's/FEATURES=BIG/FEATURES=HUGE/' Make_cyg_ming.mak
     sed -i.bak 's/ARCH=i686/ARCH=x86-64/' Make_cyg_ming.mak
@@ -4870,10 +4872,12 @@ build_libffi() {
 }
 
 build_ilmbase() {
-  do_git_checkout https://github.com/openexr/openexr.git openexr 48c2106310c8edefc7c1387cffc466665e4f38d2 #9f23bcc60b9786ffd5d97800750b953313080c87
+download_and_unpack_file https://github.com/AcademySoftwareFoundation/openexr/archive/v2.5.2.tar.gz openexr-2.5.2
+
+#  do_git_checkout https://github.com/openexr/openexr.git openexr #48c2106310c8edefc7c1387cffc466665e4f38d2 #9f23bcc60b9786ffd5d97800750b953313080c87
   # Problem with threads in latest code that checks for c++14 standard
 #  cd openexr/IlmBase
-  cd openexr
+  cd openexr-2.5.2
 # IlmBase is written expecting that some of its binaries will be run during compilation.
     # In a cross-compiling environment, this more difficult to do than I know how.
     # The files that the binaries generate are two quite large headers. We have generated
@@ -4890,7 +4894,7 @@ build_ilmbase() {
 #    generic_configure_make_install "--enable-shared --enable-large-stack"
 
 #    apply_patch file://${top_dir}/openexr.patch
-    do_cmake "-DPYILMBASE_ENABLE=OFF -DCMAKE_VERBOSE_MAKEFILE=ON" && ${top_dir}/correct_headers.sh # -DCMAKE_THREAD_LIBS_INIT=-lboost_thread-mt-x64
+    do_cmake "-DPYILMBASE_ENABLE=OFF -DBUILD_TESTING=NO -DCMAKE_VERBOSE_MAKEFILE=ON" && ${top_dir}/correct_headers.sh # -DCMAKE_THREAD_LIBS_INIT=-lboost_thread-mt-x64
     do_make "V=1"
     do_make_install "V=1"
     # Some bizarre locations are used
@@ -4898,13 +4902,13 @@ build_ilmbase() {
     rm -vf libIlmImfUtil.dll libIlmImf.dll libIexMath.dll libIlmThread.dll libHalf.dll libIex.dll libImath.dll
     cd -
     cd ${mingw_w64_x86_64_prefix}/bin
-    ln -fvs libIlmImfUtil-2_4.dll libIlmImfUtils.dll
-    ln -fvs libIlmImf-2_4.dll libIlmImf.dll
-    ln -fvs libIexMath-2_4.dll libIexMath.dll
-    ln -fvs libIlmThread-2_4.dll libIlmThread.dll
-    ln -fvs libHalf-2_4.dll libHalf.dll
-    ln -fvs libIex-2_4.dll libIex.dll
-    ln -fvs libImath-2_4.dll libImath.dll
+    ln -fvs libIlmImfUtil-2_5.dll libIlmImfUtils.dll
+    ln -fvs libIlmImf-2_5.dll libIlmImf.dll
+    ln -fvs libIexMath-2_5.dll libIexMath.dll
+    ln -fvs libIlmThread-2_5.dll libIlmThread.dll
+    ln -fvs libHalf-2_5.dll libHalf.dll
+    ln -fvs libIex-2_5.dll libIex.dll
+    ln -fvs libImath-2_5.dll libImath.dll
     cd -
 #  cd ../..
   cd ..
@@ -5959,6 +5963,7 @@ build_angle() {
 	apply_patch_p1 https://raw.githubusercontent.com/gk7huki/mingw-w64-angleproject/master/0003-add-link-libraries.patch
 	apply_patch_p1 https://raw.githubusercontent.com/gk7huki/mingw-w64-angleproject/master/0004-use-import-library-and-def-file.patch
 	apply_patch_p1 https://raw.githubusercontent.com/gk7huki/mingw-w64-angleproject/master/0005-fix-python2-references.patch
+	apply_patch file://${top_dir}/angle-limits.patch
         mkdir -pv build-x86_64
 	  export CC=x86_64-w64-mingw32-gcc
           export CXX=x86_64-w64-mingw32-g++
@@ -6449,8 +6454,8 @@ build_graphicsmagick() {
 }
 
 build_graphicsmagicksnapshot() {
-  download_and_unpack_file ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020201225.tar.xz GraphicsMagick-1.4.020201225
-  cd GraphicsMagick-1.4.020201225
+  download_and_unpack_file ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020210101.tar.xz GraphicsMagick-1.4.020210101
+  cd GraphicsMagick-1.4.020210101
     apply_patch file://${top_dir}/graphicmagick-mingw64.patch
     mkdir -pv build
     cd build

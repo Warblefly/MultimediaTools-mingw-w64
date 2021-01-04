@@ -1,0 +1,11 @@
+--- lib/buffer.cpp.orig	2021-01-01 19:34:36.120000000 +0000
++++ lib/buffer.cpp	2021-01-01 19:34:51.220000000 +0000
+@@ -2,7 +2,7 @@
+ 
+ #include <algorithm>
+ #include <cstdlib>
+-
++#include <limits>
+ #include <string.h>
+ 
+ namespace fz {

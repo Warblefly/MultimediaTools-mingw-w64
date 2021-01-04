@@ -1,0 +1,11 @@
+--- qtdeclarative/src/imports/folderlistmodel/plugin.cpp.orig	2021-01-02 19:31:17.880000000 +0000
++++ qtdeclarative/src/imports/folderlistmodel/plugin.cpp	2021-01-02 19:31:37.260000000 +0000
+@@ -56,7 +56,7 @@
+     QmlFolderListModelPlugin(QObject *parent = nullptr) : QQmlExtensionPlugin(parent)
+     {
+         volatile auto registration = &qml_register_types_Qt_labs_folderlistmodel;
+-        Q_UNUSED(registration);
++//        Q_UNUSED(registration);
+     }
+ 
+     void registerTypes(const char *uri) override

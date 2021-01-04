@@ -1,0 +1,26 @@
+--- qtdeclarative/src/imports/folderlistmodel/folderlistmodel.pro.orig	2021-01-02 18:27:26.620000000 +0000
++++ qtdeclarative/src/imports/folderlistmodel/folderlistmodel.pro	2021-01-02 18:27:50.110000000 +0000
+@@ -12,4 +12,11 @@
+     fileinfothread_p.h
+ 
+ CONFIG += qmltypes install_qmltypes
++CONFIG -= optimize_full
++
++QMAKE_CXXFLAGS_RELEASE -= -O2
++QMAKE_CXXFLAGS_RELEASE -= -O1
++QMAKE_CXXFLAGS_RELEASE += -O0
++
+ load(qml_plugin)
++
+--- qtdeclarative/src/imports/folderlistmodel/folderlistmodel.pro.orig	2021-01-02 18:40:38.190000000 +0000
++++ qtdeclarative/src/imports/folderlistmodel/folderlistmodel.pro	2021-01-02 18:41:31.540000000 +0000
+@@ -17,6 +17,9 @@
+ QMAKE_CXXFLAGS_RELEASE -= -O2
+ QMAKE_CXXFLAGS_RELEASE -= -O1
+ QMAKE_CXXFLAGS_RELEASE += -O0
++QMAKE_CFLAGS_RELEASE -= -O2
++QMAKE_CFLAGS_RELEASE -= -O1
++QMAKE_CFLAGS_RELEASE += -O0
+ 
+ load(qml_plugin)
+ 
