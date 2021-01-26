@@ -119,9 +119,9 @@ cd ..
 
 # Apply patch. Not sure how long this will be required
 
-cd gcc/gcc
+cd gcc
 	cat ${top_dir}/gcc-ice.patch | patch -p0 || exit 1
-cd ../..
+cd ..
 
 mkdir -pv gcc-build
 cd gcc-build
