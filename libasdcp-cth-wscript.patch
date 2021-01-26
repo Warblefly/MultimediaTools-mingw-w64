@@ -1,0 +1,29 @@
+--- wscript.orig	2021-01-21 19:46:06.100000000 +0000
++++ wscript	2021-01-21 19:48:12.130000000 +0000
+@@ -44,7 +44,7 @@
+     conf.check_cfg(package='openssl', args='--cflags --libs', uselib_store='OPENSSL', mandatory=True)
+ 
+     if conf.options.target_windows:
+-        boost_lib_suffix = '-mt'
++        boost_lib_suffix = '-mt-x64'
+     else:
+         boost_lib_suffix = ''
+ 
+@@ -70,7 +70,7 @@
+     			    int main() { boost::filesystem::copy_file ("a", "b"); }\n
+ 			    """,
+                    msg='Checking for boost filesystem library',
+-                   libpath='/usr/local/lib',
++                   libpath='lib',
+                    lib=['boost_filesystem%s' % boost_lib_suffix, 'boost_system%s' % boost_lib_suffix],
+                    uselib_store='BOOST_FILESYSTEM')
+ 
+@@ -80,7 +80,7 @@
+ 
+ def build(bld):
+     if bld.env.TARGET_WINDOWS:
+-        boost_lib_suffix = '-mt'
++        boost_lib_suffix = '-mt-x64'
+         flags = '-DKM_WIN32'
+     else:
+         boost_lib_suffix = ''

@@ -47,8 +47,13 @@ echo "Making the mingw link..."
 ln -sv $host $working_directory/mingw
 
 echo "Cloning the mingw-w64 headers, crt and libraries..."
-git clone --depth 1 --single-branch git://git.code.sf.net/p/mingw-w64/mingw-w64 mingw-w64 || echo "Seems we have mingw-w64."
+git clone git://git.code.sf.net/p/mingw-w64/mingw-w64 mingw-w64 || echo "Seems we have mingw-w64."
 echo "mingw-w64 has arrived."
+
+# This is a checkout before some tcpip headers break Pulseaudio etc.
+#cd mingw-w64
+#	git checkout ad98746ace05548a19c25274164592111846b778
+#cd ..
 
 cd mingw-w64/mingw-w64-headers
 	echo "patching shlguid.h..."
@@ -103,12 +108,20 @@ cd gcc
 		tar xvvf mpfr-4.1.0.tar.xz && ln -sv mpfr-4.1.0 mpfr
 		wget https://ftp.gnu.org/gnu/mpc/mpc-1.2.1.tar.gz || exit 1
 		tar xvvf mpc-1.2.1.tar.gz && ln -sv mpc-1.2.1 mpc
+		wget http://isl.gforge.inria.fr/isl-0.23.tar.xz || exit 1
+		tar xvvf isl-0.23.tar.xz && ln -sv isl-0.23 isl
 		touch gcc_accessories_source
 	else
 		echo "Accessories already downloaded and linked."
 	fi
 	echo "Accessories arrived."
 cd ..
+
+# Apply patch. Not sure how long this will be required
+
+cd gcc/gcc
+	cat ${top_dir}/gcc-ice.patch | patch -p0 || exit 1
+cd ../..
 
 mkdir -pv gcc-build
 cd gcc-build

@@ -1,0 +1,67 @@
+--- configure.ac.orig	2021-01-22 20:27:46.680000000 +0000
++++ configure.ac	2021-01-22 20:28:24.250000000 +0000
+@@ -563,7 +563,7 @@
+ fi
+ 
+ # Check for jack_transport_query function.
+-AC_CHECK_LIB(jack, jack_transport_query, [ac_jack_transport="yes"], [ac_jack_transport="no"])
++AC_CHECK_LIB(jack64, jack_transport_query, [ac_jack_transport="yes"], [ac_jack_transport="no"])
+ if test "x$ac_jack_transport" = "xno"; then
+    AC_MSG_WARN([*** jack_transport_query: function not found.])
+    AC_MSG_WARN([*** JACK 0.80.0 or later may be required.])
+@@ -573,25 +573,25 @@
+ fi
+ 
+ # Check for jack_is_realtime function.
+-AC_CHECK_LIB(jack, jack_is_realtime, [ac_jack_realtime="yes"], [ac_jack_realtime="no"])
++AC_CHECK_LIB(jack64, jack_is_realtime, [ac_jack_realtime="yes"], [ac_jack_realtime="no"])
+ if test "x$ac_jack_realtime" = "xyes"; then
+    AC_DEFINE(CONFIG_JACK_REALTIME, 1, [Define if jack_is_realtime is available.])
+ fi
+ 
+ # Check for jack_get_xrun_delayed_usecs function.
+-AC_CHECK_LIB(jack, jack_get_xrun_delayed_usecs, [ac_jack_xrun_delay="yes"], [ac_jack_xrun_delay="no"])
++AC_CHECK_LIB(jack64, jack_get_xrun_delayed_usecs, [ac_jack_xrun_delay="yes"], [ac_jack_xrun_delay="no"])
+ if test "x$ac_jack_xrun_delay" = "xyes"; then
+    AC_DEFINE(CONFIG_JACK_XRUN_DELAY, 1, [Define if jack_get_xrun_delayed_usecs is available.])
+ fi
+ 
+ # Check for jack_get_max_delayed_usecs function.
+-AC_CHECK_LIB(jack, jack_get_max_delayed_usecs, [ac_jack_max_delay="yes"], [ac_jack_max_delay="no"])
++AC_CHECK_LIB(jack64, jack_get_max_delayed_usecs, [ac_jack_max_delay="yes"], [ac_jack_max_delay="no"])
+ if test "x$ac_jack_max_delay" = "xyes"; then
+    AC_DEFINE(CONFIG_JACK_MAX_DELAY, 1, [Define if jack_get_max_delayed_usecs is available.])
+ fi
+ 
+ # Check for jack_set_port_rename_callback
+-AC_CHECK_LIB(jack, jack_set_port_rename_callback, [ac_jack_port_rename="yes"], [ac_jack_port_rename="no"])
++AC_CHECK_LIB(jack64, jack_set_port_rename_callback, [ac_jack_port_rename="yes"], [ac_jack_port_rename="no"])
+ if test "x$ac_jack_port_rename" = "xyes"; then
+    AC_TRY_COMPILE([#include <jack/jack.h>], [
+       void port_rename(jack_port_id_t, const char *, const char *, void *);
+@@ -604,7 +604,7 @@
+ 
+ # Check for jack_port_get_aliases function.
+ if test "x$ac_jack_port_aliases" = "xyes"; then
+-   AC_CHECK_LIB(jack, jack_port_get_aliases, [ac_jack_port_aliases="yes"], [ac_jack_port_aliases="no"])
++   AC_CHECK_LIB(jack64, jack_port_get_aliases, [ac_jack_port_aliases="yes"], [ac_jack_port_aliases="no"])
+    if test "x$ac_jack_port_aliases" = "xyes"; then
+       AC_DEFINE(CONFIG_JACK_PORT_ALIASES, 1, [Define if jack_port_get_aliases is available.])
+    fi
+@@ -612,14 +612,14 @@
+ 
+ # Check for jack_get_version_string function.
+ if test "x$ac_jack_version" = "xyes"; then
+-   AC_CHECK_LIB(jack, jack_get_version_string, [ac_jack_version="yes"], [ac_jack_version="no"])
++   AC_CHECK_LIB(jack64, jack_get_version_string, [ac_jack_version="yes"], [ac_jack_version="no"])
+    if test "x$ac_jack_version" = "xyes"; then
+       AC_DEFINE(CONFIG_JACK_VERSION, 1, [Define if jack_get_version_string is available.])
+    fi
+ fi
+ 
+ # Check for jack_free function.
+-AC_CHECK_LIB(jack, jack_free, [ac_jack_free="yes"], [ac_jack_free="no"])
++AC_CHECK_LIB(jack64, jack_free, [ac_jack_free="yes"], [ac_jack_free="no"])
+ if test "x$ac_jack_free" = "xyes"; then
+    AC_DEFINE(CONFIG_JACK_FREE, 1, [Define if jack_free is available.])
+ fi

@@ -1,0 +1,38 @@
+--- src/pulsecore/arpa-inet.h.orig	2021-01-17 15:53:51.000000000 +0000
++++ src/pulsecore/arpa-inet.h	2021-01-17 15:54:17.070000000 +0000
+@@ -12,7 +12,7 @@
+ 
+ #include <pulsecore/socket.h>
+ 
+-const char *inet_ntop(int af, const void *src, char *dst, socklen_t cnt);
++/* const char *inet_ntop(int af, const void *src, char *dst, socklen_t cnt); */
+ 
+ int inet_pton(int af, const char *src, void *dst);
+ 
+--- src/pulsecore/poll.h.orig	2021-01-17 16:02:33.760000000 +0000
++++ src/pulsecore/poll.h	2021-01-17 16:03:02.470000000 +0000
+@@ -41,11 +41,13 @@
+ #define POLLNVAL        0x020           /* Invalid polling request.  */
+ 
+ /* Data structure describing a polling request.  */
++#if 0
+ struct pollfd {
+     int fd;                     /* File descriptor to poll.  */
+     short int events;           /* Types of events poller cares about.  */
+     short int revents;          /* Types of events that actually occurred.  */
+ };
++#endif
+ 
+ /* Poll the file descriptors described by the NFDS structures starting at
+    FDS.  If TIMEOUT is nonzero and not -1, allow TIMEOUT milliseconds for
+--- src/pulsecore/arpa-inet.h.orig	2021-01-17 16:07:21.380000000 +0000
++++ src/pulsecore/arpa-inet.h	2021-01-17 16:07:39.430000000 +0000
+@@ -14,7 +14,7 @@
+ 
+ /* const char *inet_ntop(int af, const void *src, char *dst, socklen_t cnt); */
+ 
+-int inet_pton(int af, const char *src, void *dst);
++/* int inet_pton(int af, const char *src, void *dst); */
+ 
+ #endif
+ 

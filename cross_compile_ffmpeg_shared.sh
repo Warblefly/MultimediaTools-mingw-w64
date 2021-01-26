@@ -905,7 +905,8 @@ build_qt() {
 	export QT_BUILD="qt-build"
 	export MAKEFLAGS="-j8"
 	if [ ! -f qt.built ]; then
-		download_and_unpack_file https://download.qt.io/archive/qt/${QT_BASE}/${QT_VERSION}/single/qt-everywhere-src-${QT_VERSION}.tar.xz "qt-everywhere-src-${QT_VERSION}"
+#		download_and_unpack_file https://download.qt.io/archive/qt/${QT_BASE}/${QT_VERSION}/single/qt-everywhere-src-${QT_VERSION}.tar.xz "qt-everywhere-src-${QT_VERSION}"
+	        download_and_unpack_file https://fossies.org/linux/misc/qt-everywhere-src-5.15.2.tar.xz qt-everywhere-src-5.15.2
 		cd "qt-everywhere-src-${QT_VERSION}"
 			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0000-adjust-qmake-conf-mingw.patch
 			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0001-qt-5.8.0-fix-sql-libraries-mingw.patch
@@ -938,7 +939,7 @@ build_qt() {
 			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0304-qtdeclarative-disable-dx12.patch
 			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0310-fix-assimp-not-found.patch
 			apply_patch file://${top_dir}/qt-imports.patch
-			apply_patch file://${top_dir}/qt-unused.patch
+#			apply_patch file://${top_dir}/qt-unused.patch
 			_ARCH_TUNE="-march=nocona -mtune=core2"
 			_HARD_FLAGS=""
 #			_HARD_FLAGS="-Wl,--high-entropy-va,--nxcompat,--default-image-base-high"
@@ -991,7 +992,8 @@ build_qt_old() {
 #  orig_cpu_count=$cpu_count
 #  export cpu_count=1
   if [ ! -f qt.built ]; then
-    download_and_unpack_file https://download.qt.io/archive/qt/5.14/5.14.2/single/qt-everywhere-src-5.14.2.tar.xz "qt-everywhere-src-${QT_VERSION}"
+    download_and_unpack_file https://ftp.osuosl.org/pub/blfs/conglomeration/qt5/qt-everywhere-src-5.14.2.tar.xz "qt-everywhere-src-5.14.2"
+#    download_and_unpack_file https://download.qt.io/archive/qt/5.14/5.14.2/single/qt-everywhere-src-5.14.2.tar.xz "qt-everywhere-src-${QT_VERSION}"
     cd "qt-everywhere-src-${QT_VERSION}"
 #      apply_patch file://${top_dir}/qt-permissive.patch
 #    apply_patch file://${top_dir}/qt5-skip-mapboxglnative.patch
@@ -1643,9 +1645,9 @@ build_opendcp() {
 }
 
 build_dcpomatic() {
-  do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic v2.15.x #402fa9a3577975e9cf9728c815da1b17796fe325 # v2.15.x #9cff6ec974a4d0270091fe5c753483b0d53ecd46
-#  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic #v2.15.103 # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
-#  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.102" dcpomatic-2.15.102
+#  do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic v2.15.x #402fa9a3577975e9cf9728c815da1b17796fe325 # v2.15.x #9cff6ec974a4d0270091fe5c753483b0d53ecd46
+  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic v2.15.x # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
+#  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.123" dcpomatic-2.15.123
   cd dcpomatic
 #    apply_patch file://${top_dir}/dcpomatic-wscript.patch
 #    apply_patch file://${top_dir}/dcpomatic-audio_ring_buffers.h.patch
@@ -1987,7 +1989,7 @@ build_gdb() {
 }
 
 build_readline() {
-  do_git_checkout git://git.savannah.gnu.org/readline.git readline
+  do_git_checkout git://git.savannah.gnu.org/readline.git readline c5ad6be530f5c1daf64a2d20df4baba9f6b57aa4
   cd readline
     rm configure
     #apply_patch file://${top_dir}/readline-mingw32.patch
@@ -1998,6 +2000,27 @@ build_readline() {
 
 build_ASIOSDK() {
   download_and_unpack_file http://www.steinberg.net/sdk_downloads/asiosdk2.3.zip ASIOSDK2.3
+  ln -s ASIOSDK2.3 ASIOSDK2
+  ln -s ASIOSDK2.3 asiosdk2
+}
+
+build_portaudio_without_jack_cmake() {
+	do_git_checkout https://github.com/PortAudio/portaudio.git portaudio_without_jack
+	cd portaudio_without_jack
+		do_cmake "-DCMAKE_BUILD_TYPE=Release -DPA_USE_ASIO=ON -DPA_USE_DS=ON -DPA_USE_DIRECTSOUNDFULLDUPLEXCREATE=OFF -DPA_USE_WMME=ON -DPA_USE_WASAPI=ON -DPA_USE_WDMKS=ON -DPA_USE_WDMKS_DEVICE_INFO=ON -DPA_USE_JACK=OFF -DPA_UNICODE_BUILD=ON -DPA_BUILD_SHARED=ON -DPA_BUILD_STATIC=OFF"
+		do_make
+		do_make_install
+	cd ..
+}
+
+build_portaudio_with_jack_cmake() {
+	do_git_checkout https://github.com/PortAudio/portaudio.git portaudio
+	cd portaudio
+		apply_patch file://${top_dir}/portaudio_with_jack.patch
+		do_cmake "-DCMAKE_BUILD_TYPE=Release -DPA_USE_ASIO=ON -DPA_USE_DS=ON -DPA_USE_DIRECTSOUNDFULLDUPLEXCREATE=OFF -DPA_USE_WMME=ON -DPA_USE_WASAPI=ON -DPA_USE_WDMKS=ON -DPA_USE_WDMKS_DEVICE_INFO=ON -DPA_USE_JACK=ON -DPA_UNICODE_BUILD=ON -DPA_BUILD_SHARED=ON -DPA_BUILD_STATIC=OFF -DCMAKE_VERBOSE_MAKEFILE=ON"
+	do_make "V=1"
+	do_make_install
+	cd ..
 }
 
 build_portaudio_with_jack() {
@@ -2039,12 +2062,12 @@ build_portaudio_without_jack() {
 }
 
 build_jack() {
-  do_git_checkout https://github.com/jackaudio/jack2.git jack2 dd24ce321078fa4401fe10846132c5e6712ebf41 #394e02b2bb87ed8dfb0341f274c5b41aded8efdc
+  do_git_checkout https://github.com/jackaudio/jack2.git jack2 # dd24ce321078fa4401fe10846132c5e6712ebf41 #394e02b2bb87ed8dfb0341f274c5b41aded8efdc
 #  download_and_unpack_file https://dl.dropboxusercontent.com/u/28869550/jack-1.9.10.tar.bz2 jack-1.9.10
   cd jack2
     if [ ! -f "jack.built" ] ; then
 #      apply_patch file://${top_dir}/jack-1-fixes.patch
-      apply_patch file://${top_dir}/jack2-win32.patch
+#      apply_patch file://${top_dir}/jack2-win32.patch
       export AR=x86_64-w64-mingw32-ar
       export CC=x86_64-w64-mingw32-gcc
       export CXX=x86_64-w64-mingw32-g++
@@ -2474,7 +2497,7 @@ do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfile
         export WINDRES=x86_64-w64-mingw32-windres
 #        export orig_cpu_count=$cpu_count
 #        export cpu_count=1
-        generic_configure_make_install "--disable-shared --enable-static"
+        generic_configure_make_install "--enable-shared --disable-static"
 #        generic_download_and_install https://download.filezilla-project.org/libfilezilla/libfilezilla-0.19.3.tar.bz2 libfilezilla-0.19.3 "--disable-shared --enable-static"
         unset CC
         unset CXX
@@ -2485,7 +2508,7 @@ do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfile
 
 build_filezilla() {
 
-  do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla 9844 #9530 #9450 # 9262 # 9056
+  do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla 10093 #9844 #9530 #9450 # 9262 # 9056
 #  download_and_unpack_file "https://dl3.cdn.filezilla-project.org/client/FileZilla_3.46.3_src.tar.bz2?h=oLc72s8yghgbX19g_lnNNw&x=1580289968" filezilla-3.46.3
   cd filezilla
     export CC=x86_64-w64-mingw32-gcc
@@ -2498,8 +2521,8 @@ build_filezilla() {
     #export CFLAGS="-g -O0 -Wall"
     rm -vf configure Makefile.in config.in
     apply_patch file://${top_dir}/filezilla-wxWidgets.patch
-    apply_patch file://${top_dir}/filezilla-wx31.patch
-    generic_configure_make_install "CFLAGS=-fcommon --disable-dependency-tracking --with-pugixml=system"
+#    apply_patch file://${top_dir}/filezilla-wx31.patch
+    generic_configure_make_install "CFLAGS=-fcommon --disable-dependency-tracking --with-pugixml=builtin"
 #    unset CFLAGS
 #   generic_download_and_install https://download.filezilla-project.org/client/FileZilla_3.44.2_src.tar.bz2 filezilla-3.44.2
     #unset CFLAGS
@@ -2573,9 +2596,12 @@ build_libxml2() {
   cd libxml2 # -2.9.9-rc2
     # Remove libxml2 autogen because it sets variables that interfere with our cross-compile
 #    rm -v autogen.sh
+#	do_cmake "-DLIBXML2_WITH_TESTS=OFF -DLIBXML2_WITH_PYTHON=OFF"
+#	do_make
+#	do_make_install
     generic_configure_make_install "LIBS=-lws2_32 --without-python --enable-ipv6 --disable-silent-rules"
     sed -i.bak 's/-lxml2.*$/-lxml2 -lws2_32/' "$PKG_CONFIG_PATH/libxml-2.0.pc" # Shared applications need Winsock
-#    cp -v ${mingw_w64_x86_64_prefix}/bin/xml2-config ${mingw_w64_x86_64_prefix}/bin/x86_64-w64-mingw32-xml2-config
+    cp -v ${mingw_w64_x86_64_prefix}/bin/xml2-config ${mingw_w64_x86_64_prefix}/bin/x86_64-w64-mingw32-xml2-config
 
   cd ..
 #  generic_download_and_install ftp://xmlsoft.org/libxml2/libxml2-2.9.2.tar.gz libxml2-2.9.2 "--without-python"
@@ -2589,15 +2615,18 @@ build_libxslt() {
     export LIBS="-lxml2"
     export LDFLAGS="-L${mingw_w64_x86_64_prefix}/lib"
   cd libxslt
+#  	do_cmake "-DLIBXSLT_WITH_PYTHON=OFF"
+#	do_make
+#	do_make_install
 #    export CFLAGS="-DLIBXML_STATIC -DLIBXSLT_STATIC -DLIBEXSLT_STATIC"
     sed -i.bak 's/doc \\/ \\/' Makefile.am
     # The Makefile.am forgets that libtool can't build a shared plugin library without -no-undefined
     sed -i.bak 's/xmlsoft_org_xslt_testplugin_la_LDFLAGS = -module -avoid-version -rpath $(plugindir)/xmlsoft_org_xslt_testplugin_la_LDFLAGS = -module -avoid-version -rpath $(plugindir) -no-undefined/' tests/plugins/Makefile.am
     generic_configure_make_install "--disable-silent-rules --without-python --with-libxml-src=../libxml2"
 
-    unset CFLAGS
-    unset LIBS
-    unset LDFLAGS
+#    unset CFLAGS
+#    unset LIBS
+#    unset LDFLAGS
   cd ..
 }
 
@@ -2605,14 +2634,14 @@ build_libxmlsec() {
 #  download_and_unpack_file http://www.aleksey.com/xmlsec/download/xmlsec1-1.2.25.tar.gz xmlsec1-1.2.25
   do_git_checkout https://github.com/lsh123/xmlsec.git xmlsec
   cd xmlsec
-    apply_patch file://${top_dir}/xmlsec1-x509.patch
+#    apply_patch file://${top_dir}/xmlsec1-x509.patch
     export GCRYPT_LIBS=-lgcrypt
     export LIBS=-lgcrypt
     CFLAGS_ORIG=${CFLAGS}
     #env
     rm autogen.sh
 #    generic_configure_make_install "LIBS=-lgcrypt --disable-silent-rules GCRYPT_LIBS=-lgcrypt --with-gcrypt=${mingw_w64_x86_64_prefix} --disable-silent-rules --enable-docs=no"
-    generic_configure_make_install "LIBS=-lcrypt32 CFLAGS=-DGPGRT_ENABLE_ES_MACROS --disable-silent-rules --enable-docs=no --disable-mscng"
+    generic_configure_make_install "LIBS=-lcrypt32 CFLAGS=-DGPGRT_ENABLE_ES_MACROS --disable-unicode --disable-silent-rules --enable-docs=no --disable-mscng"
 
 
     unset LIBS
@@ -2668,7 +2697,7 @@ build_icu() {
   # First, build native ICU, whose build tools are required by cross-compiled ICU
   # Luckily, we do this only once per build.
   if [ ! -f icu.built ]; then
-    download_and_unpack_file https://github.com/unicode-org/icu/releases/download/release-66-1/icu4c-66_1-src.tgz icu
+    download_and_unpack_file https://github.com/unicode-org/icu/releases/download/release-68-2/icu4c-68_2-src.tgz icu
     #download_and_unpack_file https://kent.dl.sourceforge.net/project/icu/ICU4C/62.1/icu4c-62_1-src.tgz icu
     holding_path=$PATH
     export PATH=$original_path
@@ -2687,7 +2716,7 @@ build_icu() {
       # Don't install this
     cd ../..
     export PATH=$holding_path
-    download_and_unpack_file https://github.com/unicode-org/icu/releases/download/release-66-1/icu4c-66_1-src.tgz icu
+    download_and_unpack_file https://github.com/unicode-org/icu/releases/download/release-68-2/icu4c-68_2-src.tgz icu
     #download_and_unpack_file https://kent.dl.sourceforge.net/project/icu/ICU4C/62.1/icu4c-62_1-src.tgz icu
     mv icu icu_plain
     cd icu_plain
@@ -2722,19 +2751,19 @@ build_icu() {
 #  cp -v ${mingw_w64_x86_64_prefix}/lib/icutu66.dll ${mingw_w64_x86_64_prefix}/lib/libicutu66.dll
 #  cp -v ${mingw_w64_x86_64_prefix}/lib/icuuc.dll ${mingw_w64_x86_64_prefix}/lib/libicuuc.dll
 #  cp -v ${mingw_w64_x86_64_prefix}/lib/icuuc66.dll ${mingw_w64_x86_64_prefix}/lib/libicuuc66.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libicudt.dll.a ${mingw_w64_x86_64_prefix}/lib/libicudt66.dll.a
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuin.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuin66.dll.a
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuio.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuio66.dll.a
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libicutest.dll.a ${mingw_w64_x86_64_prefix}/lib/libicutest66.dll.a
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libicutu.dll.a ${mingw_w64_x86_64_prefix}/lib/libicutu66.dll.a
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuuc.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuuc66.dll.a
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libiculx.dll.a ${mingw_w64_x86_64_prefix}/lib/libiculx66.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libicudt.dll.a ${mingw_w64_x86_64_prefix}/lib/libicudt68.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuin.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuin68.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuio.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuio68.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libicutest.dll.a ${mingw_w64_x86_64_prefix}/lib/libicutest68.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libicutu.dll.a ${mingw_w64_x86_64_prefix}/lib/libicutu68.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuuc.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuuc68.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libiculx.dll.a ${mingw_w64_x86_64_prefix}/lib/libiculx68.dll.a
 }
 
 build_icu_with_iculehb() {
   # Native ICU has already been built
   if [ ! -f icu-hb.built ]; then
-    download_and_unpack_file https://github.com/unicode-org/icu/releases/download/release-66-1/icu4c-66_1-src.tgz icu
+    download_and_unpack_file https://github.com/unicode-org/icu/releases/download/release-68-2/icu4c-68_2-src.tgz icu
 #    download_and_unpack_file https://kent.dl.sourceforge.net/project/icu/ICU4C/62.1/icu4c-62_1-src.tgz icu
     cd icu
       # ICU 58.2 uses a pair of locale-related functiont that don't occur in mingw yet
@@ -2767,16 +2796,16 @@ build_icu_with_iculehb() {
 #  cp -v ${mingw_w64_x86_64_prefix}/lib/icutu.dll ${mingw_w64_x86_64_prefix}/lib/libicutu.dll
 #  cp -v ${mingw_w64_x86_64_prefix}/lib/icutu66.dll ${mingw_w64_x86_64_prefix}/lib/libicutu66.dll
 #  cp -v ${mingw_w64_x86_64_prefix}/lib/icuuc.dll ${mingw_w64_x86_64_prefix}/lib/libicuuc.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/icuuc66.dll ${mingw_w64_x86_64_prefix}/lib/libicuuc66.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libicudt.dll.a ${mingw_w64_x86_64_prefix}/lib/libicudt66.dll.a
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuin.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuin66.dll.a
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuio.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuio66.dll.a
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libicutest.dll.a ${mingw_w64_x86_64_prefix}/lib/libicutest66.dll.a
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libicutu.dll.a ${mingw_w64_x86_64_prefix}/lib/libicutu66.dll.a
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuuc.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuuc66.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/icuuc66.dll ${mingw_w64_x86_64_prefix}/lib/libicuuc68.dll
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libicudt.dll.a ${mingw_w64_x86_64_prefix}/lib/libicudt68.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuin.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuin68.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuio.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuio68.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libicutest.dll.a ${mingw_w64_x86_64_prefix}/lib/libicutest68.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libicutu.dll.a ${mingw_w64_x86_64_prefix}/lib/libicutu68.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libicuuc.dll.a ${mingw_w64_x86_64_prefix}/lib/libicuuc68.dll.a
 #  cp -v ${mingw_w64_x86_64_prefix}/lib/iculx.dll ${mingw_w64_x86_64_prefix}/lib/libiculx.dll
 #  cp -v ${mingw_w64_x86_64_prefix}/lib/iculx66.dll ${mingw_w64_x86_64_prefix}/lib/libiculx66.dll
-  cp -v ${mingw_w64_x86_64_prefix}/lib/libiculx.dll.a ${mingw_w64_x86_64_prefix}/lib/libiculx66.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libiculx.dll.a ${mingw_w64_x86_64_prefix}/lib/libiculx68.dll.a
 }
 
 
@@ -2861,12 +2890,14 @@ build_xerces() {
 build_gnutls() {
 #  download_and_unpack_file https://www.gnupg.org/ftp/gcrypt/gnutls/v3.3/gnutls-3.3.27.tar.xz gnutls-3.3.27
    # do_git_checkout https://gitlab.com/gnutls/gnutls.git gnutls
-  download_and_unpack_file https://www.gnupg.org/ftp/gcrypt/gnutls/v3.6/gnutls-3.6.12.tar.xz gnutls-3.6.12
-  cd gnutls-3.6.12
+  download_and_unpack_file https://www.gnupg.org/ftp/gcrypt/gnutls/v3.7/gnutls-3.7.0.tar.xz gnutls-3.7.0
+  cd gnutls-3.7.0
 #    git submodule init
 #    git submodule update
     make autoreconf
+    apply_patch file://${top_dir}/gnutls-ip.patch
     generic_configure "--enable-openssl-compatibility --disable-doc --enable-local-libopts --disable-libdane --with-zlib --enable-cxx --enable-nls" # --disable-cxx --disable-doc --without-p11-kit --disable-local-libopts --disable-libopts-install --with-included-libtasn1" # don't need the c++ version, in an effort to cut down on size... XXXX test difference...
+
     do_make_install
 
   cd ..
@@ -2877,8 +2908,8 @@ build_gnutls() {
 }
 
 build_libnettle() {
-  download_and_unpack_file https://ftp.gnu.org/gnu/nettle/nettle-3.5.1.tar.gz nettle-3.5.1
-  cd nettle-3.5.1
+  download_and_unpack_file https://ftp.gnu.org/gnu/nettle/nettle-3.7.tar.gz nettle-3.7
+  cd nettle-3.7
     generic_configure # "--disable-openssl" # in case we have both gnutls and openssl, just use gnutls [except that gnutls uses this so...huh? https://github.com/rdp/ffmpeg-windows-build-helpers/issues/25#issuecomment-28158515
     do_make_install
 
@@ -3114,9 +3145,9 @@ build_asdcplib-cth() {
 
 build_libdcp() {
   # Branches are slightly askew. 1.0 is where development takes place
-  do_git_checkout https://github.com/cth103/libdcp.git libdcp # d989a83517fd77aa241c1423ac00cfed62d567fe # f3058b2f1b48ec613bda5781fe97e83a0dca83a9
-#  do_git_checkout git://git.carlh.net/git/libdcp.git libdcp master #v1.6.x # 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
-  #download_and_unpack_file https://carlh.net/downloads/libdcp/libdcp-1.6.14.tar.bz2 libdcp-1.6.14
+  #do_git_checkout https://github.com/cth103/libdcp.git libdcp #d39880eef211a296fa8ef4712cdef5945d08527c c6665c157bdb6903661d21c571c7d112b54ad8fd # d989a83517fd77aa241c1423ac00cfed62d567fe # f3058b2f1b48ec613bda5781fe97e83a0dca83a9
+  do_git_checkout git://git.carlh.net/git/libdcp.git libdcp b75d977a38f039fd68ed5d4055ae70b4bf631603 # v1.6.x # 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
+#  download_and_unpack_file https://carlh.net/downloads/libdcp/libdcp-1.6.17.tar.bz2 libdcp-1.6.17
   cd libdcp
     # M_PI is required. This is a quick way of defining it
     sed -i.bak 's/M_PI/3.14159265358979323846/' examples/make_dcp.cc
@@ -3126,6 +3157,7 @@ build_libdcp() {
 #    apply_patch file://${top_dir}/libdcp-libxml.patch
     apply_patch file://${top_dir}/libdcp-boost.patch
     apply_patch file://${top_dir}/libdcp-gm.patch
+#    apply_patch file://${top_dir}/libdcp-shared_ptr.patch
 #    apply_patch_p1 "http://main.carlh.net/gitweb/?p=libdcp.git;a=patch;h=730ba2273b136ad5a3bfc1a185d69e6cc50a65af"
     export CXX=x86_64-w64-mingw32-g++
     do_configure "configure -v -pp --prefix=${mingw_w64_x86_64_prefix} --target-windows --check-cxx-compiler=gxx --enable-debug --disable-tests" "./waf" # --disable-gcov
@@ -3136,7 +3168,7 @@ build_libdcp() {
     cp -v build/libdcp-1.0.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig
     #sed -i.bak 's/1\.4\.4devel/1.4.4/' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/libdcp-1.0.pc
     cp -v build/libdcp.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig/libdcp.pc
-    cp -v build/src/libdcp.dll.a ${mingw_w64_x86_64_prefix}/lib
+    cp -v build/src/dcp-1.0.dll.a ${mingw_w64_x86_64_prefix}/lib
     mkdir -vp ${mingw_w64_x86_64_prefix}/tags
     cp -vR tags/* ${mingw_w64_x86_64_prefix}/tags/
     cp -v graphics/splash.png ${mingw_w64_x86_64_prefix}/splash.png
@@ -3148,12 +3180,12 @@ build_libdcp() {
 
 build_libsub() {
 #  do_git_checkout git://git.carlh.net/git/libsub.git libsub 1.0
-#  do_git_checkout https://git.carlh.net/git/libsub.git libsub
-#  download_and_unpack_file http://carlh.net/downloads/libsub/libsub-1.2.4.tar.bz2 libsub-1.2.4
-  do_git_checkout https://github.com/cth103/libsub.git libsub
+  do_git_checkout https://git.carlh.net/git/libsub.git libsub
+#  download_and_unpack_file http://carlh.net/downloads/libsub/libsub-1.4.24.tar.bz2 libsub-1.4.24
+#  do_git_checkout https://github.com/cth103/libsub.git libsub
   cd libsub
     # include <iostream> is missing
-    apply_patch file://${top_dir}/libdcp-reader.h.patch
+#    apply_patch file://${top_dir}/libdcp-reader.h.patch
 #    apply_patch file://${top_dir}/libsub-2-iostream.patch
 #    apply_patch file://${top_dir}/libdcp-sub_time.h.patch
 #    apply_patch file://${top_dir}/libsub-asdcplib-h__Writer.cpp.patch
@@ -3175,7 +3207,7 @@ build_libsub() {
     export CXXFLAGS=$original_cxxflags
     # The import library and the pkg-config file go into the wrong place
     cp -v build/libsub-1.0.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig
-    cp -v build/src/libsub-1.0.dll.a ${mingw_w64_x86_64_prefix}/lib
+    cp -v build/src/sub-1.0.dll.a ${mingw_w64_x86_64_prefix}/lib
   cd ..
 }
 
@@ -4024,12 +4056,13 @@ build_bmx() {
 build_liburiparser() {
   do_git_checkout https://github.com/uriparser/uriparser.git uriparser
   cd uriparser
+#  apply_patch file://${top_dir}/uriparse-winsock.patch
   # This requires sys/socket.h, which mingw-w64 (Windows) doesn't have
   sed -i.bak 's/bin_PROGRAMS = uriparse/bin_PROGRAMS =/' Makefile.am
 #  if [[ ! -f ./configure ]]; then
 #    ./autogen.sh
 #  fii
-  do_cmake "-DURIPARSER_BUILD_TESTS=OFF -DURIPARSER_BUILD_DOCS=OFF"
+  do_cmake "-DURIPARSER_BUILD_TOOLS=OFF -DURIPARSER_BUILD_TESTS=OFF -DURIPARSER_BUILD_DOCS=OFF"
   do_make
   do_make_install
   #generic_configure_make_install "--disable-test --disable-doc"
@@ -4146,12 +4179,12 @@ build_fmt() {
 }
 
 build_boost() {
-  download_and_unpack_file "https://dl.bintray.com/boostorg/release/1.74.0/source/boost_1_74_0.tar.bz2" boost_1_74_0
-  cd boost_1_74_0
+  download_and_unpack_file "https://dl.bintray.com/boostorg/release/1.75.0/source/boost_1_75_0.tar.bz2" boost_1_75_0
+  cd boost_1_75_0
   #  cd libs/serialization
   #    apply_patch file://${top_dir}/boost-codecvt.patch
   #  cd ../..
-    apply_patch file://${top_dir}/boost-snprintf.patch
+#    apply_patch file://${top_dir}/boost-snprintf.patch
     local touch_name=$(get_small_touchfile_name already_configured "$configure_options $configure_name $LDFLAGS $CFLAGS")
     if [ ! -f  "$touch_name" ]; then
 #      ./bootstrap.sh mingw target-os=windows address-model=64 link=shared threading=multi threadapi=win32 toolset=gcc-mingw --prefix=${mingw_w64_x86_64_prefix} || exit 1
@@ -4213,6 +4246,7 @@ build_mkvtoolnix() {
     #apply_patch file://${top_dir}/mkvtoolnix-stack.patch
     #rm -vf src/info/sys_windows.cpp
     apply_patch file://${top_dir}/mkvtoolnix-version.patch
+    apply_patch file://${top_dir}/mkvtoolnix-tests.patch
     generic_configure "--with-boost=${mingw_w64_x86_64_prefix} --with-boost-system=boost_system-mt-x64 --with-boost-filesystem=boost_filesystem-mt-x64 --with-boost-date-time=boost_date_time-mt-x64 --with-boost-regex=boost_regex-mt-x64 --enable-qt --enable-static-qt=no --disable-static-qt --enable-optimization=yes --enable-debug=no"
     # Now we must prevent inclusion of sys_windows.cpp because our build uses shared libraries,
     # and this piece of code unfortunately tries to pull in a static version of the Windows Qt
@@ -4221,7 +4255,9 @@ build_mkvtoolnix() {
 #   env
     echo "Environment is: "
     env
+    export cpu_count=1
     do_rake_and_rake_install "V=1"
+    export cpu_count=8
     export CC=${old_CC}
     export AR=${old_AR}
     export LD=${old_LD}
@@ -5469,8 +5505,8 @@ build_libdc1394() {
 }
 
 build_libcxml(){
-  do_git_checkout https://github.com/cth103/libcxml.git libcxml 9fb7d466379c0943c22d3e1f0bc51d737e493d7d # 4dfe693bbe01810274f370a7e791a9f508f7e8f6
-#  download_and_unpack_file http://carlh.net/downloads/libcxml/libcxml-0.15.1.tar.bz2 libcxml-0.15.1
+  do_git_checkout git://git.carlh.net/git/libcxml.git libcxml # v0.17.0 #c333199bba3de3955af2c5f2debaa5c4bf9faa43 # 4ad7c9c1ad624fc811ad1b0c34e62657f1f59998 # c336f86b9670c515230767dab9dc56128acf03db #9fb7d466379c0943c22d3e1f0bc51d737e493d7d # 4dfe693bbe01810274f370a7e791a9f508f7e8f6
+#  download_and_unpack_file http://carlh.net/downloads/libcxml/libcxml-0.16.1.tar.bz2 libcxml-0.16.1
   cd libcxml
 #    apply_patch file://${top_dir}/libcxml-shared_ptr.patch
     export ORIG_PKG_CONFIG_PATH=$PKG_CONFIG_PATH
@@ -5487,7 +5523,7 @@ build_libcxml(){
     ./waf install || exit 1
     # The installation puts the pkgconfig file and the DLL import library in the wrong place
     cp -v build/libcxml.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig
-    cp -v build/src/libcxml.dll.a ${mingw_w64_x86_64_prefix}/lib
+    cp -v build/src/cxml.dll.a ${mingw_w64_x86_64_prefix}/lib
     export PKG_CONFIG_PATH=$ORIG_PKG_CONFIG_PATH
     unset CXXFLAGS CC CXX
   cd ..
@@ -5656,11 +5692,11 @@ build_netcdf() {
 build_vlc() {
   # VLC normally requires its own libraries to be linked. However, it in fact builds with latest
   # versions of everything compiled here. At the moment..
-  do_git_checkout https://code.videolan.org/videolan/vlc.git vlc # 7b81168938cf2fd2217cbc5bf701ab23ad8655b9 # a047b31b978e4a3bd86b3c1a8f7dec9281d1a056
+  do_git_checkout https://github.com/videolan/vlc.git vlc # 7b81168938cf2fd2217cbc5bf701ab23ad8655b9 # a047b31b978e4a3bd86b3c1a8f7dec9281d1a056
   cd vlc
     unset CFLAGS
     unset CXXFLAGS
-    export LIBS="-lwinmm"
+    export LIBS="-lwinmm -lsynchronization"
     export CFLAGS="-fpermissive"
     export CXXFLAGS="-fpermissive"
     apply_patch file://${top_dir}/vlc-qt5.patch
@@ -5820,10 +5856,10 @@ build_mimedb() {
 build_qjackctl() {
   do_git_checkout https://github.com/rncbc/qjackctl.git qjackctl #e76e58ea6e67b74ab1fcc539a4d1f18ea0686144 # b2ae94121d368bb2498a3fa09173e99263fe8c39 # 568b076f1ddd0fcb18a78828e0e5b833e52fd7a1
   cd qjackctl
-#    apply_patch file://${top_dir}/qjackctl-MainForm.patch
-    generic_configure_make_install "LIBS=-lportaudio CFLAGS=-D_GNU_SOURCE CXXFLAGS=-D_GNU_SOURCE --enable-xunique=no --disable-alsa-seq" # enable-jack-version=yes
+    apply_patch file://${top_dir}/qjackctl-configure.ac.patch
+    generic_configure_make_install "JACK_LIBS=-ljack64 LIBS=-lportaudio CFLAGS=-D_GNU_SOURCE CXXFLAGS=-D_GNU_SOURCE --enable-xunique=no --disable-alsa-seq" # enable-jack-version=yes
     # make install doesn't work
-    cp -vf src/qjackctl.exe ${mingw_w64_x86_64_prefix}/bin
+    cp -vf src/release/qjackctl.exe ${mingw_w64_x86_64_prefix}/bin
 
   cd ..
 }
@@ -6220,14 +6256,15 @@ build_harfbuzz() {
 }
 
 build_pulseaudio() {
-  download_and_unpack_file https://freedesktop.org/software/pulseaudio/releases/pulseaudio-13.99.1.tar.xz pulseaudio-13.99.1
-    cd pulseaudio-13.99.1
+  download_and_unpack_file https://freedesktop.org/software/pulseaudio/releases/pulseaudio-14.2.tar.xz pulseaudio-14.2
+    cd pulseaudio-14.2
         apply_patch file://${top_dir}/pulseaudio-size.patch
 	apply_patch file://${top_dir}/pulseaudio-conf.patch
+#	apply_patch file://${top_dir}/pulseaudio-inet.patch
         generic_configure_make_install "LIBS=-lintl --enable-orc --enable-waveout --disable-silent-rules --disable-gsettings --disable-dbus" # "LIBS=-lintl --enable-orc --enable-waveout --disable-silent-rules -disable-gsettings --disable-dbus"
         # Main library is in wrong place for our paths
         cp -vf ${mingw_w64_x86_64_prefix}/lib/pulseaudio/*dll ${mingw_w64_x86_64_prefix}/bin
-        cp -vf ${mingw_w64_x86_64_prefix}/lib/pulse-13.0/bin/*dll ${mingw_w64_x86_64_prefix}/bin
+        cp -vf ${mingw_w64_x86_64_prefix}/lib/pulse-14.2/bin/*dll ${mingw_w64_x86_64_prefix}/bin
         cp -vf ${mingw_w64_x86_64_prefix}/lib/bin/*dll ${mingw_w64_x86_64_prefix}/bin
     cd ..
 }
@@ -6454,8 +6491,8 @@ build_graphicsmagick() {
 }
 
 build_graphicsmagicksnapshot() {
-  download_and_unpack_file ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020210101.tar.xz GraphicsMagick-1.4.020210101
-  cd GraphicsMagick-1.4.020210101
+  download_and_unpack_file ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020210119.tar.xz GraphicsMagick-1.4.020210119
+  cd GraphicsMagick-1.4.020210119
     apply_patch file://${top_dir}/graphicmagick-mingw64.patch
     mkdir -pv build
     cd build
@@ -6556,7 +6593,7 @@ build_ocio() {
 }
 
 build_otio() {
-	do_git_checkout https://github.com/PixarAnimationStudios/OpenTimelineIO.git OpenTimelineIO
+	do_git_checkout https://github.com/PixarAnimationStudios/OpenTimelineIO.git OpenTimelineIO 5aa24fbe89d615448876948fe4b4900455c9a3e8
 	cd OpenTimelineIO
 #		apply_patch file://${top_dir}/opentime.patch
 		do_cmake "-DCMAKE_VERBOSE_MAKEFILE=ON"
@@ -6626,7 +6663,7 @@ build_ffmpegnv() {
 build_avisynthplus() {
 	do_git_checkout https://github.com/AviSynth/AviSynthPlus.git AviSynthPlus
 	cd AviSynthPlus
-		apply_patch file://${top_dir}/avisynthplus-memcpy.patch
+#		apply_patch file://${top_dir}/avisynthplus-memcpy.patch
 		do_cmake "-DBUILD_SHIBATCH=OFF"
 		mv -vf GNUmakefile dontusethis
 		do_make "all"
@@ -6677,7 +6714,7 @@ build_ffmpeg() {
 #  apply_patch_p1 file://${top_dir}/ffmpeg-decklink-teletext-2-reverse.patch
   apply_patch file://${top_dir}/ffmpeg-bs2b.patch
 
-  config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --enable-libjack --disable-doc --enable-libxml2 --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-libmysofa --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-libcodec2 --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libxavs2 --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libvpx --enable-libilbc --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --enable-d3d11va --enable-nvenc --enable-nonfree --enable-libfdk-aac --enable-libflite --enable-decoder=aac --enable-libaom --enable-runtime-cpudetect --enable-libpulse --enable-cuda-nvcc --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts" # $CFLAGS # other possibilities: --enable-w32threads --enable-libflite
+  config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --enable-libjack --disable-doc --enable-libxml2 --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-libmysofa --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-libcodec2 --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libxavs2 --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libvpx --enable-libilbc --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --enable-d3d11va --enable-nvenc --enable-nonfree --enable-libfdk-aac --enable-libflite --enable-decoder=aac --enable-libaom --enable-runtime-cpudetect --enable-cuda-nvcc --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts" # $CFLAGS # other possibilities: --enable-w32threads --enable-libflite
   # sed -i 's/openjpeg-1.5/openjpeg-2.1/' configure # change library path for updated libopenjpeg
   export PKG_CONFIG="pkg-config" # --static
   export LDFLAGS="" # "-static"
@@ -6911,9 +6948,9 @@ build_dependencies() {
   build_SWFTools
   build_ASIOSDK
   build_eigen
-  build_portaudio_without_jack
+  build_portaudio_without_jack_cmake
   build_jack
-  build_portaudio_with_jack
+  build_portaudio_with_jack_cmake
 #  build_openblas # Not until we make a Fortran compiler
   build_opencv
   build_frei0r
@@ -7042,7 +7079,7 @@ build_apps() {
   build_lsdvd
   build_fdkaac-commandline
 #  build_cdrecord
-  build_qt_old
+build_qt_old
   #build_kf5_config
   #build_kf5_coreaddons
   #build_kf5_itemmodels
@@ -7082,7 +7119,7 @@ build_apps() {
   if [[ $build_ffmpeg_shared = "y" ]]; then
     build_ffmpeg ffmpeg shared
   fi
-  build_pulseaudio
+#  build_pulseaudio
 #  build_libcanberra
   if [[ $build_ffmpeg_static = "y" ]]; then
     build_ffmpeg ffmpeg
@@ -7090,7 +7127,7 @@ build_apps() {
   if [[ $build_libav = "y" ]]; then
     build_ffmpeg libav
   fi
-  build_pamix
+  #build_pamix
   #build_meterbridge
   build_ffms2
   build_mp4box
