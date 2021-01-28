@@ -38,7 +38,7 @@ yes_no_sel () {
 }
 
 check_missing_packages () {
-  local check_packages=('cmp' 'bzip2' 'nvcc' 'rsync' 'sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'gperf' 'ruby' 'doxygen' 'xsltproc' 'autogen' 'rake' 'autopoint' 'wget' 'zip' 'gtkdocize' 'python-config' 'ant' 'sdl-config' 'sdl2-config' 'gyp' 'mm-common-prepare' 'sassc' 'nasm' 'ragel' 'gengetopt' 'asn1Parser' 'ronn' 'docbook2x-man'  'intltool-update' 'gtk-update-icon-cache' 'gdk-pixbuf-csource' 'interdiff' 'orcc' 'luac' 'makensis' 'swig' 'meson' 'scons' 'lzip')
+  local check_packages=('cmp' 'bzip2' 'nvcc' 'rsync' 'sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'gperf' 'ruby' 'doxygen' 'xsltproc' 'autogen' 'rake' 'autopoint' 'wget' 'zip' 'gtkdocize' 'python-config' 'ant' 'sdl-config' 'sdl2-config' 'gyp' 'mm-common-prepare' 'sassc' 'nasm' 'ragel' 'gengetopt' 'asn1Parser' 'ronn' 'docbook2x-man'  'intltool-update' 'gtk-update-icon-cache' 'gdk-pixbuf-csource' 'interdiff' 'orcc' 'luac' 'makensis' 'swig' 'meson' 'scons' 'lzip' 'qmake')
   for package in "${check_packages[@]}"; do
     type -P "$package" >/dev/null || missing_packages=("$package" "${missing_packages[@]}")
   done
@@ -755,6 +755,7 @@ do_cleanup() {
 }
 
 build_libx265() {
+if [ ! -f libx265.built ]; then
   do_git_checkout https://github.com/videolan/x265.git x265 #1388601db0d23f8d8c3259886e9fcb747c1d5b52
   cd x265
     apply_patch file://${top_dir}/x265-CMakeVersion.patch
@@ -796,8 +797,7 @@ EOF
 		cp -vf libx265.dll.a ${mingw_w64_x86_64_prefix}/lib
 	cd ../..
     cd ..
-
-
+touch libx265.built
 
 #    	local cmake_params="-DENABLE_SHARED=ON -DENABLE_STATIC=OFF -DENABLE_HDR10_PLUS=OFF -DENABLE_ASSEMBLY=ON -DHIGH_BIT_DEPTH=OFF -DCMAKE_C_FLAGS=-fpermissive -DCMAKE_CXX_FLAGS=-fpermissive -DLINKED_8BIT=OFF -DLINKED_10BIT=OFF -DENABLE_CLI=ON"
 #    local cmake_params="-DENABLE_SHARED=ON -DENABLE_STATIC=OFF -DENABLE_HDR10_PLUS=ON -DENABLE_ASSEMBLY=ON -DHIGH_BIT_DEPTH=ON -DCMAKE_C_FLAGS=-fpermissive -DCMAKE_CXX_FLAGS=-fpermissive -DLINKED_8BIT=ON -DLINKED_10BIT=ON -DENABLE_CLI=ON"
@@ -823,6 +823,9 @@ EOF
   # We must remove the x265.exe executable because FFmpeg gets linked against it. I do not understand this.
   # Furthermore, this makes x265.exe as an executable completely unuseable.
 #  cp -v ${mingw_w64_x86_64_prefix}/bin/libx265.dll ${mingw_w64_x86_64_prefix}/bin/x265.exe
+else
+	echo "libx265 already built."
+fi
 }
 
 #x264_profile_guided=y
@@ -878,7 +881,7 @@ build_librtmp() {
    # TODO do_make here instead...
     make SYS=mingw CRYPTO=GNUTLS OPT=-O2 CROSS_COMPILE=$cross_prefix SHARED=yes LIB_GNUTLS="`pkg-config --libs gnutls` -lz" || exit 1
    # The makefile doesn't install
-    cp -fv rtmpdump.exe rtmpgw.exe rtmpsrv.exe rtmpsuck.exe "${mingw_w64_x86_64_prefix}/bin"
+    cp -fv rtmpdump.exe rtmpgw.exe rtmpsrv.exe rtmpsuck.exe "${mingw_w64_x86_64_prefix}/bin"
 
   cd ..
 }
@@ -895,6 +898,27 @@ build_drm() {
     cd drm
         generic_configure_make_install
     cd ..
+}
+
+
+build_qt6() {
+	download_and_unpack_file https://download.qt.io/official_releases/qt/6.0/6.0.0/single/qt-everywhere-src-6.0.0.tar.xz qt-everywhere-src-6.0.0
+	cd qt-everywhere-src-6.0.0
+		cd qtbase
+			apply_patch file://${top_dir}/qt6-cmake-suffix.patch
+			apply_patch file://${top_dir}/qt6-dbus-location.patch
+			apply_patch file://${top_dir}/qt6-find-static-depends.patch
+			apply_patch file://${top_dir}/qt6-static-libs.patch
+			apply_patch file://${top_dir}/qt6-find-mariadb.patch
+			apply_patch file://${top_dir}/qt6-override-suffixes-static.patch
+		cd ..
+		export MAKEFLAGS="-j8"
+		export PKG_CONFIG=${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config
+		export PKG_CONFIG_LIBDIR=${mingw_w64_x86_64_prefix}/lib/pkgconfig
+		export PKG_CONFIG_SYSROOT_DIR=${mingw_w64_x86_64_prefix}/
+		do_cmake "-G Ninja -B build-x86_64-w64-mingw32 -DFEATURE_pkg_config=ON -DFEATURE_system-pcre2=ON -DFEATURE_system_freetype=ON -DFEATURE_system_harfbuzz=ON -DFEATURE_system_sqlite=ON -DINPUT_openssl=runtime -DQT_HOST_PATH=/usr -DQT_INCLUDE_DIRS_NO_SYSTEM=ON"
+		cmake --build build-x86_64-w64-mingw32
+	cd ..
 }
 
 
@@ -1001,6 +1025,10 @@ build_qt_old() {
 #    apply_patch file://${top_dir}/qt-include.patch
     apply_patch file://${top_dir}/qt-evrdefs.patch
     apply_patch file://${top_dir}/qt-qmake.patch
+    apply_patch file://${top_dir}/qt5-qtcore-case.patch
+    cd qtbase/include
+    	ln -s QtCore qtcore || exit 1
+    cd ../..
     # Change a type for updates in ANGLE project
     grep -rl "EGL_PLATFORM_ANGLE_DEVICE_TYPE_WARP_ANGLE" ./ | xargs sed -i.bak 's/EGL_PLATFORM_ANGLE_DEVICE_TYPE_WARP_ANGLE/EGL_PLATFORM_ANGLE_DEVICE_TYPE_D3D_WARP_ANGLE/g'
     cd ..
@@ -1014,7 +1042,7 @@ build_qt_old() {
       export PKG_CONFIG=${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config
       export PKG_CONFIG_LIBDIR=${mingw_w64_x86_64_prefix}/lib/pkgconfig
       export PKG_CONFIG_SYSROOT_DIR=${mingw_w64_x86_64_prefix}/
-      do_configure "-xplatform win32-g++ -prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -opensource -qt-freetype -confirm-license -accessibility -nomake examples -nomake tests -no-d3d12 -skip qtquickcontrols -skip qtwebglplugin -skip qt3d -skip qtandroidextras -skip qtcharts -skip qtconnectivity -skip qtdatavis3d -skip qtgamepad -skip qtimageformats -skip qtlocation -skip qtlottie -skip qtmacextras -skip qtnetworkauth -skip qtpurchasing -skip qtquick3d -skip qtquicktimeline -skip qtremoteobjects -skip qtscript -skip qtscxml -skip qtsensors -skip qtserialbus -skip qtserialport -skip qtspeech -skip qtvirtualkeyboard -skip qtwayland -skip qtwebchannel -skip qtwebengine -skip qtwebsockets -skip qtwinextras -skip qtx11extras -release -strip -openssl -opengl desktop -device-option CROSS_COMPILE=$cross_prefix -force-pkg-config -device-option PKG_CONFIG=x86_64-w64-mingw32-pkg-config -device-option PKG_CONFIG_LIBDIR=${mingw_w64_x86_64_prefix}/lib/pkgconfig -device-option PKG_CONFIG_SYSROOT_DIR=${mingw_w64_x86_64_prefix} -pkg-config -no-static -shared -no-use-gold-linker -v -skip qtactiveqt" "../qt-everywhere-src-${QT_VERSION}/configure" # "noclean" # -skip qtactiveqt
+      do_configure "-xplatform win32-g++ -prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -opensource -qt-freetype -confirm-license -accessibility -nomake examples -nomake tests -no-wmf -no-d3d12 -skip qtquickcontrols -skip qtwebglplugin -skip qt3d -skip qtandroidextras -skip qtcharts -skip qtconnectivity -skip qtdatavis3d -skip qtgamepad -skip qtimageformats -skip qtlocation -skip qtlottie -skip qtmacextras -skip qtnetworkauth -skip qtpurchasing -skip qtquick3d -skip qtquicktimeline -skip qtremoteobjects -skip qtscript -skip qtscxml -skip qtsensors -skip qtserialbus -skip qtserialport -skip qtspeech -skip qtvirtualkeyboard -skip qtwayland -skip qtwebchannel -skip qtwebengine -skip qtwebsockets -skip qtx11extras -release -strip -openssl -opengl desktop -device-option CROSS_COMPILE=$cross_prefix -force-pkg-config -device-option PKG_CONFIG=x86_64-w64-mingw32-pkg-config -device-option PKG_CONFIG_LIBDIR=${mingw_w64_x86_64_prefix}/lib/pkgconfig -device-option PKG_CONFIG_SYSROOT_DIR=${mingw_w64_x86_64_prefix} -pkg-config -no-static -shared -no-use-gold-linker -v -skip qtactiveqt" "../qt-everywhere-src-${QT_VERSION}/configure" # "noclean" # -skip qtactiveqt
       # For sone reason, the compiler doesn't set the include path properly!
       do_make || exit 1
       do_make_install || exit 1
@@ -1045,6 +1073,7 @@ build_qt_old() {
   unset QT_VERSION
   unset QT_SOURCE
   unset QT_BUILD
+  unset MAKEFLAGS
 #  export cpu_count=$orig_cpu_count
 #  unset PKG_CONFIG
 #  unset PKG_CONFIG_LIBDIR
@@ -1646,7 +1675,7 @@ build_opendcp() {
 
 build_dcpomatic() {
 #  do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic v2.15.x #402fa9a3577975e9cf9728c815da1b17796fe325 # v2.15.x #9cff6ec974a4d0270091fe5c753483b0d53ecd46
-  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic v2.15.x # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
+  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic edbccd8d04a33f9e8d03677d8ebc671f40b0f822 #v2.15.x # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
 #  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.123" dcpomatic-2.15.123
   cd dcpomatic
 #    apply_patch file://${top_dir}/dcpomatic-wscript.patch
@@ -2088,6 +2117,8 @@ build_jack() {
       cp -v windows/Setup/src/32bits/JackRouter.dll ${mingw_w64_x86_64_prefix}/bin/JackRouter32.dll
       cp -v windows/Setup/src/64bits/JackRouter.ini ${mingw_w64_x86_64_prefix}/bin
       cp -v ${mingw_w64_x86_64_prefix}/bin/libjack-0.dll ${mingw_w64_x86_64_prefix}/bin/libjack64.dll
+      mkdir -p ${mingw_w64_x86_64_prefix}/bin/jack
+      cp -v build/jack_*dll ${mingw_w64_x86_64_prefix}/bin/jack/
       export CXXFLAGS=${CXXFLAGS_ORIG}
 #      export cpu_count=$original_cpu_count
       # Because of what we have just done,
@@ -2198,7 +2229,7 @@ build_lilv() {
 
 
 build_leptonica() {
-  do_git_checkout https://github.com/DanBloomberg/leptonica.git leptonica #f1ebb73bf939bca13570c35db8cc656d2735c1d7
+  do_git_checkout https://github.com/DanBloomberg/leptonica.git leptonica a0b59604bcf24b13af168fa45d54bbedab1d3d5d #f1ebb73bf939bca13570c35db8cc656d2735c1d7
   cd leptonica
     generic_configure_make_install "LIBS=-lopenjpeg --disable-silent-rules --without-libopenjpeg"
 
@@ -5860,7 +5891,6 @@ build_qjackctl() {
     generic_configure_make_install "JACK_LIBS=-ljack64 LIBS=-lportaudio CFLAGS=-D_GNU_SOURCE CXXFLAGS=-D_GNU_SOURCE --enable-xunique=no --disable-alsa-seq" # enable-jack-version=yes
     # make install doesn't work
     cp -vf src/release/qjackctl.exe ${mingw_w64_x86_64_prefix}/bin
-
   cd ..
 }
 
@@ -7079,7 +7109,8 @@ build_apps() {
   build_lsdvd
   build_fdkaac-commandline
 #  build_cdrecord
-build_qt_old
+  build_qt_old
+#build_qt6
   #build_kf5_config
   #build_kf5_coreaddons
   #build_kf5_itemmodels
@@ -7110,7 +7141,7 @@ build_qt_old
   build_mjpegtools
   build_unittest
 # build_qt5
-  build_mkvtoolnix
+  #build_mkvtoolnix
 #  build_openssh
 #  build_rsync
   build_dvdbackup
@@ -7151,6 +7182,7 @@ build_qt_old
   build_libsub
 #  build_pavucontrol
   build_gstreamer
+  build_mkvtoolnix
   build_wx
   build_filezilla
   build_wxsvg
@@ -7266,17 +7298,24 @@ install_cross_compiler
 # the header Windows.h needs to appear
 cd ${cur_dir}/x86_64-w64-mingw32/x86_64-w64-mingw32/include
   ln -s windows.h Windows.h
+  ln -s audioclient.h Audioclient.h
   ln -s winsock2.h WinSock2.h
   ln -s cfgmgr32.h Cfgmgr32.h
   ln -s devpkey.h Devpkey.h
+  ln -s propkey.h Propkey.h
   ln -s shlobj.h ShlObj.h
   ln -s setupapi.h SetupAPI.h
+  ln -s mfidl.h Mfidl.h
   ln -s uiviewsettingsinterop.h UIViewSettingsInterop.h
   # OpenGL loader of some description needed for DJV
   cp -v ${cur_dir}/glad.h .
 cd -
 cd ${cur_dir}/x86_64-w64-mingw32/x86_64-w64-mingw32/lib
   ln -s libversion.a libVersion.a
+  ln -s libmf.a libMf.a
+  ln -s libmfuuid.a libMfuuid.a
+  ln -s libmfplat.a libMfplat.a
+  ln -s libpropsys.a libPropsys.a
 cd -
 #cd ${cur_dir}/x86_64-w64-mingw32/lib32
 #  ln -s libversion.a libVersion.a

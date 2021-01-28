@@ -1,0 +1,11 @@
+--- qtmultimedia/src/plugins/wmf/player/mfplayercontrol.cpp.orig	2021-01-26 21:16:57.370000000 +0000
++++ qtmultimedia/src/plugins/wmf/player/mfplayercontrol.cpp	2021-01-26 21:17:26.670000000 +0000
+@@ -38,7 +38,7 @@
+ ****************************************************************************/
+ 
+ #include "mfplayercontrol.h"
+-#include <qtcore/qdebug.h>
++#include <QtCore/qdebug.h>
+ 
+ //#define DEBUG_MEDIAFOUNDATION
+ 
