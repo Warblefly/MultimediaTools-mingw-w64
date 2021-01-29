@@ -1961,7 +1961,7 @@ build_libopus() {
 build_libdvdread() {
   build_libdvdcss
 #  do_git_checkout https://code.videolan.org/videolan/libdvdread.git libdvdread
-  download_and_unpack_file https://get.videolan.org/libdvdread/6.1.1/libdvdread-6.1.1.tar.bz2 libdvdread-6.1.1
+  download_and_unpack_file https://download.videolan.org/pub/videolan/libdvdread/6.1.1/libdvdread-6.1.1.tar.bz2 libdvdread-6.1.1
   cd libdvdread-6.1.1
   # Need this to help libtool not object
   sed -i.bak 's/libdvdread_la_LDFLAGS = -version-info $(DVDREAD_LTVERSION)/libdvdread_la_LDFLAGS = -version-info $(DVDREAD_LTVERSION) -no-undefined/' Makefile.am
