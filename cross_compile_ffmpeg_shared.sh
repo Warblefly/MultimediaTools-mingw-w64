@@ -2006,15 +2006,22 @@ build_libdvdcss() {
 
 build_gdb() {
   export LIBS="-lpsapi -ldl"
-  download_and_unpack_file ftp://sourceware.org/pub/gdb/releases/gdb-8.2.1.tar.xz gdb-8.2.1
-  cd gdb-8.2.1
+  export MAKEFLAGS="VERBOSE=1"
+  download_and_unpack_file ftp://sourceware.org/pub/gdb/releases/gdb-9.2.tar.xz gdb-9.2
+  cd gdb-9.2
 #    cd readline
 #    generic_configure_make_install
 #   cd ..
-  generic_configure_make_install "--with-system-readline --enable-tui --enable-plugins --with-expat --with-lzma"
-
+#  apply_patch file://${top_dir}/gdb-bcrypt.patch
+    mkdir -p build
+    cd build 
+      do_configure  "--host=x86_64-w64-mingw32 --prefix=$mingw_w64_x86_64_prefix --with-system-readline --enable-tui --enable-plugins --with-expat --with-lzma" "../configure"
+      do_make "V=1 VERBOSE=1"
+      do_make_install
+    cd ..
   cd ..
   unset LIBS
+  unset MAKEFLAGS
 }
 
 build_readline() {
@@ -2630,7 +2637,7 @@ build_libxml2() {
 #	do_cmake "-DLIBXML2_WITH_TESTS=OFF -DLIBXML2_WITH_PYTHON=OFF"
 #	do_make
 #	do_make_install
-    generic_configure_make_install "LIBS=-lws2_32 --without-python --enable-ipv6 --disable-silent-rules"
+    generic_configure_make_install "LIBS=-lws2_32 --without-readline --without-python --enable-ipv6 --disable-silent-rules"
     sed -i.bak 's/-lxml2.*$/-lxml2 -lws2_32/' "$PKG_CONFIG_PATH/libxml-2.0.pc" # Shared applications need Winsock
     cp -v ${mingw_w64_x86_64_prefix}/bin/xml2-config ${mingw_w64_x86_64_prefix}/bin/x86_64-w64-mingw32-xml2-config
 
@@ -6521,8 +6528,8 @@ build_graphicsmagick() {
 }
 
 build_graphicsmagicksnapshot() {
-  download_and_unpack_file ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020210123.tar.xz GraphicsMagick-1.4.020210123
-  cd GraphicsMagick-1.4.020210123
+  download_and_unpack_file ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020210130.tar.xz GraphicsMagick-1.4.020210130
+  cd GraphicsMagick-1.4.020210130
     apply_patch file://${top_dir}/graphicmagick-mingw64.patch
     mkdir -pv build
     cd build
