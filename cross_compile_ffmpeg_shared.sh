@@ -2633,7 +2633,7 @@ build_libxml2() {
 #  download_and_unpack_file https://github.com/GNOME/libxml2/archive/v2.9.9-rc2.tar.gz libxml2-2.9.9-rc2
   cd libxml2 # -2.9.9-rc2
     # Remove libxml2 autogen because it sets variables that interfere with our cross-compile
-#    rm -v autogen.sh
+    rm -v autogen.sh
 #	do_cmake "-DLIBXML2_WITH_TESTS=OFF -DLIBXML2_WITH_PYTHON=OFF"
 #	do_make
 #	do_make_install
@@ -6528,8 +6528,8 @@ build_graphicsmagick() {
 }
 
 build_graphicsmagicksnapshot() {
-  download_and_unpack_file ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020210130.tar.xz GraphicsMagick-1.4.020210130
-  cd GraphicsMagick-1.4.020210130
+  download_and_unpack_file ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020210131.tar.xz GraphicsMagick-1.4.020210131
+  cd GraphicsMagick-1.4.020210131
     apply_patch file://${top_dir}/graphicmagick-mingw64.patch
     mkdir -pv build
     cd build

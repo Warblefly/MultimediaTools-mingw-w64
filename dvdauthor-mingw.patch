@@ -17,8 +17,8 @@
 @@ -1,4 +1,4 @@
 -SUBDIRS = doc src
 +SUBDIRS = src
- 
- noinst_DATA = dvdauthor.spec
+ ACLOCAL_AMFLAGS = -I m4
+ # as per recommendation at <https://www.gnu.org/software/libtool/manual/html_node/Invoking-libtoolize.html>
  
 --- dvdauthor-orig/src/compat.c	2016-03-25 10:24:33.367000000 +0000
 +++ dvdauthor/src/compat.c	2016-03-24 20:42:45.999000000 +0000
