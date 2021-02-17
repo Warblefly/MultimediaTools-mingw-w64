@@ -38,7 +38,7 @@ yes_no_sel () {
 }
 
 check_missing_packages () {
-  local check_packages=('cmp' 'bzip2' 'nvcc' 'rsync' 'sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'gperf' 'ruby' 'doxygen' 'xsltproc' 'autogen' 'rake' 'autopoint' 'wget' 'zip' 'gtkdocize' 'python-config' 'ant' 'sdl-config' 'sdl2-config' 'gyp' 'mm-common-prepare' 'sassc' 'nasm' 'ragel' 'gengetopt' 'asn1Parser' 'ronn' 'docbook2x-man'  'intltool-update' 'gtk-update-icon-cache' 'gdk-pixbuf-csource' 'interdiff' 'orcc' 'luac' 'makensis' 'swig' 'meson' 'scons' 'lzip' 'qmake')
+  local check_packages=('cmp' 'bzip2' 'nvcc' 'rsync' 'sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'gperf' 'ruby' 'doxygen' 'xsltproc' 'autogen' 'rake' 'autopoint' 'wget' 'zip' 'gtkdocize' 'python-config' 'ant' 'sdl-config' 'sdl2-config' 'gyp' 'mm-common-prepare' 'sassc' 'nasm' 'ragel' 'gengetopt' 'asn1Parser' 'ronn' 'docbook2x-man'  'intltool-update' 'gtk-update-icon-cache' 'gdk-pixbuf-csource' 'interdiff' 'orcc' 'luac' 'makensis' 'swig' 'meson' 'scons' 'lzip' 'qmake' 'sqlite3')
   for package in "${check_packages[@]}"; do
     type -P "$package" >/dev/null || missing_packages=("$package" "${missing_packages[@]}")
   done
@@ -6528,8 +6528,8 @@ build_graphicsmagick() {
 }
 
 build_graphicsmagicksnapshot() {
-  download_and_unpack_file ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020210131.tar.xz GraphicsMagick-1.4.020210131
-  cd GraphicsMagick-1.4.020210131
+  download_and_unpack_file ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020210206.tar.xz GraphicsMagick-1.4.020210206
+  cd GraphicsMagick-1.4.020210206
     apply_patch file://${top_dir}/graphicmagick-mingw64.patch
     mkdir -pv build
     cd build
@@ -6708,6 +6708,39 @@ build_avisynthplus() {
 	cd ..
 }
 
+build_liblensfun() {
+	do_git_checkout https://github.com/lensfun/lensfun.git lensfun
+	cd lensfun
+		do_cmake "-DBUILD_LENSTOOL=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_DATAROOTDIR=${mingw_w64_x86_64_prefix}/share/"
+		do_make
+		do_make_install
+	cd ..
+}
+
+build_libproj() {
+	generic_download_and_install https://download.osgeo.org/proj/proj-7.2.1.tar.gz proj-7.2.1 "LIBS=-lcurl --with-curl=${mingw_w64_x86_64_prefix}/bin/curl-config"
+}
+
+build_libnova() {
+#	do_git_checkout https://git.code.sf.net/p/libnova/libnova libnova
+	download_and_unpack_file http://deb.debian.org/debian/pool/main/libn/libnova/libnova_0.16.orig.tar.xz libnova
+	cd libnova
+		apply_patch file://${top_dir}/libnova-win64.patch
+		generic_configure_make_install
+	cd ..
+}
+
+build_xygrib() {
+	do_git_checkout https://github.com/opengribs/XyGrib.git XyGrib
+	cd XyGrib
+		apply_patch file://${top_dir}/xygrib-mingw.patch
+		do_cmake "-DGNU_PACKAGE=ON"
+		do_make
+		do_make_install
+	cd ..
+}
+
+
 build_ffmpeg() {
   local type=$1
   local shared=$2
@@ -6751,7 +6784,7 @@ build_ffmpeg() {
 #  apply_patch_p1 file://${top_dir}/ffmpeg-decklink-teletext-2-reverse.patch
   apply_patch file://${top_dir}/ffmpeg-bs2b.patch
 
-  config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --enable-libjack --disable-doc --enable-libxml2 --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-libmysofa --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-libcodec2 --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libxavs2 --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libvpx --enable-libilbc --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --enable-d3d11va --enable-nvenc --enable-nonfree --enable-libfdk-aac --enable-libflite --enable-decoder=aac --enable-libaom --enable-runtime-cpudetect --enable-cuda-nvcc --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts" # $CFLAGS # other possibilities: --enable-w32threads --enable-libflite
+  config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --enable-libjack --enable-gray --enable-liblensfun --disable-doc --enable-libxml2 --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-libmysofa --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-libcodec2 --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libxavs2 --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libvpx --enable-libilbc --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --enable-d3d11va --enable-nvenc --enable-nonfree --enable-libfdk-aac --enable-libflite --enable-decoder=aac --enable-libaom --enable-runtime-cpudetect --enable-cuda-nvcc --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts" # $CFLAGS # other possibilities: --enable-w32threads --enable-libflite
   # sed -i 's/openjpeg-1.5/openjpeg-2.1/' configure # change library path for updated libopenjpeg
   export PKG_CONFIG="pkg-config" # --static
   export LDFLAGS="" # "-static"
@@ -6981,6 +7014,8 @@ build_dependencies() {
   build_libwebp
   build_filewalk
   build_curl_early
+  build_libproj
+  build_libnova
   build_poppler
   build_SWFTools
   build_ASIOSDK
@@ -7085,6 +7120,7 @@ build_dependencies() {
   build_libaec
   build_gctpc
   build_avisynthplus
+  build_liblensfun
 }
 
 build_apps() {
@@ -7199,6 +7235,7 @@ build_apps() {
 #  build_traverso
   build_mlt # Framework, but relies on FFmpeg, Qt, and many other libraries we've built.
   build_movit
+  build_xygrib
   #build_DJVnew # Requires FFmpeg libraries
   build_qjackctl
 #  build_jackmix

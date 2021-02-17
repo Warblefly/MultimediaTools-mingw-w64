@@ -1,0 +1,33 @@
+--- CMakeLists.txt.orig	2021-02-07 19:15:56.780000000 +0000
++++ CMakeLists.txt	2021-02-07 19:16:17.030000000 +0000
+@@ -57,7 +57,7 @@
+ include_directories(${Qt5Xml_INCLUDE_DIRS})
+ 
+ find_library(LIBNOVA_LIBRARY
+-     NAMES "libnova.a" "libnova.so"
++     NAMES "libnova.dll.a" "libnova.a" "libnova.so"
+      PATHS
+      $ENV{EXTERNLIBS}/lib
+      ~/Library/Frameworks
+--- CMakeLists.txt.orig	2021-02-07 19:23:00.910000000 +0000
++++ CMakeLists.txt	2021-02-07 19:23:23.410000000 +0000
+@@ -130,7 +130,7 @@
+ endif()
+ if(WIN32)
+     find_library(PROJ4_LIBRARIES
+-        NAME "libproj.a"
++        NAME "libproj.dll.a" "libproj.a"
+         PATHS
+         $ENV{EXTERNLIBS}/lib
+          /opt/lib
+--- CMakeLists.txt.orig	2021-02-07 19:28:11.120000000 +0000
++++ CMakeLists.txt	2021-02-07 19:28:27.370000000 +0000
+@@ -188,7 +188,7 @@
+ 
+ if(WIN32)
+     find_library(PNG_LIBRARIES
+-        NAME "libpng.a"
++        NAME "libpng.dll.a" "libpng.a"
+         PATHS
+         $ENV{EXTERNLIBS}/lib
+         /opt/lib
