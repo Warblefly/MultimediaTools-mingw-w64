@@ -506,8 +506,8 @@ do_cmake() {
     export PKG_CONFIG_PATH="${mingw_w64_x86_64_prefix}/lib/pkgconfig"
     export PKG_CONFIG_LIBDIR="${mingw_w64_x86_64_prefix}/lib/pkgconfig"
     echo doing cmake in $cur_dir2 with PATH=$PATH  with extra_args=$extra_args like this:
-    echo cmake $source_dir $extra_args -DBUILD_SHARED_LIBS=1 -DBUILD_STATIC_LIBS=0 -DENABLE_STATIC_RUNTIME=0 -DENABLE_SHARED_RUNTIME=1 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_RANLIB=${cross_prefix}ranlib -DCMAKE_C_COMPILER=${cross_prefix}gcc -DCMAKE_CXX_COMPILER=${cross_prefix}g++ -DCMAKE_Fortran_COMPILER:FILEPATH=${cross_prefix}gfortran -DCMAKE_RC_COMPILER=${cross_prefix}windres -DCMAKE_INSTALL_PREFIX=$mingw_w64_x86_64_prefix || exit 1
-    cmake $source_dir $extra_args -DBUILD_SHARED_LIBS=1 -DBUILD_STATIC_LIBS=0 -DENABLE_STATIC_RUNTIME=0 -DENABLE_SHARED_RUNTIME=1 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_RANLIB=${cross_prefix}ranlib -DCMAKE_C_COMPILER=${cross_prefix}gcc -DCMAKE_CXX_COMPILER=${cross_prefix}g++ -DCMAKE_RC_COMPILER=${cross_prefix}windres -DCMAKE_INSTALL_PREFIX=$mingw_w64_x86_64_prefix || exit 1
+    echo cmake $source_dir $extra_args -DBUILD_SHARED_LIBS=1 -DBUILD_STATIC_LIBS=0 -DENABLE_STATIC_RUNTIME=0 -DENABLE_SHARED_RUNTIME=1 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_RANLIB=${cross_prefix}ranlib -DCMAKE_C_COMPILER=${cross_prefix}gcc -DCMAKE_CXX_COMPILER=${cross_prefix}g++ -DCMAKE_Fortran_COMPILER:FILEPATH=${cross_prefix}gfortran -DCMAKE_RC_COMPILER=${cross_prefix}windres -DCMAKE_INSTALL_PREFIX=$mingw_w64_x86_64_prefix -DCMAKE_BUILD_TYPE=Release || exit 1
+    cmake $source_dir $extra_args -DBUILD_SHARED_LIBS=1 -DBUILD_STATIC_LIBS=0 -DENABLE_STATIC_RUNTIME=0 -DENABLE_SHARED_RUNTIME=1 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_RANLIB=${cross_prefix}ranlib -DCMAKE_C_COMPILER=${cross_prefix}gcc -DCMAKE_CXX_COMPILER=${cross_prefix}g++ -DCMAKE_RC_COMPILER=${cross_prefix}windres -DCMAKE_INSTALL_PREFIX=$mingw_w64_x86_64_prefix -DCMAKE_BUILD_TYPE=Release || exit 1
     touch $touch_name || exit 1
     unset CMAKE_INCLUDE_PATH
     unset CMAKE_PREFIX_PATH
@@ -2892,7 +2892,7 @@ build_autogen() {
 
 build_liba52() {
   export CFLAGS=-std=gnu89
-  generic_download_and_install https://ba.mirror.garr.it/mirrors/OpenBSD/distfiles/a52dec-snapshot.tar.gz a52dec-0.7.5-cvs
+  generic_download_and_install http://liba52.sourceforge.net/files/a52dec-snapshot.tar.gz a52dec-0.7.5-cvs
   cd a52dec-0.7.5-cvs
 
   cd ..
@@ -3625,7 +3625,7 @@ build_OpenCL() {
     cp -v ${mingw_w64_x86_64_prefix}/include/CL/* inc/CL/
     export orig_cflags="${CFLAGS}"
     export CFLAGS="-DWINVER=0x0A00 -fcommon"
-    do_cmake "-DOPENCL_ICD_LOADER_REQUIRE_WDK=OFF"
+    do_cmake "-DOPENCL_ICD_LOADER_REQUIRE_WDK=OFF -DBUILD_TESTING=OFF"
     do_make
     export CFLAGS="${orig_cflags}"
     # There is no install target for make
@@ -4696,23 +4696,24 @@ build_opencl() {
 # Method: get the headers, then (in a later function) build OpenCL.dll from the github source
 # which does NOT contain the headers
   mkdir -p ${mingw_w64_x86_64_prefix}/include/CL && cd ${mingw_w64_x86_64_prefix}/include/CL
-    wget --no-clobber https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/cl_d3d10.h \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/cl_d3d11.h \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/cl_dx9_media_sharing.h \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/cl_dx9_media_sharing_intel.h \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/cl_ext.h \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/cl_gl_ext.h \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/cl_ext_intel.h \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/cl_gl.h \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/cl.h \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/cl_icd.h \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/cl_platform.h \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/cl_va_api_media_sharing_intel.h \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/cl_version.h \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/opencl.h \
+    wget --no-clobber https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/d1b936b72b9610626ecab8a991cec18348fba047/CL/cl_d3d10.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/d1b936b72b9610626ecab8a991cec18348fba047/CL/cl_d3d11.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/d1b936b72b9610626ecab8a991cec18348fba047/CL/cl_layer.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/d1b936b72b9610626ecab8a991cec18348fba047/CL/cl_dx9_media_sharing.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/d1b936b72b9610626ecab8a991cec18348fba047/CL/cl_dx9_media_sharing_intel.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/d1b936b72b9610626ecab8a991cec18348fba047/CL/cl_ext.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/d1b936b72b9610626ecab8a991cec18348fba047/CL/cl_gl_ext.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/d1b936b72b9610626ecab8a991cec18348fba047/CL/cl_ext_intel.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/d1b936b72b9610626ecab8a991cec18348fba047/CL/cl_gl.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/d1b936b72b9610626ecab8a991cec18348fba047/CL/cl.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/d1b936b72b9610626ecab8a991cec18348fba047/CL/cl_icd.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/d1b936b72b9610626ecab8a991cec18348fba047/CL/cl_platform.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/d1b936b72b9610626ecab8a991cec18348fba047/CL/cl_va_api_media_sharing_intel.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/d1b936b72b9610626ecab8a991cec18348fba047/CL/cl_version.h \
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/d1b936b72b9610626ecab8a991cec18348fba047/CL/opencl.h \
 https://www.khronos.org/registry/cl/api/2.1/cl.hpp \
 https://github.com/KhronosGroup/OpenCL-CLHPP/releases/download/v2.0.10/cl2.hpp \
-https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/master/CL/cl_egl.h
+https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/d1b936b72b9610626ecab8a991cec18348fba047/CL/cl_egl.h
 #  cd -
 #  cd ${top_dir}
 # Use the installed OpenCL.dll to make libOpenCL.a
@@ -6200,7 +6201,7 @@ build_movit() {
 }
 
 build_aom() {
-  do_git_checkout https://aomedia.googlesource.com/aom aom  # bbe0a0a1cd34dc5aa9040f1d8b68468f32b895e4
+  do_git_checkout https://aomedia.googlesource.com/aom aom 312b85e99e4b1cc50c884ce35f6d715f76b275ea # bbe0a0a1cd34dc5aa9040f1d8b68468f32b895e4
   cd aom
     old_LDFLAGS=${LDFLAGS}
     old_CFLAGS=${CFLAGS}
@@ -6220,7 +6221,7 @@ build_aom() {
 #    do_configure "--target=x86_64-win64-gcc --prefix=${mingw_w64_x86_64_prefix} --enable-webm-io --enable-pic --enable-multithread --enable-runtime-cpu-detect --enable-postproc --enable-av1 --enable-lowbitdepth --disable-unit-tests"
     mkdir -pv ../aom_build
     cd ../aom_build
-    do_cmake_static ../aom/. "-DAOM_TARGET_CPU=x86_64 -DCONFIG_FILEOPTIONS=1 -DCONFIG_LOWBITDEPTH=0 -DCONFIG_HIGHBITDEPTH=1 -DHAVE_PTHREAD=1 -DCMAKE_TOOLCHAIN_FILE=../aom/build/cmake/toolchains/x86_64-mingw-gcc.cmake"
+    do_cmake ../aom/. "-DAOM_TARGET_CPU=x86_64 -DCONFIG_FILEOPTIONS=1 -DCONFIG_LOWBITDEPTH=0 -DCONFIG_HIGHBITDEPTH=1 -DHAVE_PTHREAD=1 -DCMAKE_TOOLCHAIN_FILE=../aom/build/cmake/toolchains/x86_64-mingw-gcc.cmake"
       do_make
       do_make_install
     cd ../aom
@@ -6528,8 +6529,8 @@ build_graphicsmagick() {
 }
 
 build_graphicsmagicksnapshot() {
-  download_and_unpack_file ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020210206.tar.xz GraphicsMagick-1.4.020210206
-  cd GraphicsMagick-1.4.020210206
+  download_and_unpack_file ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020210222.tar.xz GraphicsMagick-1.4.020210222
+  cd GraphicsMagick-1.4.020210222
     apply_patch file://${top_dir}/graphicmagick-mingw64.patch
     mkdir -pv build
     cd build
