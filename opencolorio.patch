@@ -1,0 +1,11 @@
+--- src/core/CMakeLists.txt.orig	2021-03-06 15:55:01.390000000 +0000
++++ src/core/CMakeLists.txt	2021-03-06 15:55:41.340000000 +0000
+@@ -21,7 +21,7 @@
+ if(WIN32)
+     # On debug mode there are other kinds of warning...
+     if("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+-        set(EXTERNAL_COMPILE_FLAGS "${EXTERNAL_COMPILE_FLAGS} /WX")
++    set(EXTERNAL_COMPILE_FLAGS "${EXTERNAL_COMPILE_FLAGS} ")
+     endif()
+ else()
+     set(EXTERNAL_COMPILE_FLAGS "${EXTERNAL_COMPILE_FLAGS} -Werror")

@@ -1,0 +1,14 @@
+--- src/utils/cst_val.c.orig	2021-03-05 18:50:03.940000000 +0000
++++ src/utils/cst_val.c	2021-03-05 18:50:24.610000000 +0000
+@@ -475,11 +475,7 @@
+     }
+ }
+ 
+-#ifdef _WIN32
+-__inline int utf8_sequence_length(char c0)
+-#else
+ int utf8_sequence_length(char c0)
+-#endif
+ {
+     /* Get the expected length of UTF8 sequence given its most */
+     /* significant byte */

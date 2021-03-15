@@ -1916,20 +1916,33 @@ build_doxygen() {
 build_libflite() {
 #  download_and_unpack_file http://www.speech.cs.cmu.edu/flite/packed/flite-1.4/flite-1.4-release.tar.bz2 flite-1.4-release
 #  cd flite-1.4-release
-   download_and_unpack_file http://download.sipxcom.org/pub/sipXecs/libs/flite-2.0.0-release.tar.bz2 flite-2.0.0-release
-   cd flite-2.0.0-release
+   do_git_checkout https://github.com/festvox/flite.git flite
+#   download_and_unpack_file http://download.sipxcom.org/pub/sipXecs/libs/flite-2.0.0-release.tar.bz2 flite-2.0.0-release
+   cd flite
 #     apply_patch file://${top_dir}/flite_64.diff
-     sed -i.bak "s|i386-mingw32-|$cross_prefix|" configure*
-     generic_configure "CFLAGS=-fcommon"
-     apply_patch file://${top_dir}/flite-remove-inline.patch
-     do_make
-     make install # it fails in error..
+#     sed -i.bak "s|i386-mingw32-|$cross_prefix|" configure*
+#     generic_configure "CFLAGS=-fcommon"
+      apply_patch file://${top_dir}/flite-git-inline.patch
+#     do_make
+#     make install # it fails in error..
      # Now create the shared library
-     cp -v ./build/x86_64-mingw32/lib/libflite.a .
-     ${cross_prefix}gcc -shared -o libflite.dll -Wl,--out-implib,libflite.dll.a -Wl,--whole-archive,libflite.a,--no-whole-archive -lpthread || echo "Files cleaned already. No problem."
-     cp -v ./build/x86_64-mingw32/lib/*.a $mingw_w64_x86_64_prefix/lib
-     cp -v libflite.dll.a $mingw_w64_x86_64_prefix/lib
-     cp -v libflite.dll $mingw_w64_x86_64_prefix/bin
+#     cp -v ./build/x86_64-mingw32/lib/libflite.a .
+#     ${cross_prefix}gcc -shared -o libflite.dll -Wl,--out-implib,libflite.dll.a -Wl,--whole-archive,libflite.a,--no-whole-archive -lpthread || echo "Files cleaned already. No problem."
+#     cp -v ./build/x86_64-mingw32/lib/*.a $mingw_w64_x86_64_prefix/lib
+#     cp -v libflite.dll.a $mingw_w64_x86_64_prefix/lib
+#     cp -v libflite.dll $mingw_w64_x86_64_prefix/bin
+	generic_configure
+	do_make
+#	do_make get_voices
+	cp -v ./build/x86_64-mingw32/lib/libflite.a . 
+	${cross_prefix}gcc -shared -o libflite.dll -Wl,--out-implib,libflite.dll.a -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive libflite.a -Wl,--no-whole-archive -lpthread -lwinmm || echo "Files cleaned already. No problem."
+	cp -v ./build/x86_64-mingw32/lib/*.a $mingw_w64_x86_64_prefix/lib
+	cp -v libflite.dll.a $mingw_w64_x86_64_prefix/lib
+	cp -v libflite.dll $mingw_w64_x86_64_prefix/bin
+	cp -v bin/*exe $mingw_w64_x86_64_prefix/bin
+	mkdir -pv $mingw_w64_x86_64_prefix/include/flite
+	cp -v include/*h $mingw_w64_x86_64_prefix/include/flite/
+	#do_make_install
 
    cd ..
 }
@@ -3636,7 +3649,7 @@ build_OpenCL() {
 }
 
 build_vim() {
-  do_git_checkout https://github.com/vim/vim.git vim 3e0107ea16349b354e0e9712e95b09ef019e99e5
+  do_git_checkout https://github.com/vim/vim.git vim # 3e0107ea16349b354e0e9712e95b09ef019e99e5
   cd vim
 #  	apply_patch file://${top_dir}/vim_uuid.patch
   cd ..
@@ -3654,7 +3667,7 @@ build_vim() {
       mkdir -pv ${mingw_w64_x86_64_prefix}/share/vim && cp -Rv ../runtime/* ${mingw_w64_x86_64_prefix}/share/vim
   cd ../..
 
-  do_git_checkout https://github.com/vim/vim.git vim_console 3e0107ea16349b354e0e9712e95b09ef019e99e5
+  do_git_checkout https://github.com/vim/vim.git vim_console # 3e0107ea16349b354e0e9712e95b09ef019e99e5
   cd vim_console/src
     sed -i.bak 's/FEATURES=BIG/FEATURES=HUGE/' Make_cyg_ming.mak
     sed -i.bak 's/ARCH=i686/ARCH=x86-64/' Make_cyg_ming.mak
@@ -4045,9 +4058,9 @@ build_live555() {
 }
 
 build_exiv2() {
-#  do_git_checkout https://github.com/Exiv2/exiv2.git exiv2
-  download_and_unpack_file https://exiv2.org/builds/exiv2-0.27.3-Source.tar.gz exiv2-0.27.3-Source
-  cd exiv2-0.27.3-Source
+  do_git_checkout https://github.com/Exiv2/exiv2.git exiv2 0.27-maintenance
+#  download_and_unpack_file https://exiv2.org/builds/exiv2-0.27.3-Source.tar.gz exiv2-0.27.3-Source
+  cd exiv2
 #    apply_patch file://${top_dir}/exiv2-makernote.patch
      cpu_count=1 # svn_version.h gets written too early otherwise
     # export LIBS="-lws2_32 -lwldap32"
@@ -6529,8 +6542,8 @@ build_graphicsmagick() {
 }
 
 build_graphicsmagicksnapshot() {
-  download_and_unpack_file ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020210222.tar.xz GraphicsMagick-1.4.020210222
-  cd GraphicsMagick-1.4.020210222
+  download_and_unpack_file ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020210310.tar.xz GraphicsMagick-1.4.020210310
+  cd GraphicsMagick-1.4.020210310
     apply_patch file://${top_dir}/graphicmagick-mingw64.patch
     mkdir -pv build
     cd build
@@ -6624,6 +6637,7 @@ build_ocio() {
 	download_and_unpack_file https://github.com/AcademySoftwareFoundation/OpenColorIO/archive/v1.1.1.tar.gz OpenColorIO-1.1.1
 	cd OpenColorIO-1.1.1
 		apply_patch file://${top_dir}/OpenColorIO.patch
+		apply_patch file://${top_dir}/opencolorio.patch
 		do_cmake "-DCMAKE_VERBOSE_MAKEFILE=ON -DOCIO_BUILD_PYGLUE=OFF -DOCIO_BUILD_TESTS=OFF -DOCIO_BUILD_STATIC=OFF -DUSE_EXTERNAL_YAML=ON -DUSE_EXTERNAL_TINYXML=ON"
 		do_make "V=1"
 		do_make_install "V=1"
@@ -6699,9 +6713,10 @@ build_ffmpegnv() {
 }
 
 build_avisynthplus() {
-	do_git_checkout https://github.com/AviSynth/AviSynthPlus.git AviSynthPlus
+	do_git_checkout https://github.com/AviSynth/AviSynthPlus.git AviSynthPlus a8c863005d8e0cd7b8f74932df1533ded0b7280b
 	cd AviSynthPlus
 #		apply_patch file://${top_dir}/avisynthplus-memcpy.patch
+		apply_patch file://${top_dir}/AviSynthPlus-inlines.patch
 		do_cmake "-DBUILD_SHIBATCH=OFF"
 		mv -vf GNUmakefile dontusethis
 		do_make "all"
@@ -6758,7 +6773,7 @@ build_ffmpeg() {
   # can't mix and match --enable-static --enable-shared unfortunately, or the final executable seems to just use shared if the're both present
   if [[ $shared == "shared" ]]; then
     output_dir=${output_dir}_shared
-    do_git_checkout $git_url ${output_dir} #f52dd8a55a98418b6301cce4a56d2b73d08b7eea # 2f7ca0b94e49c2bfce8bda3f883766101ebd7a9b
+    do_git_checkout $git_url ${output_dir} #42e68fe01587b541c9ced34906b09e3c9c894e74
     final_install_dir=`pwd`/${output_dir}.installed
     extra_configure_opts="--enable-shared --disable-static $extra_configure_opts"
     # avoid installing this to system?
@@ -6784,6 +6799,7 @@ build_ffmpeg() {
 #  apply_patch_p1 file://${top_dir}/ffmpeg-decklink-teletext-1-reverse.patch
 #  apply_patch_p1 file://${top_dir}/ffmpeg-decklink-teletext-2-reverse.patch
   apply_patch file://${top_dir}/ffmpeg-bs2b.patch
+#  apply_patch file://${top_dir}/ffmpeg-preprocessor.patch
 
   config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --enable-libjack --enable-gray --enable-liblensfun --disable-doc --enable-libxml2 --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-libmysofa --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-libcodec2 --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libxavs2 --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libvpx --enable-libilbc --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --enable-d3d11va --enable-nvenc --enable-nonfree --enable-libfdk-aac --enable-libflite --enable-decoder=aac --enable-libaom --enable-runtime-cpudetect --enable-cuda-nvcc --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts" # $CFLAGS # other possibilities: --enable-w32threads --enable-libflite
   # sed -i 's/openjpeg-1.5/openjpeg-2.1/' configure # change library path for updated libopenjpeg
@@ -6792,6 +6808,7 @@ build_ffmpeg() {
 #  apply_patch file://${top_dir}/ffmpeg-x264-depth-1.patch
 #  apply_patch file://${top_dir}/ffmpeg-x264-depth-2.patch
   do_configure "$config_options"
+ # apply_patch file://${top_dir}/ffmpeg-configmak.patch
   unset PKG_CONFIG
   unset LDFLAGS
   rm -f */*.a */*.dll *.exe # just in case some dependency library has changed, force it to re-link even if the ffmpeg source hasn't changed...
