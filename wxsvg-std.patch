@@ -1,0 +1,63 @@
+--- include/wxSVG/mediadec_ffmpeg.h.orig	2021-03-19 15:59:27.600000000 +0000
++++ include/wxSVG/mediadec_ffmpeg.h	2021-03-19 15:59:45.370000000 +0000
+@@ -15,7 +15,7 @@
+ #include <wx/image.h>
+ #include <vector>
+ #include <map>
+-using namespace std;
++// using namespace std;
+ 
+ struct AVFormatContext;
+ struct AVCodecContext;
+--- include/wxSVG/mediadec_ffmpeg.h.orig	2021-03-19 16:07:12.750000000 +0000
++++ include/wxSVG/mediadec_ffmpeg.h	2021-03-19 16:07:49.380000000 +0000
+@@ -65,11 +65,11 @@
+ 	/** Returns time base for video codec (tbc). */
+ 	float GetCodecTimeBase();
+ 	/** Returns list of chapters */
+-	vector<double> GetChapters();
++	std::vector<double> GetChapters();
+ 	/** Returns file metadata */
+-	map<wxString, wxString> GetMetadata();
++	std::map<wxString, wxString> GetMetadata();
+ 	/** Returns stream metadata */
+-	map<wxString, wxString> GetMetadata(unsigned int streamIndex);
++	std::map<wxString, wxString> GetMetadata(unsigned int streamIndex);
+ 	
+ private:
+ 	AVFormatContext* m_formatCtx;
+--- src/mediadec_ffmpeg.cpp.orig	2021-03-19 16:13:29.460000000 +0000
++++ src/mediadec_ffmpeg.cpp	2021-03-19 16:14:03.130000000 +0000
+@@ -354,8 +354,8 @@
+ }
+ 
+ /** Returns list of chapters */
+-vector<double> wxFfmpegMediaDecoder::GetChapters() {
+-	vector<double> chapters;
++std::vector<double> wxFfmpegMediaDecoder::GetChapters() {
++	std::vector<double> chapters;
+ 	for (unsigned int i = 0; i < m_formatCtx->nb_chapters; i++) {
+ 		AVChapter *chapter = m_formatCtx->chapters[i];
+ 		double d = chapter->start * av_q2d(chapter->time_base);
+@@ -365,8 +365,8 @@
+ }
+ 
+ /** Returns file metadata */
+-map<wxString, wxString> wxFfmpegMediaDecoder::GetMetadata() {
+-	map<wxString, wxString> metadata;
++std::map<wxString, wxString> wxFfmpegMediaDecoder::GetMetadata() {
++	std::map<wxString, wxString> metadata;
+ 	AVDictionaryEntry *tag = NULL;
+ 	while ((tag = av_dict_get(m_formatCtx->metadata, "", tag, AV_DICT_IGNORE_SUFFIX))) {
+ 		metadata[wxString(tag->key, wxConvUTF8)] = wxString(tag->value, wxConvUTF8);
+@@ -376,8 +376,8 @@
+ 
+ 
+ /** Returns stream metadata */
+-map<wxString, wxString> wxFfmpegMediaDecoder::GetMetadata(unsigned int streamIndex) {
+-	map<wxString, wxString> metadata;
++std::map<wxString, wxString> wxFfmpegMediaDecoder::GetMetadata(unsigned int streamIndex) {
++	std::map<wxString, wxString> metadata;
+ 	AVDictionaryEntry *tag = NULL;
+ 	while ((tag = av_dict_get(m_formatCtx->streams[streamIndex]->metadata, "", tag, AV_DICT_IGNORE_SUFFIX))) {
+ 		metadata[wxString(tag->key, wxConvUTF8)] = wxString(tag->value, wxConvUTF8);

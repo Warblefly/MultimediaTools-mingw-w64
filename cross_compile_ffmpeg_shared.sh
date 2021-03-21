@@ -1026,8 +1026,9 @@ build_qt_old() {
     apply_patch file://${top_dir}/qt-evrdefs.patch
     apply_patch file://${top_dir}/qt-qmake.patch
     apply_patch file://${top_dir}/qt5-qtcore-case.patch
+    apply_patch file://${top_dir}/qt5-gcc11.patch
     cd qtbase/include
-    	ln -s QtCore qtcore || exit 1
+    	ln -sv QtCore qtcore 
     cd ../..
     # Change a type for updates in ANGLE project
     grep -rl "EGL_PLATFORM_ANGLE_DEVICE_TYPE_WARP_ANGLE" ./ | xargs sed -i.bak 's/EGL_PLATFORM_ANGLE_DEVICE_TYPE_WARP_ANGLE/EGL_PLATFORM_ANGLE_DEVICE_TYPE_D3D_WARP_ANGLE/g'
@@ -3018,7 +3019,8 @@ build_zlib() {
 #    do_make_install "CC=$(echo $cross_prefix)gcc AR=$(echo $cross_prefix)ar RANLIB=$(echo $cross_prefix)ranlib ARFLAGS=rcs"
     do_configure "--shared --prefix=${mingw_w64_x86_64_prefix}"
     do_make_install "CC=${cross_prefix}gcc AR=${cross_prefix}ar RC=${cross_prefix}windres RANLIB=${cross_prefix}ranlib STRIP=${cross_prefix}strip IMPLIB=libz.dll.a -f win32/Makefile.gcc"
-
+    sed -i.bak 's|libdir=lib/|libdir=${prefix}/lib/|' $PKG_CONFIG_PATH/zlib.pc
+    sed -i.bak 's|sharedlibdir=lib/|sharedlibdir=${prefix}/lib/|' $PKG_CONFIG_PATH/zlib.pc
   cd ..
 }
 
@@ -4841,10 +4843,11 @@ build_cppzmq() {
 }
 
 build_wxsvg() {
-  generic_download_and_install http://downloads.sourceforge.net/project/wxsvg/wxsvg/1.5.22/wxsvg-1.5.22.tar.bz2 wxsvg-1.5.22 "--with-wx-config=${mingw_w64_x86_64_prefix}/bin/wx-config"
-  cd wxsvg-1.5.22
-
-  cd ..
+	download_and_unpack_file http://downloads.sourceforge.net/project/wxsvg/wxsvg/1.5.22/wxsvg-1.5.22.tar.bz2 wxsvg-1.5.22 
+	cd wxsvg-1.5.22
+		apply_patch file://${top_dir}/wxsvg-std.patch
+		generic_configure_make_install "--with-wx-config=${mingw_w64_x86_64_prefix}/bin/wx-config"
+	cd ..
 }
 
 build_pixman() {
@@ -4960,12 +4963,12 @@ build_libffi() {
 }
 
 build_ilmbase() {
-download_and_unpack_file https://github.com/AcademySoftwareFoundation/openexr/archive/v2.5.2.tar.gz openexr-2.5.2
+download_and_unpack_file https://github.com/AcademySoftwareFoundation/openexr/archive/v2.5.5.tar.gz openexr-2.5.5
 
 #  do_git_checkout https://github.com/openexr/openexr.git openexr #48c2106310c8edefc7c1387cffc466665e4f38d2 #9f23bcc60b9786ffd5d97800750b953313080c87
   # Problem with threads in latest code that checks for c++14 standard
 #  cd openexr/IlmBase
-  cd openexr-2.5.2
+  cd openexr-2.5.5
 # IlmBase is written expecting that some of its binaries will be run during compilation.
     # In a cross-compiling environment, this more difficult to do than I know how.
     # The files that the binaries generate are two quite large headers. We have generated
@@ -4982,7 +4985,7 @@ download_and_unpack_file https://github.com/AcademySoftwareFoundation/openexr/ar
 #    generic_configure_make_install "--enable-shared --enable-large-stack"
 
 #    apply_patch file://${top_dir}/openexr.patch
-    do_cmake "-DPYILMBASE_ENABLE=OFF -DBUILD_TESTING=NO -DCMAKE_VERBOSE_MAKEFILE=ON" && ${top_dir}/correct_headers.sh # -DCMAKE_THREAD_LIBS_INIT=-lboost_thread-mt-x64
+    do_cmake "-DPYILMBASE_ENABLE=OFF -DCMAKE_BUILD_TYPE=RELEASE -DOPENEXR_CXX_STANDARD=11 -DOPENEXR_BUILD_UTILS=OFF -DBUILD_TESTING=NO -DCMAKE_VERBOSE_MAKEFILE=ON" && ${top_dir}/correct_headers.sh # -DCMAKE_THREAD_LIBS_INIT=-lboost_thread-mt-x64
     do_make "V=1"
     do_make_install "V=1"
     # Some bizarre locations are used
@@ -6214,7 +6217,7 @@ build_movit() {
 }
 
 build_aom() {
-  do_git_checkout https://aomedia.googlesource.com/aom aom 312b85e99e4b1cc50c884ce35f6d715f76b275ea # bbe0a0a1cd34dc5aa9040f1d8b68468f32b895e4
+  do_git_checkout https://aomedia.googlesource.com/aom aom #312b85e99e4b1cc50c884ce35f6d715f76b275ea # bbe0a0a1cd34dc5aa9040f1d8b68468f32b895e4
   cd aom
     old_LDFLAGS=${LDFLAGS}
     old_CFLAGS=${CFLAGS}
@@ -6397,10 +6400,10 @@ build_xz() {
 }
 
 build_libjson() {
-do_git_checkout https://github.com/json-c/json-c.git json-c da76ee26e7977cc4d796ed8c7e263d95cd94a199
+do_git_checkout https://github.com/json-c/json-c.git json-c #da76ee26e7977cc4d796ed8c7e263d95cd94a199
     cd json-c
 #    	apply_patch file://${top_dir}/json-c-control.patch
-	do_cmake "-DENABLE_THREADING=ON"
+	do_cmake "-DENABLE_THREADING=ON -DDISABLE_WERROR=ON"
 	do_make
 	do_make_install
         #generic_configure_make_install "--enable-threading"
@@ -6542,8 +6545,12 @@ build_graphicsmagick() {
 }
 
 build_graphicsmagicksnapshot() {
-  download_and_unpack_file ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020210310.tar.xz GraphicsMagick-1.4.020210310
-  cd GraphicsMagick-1.4.020210310
+	# This retrieves the namne of the first .xz file, which is usually the most recent snapshot.
+  export gm_filename=`curl -s ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/ --stderr - | grep tar\.xz | awk '{print $9}'`
+  export gm_directory=${gm_filename%.tar.xz}
+  echo "Latest snapshot is: $gm_filename..."
+  download_and_unpack_file ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/$gm_filename $gm_directory
+  cd $gm_directory
     apply_patch file://${top_dir}/graphicmagick-mingw64.patch
     mkdir -pv build
     cd build
@@ -6645,10 +6652,10 @@ build_ocio() {
 }
 
 build_otio() {
-	do_git_checkout https://github.com/PixarAnimationStudios/OpenTimelineIO.git OpenTimelineIO 5aa24fbe89d615448876948fe4b4900455c9a3e8
+	do_git_checkout https://github.com/PixarAnimationStudios/OpenTimelineIO.git OpenTimelineIO # 5aa24fbe89d615448876948fe4b4900455c9a3e8
 	cd OpenTimelineIO
 #		apply_patch file://${top_dir}/opentime.patch
-		do_cmake "-DCMAKE_VERBOSE_MAKEFILE=ON"
+		do_cmake "-DCMAKE_VERBOSE_MAKEFILE=ON -DOTIO_PYTHON_INSTALL=OFF"
 		do_make "V=1"
 		do_make_install "V=1"
 	cd ..
@@ -6717,6 +6724,7 @@ build_avisynthplus() {
 	cd AviSynthPlus
 #		apply_patch file://${top_dir}/avisynthplus-memcpy.patch
 		apply_patch file://${top_dir}/AviSynthPlus-inlines.patch
+		apply_patch file://${top_dir}/avisynthplus-std.patch
 		do_cmake "-DBUILD_SHIBATCH=OFF"
 		mv -vf GNUmakefile dontusethis
 		do_make "all"

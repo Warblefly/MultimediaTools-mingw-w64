@@ -96,7 +96,7 @@ cd ..
 echo "Mingw-w64 headers are installed."
 
 echo "Cloning GCC..."
-git clone --depth 1 -b releases/gcc-10 --single-branch https://github.com/gcc-mirror/gcc.git gcc || echo "Seems we have GCC."
+git clone --depth 1 -b master --single-branch https://github.com/gcc-mirror/gcc.git gcc || echo "Seems we have GCC."
 echo "GCC has arrived."
 
 cd gcc
@@ -120,7 +120,7 @@ cd ..
 # Apply patch. Not sure how long this will be required
 
 cd gcc
-	cat ${top_dir}/gcc-ice.patch | patch -p0 || exit 1
+#	cat ${top_dir}/gcc-ice.patch | patch -p0 || exit 1
 cd ..
 
 mkdir -pv gcc-build
