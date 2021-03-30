@@ -1,0 +1,11 @@
+--- ffbuild/common.mak.orig	2021-03-13 18:25:08.180000000 +0000
++++ ffbuild/common.mak	2021-03-13 18:27:22.770000000 +0000
+@@ -90,7 +90,7 @@
+ 	-$(if $(ASMSTRIPFLAGS), $(STRIP) $(ASMSTRIPFLAGS) $@)
+ 
+ %.o: %.rc
+-	$(WINDRES) $(IFLAGS) --preprocessor "$(DEPWINDRES) -E -xc-header -DRC_INVOKED $(CC_DEPFLAGS)" -o $@ $<
++	$(WINDRES) $(IFLAGS) --preprocessor "$(DEPWINDRES)" --preprocessor-arg -E --preprocessor-arg -xc-header --preprocessor-arg -DRC_INVOKED $(CC_DEPFLAGS) -o $@ $<
+ 
+ %.i: %.c
+ 	$(CC) $(CCFLAGS) $(CC_E) $<

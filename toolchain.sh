@@ -19,14 +19,57 @@ export host="x86_64-w64-mingw32"
 export prefix="$working_directory/$host"
 export PATH="$working_directory/bin:/usr/local/bin:/usr/bin:/bin"
 
-echo "Cloning binutils..."
-git clone --depth 1 --single-branch -b binutils-2_35-branch git://sourceware.org/git/binutils-gdb.git binutils || echo "Seems we have binutils."
+#echo "Cloning binutils..."
+#git clone --depth 1 --single-branch -b binutils-2_35-branch git://sourceware.org/git/binutils-gdb.git binutils || echo "Seems we have binutils."
+#echo "Binutils has arrived."
+
+echo "Getting binutils..."
+#	wget http://ftp.gnu.org/gnu/binutils/binutils-2.36.1.tar.bz2 || exit 1
+#        tar xvvf binutils-2.36.1.tar.bz2 && ln -sv binutils-2.36.1 binutils
+	git clone --depth 1 --single-branch -b binutils-2_35-branch git://sourceware.org/git/binutils-gdb.git binutils || echo "Seems we have binutils."
 echo "Binutils has arrived."
+
+#echo "Let's add the Fedora rawhide patch set."
+cd binutils
+#	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-export-demangle.h.patch | patch -p1
+#	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-no-config-h-check.patch | patch -p1
+#	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-filename-in-error-messages.patch | patch -p1
+#	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-revert-PLT-elision.patch | patch -p1
+#	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-readelf-other-sym-info.patch | patch -p1
+#	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-2.27-aarch64-ifunc.patch | patch -p1
+	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-do-not-link-with-static-libstdc++.patch | patch -p1
+#	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/f34/f/binutils-gold-ignore-discarded-note-relocs.patch | patch -p1
+#	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-special-sections-in-groups.patch | patch -p1
+#	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-fix-testsuite-failures.patch | patch -p1
+#	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-gold-mismatched-section-flags.patch | patch -p1
+#	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/f34/f/binutils-readelf-compression-header-size.patch | patch -p1
+#	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-CVE-2019-1010204.patch | patch -p1
+#	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-gold-warn-unsupported.patch | patch -p1
+#	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-use-long-long.patch | patch -p1
+#	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/f34/f/binutils_CVE-2020-16598.patch | patch -p1
+#	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/f34/f/binutils-gdb.git-365f5fb6d0f0da83817431a275e99e6f6babbe04.patch | patch -p1
+#	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/f34/f/binutils-gdb.git-1a1c3b4cc17687091cff5a368bd6f13742bcfdf8.patch | patch -p1
+#	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/f34/f/binutils-gdb.git-014cc7f849e8209623fc99264814bce7b3b6faf2.patch | patch -p1
+#	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-2.36-branch-updates.patch | patch -p1
+#	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-testsuite-fixes.patch | patch -p1
+#	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-config.patch | patch -p1
+
+	echo "Preparing libiberty..."
+	pushd libiberty
+		autoconf
+	popd
+	echo "Libiberty prepared."
+	echo "Preparing intl..."
+	pushd intl
+		autoconf
+	popd 
+	echo "Into prepared."
+cd ..
 
 mkdir -pv binutils-build
 cd binutils-build
 	if [[ ! -f binutils_configure ]]; then
-		../binutils/configure --target=$host --enable-targets=$host \
+		../binutils/configure --target=$host --disable-nls \
 			--prefix=$working_directory --with-sysroot=$working_directory
 		touch binutils_configure
 	fi
@@ -85,7 +128,7 @@ echo "Going to install mingw-w64 headers..."
 mkdir -pv mingw-headers-build
 cd mingw-headers-build
 	if [[ ! -f mingw_headers_configure ]]; then
-		../mingw-w64/mingw-w64-headers/configure --prefix=$working_directory/$host --host=$host --build=x86_64-linux-gnu
+		../mingw-w64/mingw-w64-headers/configure --enable-sdk=all --enable-secure-api --prefix=$working_directory/$host --host=$host --build=x86_64-linux-gnu
 		touch mingw_headers_configure
 	fi
 	if [[ ! -f mingw_headers_make ]]; then
@@ -96,7 +139,17 @@ cd ..
 echo "Mingw-w64 headers are installed."
 
 echo "Cloning GCC..."
-git clone --depth 1 -b master --single-branch https://github.com/gcc-mirror/gcc.git gcc || echo "Seems we have GCC."
+
+#git clone --depth 1 -b master --single-branch https://github.com/gcc-mirror/gcc.git gcc || echo "Seems we have GCC."
+
+git clone --depth 1 git://gcc.gnu.org/git/gcc.git gcc-dir.tmp
+git --git-dir=gcc-dir.tmp/.git fetch --depth 1 origin 3fc88aa16f1bf661db4518d6d62869f081981981
+git --git-dir=gcc-dir.tmp/.git archive --prefix=mingw-gcc-10.2.1-20200723/ 3fc88aa16f1bf661db4518d6d62869f081981981 | gzip -v -v -9 > mingw-gcc-10.2.1-20200723.tar.gz
+rm -rf gcc-dir.tmp
+tar xvvf mingw-gcc-10.2.1-20200723.tar.gz
+rm mingw-gcc-10.2.1-20200723.tar.gz
+mv mingw-gcc-10.2.1-20200723 gcc
+
 echo "GCC has arrived."
 
 cd gcc
@@ -120,6 +173,14 @@ cd ..
 # Apply patch. Not sure how long this will be required
 
 cd gcc
+	curl https://src.fedoraproject.org/rpms/mingw-gcc/raw/f34/f/mingw-gcc-config.patch | patch -p1
+	curl https://src.fedoraproject.org/rpms/mingw-gcc/raw/f34/f/0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch | patch -p1
+	pushd libiberty
+		autoconf -f
+	popd
+	pushd intl
+		autoconf -f
+	popd
 #	cat ${top_dir}/gcc-ice.patch | patch -p0 || exit 1
 cd ..
 
@@ -128,7 +189,7 @@ cd gcc-build
 	echo "Configuring GCC..."
 
 	if [[ ! -f gcc_configured ]]; then
-		../gcc/configure --target=$host --enable-targets=$host --enable-libgomp --enable-libgfortran --enable-languages=c,c++,fortran --enable-shared --disable-multilib --prefix=$working_directory --with-sysroot=$working_directory --enable-threads=posix || exit 1
+		../gcc/configure --target=$host --with-gnu-as --with-gnu-ld --verbose --without-newlib --disable-multilib --with-system-zlib --disable-nls --without-included-gettext --disable-win32-registry --enable-libgomp --enable-libgfortran --enable-languages=c,c++,fortran --prefix=$working_directory --with-sysroot=$working_directory --enable-shared --enable-threads=posix || exit 1
 		touch gcc_configured
 	else
 		echo "GCC already configured."

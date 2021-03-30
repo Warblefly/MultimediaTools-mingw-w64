@@ -38,7 +38,7 @@ yes_no_sel () {
 }
 
 check_missing_packages () {
-  local check_packages=('cmp' 'bzip2' 'nvcc' 'rsync' 'sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'gperf' 'ruby' 'doxygen' 'xsltproc' 'autogen' 'rake' 'autopoint' 'wget' 'zip' 'gtkdocize' 'python-config' 'ant' 'sdl-config' 'sdl2-config' 'gyp' 'mm-common-prepare' 'sassc' 'nasm' 'ragel' 'gengetopt' 'asn1Parser' 'ronn' 'docbook2x-man'  'intltool-update' 'gtk-update-icon-cache' 'gdk-pixbuf-csource' 'interdiff' 'orcc' 'luac' 'makensis' 'swig' 'meson' 'scons' 'lzip' 'qmake' 'sqlite3')
+  local check_packages=('cmp' 'bzip2' 'nvcc' 'rsync' 'sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'gperf' 'ruby' 'doxygen' 'xsltproc' 'autogen' 'rake' 'autopoint' 'wget' 'zip' 'gtkdocize' 'python-config' 'ant' 'sdl-config' 'sdl2-config' 'gyp' 'mm-common-prepare' 'sassc' 'nasm' 'ragel' 'gengetopt' 'asn1Parser' 'ronn' 'docbook2x-man'  'intltool-update' 'gtk-update-icon-cache' 'gdk-pixbuf-csource' 'interdiff' 'orcc' 'luac' 'makensis' 'swig' 'meson' 'scons' 'lzip' 'sqlite3' 'zsh')
   for package in "${check_packages[@]}"; do
     type -P "$package" >/dev/null || missing_packages=("$package" "${missing_packages[@]}")
   done
@@ -932,49 +932,43 @@ build_qt() {
 #		download_and_unpack_file https://download.qt.io/archive/qt/${QT_BASE}/${QT_VERSION}/single/qt-everywhere-src-${QT_VERSION}.tar.xz "qt-everywhere-src-${QT_VERSION}"
 	        download_and_unpack_file https://fossies.org/linux/misc/qt-everywhere-src-5.15.2.tar.xz qt-everywhere-src-5.15.2
 		cd "qt-everywhere-src-${QT_VERSION}"
-			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0000-adjust-qmake-conf-mingw.patch
-			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0001-qt-5.8.0-fix-sql-libraries-mingw.patch
-			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0002-qt-5.8.0-configure-gcc-before-clang.patch
-			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0004-fix-linking-again-different-static-libs.patch
-			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0006-qt-5.3.0-win_flex-replace.patch
-			#apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0007-qt-5.3.0-win32-g-Enable-static-builds.patch
-			#apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0008-qt-5.3.0-win32-g-Add-QMAKE_EXTENSION_IMPORTLIB-defaulting-to-.patch
-			#apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0011-qt-5.8.0-mingw-dbus-and-pkg-config.patch
-			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0016-qt-5.8.0-win32-g%2B%2B-use-qpa-genericunixfontdatabase.patch
-			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0017-qt-5.3.0-fix-examples-building.patch
-			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0025-qt-5.8.0-force-using-make-on-msys.patch
-			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0028-qt-5.8.0-Revert-untangle-use-of-system-vs.-shell-path-list-se.patch
-			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0029-qt-5.8.0-Revert-fix-quoting-and-path-separators-in-qtPrepareT.patch
-			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0030-qt-5.3.1-workaround-ansidecl-h-PTR-define-conflict.patch
-			#apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0035-qt-5.3.2-dont-add-resource-files-to-qmake-libs.patch
-			#apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0036-qt-5.3.2-win32-qt5-static-cmake-link-ws2_32-and--static.patch
-			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0048-qt-5.4.2-win32-Avoid-platformNativeInterface-segfaults-with-minimal-platform.patch
-			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0049-qt-5.8.0-win32-do-not-use-fontconfig.patch
-			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0051-qt-5.9.1-disable-qtlocation-mapboxgl-plugin.patch
-			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0052-qt-5.11-mingw-fix-link-qdoc-with-clang.patch
-			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0054-win32-dont-need-flatpack-theme.patch
-			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0056-qt-5.11-static_icu.patch
-			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0057-fix-and-enable-iconv-codec.patch
-			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0060-activeqt-handle-win64-in-dumpcpp.patch
-			#apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0062-fix-static-build-big-resources.patch
-			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0063-enable-mingw-schannel-alpn.patch
-			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0125-qt5-windeployqt-fixes.patch
-			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0300-qt-5.8.0-cast-errors.patch
-			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0304-qtdeclarative-disable-dx12.patch
-			apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-qt5/0310-fix-assimp-not-found.patch
-			apply_patch file://${top_dir}/qt-imports.patch
-#			apply_patch file://${top_dir}/qt-unused.patch
-			_ARCH_TUNE="-march=nocona -mtune=core2"
-			_HARD_FLAGS=""
-#			_HARD_FLAGS="-Wl,--high-entropy-va,--nxcompat,--default-image-base-high"
-			BIGOBJ_FLAGS="-Wa,-mbig-obj"
-			LTCG_CFLAGS="" # Don't use link-time optimization yet
-			LTCG_LFLAGS=""
-#			LTCG_CFLAGS="-flto-partition=1to1 -flto -ffat-lto-objects"
-#			LTCG_LFLAGS="-flto-partition=1to1 -flto -ffat-lto-objects"
-			sed -i "s|^QMAKE_CFLAGS .*= \(.*\)$|QMAKE_CFLAGS            = \1 ${_ARCH_TUNE} ${BIGOBJ_FLAGS} ${LTCG_CFLAGS}|g" qtbase/mkspecs/win32-g++/qmake.conf
-			sed -i "s|^QMAKE_LFLAGS           +=\(.*\)$|QMAKE_LFLAGS            += \1 ${LTCG_LFLAGS} ${_HARD_FLAGS}|g" qtbase/mkspecs/common/gcc-base.conf
+			cd qtbase
+				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtbase/raw/rawhide/f/qt5-qtbase-mingw-profile.patch
+				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtbase/raw/rawhide/f/qt5-qtbase-external-angle.patch
+				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtbase/raw/rawhide/f/qt5-qtbase-qt5main.patch
+				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtbase/raw/rawhide/f/qt5-qtbase-dynamic-hostlib.patch
+				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtbase/raw/rawhide/f/qt5-qtbase-build-tools-rpath.patch
+				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtbase/raw/rawhide/f/qt5-qtbase-importlib-ext.patch
+				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtbase/raw/rawhide/f/qt5-qtbase-cmake-macros.patch
+				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtbase/raw/rawhide/f/qt5-qtbase-python3.patch
+				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtbase/raw/rawhide/f/qt5-qtbase-pkgconfig.patch
+				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtbase/raw/rawhide/f/qt5-qtbase-iconv.patch
+				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtbase/raw/rawhide/f/qt5-qtbase-zlib-cross.patch
+				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtbase/raw/rawhide/f/qt5-qtbase-static-linking.patch
+				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtbase/raw/rawhide/f/qt5-qtbase-fix-installing-pc-files.patch
+				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtbase/raw/rawhide/f/qt5-qtbase-prevent-debug-library-names-in-pkg-config-files.patch
+				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtbase/raw/rawhide/f/qt5-qtbase-no-relocatable.patch
+				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtbase/raw/rawhide/f/qt5-qtbase-spnego.patch
+				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtbase/raw/rawhide/f/qt5-qtbase-bootstrap.patch
+				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtbase/raw/rawhide/f/mingw-qt5-qtbase-gcc11.patch
+				rm -rfv src/3rdparty/angle include/QtANGLE/{EGL,GLES2,KHR}
+				rm -rfv src/3rdparty/{freetype,libjpeg,libpng,pcre2,zlib}
+			cd ..
+			cd qtdeclarative
+				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtdeclarative/raw/rawhide/f/0001-Build-QML-dev-tools-as-shared-library.patch
+				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtdeclarative/raw/rawhide/f/0002-Ensure-static-plugins-are-exported.patch
+				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtdeclarative/raw/rawhide/f/0003-Prevent-exporting-QML-parser-symbols-on-static-build.patch
+				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtdeclarative/raw/rawhide/f/0004-add-missing-include-gcc11.patch
+				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtdeclarative/raw/rawhide/f/0005-Disable-d3d12-requiring-fxc.exe.patch
+			cd ..
+			cd qttools
+				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qttools/raw/rawhide/f/qttools-fix-qaxwidget-build.patch
+				#pply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qttools/raw/rawhide/f/qttools-qt5-suffix.patch
+				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qttools/raw/rawhide/f/qttools-gcc11.patch
+			cd ..
+			apply_patch file://${top_dir}/qt5-qtcore-case.patch 
 		cd ..
+
 		mkdir qt-build
 		cd qt-build
 			unset CFLAGS
@@ -987,20 +981,23 @@ build_qt() {
 			export PKG_CONFIG=${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config
 			export PKG_CONFIG_LIBDIR=${mingw_w64_x86_64_prefix}/lib/pkgconfig
 			export PKG_CONFIG_SYSROOT_DIR=${mingw_w64_x86_64_prefix}/
-			do_configure "-xplatform win32-g++ -prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -opensource -no-ltcg -qt-freetype -confirm-license -accessibility -nomake examples -nomake tests -no-d3d12 -skip qtquickcontrols -skip qtwebglplugin -skip qt3d -skip qtandroidextras -skip qtcharts -skip qtconnectivity -skip qtdatavis3d -skip qtgamepad -skip qtimageformats -skip qtlocation -skip qtlottie -skip qtmacextras -skip qtnetworkauth -skip qtpurchasing -skip qtquick3d -skip qtquicktimeline -skip qtremoteobjects -skip qtscript -skip qtscxml -skip qtsensors -skip qtserialbus -skip qtserialport -skip qtspeech -skip qtvirtualkeyboard -skip qtwayland -skip qtwebchannel -skip qtwebengine -skip qtwebsockets -skip qtwinextras -skip qtx11extras -release -strip -openssl -opengl desktop -device-option CROSS_COMPILE=$cross_prefix -force-pkg-config -device-option PKG_CONFIG=x86_64-w64-mingw32-pkg-config -device-option PKG_CONFIG_LIBDIR=${mingw_w64_x86_64_prefix}/lib/pkgconfig -device-option PKG_CONFIG_SYSROOT_DIR=${mingw_w64_x86_64_prefix} -pkg-config -shared -no-static -no-use-gold-linker -v -skip qtactiveqt" "../qt-everywhere-src-${QT_VERSION}/configure"
+			../qt-everywhere-src-${QT_VERSION}/configure -xplatform mingw-w64-g++ -verbose -release -force-debug-info -prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -opensource -make tools -confirm-license -openssl -nomake examples -nomake tests -no-d3d12 -no-wmf -skip qtquickcontrols -skip qtwebglplugin -skip qt3d -skip qtandroidextras -skip qtcharts -skip qtconnectivity -skip qtdatavis3d -skip qtgamepad -skip qtimageformats -skip qtlocation -skip qtlottie -skip qtmacextras -skip qtnetworkauth -skip qtpurchasing -skip qtquick3d -skip qtquicktimeline -skip qtremoteobjects -skip qtscript -skip qtscxml -skip qtsensors -skip qtserialbus -skip qtserialport -skip qtspeech -skip qtvirtualkeyboard -skip qtwayland -skip qtwebchannel -skip qtwebengine -skip qtwebsockets -skip qtx11extras -opengl desktop -device-option CROSS_COMPILE=$cross_prefix -pkg-config -sql-sqlite -device-option PKG_CONFIG=x86_64-w64-mingw32-pkg-config -device-option PKG_CONFIG_LIBDIR=${mingw_w64_x86_64_prefix}/lib/pkgconfig -device-option PKG_CONFIG_SYSROOT_DIR=${mingw_w64_x86_64_prefix} -no-feature-relocatable -shared -skip qtactiveqt || exit 1
+			export old_ld_library_path=${LD_LIBRARY_PATH}
+			export LD_LIBRARY_PATH=$PWD/qtbase/lib
 			do_make || exit 1
 			do_make_install || exit 1
+			export LD_LIBRARY_PATH=${old_ld_library_path}
 		cd ..
 		touch "qt.built"
 	else
 		echo "Skipping QT build... already completed."
 	fi
 	# Remove any debug versions around
-	rm -v ${mingw_w64_x86_64_prefix}/bin/Qt5*d.dll
-	ln -sv ${mingw_w64_x86_64_prefix}/include/QtCore/${QT_VERSION}/QtCore/private ${mingw_w64_x86_64_prefix}/include/QtCore/private
-	ln -sv ${mingw_w64_x86_64_prefix}/bin/Qt*.dll ${mingw_w64_x86_64_prefix}/../bin
-	ln -sv ${mingw_w64_x86_64_prefix}/plugins ${mingw_w64_x86_64_prefix}/../plugins
-	sed -i.bak 's! /libQt5Core\.a! -lQt5Core!' ${mingw_w64_x86_64_prefix}/lib/qtmain.prl
+#	rm -v ${mingw_w64_x86_64_prefix}/bin/Qt5*d.dll
+#	ln -sv ${mingw_w64_x86_64_prefix}/include/QtCore/${QT_VERSION}/QtCore/private ${mingw_w64_x86_64_prefix}/include/QtCore/private
+#	ln -sv ${mingw_w64_x86_64_prefix}/bin/Qt*.dll ${mingw_w64_x86_64_prefix}/../bin
+#	ln -sv ${mingw_w64_x86_64_prefix}/plugins ${mingw_w64_x86_64_prefix}/../plugin#s
+#	sed -i.bak 's! /libQt5Core\.a! -lQt5Core!' ${mingw_w64_x86_64_prefix}/lib/qtmain.prl
 }
 
 build_qt_old() {
@@ -1679,7 +1676,7 @@ build_dcpomatic() {
   do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic edbccd8d04a33f9e8d03677d8ebc671f40b0f822 #v2.15.x # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
 #  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.123" dcpomatic-2.15.123
   cd dcpomatic
-#    apply_patch file://${top_dir}/dcpomatic-wscript.patch
+    apply_patch file://${top_dir}/dcpomatic-wscript.patch
 #    apply_patch file://${top_dir}/dcpomatic-audio_ring_buffers.h.patch
 ##    apply_patch file://${top_dir}/dcpomatic-ffmpeg.patch
     apply_patch file://${top_dir}/dcpomatic-boost.patch
@@ -1702,7 +1699,7 @@ build_dcpomatic() {
     export CFLAGS="-fpermissive" # -DBOOST_ASIO_DISABLE_STD_FUTURE=1"
     export CXXFLAGS="-fpermissive"
     env
-    do_configure "configure WINRC=x86_64-w64-mingw32-windres CXX=x86_64-w64-mingw32-g++ -v -pp --static-dcpomatic --prefix=${mingw_w64_x86_64_prefix} --target-windows --check-cxx-compiler=gxx --disable-tests" "./waf"
+    do_configure "configure WINRC=x86_64-w64-mingw32-windres CXX=x86_64-w64-mingw32-g++ -v -pp --prefix=${mingw_w64_x86_64_prefix} --target-windows --check-cxx-compiler=gxx --disable-tests" "./waf"
     ./waf build -v || exit 1
     ./waf install || exit 1
     # Now put the graphics in the correct place
@@ -1960,6 +1957,13 @@ build_libgsm() {
   cd ..
 }
 
+build_libcelt() {
+	do_git_checkout https://gitlab.xiph.org/xiph/celt.git celt
+	cd celt
+		generic_configure_make_install
+	cd ..
+}
+
 build_libopus() {
 #  download_and_unpack_file http://downloads.xiph.org/releases/opus/opus-1.2-alpha.tar.gz opus-1.2-alpha
   do_git_checkout https://github.com/xiph/opus.git opus
@@ -2073,6 +2077,12 @@ build_portaudio_with_jack_cmake() {
 	cd ..
 }
 
+build_portaudio_with_jack_cpp() {
+	cd portaudio/bindings/cpp
+		generic_configure_make_install "--disable-libtool-lock"
+	cd -
+}
+
 build_portaudio_with_jack() {
 #  download_and_unpack_file http://www.portaudio.com/archives/pa_stable_v19_20140130.tgz portaudio
   do_git_checkout https://git.assembla.com/portaudio.git portaudio_with_jack
@@ -2124,7 +2134,7 @@ build_jack() {
       export CXXFLAGS_ORIG=${CXXFLAGS}
       export CXXFLAGS="-DMINGW_HAS_SECURE_API=1 -D__USE_MINGW_ANSI_STDIO=1"
 #      export cpu_count=1
-      do_configure "configure --prefix=${mingw_w64_x86_64_prefix} --platform=win32 -ppp" "./waf"
+      do_configure "configure --prefix=${mingw_w64_x86_64_prefix} --platform=win32 --celt=no -ppp" "./waf"
       ./waf build || exit 1
       ./waf install || exit 1
       # The Jack development libraries are now in /bin. They should be in /lib
@@ -2292,9 +2302,10 @@ build_ncurses() {
     wget http://invisible-island.net/datafiles/current/terminfo.src.gz
     gunzip terminfo.src.gz
   fi
-  download_and_unpack_file ftp://ftp.invisible-island.net/ncurses/current/ncurses-6.2-20201107.tgz ncurses-6.2-20201107
+  do_git_checkout https://github.com/ThomasDickey/ncurses-snapshots.git ncurses
+  #download_and_unpack_file ftp://ftp.invisible-island.net/ncurses/current/ncurses-6.2-20201107.tgz ncurses-6.2-20201107
  # generic_configure "--build=x86_64-pc-linux --host=x86_64-w64-mingw32 --with-libtool --disable-termcap --enable-widec --enable-term-driver --enable-sp-funcs --without-ada --with-debug=no --with-shared=yes --with-normal=no --enable-database --with-progs --enable-interop --with-pkg-config-libdir=${mingw_w64_x86_64_prefix}/lib/pkgconfig --enable-pc-files"
-  cd ncurses-6.2-20201107
+  cd ncurses
 #    apply_patch file://${top_dir}/ncurses-rx.patch
 #    rm configure
     generic_configure "LIBS=-lgnurx --build=x86_64-pc-linux --host=x86_64-w64-mingw32 --disable-termcap --enable-widec --enable-term-driver --enable-sp-funcs --without-ada --without-cxx-binding --with-debug=no --with-shared=yes --with-normal=no --enable-database --with-probs --enable-interop --with-pkg-config-libdir=${mingw_w64_x86_64_prefix}/lib/pkgconfig --enable-pc-files --disable-static --enable-shared"
@@ -4164,6 +4175,20 @@ build_libmodplug() {
   sed -i.bak 's/__declspec(dllimport)//' "$mingw_w64_x86_64_prefix/include/libmodplug/modplug.h"
 }
 
+build_libopenmpt() {
+	download_and_unpack_file https://lib.openmpt.org/files/libopenmpt/src/libopenmpt-0.5.7+release.autotools.tar.gz libopenmpt-0.5.7+release.autotools
+	cd libopenmpt-0.5.7+release.autotools
+		generic_configure_make_install "--without-portaudiocpp"
+	cd ..
+}
+
+build_mpg123() {
+	download_and_unpack_file https://downloads.sourceforge.net/project/mpg123/mpg123/1.26.5/mpg123-1.26.5.tar.bz2 mpg123-1.26.5
+	cd mpg123-1.26.5
+		generic_configure_make_install "--enable-debug=no --enable-xdebug=no --enable-gapless --enable-ipv6 --enable-network --enable-16bit --enable-8bit --enable-32bit --enable-real --enable-equalizer --enable-cases --with-audio=win32_wasapi,win32,dummy --with-optimization=4"
+	cd ..
+}
+
 build_libcaca() {
   local cur_dir2=$(pwd)/libcaca
 #  do_git_checkout https://github.com/cacalabs/libcaca libcaca
@@ -4298,8 +4323,8 @@ build_mkvtoolnix() {
     #apply_patch file://${top_dir}/mkvtoolnix-qt5-2.patch
     #apply_patch file://${top_dir}/mkvtoolnix-stack.patch
     #rm -vf src/info/sys_windows.cpp
-    apply_patch file://${top_dir}/mkvtoolnix-version.patch
-    apply_patch file://${top_dir}/mkvtoolnix-tests.patch
+#    apply_patch file://${top_dir}/mkvtoolnix-version.patch
+#    apply_patch file://${top_dir}/mkvtoolnix-tests.patch
     generic_configure "--with-boost=${mingw_w64_x86_64_prefix} --with-boost-system=boost_system-mt-x64 --with-boost-filesystem=boost_filesystem-mt-x64 --with-boost-date-time=boost_date_time-mt-x64 --with-boost-regex=boost_regex-mt-x64 --enable-qt --enable-static-qt=no --disable-static-qt --enable-optimization=yes --enable-debug=no"
     # Now we must prevent inclusion of sys_windows.cpp because our build uses shared libraries,
     # and this piece of code unfortunately tries to pull in a static version of the Windows Qt
@@ -4855,8 +4880,8 @@ build_pixman() {
 #  cd pixman
 #    generic_configure_make_install
 #  cd ..
-  generic_download_and_install https://www.cairographics.org/releases/pixman-0.34.0.tar.gz pixman-0.34.0
-  cd pixman-0.34.0
+  generic_download_and_install https://www.cairographics.org/releases/pixman-0.40.0.tar.gz pixman-0.40.0
+  cd pixman-0.40.0
 
   cd ..
 }
@@ -4874,8 +4899,15 @@ build_cairo() {
      rm -v autogen.sh configure
      apply_patch file://${top_dir}/cairo-fortify.patch
      generic_configure_make_install "--disable-silent-rules --enable-win32 --enable-win32-font --enable-gobject --enable-tee --enable-pdf --enable-ps --enable-svg --disable-dependency-tracking"
-
   cd ..
+
+  download_and_unpack_file http://cairographics.org/snapshots/cairo-1.17.4.tar.xz cairo-1.17.4
+  cd cairo-1.17.4
+  	rm -v autogen.sh configure
+	apply_patch file://${top_dir}/cairo-1.17-fortify.patch
+	generic_configure_make_install "--disable-silent-rules --enable-win32 --enable-win32-font --enable-gobject --enable-tee --enable-pdf --enable-ps --enable-svg --disable-dependency-tracking"
+  cd ..
+
 #  do_git_checkout git://anongit.freedesktop.org/git/cairo cairo
 #  cd cairo
 #    cp -v ${top_dir}/private-strndup.h ${mingw_w64_x86_64_prefix}/include/private-strndup.h || exit 1
@@ -5770,6 +5802,7 @@ build_vlc() {
     export LIVE555_CFLAGS="-I${mingw_w64_x86_64_prefix}/include/liveMedia -I${mingw_w64_x86_64_prefix}/include/UsageEnvironment -I${mingw_w64_x86_64_prefix}/include/BasicUsageEnvironment -I${mingw_w64_x86_64_prefix}/include/groupsock"
     export DSM_LIBS="-lws2_32 -ldsm"
     export AOM_LIBS="-laom -lpthread -lm"
+    export SRT_LIBS="-lws2_32 -lsrt"
     export BUILDCC=/usr/bin/gcc
     #export cpu_count=1
     generic_configure_make_install "--enable-qt --disable-medialibrary --disable-dvbpsi --disable-gst-decode --disable-asdcp --disable-ncurses --disable-opencv --disable-dbus --disable-sdl --disable-telx --disable-silent-rules --disable-pulse JACK_LIBS=-ljack64 JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib LIVE555_LIBS=-llivemedia ASDCP_LIBS=lasdcp ASDCP_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/asdcp"
@@ -5909,12 +5942,18 @@ build_mimedb() {
 }
 
 build_qjackctl() {
-  do_git_checkout https://github.com/rncbc/qjackctl.git qjackctl #e76e58ea6e67b74ab1fcc539a4d1f18ea0686144 # b2ae94121d368bb2498a3fa09173e99263fe8c39 # 568b076f1ddd0fcb18a78828e0e5b833e52fd7a1
+  do_git_checkout https://github.com/rncbc/qjackctl.git qjackctl a8288d2cb1630805144df12af72e3b607d8b3817 #e76e58ea6e67b74ab1fcc539a4d1f18ea0686144 # b2ae94121d368bb2498a3fa09173e99263fe8c39 # 568b076f1ddd0fcb18a78828e0e5b833e52fd7a1
   cd qjackctl
-    apply_patch file://${top_dir}/qjackctl-configure.ac.patch
+  	apply_patch file://${top_dir}/qjackctl-translation.patch
+#  cd ..
+#  cd qjackctl/src
+#    apply_patch file://${top_dir}/qjackctl-configure.ac.patch
+#	do_cmake .
     generic_configure_make_install "JACK_LIBS=-ljack64 LIBS=-lportaudio CFLAGS=-D_GNU_SOURCE CXXFLAGS=-D_GNU_SOURCE --enable-xunique=no --disable-alsa-seq" # enable-jack-version=yes
     # make install doesn't work
-    cp -vf src/release/qjackctl.exe ${mingw_w64_x86_64_prefix}/bin
+#    	do_make_install
+	
+    cp -vf release/qjackctl.exe ${mingw_w64_x86_64_prefix}/bin
   cd ..
 }
 
@@ -5938,7 +5977,7 @@ build_glslang() {
         #apply_patch file://${top_dir}/glslang-threads.patch
     #    apply_patch file://${top_dir}/glslang-shared.patch
     	apply_patch file://${top_dir}/glslang-secure.patch
-        do_cmake_static "-DCMAKE_BUILD_TYPE=Release -DCMAKE_VERBOSE_MAKEFILE=YES"
+        do_cmake_static "-DBUILD_SHARED_LIBS=ON -DENABLE_HLSL=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_VERBOSE_MAKEFILE=YES"
         do_make "V=1"
         do_make_install
     cd ..
@@ -6732,6 +6771,18 @@ build_avisynthplus() {
 	cd ..
 }
 
+build_libopenvino() {
+	do_git_checkout https://github.com/openvinotoolkit/openvino.git openvino
+	cd openvino
+		git submodule update --init --recursive
+		mkdir build
+		cd build
+			do_cmake .. "-DENABLE_MKL_DNN=ON -DENABLE_GNA=OFF -DENABLE_CLDNN=OFF -DENABLE_MYRIAD=OFF -DENABLE_VPU=OFF -DENABLE_OPENCV=OFF"
+			do_make_install
+		cd ..
+	cd ..
+}
+
 build_liblensfun() {
 	do_git_checkout https://github.com/lensfun/lensfun.git lensfun
 	cd lensfun
@@ -6764,39 +6815,69 @@ build_xygrib() {
 	cd ..
 }
 
+build_rabbitmq() {
+	do_git_checkout https://github.com/alanxz/rabbitmq-c.git rabbitmq-c
+	cd rabbitmq-c
+		apply_patch file://${top_dir}/rabbitmq-libs.patch
+		do_cmake . "-DBUILD_TESTS=OFF"
+		do_make_install
+	cd ..
+	cp -vL ${mingw_w64_x86_64_prefix}/lib/librabbitmq.4.dll.a ${mingw_w64_x86_64_prefix}/lib/librabbitmq.dll.a
+	cp -vL ${mingw_w64_x86_64_prefix}/bin/librabbitmq.4.dll ${mingw_w64_x86_64_prefix}/bin/librabbitmq.dll
+}
+
+build_rist() {
+	do_git_checkout https://code.videolan.org/rist/librist.git librist
+	cd librist
+		generic_meson_ninja_install
+	cd ..
+}
+
+build_srt() {
+	download_and_unpack_file https://github.com/Haivision/srt/archive/refs/tags/v1.4.2.tar.gz srt-1.4.2
+	cd srt-1.4.2
+		do_cmake .
+		do_make_install
+	cd ..
+}
+
+build_libvmaf() {
+	do_git_checkout https://github.com/Netflix/vmaf.git vmaf
+	cd vmaf/libvmaf
+		generic_meson_ninja_install
+	cd ../..
+}
+
+
+build_uavs3d() {
+	do_git_checkout https://github.com/uavs3/uavs3d.git uavs3d
+	cd uavs3d
+		do_cmake .
+		do_make_install
+	cd ..
+}
+
+build_librsvg() {
+	download_and_unpack_file https://github.com/GNOME/librsvg/archive/refs/tags/2.50.3.tar.gz librsvg-2.50.3
+	cd librsvg-2.50.3
+		export RUST_TARGET=x86_64-uwp-windows-gnu
+#		apply_patch file://${top_dir}/librsvg-introspection.patch
+		generic_configure_make_install "--disable-pixbuf-loader --disable-introspection --disable-vala"
+		unset RUST_TARGET
+	cd ..
+}
 
 build_ffmpeg() {
-  local type=$1
-  local shared=$2
-  local git_url="https://git.ffmpeg.org/ffmpeg.git" # "https://github.com/mpv-player/ffmpeg-mpv.git"
-  local output_dir="ffmpeg_git"
-
-  # FFmpeg + libav compatible options
-  # add libpsapi to enable libdlfcn for Windows to work, thereby enabling frei0r plugins
-  local extra_configure_opts="--enable-libsoxr --enable-fontconfig --enable-libass --enable-libbluray --enable-iconv --enable-libtwolame --enable-libzvbi --enable-libcaca --enable-libmodplug --extra-libs=-lstdc++ --extra-libs=-lpsapi --enable-opengl --extra-libs=-lz --extra-libs=-lpng --enable-libvidstab --enable-decklink --extra-libs=-loleaut32 --enable-libcdio --enable-libzimg --enable-chromaprint --enable-libsnappy --enable-libx265 --enable-lv2 --enable-omx --enable-vulkan --enable-libklvanc --logfile=/dev/tty"
-
-# The -Wno-narrowing is because libutvideo triggers a compiler strictness with the narrowing of a constant inside a curly-bracketed declaration
-  extra_configure_opts="$extra_configure_opts --extra-cflags=$CFLAGS --extra-version=COMPILED_BY_JohnWarburton --extra-cxxflags=-Wno-narrowing" # extra-cflags is not needed, but adds it to the console output which I lke
-
-  # can't mix and match --enable-static --enable-shared unfortunately, or the final executable seems to just use shared if the're both present
-  if [[ $shared == "shared" ]]; then
-    output_dir=${output_dir}_shared
-    do_git_checkout $git_url ${output_dir} #42e68fe01587b541c9ced34906b09e3c9c894e74
-    final_install_dir=`pwd`/${output_dir}.installed
-    extra_configure_opts="--enable-shared --disable-static $extra_configure_opts"
-    # avoid installing this to system?
-    extra_configure_opts="$extra_configure_opts --prefix=$final_install_dir"
-  else
-    do_git_checkout $git_url $output_dir #f52dd8a55a98418b6301cce4a56d2b73d08b7eea # 2f7ca0b94e49c2bfce8bda3f883766101ebd7a9b
-    extra_configure_opts="--enable-shared --disable-static --disable-debug --disable-stripping $extra_configure_opts" # --pkg-config-flags=--static
-  fi
-  cd $output_dir
-
-  if [ "$bits_target" = "32" ]; then
-   local arch=x86
-  else
-   local arch=x86_64
-  fi
+	do_git_checkout https://git.ffmpeg.org/ffmpeg.git ffmpeg_git
+	local standard_options="--prefix=$mingw_w64_x86_64_prefix --logfile=/dev/tty"
+	local licensing_options="--enable-nonfree --enable-version3 --enable-gpl"
+	local configuration_options="--disable-static --enable-shared --enable-runtime-cpudetect --enable-gray --disable-w32threads"
+	local component_options="--enable-filter=frei0r --enable-decoder=aac"
+	local library_options="--enable-avisynth --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcelt --enable-libcdio --enable-libcodec2 --enable-libdc1394 --enable-libfdk-aac --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-gnutls --enable-libgsm --enable-libilbc --enable-libjack --enable-libklvanc --enable-liblensfun --enable-libmodplug --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopencv --enable-libopenmpt --enable-libopus --enable-librabbitmq --enable-librist --enable-librubberband --enable-librtmp --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libtesseract --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxavs2 --enable-libxvid --enable-libxml2 --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 --enable-decklink --enable-libmysofa --enable-opencl --enable-opengl --enable-vulkan"
+	local hardware_options="--enable-cuda-nvcc --enable-libmfx"
+	local toolchain_options="--arch=x86_64 --cross-prefix=$cross_prefix --enable-cross-compile --target-os=mingw32 --extra-version=Compiled_by_John_Warburton --enable-pic"
+	local developer_options="--disable-debug --enable-stripping"
+	cd ffmpeg_git
 
 #  apply_patch file://${top_dir}/ffmpeg-amix.patch
 # --extra-cflags=$CFLAGS, though redundant, just so that FFmpeg lists what it used in its "info" output
@@ -6806,38 +6887,22 @@ build_ffmpeg() {
 #  apply_patch file://${top_dir}/lavfi-vfstack-reverse.patch
 #  apply_patch_p1 file://${top_dir}/ffmpeg-decklink-teletext-1-reverse.patch
 #  apply_patch_p1 file://${top_dir}/ffmpeg-decklink-teletext-2-reverse.patch
-  apply_patch file://${top_dir}/ffmpeg-bs2b.patch
+		apply_patch file://${top_dir}/ffmpeg-bs2b.patch
+		apply_patch file://${top_dir}/ffmpeg-freetype.patch
 #  apply_patch file://${top_dir}/ffmpeg-preprocessor.patch
 
-  config_options="--arch=$arch --target-os=mingw32 --cross-prefix=$cross_prefix --pkg-config=pkg-config --enable-libjack --enable-gray --enable-liblensfun --disable-doc --enable-libxml2 --enable-opencl --enable-gpl --enable-libtesseract --enable-libx264 --enable-avisynth --enable-libxvid --enable-libmp3lame --enable-libmysofa --enable-version3 --enable-zlib --enable-librtmp --enable-libvorbis --enable-libtheora --enable-libspeex --enable-libopenjpeg --enable-gnutls --enable-libgsm --enable-libfreetype --enable-libopus --disable-w32threads --enable-libcodec2 --enable-frei0r --enable-filter=frei0r --enable-bzlib --enable-libxavs --enable-libxavs2 --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-libvpx --enable-libilbc --enable-libwebp --enable-libgme --enable-libbs2b --enable-libmfx --enable-librubberband --enable-dxva2 --enable-d3d11va --enable-nvenc --enable-nonfree --enable-libfdk-aac --enable-libflite --enable-decoder=aac --enable-libaom --enable-runtime-cpudetect --enable-cuda-nvcc --prefix=$mingw_w64_x86_64_prefix $extra_configure_opts" # $CFLAGS # other possibilities: --enable-w32threads --enable-libflite
-  # sed -i 's/openjpeg-1.5/openjpeg-2.1/' configure # change library path for updated libopenjpeg
-  export PKG_CONFIG="pkg-config" # --static
-  export LDFLAGS="" # "-static"
-#  apply_patch file://${top_dir}/ffmpeg-x264-depth-1.patch
-#  apply_patch file://${top_dir}/ffmpeg-x264-depth-2.patch
-  do_configure "$config_options"
- # apply_patch file://${top_dir}/ffmpeg-configmak.patch
-  unset PKG_CONFIG
-  unset LDFLAGS
-  rm -f */*.a */*.dll *.exe # just in case some dependency library has changed, force it to re-link even if the ffmpeg source hasn't changed...
-  rm already_ran_make*
-  echo "doing ffmpeg make $(pwd)"
-  do_make "V=0"
-  do_make_install "V=0" # install ffmpeg to get libavcodec libraries to be used as dependencies for other things, like vlc [XXX make this a parameter?] or install shared to a local dir
-
+		do_configure "${standard_options} ${licensing_options} ${configuration_options} ${component_options} ${library_options} ${hardware_options} ${toolchain_options} ${developer_options}"
+#  rm -f */*.a */*.dll *.exe # just in case some dependency library has changed, force it to re-link even if the ffmpeg source hasn't changed...
+#  rm already_ran_make*
+		echo "doing ffmpeg make $(pwd)"
+		do_make_install "V=0"
   # build ismindex.exe, too, just for fun
-  make tools/ismindex.exe
+		make tools/ismindex.exe
 
-  sed -i.bak 's/-lavutil -lm.*/-lavutil -lm -lpthread/' "$PKG_CONFIG_PATH/libavutil.pc" # XXX patch ffmpeg itself
-  sed -i.bak 's/-lswresample -lm.*/-lswresample -lm -lsoxr/' "$PKG_CONFIG_PATH/libswresample.pc" # XXX patch ffmpeg
-  echo "FFmpeg binaries are built."
-  CFLAGS=${orig_cflags}
-  # do_make_clean
-  cd ..
-  # Put back the x265.exe executable we hid earlier. I do not know why FFmpeg becomes linked against it otherwise!
-  # NO don't put it back. Windows still finds x265.exe even though the compiler didn't see that binary at link time.
-  # NO idea what is going on.
-  # mv -v $mingw_w64_x86_64_prefix/bin/MOVEDx265.MOVEDexe $mingw_w64_x86_64_prefix/bin/x265.exe
+		sed -i.bak 's/-lavutil -lm.*/-lavutil -lm -lpthread/' "$PKG_CONFIG_PATH/libavutil.pc" # XXX patch ffmpeg itself
+		sed -i.bak 's/-lswresample -lm.*/-lswresample -lm -lsoxr/' "$PKG_CONFIG_PATH/libswresample.pc" # XXX patch ffmpeg
+		echo "FFmpeg binaries are built."
+	cd ..
 }
 
 build_dvdstyler() {
@@ -6918,6 +6983,7 @@ build_dependencies() {
   build_libopus
   build_libopencore
   build_libogg
+  build_libcelt
   #build_fmt
 #  build_icu
   build_boost # needed for mkv tools
@@ -6973,6 +7039,7 @@ build_dependencies() {
   build_asdcplib
   build_lame
   build_vidstab
+  build_mpg123
   build_libcaca
   build_libmodplug # ffmepg and vlc can use this
   build_zvbi
@@ -7049,7 +7116,9 @@ build_dependencies() {
   build_portaudio_without_jack_cmake
   build_jack
   build_portaudio_with_jack_cmake
+#  build_portaudio_with_jack_cpp
 #  build_openblas # Not until we make a Fortran compiler
+  build_libopenmpt
   build_opencv
   build_frei0r
   build_libjson
@@ -7147,6 +7216,12 @@ build_dependencies() {
   build_gctpc
   build_avisynthplus
   build_liblensfun
+  build_rabbitmq
+  build_rist
+  build_srt
+  build_libvmaf
+  #build_uavs3d
+#  build_librsvg
 }
 
 build_apps() {
@@ -7178,7 +7253,7 @@ build_apps() {
   build_lsdvd
   build_fdkaac-commandline
 #  build_cdrecord
-  build_qt_old
+  build_qt
 #build_qt6
   #build_kf5_config
   #build_kf5_coreaddons
@@ -7370,6 +7445,8 @@ cd ${cur_dir}/x86_64-w64-mingw32/x86_64-w64-mingw32/include
   ln -s windows.h Windows.h
   ln -s audioclient.h Audioclient.h
   ln -s winsock2.h WinSock2.h
+  ln -s winsock2.h Winsock2.h
+  ln -s winsock.h Winsock.h
   ln -s cfgmgr32.h Cfgmgr32.h
   ln -s devpkey.h Devpkey.h
   ln -s propkey.h Propkey.h

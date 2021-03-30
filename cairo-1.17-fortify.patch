@@ -1,0 +1,11 @@
+--- build/configure.ac.warnings.orig	2021-03-27 13:48:20.920000000 +0000
++++ build/configure.ac.warnings	2021-03-27 13:48:55.150000000 +0000
+@@ -39,7 +39,7 @@
+ MAYBE_WARN="$MAYBE_WARN -fno-strict-aliasing -fno-common"
+ 
+ dnl Also to turn various gcc/glibc-specific preprocessor checks
+-MAYBE_WARN="$MAYBE_WARN -Wp,-D_FORTIFY_SOURCE=2"
++dnl MAYBE_WARN="$MAYBE_WARN -Wp,-D_FORTIFY_SOURCE=2"
+ 
+ # invalidate cached value if MAYBE_WARN has changed
+ if test "x$cairo_cv_warn_maybe" != "x$MAYBE_WARN"; then

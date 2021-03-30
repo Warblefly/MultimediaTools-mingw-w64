@@ -1,0 +1,90 @@
+--- qtdeclarative/src/qml/compiler/qqmlirbuilder.cpp.orig	2020-10-27 09:02:12.000000000 +0100
++++ qtdeclarative/src/qml/compiler/qqmlirbuilder.cpp	2020-11-23 16:49:01.951067257 +0100
+@@ -37,6 +37,7 @@
+ **
+ ****************************************************************************/
+ 
++#include <limits>
+ #include "qqmlirbuilder_p.h"
+ 
+ #include <private/qv4staticvalue_p.h>
+diff -rupN --no-dereference qtdeclarative-everywhere-src-5.15.2/src/qml/compiler/qv4codegen.cpp qtdeclarative-everywhere-src-5.15.2-new/src/qml/compiler/qv4codegen.cpp
+--- qtdeclarative/src/qml/compiler/qv4codegen.cpp.orig	2020-10-27 09:02:12.000000000 +0100
++++ qtdeclarative/src/qml/compiler/qv4codegen.cpp	2020-11-23 16:49:01.952067256 +0100
+@@ -37,6 +37,7 @@
+ **
+ ****************************************************************************/
+ 
++#include <limits>
+ #include "qv4codegen_p.h"
+ #include "qv4util_p.h"
+ 
+diff -rupN --no-dereference qtdeclarative-everywhere-src-5.15.2/src/qml/compiler/qv4compilercontext.cpp qtdeclarative-everywhere-src-5.15.2-new/src/qml/compiler/qv4compilercontext.cpp
+--- qtdeclarative/src/qml/compiler/qv4compilercontext.cpp.orig	2020-10-27 09:02:12.000000000 +0100
++++ qtdeclarative/src/qml/compiler/qv4compilercontext.cpp	2020-11-23 16:49:01.952067256 +0100
+@@ -37,6 +37,7 @@
+ **
+ ****************************************************************************/
+ 
++#include <limits>
+ #include "qv4compilercontext_p.h"
+ #include "qv4compilercontrolflow_p.h"
+ #include "qv4bytecodegenerator_p.h"
+diff -rupN --no-dereference qtdeclarative-everywhere-src-5.15.2/src/qml/compiler/qv4compiler.cpp qtdeclarative-everywhere-src-5.15.2-new/src/qml/compiler/qv4compiler.cpp
+--- qtdeclarative/src/qml/compiler/qv4compiler.cpp.orig	2020-10-27 09:02:12.000000000 +0100
++++ qtdeclarative/src/qml/compiler/qv4compiler.cpp	2020-11-23 16:49:01.952067256 +0100
+@@ -37,6 +37,7 @@
+ **
+ ****************************************************************************/
+ 
++#include <limits>
+ #include <qv4compiler_p.h>
+ #include <qv4codegen_p.h>
+ #include <private/qv4compileddata_p.h>
+diff -rupN --no-dereference qtdeclarative-everywhere-src-5.15.2/src/qml/compiler/qv4compilerscanfunctions.cpp qtdeclarative-everywhere-src-5.15.2-new/src/qml/compiler/qv4compilerscanfunctions.cpp
+--- qtdeclarative/src/qml/compiler/qv4compilerscanfunctions.cpp.orig	2020-10-27 09:02:12.000000000 +0100
++++ qtdeclarative/src/qml/compiler/qv4compilerscanfunctions.cpp	2020-11-23 16:49:01.952067256 +0100
+@@ -37,6 +37,8 @@
+ **
+ ****************************************************************************/
+ 
++#include <limits>
++
+ #include "qv4compilerscanfunctions_p.h"
+ 
+ #include <QtCore/QCoreApplication>
+diff -rupN --no-dereference qtdeclarative-everywhere-src-5.15.2/tools/qmlcachegen/generateloader.cpp qtdeclarative-everywhere-src-5.15.2-new/tools/qmlcachegen/generateloader.cpp
+--- qtdeclarative/tools/qmlcachegen/generateloader.cpp.orig	2020-10-27 09:02:12.000000000 +0100
++++ qtdeclarative/tools/qmlcachegen/generateloader.cpp	2020-11-23 16:49:01.953067255 +0100
+@@ -25,6 +25,8 @@
+ ** $QT_END_LICENSE$
+ **
+ ****************************************************************************/
++#include <limits>
++
+ #include <QByteArray>
+ #include <QRegExp>
+ #include <QString>
+diff -rupN --no-dereference qtdeclarative-everywhere-src-5.15.2/tools/qmlimportscanner/main.cpp qtdeclarative-everywhere-src-5.15.2-new/tools/qmlimportscanner/main.cpp
+--- qtdeclarative/tools/qmlimportscanner/main.cpp.orig	2020-10-27 09:02:12.000000000 +0100
++++ qtdeclarative/tools/qmlimportscanner/main.cpp	2020-11-23 16:49:01.953067255 +0100
+@@ -26,6 +26,7 @@
+ **
+ ****************************************************************************/
+ 
++#include <limits>
+ #include <private/qqmljslexer_p.h>
+ #include <private/qqmljsparser_p.h>
+ #include <private/qqmljsast_p.h>
+diff -rupN --no-dereference qtdeclarative-everywhere-src-5.15.2/tools/qmllint/findunqualified.cpp qtdeclarative-everywhere-src-5.15.2-new/tools/qmllint/findunqualified.cpp
+--- qtdeclarative/tools/qmllint/findunqualified.cpp.orig	2020-10-27 09:02:12.000000000 +0100
++++ qtdeclarative/tools/qmllint/findunqualified.cpp	2020-11-23 16:49:01.953067255 +0100
+@@ -26,6 +26,7 @@
+ **
+ ****************************************************************************/
+ 
++#include <limits>
+ #include "findunqualified.h"
+ #include "importedmembersvisitor.h"
+ #include "scopetree.h"
+ 

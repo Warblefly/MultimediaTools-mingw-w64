@@ -1,0 +1,19 @@
+--- configure.ac.orig	2021-03-27 14:04:08.880000000 +0000
++++ configure.ac	2021-03-27 14:04:26.360000000 +0000
+@@ -305,16 +305,6 @@
+ fi
+ AC_SUBST([RUST_TARGET_SUBDIR])
+ 
+-dnl ===========================================================================
+-dnl Build introspectable bindings
+-
+-# No automagic please!
+-if test -z "$enable_introspection"; then
+-  enable_introspection=yes
+-fi
+-
+-GOBJECT_INTROSPECTION_CHECK([0.10.8])
+-
+ # Vala bindings
+ VAPIGEN_CHECK([0.17.1.26],,,[no])
+ 

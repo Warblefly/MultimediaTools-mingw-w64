@@ -1,0 +1,11 @@
+--- configure.orig	2021-03-30 09:05:37.120000000 +0100
++++ configure	2021-03-30 09:06:16.260000000 +0100
+@@ -6364,7 +6364,7 @@
+ enabled libflite          && require libflite "flite/flite.h" flite_init $flite_extralibs
+ enabled fontconfig        && enable libfontconfig
+ enabled libfontconfig     && require_pkg_config libfontconfig fontconfig "fontconfig/fontconfig.h" FcInit
+-enabled libfreetype       && require_pkg_config libfreetype freetype2 "ft2build.h FT_FREETYPE_H" FT_Init_FreeType
++enabled libfreetype       && require_pkg_config libfreetype freetype2 "freetype2/ft2build.h FT_FREETYPE_H" FT_Init_FreeType
+ enabled libfribidi        && require_pkg_config libfribidi fribidi fribidi.h fribidi_version_info
+ enabled libglslang        && require_cpp libglslang glslang/SPIRV/GlslangToSpv.h "glslang::TIntermediate*" -lglslang -lMachineIndependent -lOSDependent -lHLSL -lOGLCompiler -lGenericCodeGen -lSPVRemapper -lSPIRV -lSPIRV-Tools-opt -lSPIRV-Tools -lpthread -lstdc++
+ enabled libgme            && { check_pkg_config libgme libgme gme/gme.h gme_new_emu ||
