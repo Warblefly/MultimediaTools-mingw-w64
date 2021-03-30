@@ -5953,7 +5953,7 @@ build_qjackctl() {
     # make install doesn't work
 #    	do_make_install
 	
-    cp -vf release/qjackctl.exe ${mingw_w64_x86_64_prefix}/bin
+    cp -vf src/release/qjackctl.exe ${mingw_w64_x86_64_prefix}/bin
   cd ..
 }
 
