@@ -3513,6 +3513,10 @@ build_freetype() {
 #  export CFLAGS=${original_cflags}
   # freetype-config needs to be picked up in the $PATH for dvdauthor and other compilations
   cp -v "${mingw_w64_x86_64_prefix}/bin/freetype-config" "${mingw_w64_x86_64_prefix}/../bin/freetype-config"
+  cd ${mingw_w64_x86_64_prefix}/include
+  ln -sfv freetype2/freetype freetype
+  ln -sfc freetype2/ft2build.h ft2build.h
+  cd - 
 }
 
 #build_vo_aacenc() {
@@ -6819,7 +6823,7 @@ build_rabbitmq() {
 	do_git_checkout https://github.com/alanxz/rabbitmq-c.git rabbitmq-c
 	cd rabbitmq-c
 		apply_patch file://${top_dir}/rabbitmq-libs.patch
-		do_cmake . "-DBUILD_TESTS=OFF"
+		do_cmake . "-DBUILD_TESTS=OFF -DBUILD_TESTING=OFF"
 		do_make_install
 	cd ..
 	cp -vL ${mingw_w64_x86_64_prefix}/lib/librabbitmq.4.dll.a ${mingw_w64_x86_64_prefix}/lib/librabbitmq.dll.a
