@@ -3515,7 +3515,7 @@ build_freetype() {
   cp -v "${mingw_w64_x86_64_prefix}/bin/freetype-config" "${mingw_w64_x86_64_prefix}/../bin/freetype-config"
   cd ${mingw_w64_x86_64_prefix}/include
   ln -sfv freetype2/freetype freetype
-  ln -sfc freetype2/ft2build.h ft2build.h
+  ln -sfv freetype2/ft2build.h ft2build.h
   cd - 
 }
 
@@ -6879,7 +6879,7 @@ build_ffmpeg() {
 	local component_options="--enable-filter=frei0r --enable-decoder=aac"
 	local library_options="--enable-avisynth --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcelt --enable-libcdio --enable-libcodec2 --enable-libdc1394 --enable-libfdk-aac --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-gnutls --enable-libgsm --enable-libilbc --enable-libjack --enable-libklvanc --enable-liblensfun --enable-libmodplug --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopencv --enable-libopenmpt --enable-libopus --enable-librabbitmq --enable-librist --enable-librubberband --enable-librtmp --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libtesseract --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxavs2 --enable-libxvid --enable-libxml2 --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 --enable-decklink --enable-libmysofa --enable-opencl --enable-opengl --enable-vulkan"
 	local hardware_options="--enable-cuda-nvcc --enable-libmfx"
-	local toolchain_options="--arch=x86_64 --cross-prefix=$cross_prefix --enable-cross-compile --target-os=mingw32 --extra-version=Compiled_by_John_Warburton --enable-pic"
+	local toolchain_options="--arch=x86_64 --cross-prefix=$cross_prefix --enable-cross-compile --target-os=mingw32 --extra-version=Compiled_by_John_Warburton --enable-pic --extra-cflags=-I${mingw_w64_x86_64_prefix}/include/fribidi/"
 	local developer_options="--disable-debug --enable-stripping"
 	cd ffmpeg_git
 
@@ -6893,7 +6893,7 @@ build_ffmpeg() {
 #  apply_patch_p1 file://${top_dir}/ffmpeg-decklink-teletext-2-reverse.patch
 		apply_patch file://${top_dir}/ffmpeg-bs2b.patch
 		apply_patch file://${top_dir}/ffmpeg-freetype.patch
-#  apply_patch file://${top_dir}/ffmpeg-preprocessor.patch
+		apply_patch file://${top_dir}/ffmpeg-preprocessor.patch
 
 		do_configure "${standard_options} ${licensing_options} ${configuration_options} ${component_options} ${library_options} ${hardware_options} ${toolchain_options} ${developer_options}"
 #  rm -f */*.a */*.dll *.exe # just in case some dependency library has changed, force it to re-link even if the ffmpeg source hasn't changed...
@@ -7295,17 +7295,7 @@ build_apps() {
   build_dvdbackup
   build_codec2
   build_ffmpegnv
-  if [[ $build_ffmpeg_shared = "y" ]]; then
-    build_ffmpeg ffmpeg shared
-  fi
-#  build_pulseaudio
-#  build_libcanberra
-  if [[ $build_ffmpeg_static = "y" ]]; then
-    build_ffmpeg ffmpeg
-  fi
-  if [[ $build_libav = "y" ]]; then
-    build_ffmpeg libav
-  fi
+  build_ffmpeg
   #build_pamix
   #build_meterbridge
   build_ffms2

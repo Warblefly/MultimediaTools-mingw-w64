@@ -26,7 +26,7 @@ export PATH="$working_directory/bin:/usr/local/bin:/usr/bin:/bin"
 echo "Getting binutils..."
 #	wget http://ftp.gnu.org/gnu/binutils/binutils-2.36.1.tar.bz2 || exit 1
 #        tar xvvf binutils-2.36.1.tar.bz2 && ln -sv binutils-2.36.1 binutils
-	git clone --depth 1 --single-branch -b binutils-2_35-branch git://sourceware.org/git/binutils-gdb.git binutils || echo "Seems we have binutils."
+	git clone --depth 1 --single-branch -b binutils-2_36-branch git://sourceware.org/git/binutils-gdb.git binutils || echo "Seems we have binutils."
 echo "Binutils has arrived."
 
 #echo "Let's add the Fedora rawhide patch set."
@@ -37,7 +37,7 @@ cd binutils
 #	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-revert-PLT-elision.patch | patch -p1
 #	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-readelf-other-sym-info.patch | patch -p1
 #	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-2.27-aarch64-ifunc.patch | patch -p1
-	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-do-not-link-with-static-libstdc++.patch | patch -p1
+	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-do-not-link-with-static-libstdc++.patch | patch -p1 || exit 1
 #	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/f34/f/binutils-gold-ignore-discarded-note-relocs.patch | patch -p1
 #	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-special-sections-in-groups.patch | patch -p1
 #	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-fix-testsuite-failures.patch | patch -p1
