@@ -5688,7 +5688,7 @@ build_libxml++ () {
 }
 
 build_libexif() {
-  do_git_checkout https://github.com/libexif/libexif.git libexif  #a459ed1dca57612ef13880e8d78037db2f089f13
+  do_git_checkout https://github.com/libexif/libexif.git libexif 5c3de9923bd4651daab233df4d74faeabe29c3f2 #a459ed1dca57612ef13880e8d78037db2f089f13
   cd libexif
     # We need to update autotools because a check is needed for JPEG files > 2GB
     #rm configure
@@ -6879,7 +6879,7 @@ build_ffmpeg() {
 	local component_options="--enable-filter=frei0r --enable-decoder=aac"
 	local library_options="--enable-avisynth --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcelt --enable-libcdio --enable-libcodec2 --enable-libdc1394 --enable-libfdk-aac --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-gnutls --enable-libgsm --enable-libilbc --enable-libjack --enable-libklvanc --enable-liblensfun --enable-libmodplug --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopencv --enable-libopenmpt --enable-libopus --enable-librabbitmq --enable-librist --enable-librubberband --enable-librtmp --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libtesseract --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxavs2 --enable-libxvid --enable-libxml2 --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 --enable-decklink --enable-libmysofa --enable-opencl --enable-opengl --enable-vulkan"
 	local hardware_options="--enable-cuda-nvcc --enable-libmfx"
-	local toolchain_options="--arch=x86_64 --cross-prefix=$cross_prefix --enable-cross-compile --target-os=mingw32 --extra-version=Compiled_by_John_Warburton --enable-pic --extra-cflags=-I${mingw_w64_x86_64_prefix}/include/fribidi/ --extra-cflags=-I${mingw_w64_x86_64_prefix}/include/lensfun/ --extra-cflags=-I${mingw_w64_x86_64_prefix}/include/opus/"
+	local toolchain_options="--arch=x86_64 --cross-prefix=$cross_prefix --enable-cross-compile --target-os=mingw32 --extra-version=Compiled_by_John_Warburton --enable-pic --extra-cflags=-I${mingw_w64_x86_64_prefix}/include/fribidi/ --extra-cflags=-I${mingw_w64_x86_64_prefix}/include/lensfun/ --extra-cflags=-I${mingw_w64_x86_64_prefix}/include/opus/ --extra-cflags=-I${mingw_w64_x86_64_prefix}/include/libvmaf/"
 	local developer_options="--disable-debug --enable-stripping"
 	cd ffmpeg_git
 
