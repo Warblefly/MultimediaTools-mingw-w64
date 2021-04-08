@@ -915,7 +915,7 @@ build_qt6() {
 		export MAKEFLAGS="-j8"
 		export PKG_CONFIG=${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config
 		export PKG_CONFIG_LIBDIR=${mingw_w64_x86_64_prefix}/lib/pkgconfig
-		export PKG_CONFIG_SYSROOT_DIR=${mingw_w64_x86_64_prefix}/
+		export PKG_CONFIG_SYSROOT_DIR=${mingw_w64_x86_64_prefix}
 		do_cmake "-G Ninja -B build-x86_64-w64-mingw32 -DFEATURE_pkg_config=ON -DFEATURE_system-pcre2=ON -DFEATURE_system_freetype=ON -DFEATURE_system_harfbuzz=ON -DFEATURE_system_sqlite=ON -DINPUT_openssl=runtime -DQT_HOST_PATH=/usr -DQT_INCLUDE_DIRS_NO_SYSTEM=ON"
 		cmake --build build-x86_64-w64-mingw32
 	cd ..
@@ -980,7 +980,7 @@ build_qt() {
 			unset QMAKEFEATURES
 			export PKG_CONFIG=${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config
 			export PKG_CONFIG_LIBDIR=${mingw_w64_x86_64_prefix}/lib/pkgconfig
-			export PKG_CONFIG_SYSROOT_DIR=${mingw_w64_x86_64_prefix}/
+			export PKG_CONFIG_SYSROOT_DIR=${mingw_w64_x86_64_prefix}
 			../qt-everywhere-src-${QT_VERSION}/configure -xplatform mingw-w64-g++ -verbose -release -force-debug-info -prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -opensource -make tools -confirm-license -openssl -nomake examples -nomake tests -no-d3d12 -no-wmf -skip qtquickcontrols -skip qtwebglplugin -skip qt3d -skip qtandroidextras -skip qtcharts -skip qtconnectivity -skip qtdatavis3d -skip qtgamepad -skip qtimageformats -skip qtlocation -skip qtlottie -skip qtmacextras -skip qtnetworkauth -skip qtpurchasing -skip qtquick3d -skip qtquicktimeline -skip qtremoteobjects -skip qtscript -skip qtscxml -skip qtsensors -skip qtserialbus -skip qtserialport -skip qtspeech -skip qtvirtualkeyboard -skip qtwayland -skip qtwebchannel -skip qtwebengine -skip qtwebsockets -skip qtx11extras -opengl desktop -device-option CROSS_COMPILE=$cross_prefix -pkg-config -sql-sqlite -device-option PKG_CONFIG=x86_64-w64-mingw32-pkg-config -device-option PKG_CONFIG_LIBDIR=${mingw_w64_x86_64_prefix}/lib/pkgconfig -device-option PKG_CONFIG_SYSROOT_DIR=${mingw_w64_x86_64_prefix} -no-feature-relocatable -shared -skip qtactiveqt || exit 1
 			export old_ld_library_path=${LD_LIBRARY_PATH}
 			export LD_LIBRARY_PATH=$PWD/qtbase/lib
@@ -998,6 +998,10 @@ build_qt() {
 #	ln -sv ${mingw_w64_x86_64_prefix}/bin/Qt*.dll ${mingw_w64_x86_64_prefix}/../bin
 #	ln -sv ${mingw_w64_x86_64_prefix}/plugins ${mingw_w64_x86_64_prefix}/../plugin#s
 #	sed -i.bak 's! /libQt5Core\.a! -lQt5Core!' ${mingw_w64_x86_64_prefix}/lib/qtmain.prl
+	unset PKG_CONFIG
+	unset PKG_CONFIG_LIBDIR
+	unset PKG_CONFIG_SYSROOT_DIR
+
 }
 
 build_qt_old() {
@@ -1073,9 +1077,9 @@ build_qt_old() {
   unset QT_BUILD
   unset MAKEFLAGS
 #  export cpu_count=$orig_cpu_count
-#  unset PKG_CONFIG
-#  unset PKG_CONFIG_LIBDIR
-#  unset PKG_CONFIG_SYSROOT_DIR
+  unset PKG_CONFIG
+  unset PKG_CONFIG_LIBDIR
+  unset PKG_CONFIG_SYSROOT_DIR
   export PATH="$original_path"
 }
 
@@ -5790,6 +5794,9 @@ build_vlc() {
     export LIBS="-lwinmm -lsynchronization"
     export CFLAGS="-fpermissive"
     export CXXFLAGS="-fpermissive"
+    export PKG_CONFIG_PATH=
+    export PKG_CONFIG_LIBDIR=${mingw_w64_x86_64_prefix}/lib/pkgconfig
+#    export PKG_CONFIG_SYSROOT_DIR=${mingw_w64_x86_64_prefix}
     apply_patch file://${top_dir}/vlc-qt5.patch
 #    apply_patch file://${top_dir}/vlc-more-static.patch
 #    apply_patch file://${top_dir}/vlc-dxgi.patch
@@ -5804,6 +5811,9 @@ build_vlc() {
     apply_patch file://${top_dir}/vlc-trunc.patch
     apply_patch file://${top_dir}/vlc-swapbuffers-conflict.patch
     export LIVE555_CFLAGS="-I${mingw_w64_x86_64_prefix}/include/liveMedia -I${mingw_w64_x86_64_prefix}/include/UsageEnvironment -I${mingw_w64_x86_64_prefix}/include/BasicUsageEnvironment -I${mingw_w64_x86_64_prefix}/include/groupsock"
+    export LIBMPEG2_CFLAGS="-I${mingw_w64_x86_64_prefix}/include/mpeg2dec"
+    export SCHROEDINGER_CFLAGS="-I${mingw_w64_x86_64_prefix}/include/schroedinger-1.0"
+    export OPUS_CFLAGS="-I${mingw_w64_x86_64_prefix}/include/opus"
     export DSM_LIBS="-lws2_32 -ldsm"
     export AOM_LIBS="-laom -lpthread -lm"
     export SRT_LIBS="-lws2_32 -lsrt"
@@ -5812,6 +5822,9 @@ build_vlc() {
     generic_configure_make_install "--enable-qt --disable-medialibrary --disable-dvbpsi --disable-gst-decode --disable-asdcp --disable-ncurses --disable-opencv --disable-dbus --disable-sdl --disable-telx --disable-silent-rules --disable-pulse JACK_LIBS=-ljack64 JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib LIVE555_LIBS=-llivemedia ASDCP_LIBS=lasdcp ASDCP_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/asdcp"
     # X264 is disabled because of an API change. We ought to be able to re-enable it when vlc has caught up.
     #export cpu_count=8
+    unset PKG_CONFIG_PATH
+    unset PKG_CONFIG_LIBDIR
+    unset PKG_CONFIG_SYSROOT_DIR
   cd ..
 }
 
@@ -6756,9 +6769,9 @@ build_libklvanc() {
 build_ffmpegnv() {
   do_git_checkout https://github.com/FFmpeg/nv-codec-headers.git nv-codec-headers
   cd nv-codec-headers
-    sed -i.bak "s!PREFIX = /usr/local!PREFIX = ${mingw_w64_x86_64_prefix}!" Makefile
-    do_make
-    do_make_install
+#    sed -i.bak "s!PREFIX = /usr/local!PREFIX = ${mingw_w64_x86_64_prefix}!" Makefile
+#    do_make
+    do_make_install "PREFIX=$mingw_w64_x86_64_prefix"
   cd ..
 }
 
@@ -6873,13 +6886,13 @@ build_librsvg() {
 
 build_ffmpeg() {
 	do_git_checkout https://git.ffmpeg.org/ffmpeg.git ffmpeg_git
-	local standard_options="--prefix=$mingw_w64_x86_64_prefix --logfile=/dev/tty"
+	local standard_options="--prefix=$mingw_w64_x86_64_prefix --logfile=${top_dir}/ffmpeglog.txt"
 	local licensing_options="--enable-nonfree --enable-version3 --enable-gpl"
 	local configuration_options="--disable-static --enable-shared --enable-runtime-cpudetect --enable-gray --disable-w32threads"
 	local component_options="--enable-filter=frei0r --enable-decoder=aac"
 	local library_options="--enable-avisynth --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcelt --enable-libcdio --enable-libcodec2 --enable-libdc1394 --enable-libfdk-aac --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-gnutls --enable-libgsm --enable-libilbc --enable-libjack --enable-libklvanc --enable-liblensfun --enable-libmodplug --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopencv --enable-libopenmpt --enable-libopus --enable-librabbitmq --enable-librist --enable-librubberband --enable-librtmp --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libtesseract --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxavs2 --enable-libxvid --enable-libxml2 --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 --enable-decklink --enable-libmysofa --enable-opencl --enable-opengl --enable-vulkan"
 	local hardware_options="--enable-cuda-nvcc --enable-libmfx"
-	local toolchain_options="--arch=x86_64 --cross-prefix=$cross_prefix --enable-cross-compile --target-os=mingw32 --extra-version=Compiled_by_John_Warburton --enable-pic --extra-cflags=-I${mingw_w64_x86_64_prefix}/include/fribidi/ --extra-cflags=-I${mingw_w64_x86_64_prefix}/include/lensfun/ --extra-cflags=-I${mingw_w64_x86_64_prefix}/include/opus/ --extra-cflags=-I${mingw_w64_x86_64_prefix}/include/libvmaf/"
+	local toolchain_options="--arch=x86_64 --cross-prefix=$cross_prefix --enable-cross-compile --target-os=mingw32 --extra-version=Compiled_by_John_Warburton --enable-pic"
 	local developer_options="--disable-debug --enable-stripping"
 	cd ffmpeg_git
 
@@ -6891,10 +6904,10 @@ build_ffmpeg() {
 #  apply_patch file://${top_dir}/lavfi-vfstack-reverse.patch
 #  apply_patch_p1 file://${top_dir}/ffmpeg-decklink-teletext-1-reverse.patch
 #  apply_patch_p1 file://${top_dir}/ffmpeg-decklink-teletext-2-reverse.patch
-		apply_patch file://${top_dir}/ffmpeg-bs2b.patch
-		apply_patch file://${top_dir}/ffmpeg-freetype.patch
+#		apply_patch file://${top_dir}/ffmpeg-bs2b.patch
+#		apply_patch file://${top_dir}/ffmpeg-freetype.patch
 		apply_patch file://${top_dir}/ffmpeg-preprocessor.patch
-
+		env > ${top_dir}/env_before_ffmpeg.txt
 		do_configure "${standard_options} ${licensing_options} ${configuration_options} ${component_options} ${library_options} ${hardware_options} ${toolchain_options} ${developer_options}" 
 #  rm -f */*.a */*.dll *.exe # just in case some dependency library has changed, force it to re-link even if the ffmpeg source hasn't changed...
 #  rm already_ran_make*
@@ -6907,6 +6920,7 @@ build_ffmpeg() {
 		sed -i.bak 's/-lswresample -lm.*/-lswresample -lm -lsoxr/' "$PKG_CONFIG_PATH/libswresample.pc" # XXX patch ffmpeg
 		echo "FFmpeg binaries are built."
 	cd ..
+	env > ${top_dir}/env_after_ffmpeg.txt
 }
 
 build_dvdstyler() {
