@@ -4304,7 +4304,7 @@ build_boost() {
 }
 
 build_mkvtoolnix() {
-  do_git_checkout https://gitlab.com/mbunkus/mkvtoolnix mkvtoolnix main #16772170030715717341c3d5460d3d1fecf501a4
+  do_git_checkout https://gitlab.com/mbunkus/mkvtoolnix mkvtoolnix  ab4caebe3df291ff65a66ca6bd4e4c47c5fbe6b4 # main #16772170030715717341c3d5460d3d1fecf501a4
 #    download_and_unpack_file https://mkvtoolnix.download/sources/mkvtoolnix-43.0.0.tar.xz mkvtoolnix-43.0.0
   cd mkvtoolnix # -43.0.0
     # Two libraries needed for mkvtoolnix
@@ -5358,7 +5358,7 @@ build_aubio() {
         mkdir aubio_build
         cd aubio_build
             wget https://waf.io/waf-2.0.1.tar.bz2
-            tar xvvf waf-2.0.1.tar.bz2
+    	    tar xvvf waf-2.0.1.tar.bz2
             cd waf-2.0.1
                 NOCLIMB=1 python waf-light --tools=c_emscripten
             cd ..
@@ -6886,7 +6886,7 @@ build_librsvg() {
 
 build_ffmpeg() {
 	do_git_checkout https://git.ffmpeg.org/ffmpeg.git ffmpeg_git
-	local standard_options="--prefix=$mingw_w64_x86_64_prefix --logfile=${top_dir}/ffmpeglog.txt"
+	local standard_options="--prefix=$mingw_w64_x86_64_prefix --logfile=/dev/tty"
 	local licensing_options="--enable-nonfree --enable-version3 --enable-gpl"
 	local configuration_options="--disable-static --enable-shared --enable-runtime-cpudetect --enable-gray --disable-w32threads"
 	local component_options="--enable-filter=frei0r --enable-decoder=aac"
@@ -6907,7 +6907,6 @@ build_ffmpeg() {
 #		apply_patch file://${top_dir}/ffmpeg-bs2b.patch
 #		apply_patch file://${top_dir}/ffmpeg-freetype.patch
 		apply_patch file://${top_dir}/ffmpeg-preprocessor.patch
-		env > ${top_dir}/env_before_ffmpeg.txt
 		do_configure "${standard_options} ${licensing_options} ${configuration_options} ${component_options} ${library_options} ${hardware_options} ${toolchain_options} ${developer_options}" 
 #  rm -f */*.a */*.dll *.exe # just in case some dependency library has changed, force it to re-link even if the ffmpeg source hasn't changed...
 #  rm already_ran_make*
@@ -6920,7 +6919,6 @@ build_ffmpeg() {
 		sed -i.bak 's/-lswresample -lm.*/-lswresample -lm -lsoxr/' "$PKG_CONFIG_PATH/libswresample.pc" # XXX patch ffmpeg
 		echo "FFmpeg binaries are built."
 	cd ..
-	env > ${top_dir}/env_after_ffmpeg.txt
 }
 
 build_dvdstyler() {
