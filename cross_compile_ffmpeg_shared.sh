@@ -4265,7 +4265,7 @@ build_fmt() {
 }
 
 build_boost() {
-  download_and_unpack_file "https://dl.bintray.com/boostorg/release/1.75.0/source/boost_1_75_0.tar.bz2" boost_1_75_0
+  download_and_unpack_file "https://ftp.osuosl.org/pub/blfs/conglomeration/boost/boost_1_75_0.tar.bz2" boost_1_75_0
   cd boost_1_75_0
   #  cd libs/serialization
   #    apply_patch file://${top_dir}/boost-codecvt.patch
