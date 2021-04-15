@@ -75,7 +75,8 @@ cd binutils-build
 		touch binutils_configure
 	fi
 	if [[ ! -f binutils_make ]]; then
-		make -j $cpu_count && make install
+		make -j $cpu_count || exit 1
+		make install || exit 1 
 		touch binutils_make
 	fi
 cd ..

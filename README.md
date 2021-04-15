@@ -46,7 +46,7 @@ apt upgrade
 
 3. Install the pre-requisites. On Debian running under Windows, you can do this.
 ```
-apt install software-properties-common extra-cmake-modules libsdl1.2debian libsdl1.2-dev libsdl2-2.0-0 libsdl2-dev ant asciidoc autoconf autoconf-archive autogen autopoint bison bzr cargo cmake curl cvs docbook2x ed flex g++ libgdk-pixbuf2.0-dev gengetopt git gperf gtk-doc-tools gtk-update-icon-cache gyp intltool liborc-0.4-0 liborc-dev libsamplerate-dev libtasn1-bin librhash0 libtool libtool-bin libunittest++2 lua5.3 mercurial meson nsis mm-common nasm nvidia-cuda-toolkit patchutils pax python-dev ragel rsync ronn ruby-json rake-compiler ruby-ronn sassc scons libspeex-dev libspeexdsp-dev ssh sshpass sssd-tools subversion swig libwxbase3.0-dev wget wx-common xutils-dev yasm
+apt install software-properties-common extra-cmake-modules libsdl1.2debian libsdl1.2-dev libsdl2-2.0-0 libsdl2-dev ant asciidoc autoconf autoconf-archive autogen autopoint bison bzr cargo cmake curl cvs docbook2x ed flex g++ libgdk-pixbuf2.0-dev gengetopt git gperf gtk-doc-tools gtk-update-icon-cache gyp intltool libgmp-dev liborc-0.4-0 liborc-dev libsamplerate-dev libtasn1-bin librhash0 libtool libtool-bin libunittest++2 lua5.3 lzip mercurial meson nsis mm-common nasm patchutils pax python-dev ragel rsync ronn ruby-json rake-compiler ruby-ronn sassc scons libspeex-dev libspeexdsp-dev sqlite3 ssh sshpass sssd-tools subversion swig libwxbase3.0-dev wget wx-common xutils-dev yasm zsh
 ```
 Then, switch your Java development kit to an earlier version. You used to need this to compile libbluray but its code is so old, and I don't need to play Blu-Ray discs other than to duplicate their contents, that I no longer do this.
 ```
@@ -58,6 +58,17 @@ apt update
 apt upgrade
 apt-get install oracle-java8-installer  
 ```
+
+Then, install version 10 of the NVidia cuda toolkit. This is behind the version distributed with Debian sid, so must be installed like this:
+```
+apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/debian10/x86_64/7fa2af80.pub
+add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/debian10/x86_64/ /"
+add-apt-repository contrib
+apt-get update
+apt-get -y install cuda
+ln -s /etc/alternatives/cuda/bin/nvcc /usr/bin/nvcc
+```
+
 4. Link an executable, thus: ln -s /usr/bin/luac5.3 /usr/bin/luac
 5. Clone my package from git (see the address at the top of this page).
 6. cd into the top directory of the git tree.
