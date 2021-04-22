@@ -3179,11 +3179,12 @@ build_libssh() {
 
 build_asdcplib-cth() {
    # Use brance cth because this is the version the writer works on, and has modified
+do_git_checkout git://git.carlh.net/git/asdcplib-cth.git asdcplib-cth cth
 #  do_git_checkout git://git.carlh.net/git/asdcplib-cth.git asdcplib-carl carl
 #  do_git_checkout https://github.com/cth103/asdcplib.git asdcplib carl
-  download_and_unpack_file https://github.com/cth103/asdcplib/archive/carl.zip asdcplib-carl
+#  download_and_unpack_file https://github.com/cth103/asdcplib/archive/carl.zip asdcplib-carl
 #  download_and_unpack_file https://www.carlh.net/downloads/libasdcp-cth/libasdcp-cth-0.1.5.tar.bz2 libasdcp-cth-0.1.5
-  cd asdcplib-carl
+  cd asdcplib-cth
     export PKG_CONFIG_PATH=${mingw_w64_x86_64_prefix}/lib/pkgconfig
     export CXXFLAGS="-DKM_WIN32"
     export CFLAGS="-DKM_WIN32"
@@ -3200,9 +3201,12 @@ build_asdcplib-cth() {
     ./waf build || exit 1
     ./waf install || exit 1
         # The installation puts the pkgconfig file and the import DLL in the wrong place
-    cp -v build/libasdcp-carl.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig || exit 1
-    cp -v build/src/asdcp-carl.dll.a ${mingw_w64_x86_64_prefix}/lib || exit 1
-    cp -v build/src/kumu-carl.dll.a ${mingw_w64_x86_64_prefix}/lib || exit 1
+    cp -v build/libasdcp-cth.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig || exit 1
+    cp -v build/src/asdcp-cth.dll.a ${mingw_w64_x86_64_prefix}/lib || exit 1
+    cp -v build/src/kumu-cth.dll.a ${mingw_w64_x86_64_prefix}/lib || exit 1
+    cd ${mingw_w64_x86_64_prefix}/include
+    	ln -sv libasdcp-cth libasdcp-carl
+    cd -
     unset CXX
     unset CC
     unset AR
@@ -3225,7 +3229,8 @@ build_libdcp() {
     #sed -i.bak "s/boost_lib_suffix = '-mt'/boost_lib_suffix = ''/" test/wscript
 #    apply_patch file://${top_dir}/libdcp-libxml.patch
     apply_patch file://${top_dir}/libdcp-boost.patch
-    apply_patch file://${top_dir}/libdcp-gm.patch
+    apply_patch file://${top_dir}/libdcp-gm-old.patch
+    apply_patch file://${top_dir}/libdcp-cth.patch
 #    apply_patch file://${top_dir}/libdcp-shared_ptr.patch
 #    apply_patch_p1 "http://main.carlh.net/gitweb/?p=libdcp.git;a=patch;h=730ba2273b136ad5a3bfc1a185d69e6cc50a65af"
     export CXX=x86_64-w64-mingw32-g++
@@ -3709,6 +3714,8 @@ build_mpv() {
 #    apply_patch file://${top_dir}/mpv-disable-rectangle.patch
     export oldpath="${PATH}"
     export PATH=${mingw_w64_x86_64_prefix}/../bin:/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin
+    export PKG_CONFIG_PATH="${mingw_w64_x86_64_prefix}/lib/pkgconfig"
+    export PKG_CONFIG_LIBDIR="${mingw_w64_x86_64_prefix}/lib/pkgconfig"
     ./bootstrap.py
     export DEST_OS=win32
     export TARGET=x86_64-w64-mingw32
@@ -6838,7 +6845,8 @@ build_xygrib() {
 build_rabbitmq() {
 	do_git_checkout https://github.com/alanxz/rabbitmq-c.git rabbitmq-c
 	cd rabbitmq-c
-		apply_patch file://${top_dir}/rabbitmq-libs.patch
+#		apply_patch file://${top_dir}/rabbitmq-libs.patch
+		apply_patch file://${top_dir}/rabbitmq-version.patch
 		do_cmake . "-DBUILD_TESTS=OFF -DBUILD_TESTING=OFF"
 		do_make_install
 	cd ..

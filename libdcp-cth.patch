@@ -1,0 +1,41 @@
+--- wscript.orig	2021-04-21 18:47:44.310000000 +0100
++++ wscript	2021-04-21 18:48:01.930000000 +0100
+@@ -135,7 +135,7 @@
+             conf.env.STLIB_OPENJPEG = ['openjpeg']
+         conf.check_cfg(package='libasdcp-carl', atleast_version='0.1.3', args='--cflags', uselib_store='ASDCPLIB_CTH', mandatory=True)
+         conf.env.HAVE_ASDCPLIB_CTH = 1
+-        conf.env.STLIB_ASDCPLIB_CTH = ['asdcp-carl', 'kumu-carl']
++        conf.env.STLIB_ASDCPLIB_CTH = ['asdcp-cth', 'kumu-cth']
+         conf.env.HAVE_CXML = 1
+         conf.env.LIB_CXML = ['xml++-2.6', 'glibmm-2.4']
+         conf.env.STLIB_CXML = ['cxml']
+--- wscript.orig	2021-04-21 19:11:12.840000000 +0100
++++ wscript	2021-04-21 19:11:35.730000000 +0100
+@@ -133,7 +133,7 @@
+         elif conf.options.jpeg == 'oj1':
+             conf.check_cfg(package='libopenjpeg1', args='--cflags', atleast_version='1.5.0', uselib_store='OPENJPEG', mandatory=True)
+             conf.env.STLIB_OPENJPEG = ['openjpeg']
+-        conf.check_cfg(package='libasdcp-carl', atleast_version='0.1.3', args='--cflags', uselib_store='ASDCPLIB_CTH', mandatory=True)
++        conf.check_cfg(package='libasdcp-cth', atleast_version='0.1.3', args='--cflags', uselib_store='ASDCPLIB_CTH', mandatory=True)
+         conf.env.HAVE_ASDCPLIB_CTH = 1
+         conf.env.STLIB_ASDCPLIB_CTH = ['asdcp-cth', 'kumu-cth']
+         conf.env.HAVE_CXML = 1
+@@ -146,7 +146,7 @@
+             conf.check_cfg(package='libopenjp2', args='--cflags --libs', atleast_version='2.1.0', uselib_store='OPENJPEG', mandatory=True)
+         elif conf.options.jpeg == 'oj1':
+             conf.check_cfg(package='libopenjpeg1', args='--cflags --libs', atleast_version='1.5.0', uselib_store='OPENJPEG', mandatory=True)
+-        conf.check_cfg(package='libasdcp-carl', atleast_version='0.1.3', args='--cflags --libs', uselib_store='ASDCPLIB_CTH', mandatory=True)
++        conf.check_cfg(package='libasdcp-cth', atleast_version='0.1.3', args='--cflags --libs', uselib_store='ASDCPLIB_CTH', mandatory=True)
+         conf.check_cfg(package='libcxml', atleast_version='0.17.0', args='--cflags --libs', uselib_store='CXML', mandatory=True)
+         conf.check_cfg(package='xerces-c', args='--cflags --libs', uselib_store='XERCES', mandatory=True)
+ 
+--- libdcp-1.0.pc.in.orig	2021-04-21 19:16:54.330000000 +0100
++++ libdcp-1.0.pc.in	2021-04-21 19:17:05.400000000 +0100
+@@ -5,6 +5,6 @@
+ Name: libdcp
+ Description: DCP reading and writing library
+ Version: @version@
+-Requires: sigc++-2.0 openssl libxml++-2.6 xmlsec1 libasdcp-carl xerces-c
++Requires: sigc++-2.0 openssl libxml++-2.6 xmlsec1 libasdcp-cth xerces-c
+ Libs: @libs@
+ Cflags: -I${includedir}

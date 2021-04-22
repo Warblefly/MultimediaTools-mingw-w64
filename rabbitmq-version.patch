@@ -1,0 +1,11 @@
+--- librabbitmq.pc.in.orig	2021-04-21 15:35:38.090000000 +0100
++++ librabbitmq.pc.in	2021-04-21 15:35:57.980000000 +0100
+@@ -5,7 +5,7 @@
+ 
+ Name: rabbitmq-c
+ Description: An AMQP 0-9-1 client library
+-Version: @VERSION@
++Version: @RMQ_VERSION@
+ URL: https://github.com/alanxz/rabbitmq-c
+ Requires.private: @requires_private@
+ Libs: -L${libdir} -lrabbitmq

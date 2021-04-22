@@ -40,7 +40,7 @@
      if bld.env.TARGET_WINDOWS:
 -        boost_lib_suffix = '-mt'
 +        boost_lib_suffix = '-mt-x64'
-         flags = '-DKM_WIN32 -DWIN32_LEAN_AND_MEAN'
+         flags = '-DKM_WIN32'
      else:
          boost_lib_suffix = ''
 --- wscript.orig	2020-10-08 17:34:32.620000000 +0100
