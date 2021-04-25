@@ -1546,7 +1546,7 @@ build_openblas() {
 }
 
 build_opencv() {
-  do_git_checkout https://github.com/opencv/opencv.git "opencv" 2.4 # 2bd0844be39a799d100e1ac00833ca946a7bfbf7 #3.4 # 2.4
+  do_git_checkout https://github.com/opencv/opencv.git "opencv" 3.4 # 2.4 # 2bd0844be39a799d100e1ac00833ca946a7bfbf7 #3.4 # 2.4
   cd opencv
   # This is only used for a couple of frei0r filters. Surely we can switch off more options than this?
   # WEBP is switched off because it triggers a Cmake bug that removes #define-s of EPSILON and variants
@@ -1556,13 +1556,13 @@ build_opencv() {
 
 #    apply_patch file://${top_dir}/opencv-mutex-boost.patch
 #    apply_patch file://${top_dir}/opencv-boost-thread.patch
-    apply_patch file://${top_dir}/opencv-wrong-slash.patch
-    apply_patch file://${top_dir}/opencv-location.patch
+#    apply_patch file://${top_dir}/opencv-wrong-slash.patch
+#    apply_patch file://${top_dir}/opencv-location.patch
 #    apply_patch file://${top_dir}/opencv-strict.patch
     mkdir -pv build
     cd build
-      do_cmake ".. -DCMAKE_CXX_STANDARD=14 -DWITH_IPP=OFF -DWITH_EIGEN=ON -DWITH_VFW=ON -DWITH_DSHOW=ON -DOPENCV_ENABLE_NONFREE=ON -DWITH_GTK=ON -DWITH_WIN32UI=ON -DWITH_DIRECTX=ON -DBUILD_SHARED_LIBS=ON -DBUILD_opencv_apps=ON -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_JASPER=OFF -DBUILD_JPEG=OFF -DBUILD_OPENEXR=OFF -DBUILD_PNG=OFF -DBUILD_TIFF=OFF -DBUILD_ZLIB=OFF -DENABLE_SSE41=ON -DENABLE_SSE42=ON -DWITH_WEBP=OFF -DBUILD_EXAMPLES=ON -DINSTALL_C_EXAMPLES=ON -DWITH_OPENGL=ON -DINSTALL_PYTHON_EXAMPLES=ON -DCMAKE_CXX_FLAGS=-DMINGW_HAS_SECURE_API=1 -DCMAKE_C_FLAGS=-DMINGW_HAS_SECURE_API=1 -DOPENCV_LINKER_LIBS=boost_thread-mt-x64;boost_system-mt-x64 -DCMAKE_VERBOSE=ON -DINSTALL_TO_MANGLED_PATHS=OFF" && ${top_dir}/correct_headers.sh
-      sed -i.bak "s|DBL_EPSILON|2.2204460492503131E-16|g" modules/imgproc/include/opencv2/imgproc/types_c.h
+      do_cmake .. "-DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DWITH_FFMPEG=0 -DOPENCV_GENERATE_PKGCONFIG=1 -DENABLE_PIC=TRUE -DOPENCV_ENABLE_NONFREE=ON -DOPENCV_FORCE_3RDPARTY_BUILD=OFF -DBUILD_ZLIB=OFF -DBUILD_TIFF=OFF -DBUILD_JASPER=OFF -DBUILD_JPEG=OFF -DBUILD_PNG=OFF -DBUILD_OPENEXR=OFF -DBUILD_WEBP=OFF -DWITH_JASPER=ON -DWITH_JPEG=ON -DWITH_WEBP=ON -DWITH_OPENEXR=ON -DWITH_PNG=ON -DWITH_WIN32UI=ON -DWITH_PTHREADS_PF=ON -DWITH_TIFF=ON -DWITH_DSHOW=ON -DWITH_DIRECTX=ON -DWITH_IMGCODEC_HDR=ON " # ".. -DCMAKE_CXX_STANDARD=14 -DWITH_IPP=OFF -DWITH_EIGEN=ON -DWITH_VFW=ON -DWITH_DSHOW=ON -DOPENCV_ENABLE_NONFREE=ON -DWITH_GTK=ON -DWITH_WIN32UI=ON -DWITH_DIRECTX=ON -DBUILD_SHARED_LIBS=ON -DBUILD_opencv_apps=ON -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_JASPER=OFF -DBUILD_JPEG=OFF -DBUILD_OPENEXR=OFF -DBUILD_PNG=OFF -DBUILD_TIFF=OFF -DBUILD_ZLIB=OFF -DENABLE_SSE41=ON -DENABLE_SSE42=ON -DWITH_WEBP=OFF -DBUILD_EXAMPLES=ON -DINSTALL_C_EXAMPLES=ON -DWITH_OPENGL=ON -DINSTALL_PYTHON_EXAMPLES=ON -DCMAKE_CXX_FLAGS=-DMINGW_HAS_SECURE_API=1 -DCMAKE_C_FLAGS=-DMINGW_HAS_SECURE_API=1 -DOPENCV_LINKER_LIBS=boost_thread-mt-x64;boost_system-mt-x64 -DCMAKE_VERBOSE=ON -DINSTALL_TO_MANGLED_PATHS=OFF" && ${top_dir}/correct_headers.sh"
+#      sed -i.bak "s|DBL_EPSILON|2.2204460492503131E-16|g" modules/imgproc/include/opencv2/imgproc/types_c.h
       do_make_install
 #      cp -v ${mingw_w64_x86_64_prefix}/lib/libopencv_core320.dll.a ${mingw_w64_x86_64_prefix}/lib/libopencv_core.dll.a
 #      cp -v ${mingw_w64_x86_64_prefix}/lib/libopencv_imgproc320.dll.a ${mingw_w64_x86_64_prefix}/lib/libopencv_imgproc.dll.a
@@ -2931,9 +2931,9 @@ build_liba52() {
 
 build_p11kit() {
 #  generic_download_and_install https://p11-glue.freedesktop.org/releases/p11-kit-0.23.2.tar.gz p11-kit-0.23.2
-  do_git_checkout https://github.com/p11-glue/p11-kit.git p11-kit f00183944fad943216ac5842f6b23ab5c4149e50
+  do_git_checkout https://github.com/p11-glue/p11-kit.git p11-kit #f00183944fad943216ac5842f6b23ab5c4149e50
   cd p11-kit
-    generic_configure_make_install
+    generic_meson_ninja_install 
   cd ..
 #  cd p11-kit-0.23.2
 }
@@ -2941,7 +2941,7 @@ build_p11kit() {
 build_libidn2() {
   do_git_checkout https://github.com/libidn/libidn2.git libidn2 # 301a43b5ac41f0fbea41d70444c0942ae93624cd
   cd libidn2
-    generic_configure_make_install
+    generic_configure_make_install "--disable-doc"
 
   cd ..
 }
@@ -3338,7 +3338,7 @@ build_libexpat() {
   do_git_checkout https://github.com/libexpat/libexpat.git libexpat
  # generic_download_and_install http://downloads.sourceforge.net/project/expat/expat/2.2.5/expat-2.2.5.tar.bz2 expat-2.2.5
   cd libexpat/expat
-    generic_configure_make_install
+    generic_configure_make_install "--without-docbook"
   cd ../..
 }
 
@@ -3562,6 +3562,13 @@ build_libcddb() {
     generic_configure_make_install "ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes CFLAGS=-O0"
 
   cd ..
+}
+
+build_sdlgit() {
+	do_git_checkout https://github.com/libsdl-org/SDL-1.2.git SDL-1.2 main
+	cd SDL-1.2
+		generic_configure_make_install
+	cd ..
 }
 
 build_sdl() {
@@ -4370,7 +4377,7 @@ build_gavl() {
  cd gavl
    apply_patch file://${top_dir}/gavl-ac-try-run.patch
    export ac_cv_have_clock_monotonic=yes 
-   generic_configure_make_install "ac_cv_have_clock_monotonic=yes --enable-shared=yes"
+   generic_configure_make_install "ac_cv_have_clock_monotonic=yes --enable-shared=yes --without-doxygen"
    unset ac_cv_have_clock_monotonic
  cd ..
 }
@@ -4666,7 +4673,7 @@ build_curl() {
   do_git_checkout https://github.com/curl/curl.git curl
   cd curl
     apply_patch file://${top_dir}/curl.patch
-    generic_configure_make_install "--enable-ipv6 --with-librtmp --with-ca-fallback"
+    generic_configure_make_install "--enable-ipv6 --with-librtmp --with-ca-fallback --with-gnutls"
 
   cd ..
 }
@@ -4676,7 +4683,7 @@ build_curl_early() {
   do_git_checkout https://github.com/curl/curl.git curl_early
   cd curl_early
     apply_patch file://${top_dir}/curl.patch
-    generic_configure_make_install "--enable-ipv6 --with-ca-fallback"
+    generic_configure_make_install "--enable-ipv6 --with-ca-fallback --with-gnutls"
 
   cd ..
 }
@@ -4710,8 +4717,9 @@ build_libdv() {
     # Makefile.am commands building a native binary to produce a header.
     # I have produced this header myself (it is quite simple) and included it
     # in this distribution.
-    rm -v configure
+    rm -v configure bootstrap
     apply_patch file://${top_dir}/dv.patch
+    apply_patch file://${top_dir}/libdv-configure.ac.patch
     apply_patch file://${top_dir}/libdv-gasmoff.patch
     apply_patch file://${top_dir}/libdv-enctest.c.patch
     apply_patch file://${top_dir}/libdv-encodedv-Makefile.am.patch
@@ -4848,9 +4856,11 @@ build_sox() {
   do_git_checkout https://git.code.sf.net/p/sox/code sox
   cd sox
   if [[ ! -f "configure" ]]; then
+    autoconf-archive
     autoreconf -fiv
+
   fi
-  generic_configure_make_install "--with-oss=no"
+  generic_configure_make_install # "--with-oss=no"
 
   cd ..
 }
@@ -5217,7 +5227,8 @@ build_filewalk() {
     do_cmake
     do_make
     # There is no 'install' target in the Makefile
-    cp -v libfiletree.a ${mingw_w64_x86_64_prefix}/lib/libfiletree.a
+    cp -v libfiletree.dll.a ${mingw_w64_x86_64_prefix}/lib/libfiletree.dll.a
+    cp -v libfiletree.dll ${mingw_w64_x86_64_prefix}/bin/libfiletree.dll
     cp -v filetree.h ${mingw_w64_x86_64_prefix}/include/filetree.h
 
   cd ..
@@ -5600,11 +5611,11 @@ build_1394camera() {
 }
 
 build_libdc1394() {
-  do_git_checkout https://github.com/astraw/dc1394.git libdc1394
-  cd libdc1394/libdc1394
-    generic_configure_make_install
-
-  cd ../..
+#  do_git_checkout https://github.com/astraw/dc1394.git libdc1394
+  download_and_unpack_file https://downloads.sourceforge.net/project/libdc1394/libdc1394-2/2.2.6/libdc1394-2.2.6.tar.gz libdc1394-2.2.6
+  cd libdc1394-2.2.6
+    generic_configure_make_install "--disable-sdl-test"
+  cd ..
 }
 
 build_libcxml(){
@@ -5643,7 +5654,7 @@ build_glibmm() {
   cd glibmm-2.63.1
 #    apply_patch file://${top_dir}/glibmm-2.63.1-mutex1.patch
 #    apply_patch file://${top_dir}/glibmm-2.63.1-mutex2.patch
-    generic_configure_make_install "--disable-silent-rules"
+    generic_configure_make_install "GLIB_COMPILE_SCHEMAS=/usr/bin/glib-compile-schemas --disable-silent-rules"
   cd ..
 #  do_git_checkout https://github.com/GNOME/glibmm.git glibmm glibmm-2-52
 #  cd glibmm
@@ -5664,17 +5675,17 @@ build_glibmm() {
   download_and_unpack_file https://ftp.gnome.org/pub/GNOME/sources/glibmm/2.62/glibmm-2.62.0.tar.xz glibmm-2.62.0
   cd glibmm-2.62.0
 #    apply_patch file://${top_dir}/glibmm-2.62.0-mutex.patch
-    generic_configure_make_install "--disable-silent-rules"
+    generic_configure_make_install "GLIB_COMPILE_SCHEMAS=/usr/bin/glib-compile-schemas --disable-silent-rules"
   cd ..
   download_and_unpack_file https://ftp.gnome.org/pub/GNOME/sources/glibmm/2.61/glibmm-2.61.1.tar.xz glibmm-2.61.1
   cd glibmm-2.61.1
 #    apply_patch file://${top_dir}/glibmm-2.61.1-mutex.patch
-    generic_configure_make_install "--disable-silent-rules"
+    generic_configure_make_install "GLIB_COMPILE_SCHEMAS=/usr/bin/glib-compile-schemas --disable-silent-rules"
   cd ..
   download_and_unpack_file https://ftp.gnome.org/pub/GNOME/sources/glibmm/2.59/glibmm-2.59.1.tar.xz glibmm-2.59.1
   cd glibmm-2.59.1
 #    apply_patch file://${top_dir}/glibmm-2.59.1-mutex.patch
-    generic_configure_make_install "--disable-silent-rules"
+    generic_configure_make_install "GLIB_COMPILE_SCHEMAS=/usr/bin/glib-compile-schemas --disable-silent-rules"
   cd ..
 }
 
@@ -5682,14 +5693,14 @@ build_libxml++ () {
 #  orig_aclocalpath=${ACLOCAL_PATH}
 #  export ACLOCAL_PATH="/usr/local/share/aclocal"
 #  download_and_unpack_file http://ftp.gnome.org/pub/GNOME/sources/libxml++/2.40/libxml++-2.40.1.tar.xz libxml++-2.40.1
-  do_git_checkout https://gitlab.gnome.org/Archive/libxmlplusplus.git libxmlplusplus 
-  cd libxmlplusplus
+#  do_git_checkout https://gitlab.gnome.org/Archive/libxmlplusplus.git libxmlplusplus 
+#  cd libxmlplusplus
 #  cd libxml++-2.40.1
-    rm -v configure
+#    rm -v configure
 #    apply_patch file://${top_dir}/libxml++-2.4-ac.patch
-    generic_configure_make_install
+#    generic_configure_make_install
 
-  cd ..
+#  cd ..
 #  do_git_checkout https://git.gnome.org/browse/libxml++ libxml++
 #  cd libxml++
 #    generic_configure_make_install
@@ -6438,7 +6449,7 @@ build_rtaudio() {
 build_libidn() {
   do_git_checkout https://gitlab.com/libidn/libidn2.git libidn2
   cd libidn2
-    generic_configure_make_install
+    generic_configure_make_install "--disable-doc"
 
   cd ..
 }
@@ -6876,6 +6887,9 @@ build_libvmaf() {
 	cd ../..
 }
 
+build_swig() {
+	generic_download_and_install http://prdownloads.sourceforge.net/swig/swig-4.0.2.tar.gz swig-4.0.2
+}
 
 build_uavs3d() {
 	do_git_checkout https://github.com/uavs3/uavs3d.git uavs3d
@@ -6903,7 +6917,7 @@ build_ffmpeg() {
 	local component_options="--enable-filter=frei0r --enable-decoder=aac"
 	local library_options="--enable-avisynth --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdc1394 --enable-libfdk-aac --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-gnutls --enable-libgsm --enable-libilbc --enable-libjack --enable-libklvanc --enable-liblensfun --enable-libmodplug --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopencv --enable-libopenmpt --enable-libopus --enable-librabbitmq --enable-librist --enable-librubberband --enable-librtmp --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libtesseract --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxavs2 --enable-libxvid --enable-libxml2 --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 --enable-decklink --enable-libmysofa --enable-opencl --enable-opengl --enable-vulkan"
 	local hardware_options="--enable-cuda-nvcc --enable-libmfx"
-	local toolchain_options="--arch=x86_64 --cross-prefix=$cross_prefix --enable-cross-compile --target-os=mingw32 --extra-version=Compiled_by_John_Warburton --enable-pic"
+	local toolchain_options="--arch=x86_64 --cross-prefix=$cross_prefix --enable-cross-compile --target-os=mingw32 --extra-version=Compiled_by_John_Warburton --enable-pic --nvccflags=-I/usr/local/cuda-11.3/targets/x86_64-linux/include"
 	local developer_options="--disable-debug --enable-stripping"
 	cd ffmpeg_git
 
@@ -7005,7 +7019,7 @@ build_dependencies() {
   build_opencl
   build_OpenCL
   build_libflite # too big for the ffmpeg distro...
-  build_sdl # needed for ffplay to be created
+  build_sdlgit # needed for ffplay to be created
   build_sdl2
   build_uchardet
   build_libopus
@@ -7217,9 +7231,9 @@ build_dependencies() {
 #  build_gobject_introspection
   build_libepoxy
   build_rtaudio
-  build_gtk2
-  build_gtk
-  build_gtkmm
+#  build_gtk2
+#  build_gtk
+#  build_gtkmm
   build_graphicsmagicksnapshot
   build_eigen
   build_libdv
@@ -7248,6 +7262,7 @@ build_dependencies() {
   build_rist
   build_srt
   build_libvmaf
+  build_swig
   #build_uavs3d
 #  build_librsvg
 }
@@ -7452,7 +7467,7 @@ while true; do
 done
 
 intro # remember to always run the intro, since it adjust pwd
-check_missing_packages
+#check_missing_packages
 # Install a decent set of colours for vim. Makes development easier.
 #do_git_checkout https://github.com/amix/vimrc.git ~/.vim_runtime
 #chmod +x ~/.vim_runtime/install_awesome_vimrc.sh
