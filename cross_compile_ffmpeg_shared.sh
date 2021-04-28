@@ -6277,7 +6277,7 @@ build_movit() {
   cd movit
     apply_patch file://${top_dir}/movit-ffs.patch
     apply_patch file://${top_dir}/movit-call_once.patch # Revert thread use not available
-    apply_patch file://${top_dir}/movit-resample.patch # GCC and Eigen don't get on here
+#    apply_patch file://${top_dir}/movit-resample.patch # GCC and Eigen don't get on here
     export GTEST_DIR=../googletest/googletest
     old_CFLAGS=${CFLAGS}
     old_CXXFLAGS=${CXXFLAGS}
@@ -7367,8 +7367,9 @@ build_apps() {
   build_dvdauthor
 #  build_audacity
 #  build_traverso
-  build_mlt # Framework, but relies on FFmpeg, Qt, and many other libraries we've built.
   build_movit
+  build_mlt # Framework, but relies on FFmpeg, Qt, and many other libraries we've built.
+#  build_movit
   build_xygrib
   #build_DJVnew # Requires FFmpeg libraries
   build_qjackctl
