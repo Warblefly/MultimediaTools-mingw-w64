@@ -1,0 +1,42 @@
+--- include/XGetopt.h.orig	2021-05-01 16:23:28.783899600 +0100
++++ include/XGetopt.h	2021-05-01 16:24:05.513899600 +0100
+@@ -20,6 +20,7 @@
+ #include <stdio.h>
+ #include <tchar.h>
+ 
++#if !defined(__GETOPT_H__)
+ #if defined(DLL_NETCDF)
+ # if defined(DLL_EXPORT)
+ #  define GTOPT_EXTRA __declspec(dllexport)
+@@ -36,5 +37,6 @@
+ extern TCHAR *optarg;
+ 
+ int getopt(int argc, TCHAR *argv[], TCHAR *optstring);
++#endif
+ 
+ #endif //XGETOPT_H
+--- include/XGetopt.h.orig	2021-05-01 16:47:53.543899600 +0100
++++ include/XGetopt.h	2021-05-01 16:48:02.173899600 +0100
+@@ -36,7 +36,7 @@
+ 
+ extern TCHAR *optarg;
+ 
+-int getopt(int argc, TCHAR *argv[], TCHAR *optstring);
++//int getopt(int argc, TCHAR *argv[], TCHAR *optstring);
+ #endif
+ 
+ #endif //XGETOPT_H
+--- include/XGetopt.h.orig	2021-05-01 17:17:07.673899600 +0100
++++ include/XGetopt.h	2021-05-01 17:18:22.423899600 +0100
+@@ -28,9 +28,9 @@
+ #  define GTOPT_EXTRA __declspec(dllimport)
+ # endif
+ 
+-GTOPT_EXTRA extern int optind, opterr;
++// GTOPT_EXTRA extern int optind, opterr;
+ #else
+-extern int optind, opterr;
++// extern int optind, opterr;
+ #endif
+ 
+ 

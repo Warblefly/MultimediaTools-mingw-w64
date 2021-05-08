@@ -1,0 +1,13 @@
+--- CMakeLists.txt.orig	2021-05-01 12:07:18.523899600 +0100
++++ CMakeLists.txt	2021-05-01 12:08:16.663899600 +0100
+@@ -241,8 +241,8 @@
+ endif()
+ 
+ if(MOD_OPENCV)
+-  find_package(OpenCV REQUIRED COMPONENTS tracking)
+-  if(OpenCV_tracking_FOUND)
++  find_package(OpenCV)
++  if(OpenCV_FOUND)
+     list(APPEND MLT_SUPPORTED_COMPONENTS opencv)
+   else()
+     set(MOD_OPENCV OFF)

@@ -1,44 +1,13 @@
---- src/lib/environment_info.cc.ori	2017-11-10 22:26:18.243404300 +0000
-+++ src/lib/environment_info.cc	2017-11-10 22:26:39.623140900 +0000
-@@ -35,7 +35,7 @@
- #include <libavcodec/avcodec.h>
- #include <libavformat/avformat.h>
- #include <libswscale/swscale.h>
--#include <libavfilter/avfiltergraph.h>
-+/* #include <libavfilter/avfiltergraph.h> */
- #include <libavutil/pixfmt.h>
- }
- #include <boost/thread.hpp>
---- src/lib/filter_graph.cc.orig	2017-11-10 22:27:29.674055600 +0000
-+++ src/lib/filter_graph.cc	2017-11-10 22:27:43.662495300 +0000
-@@ -28,7 +28,7 @@
- #include "image.h"
- #include "compose.hpp"
- extern "C" {
--#include <libavfilter/avfiltergraph.h>
-+/* #include <libavfilter/avfiltergraph.h> */
- #include <libavfilter/buffersrc.h>
- #include <libavfilter/buffersink.h>
- #include <libavformat/avio.h>
---- src/lib/environment_info.cc.orig	2017-11-10 22:55:36.967935400 +0000
-+++ src/lib/environment_info.cc	2017-11-10 22:56:31.755837300 +0000
-@@ -32,6 +32,7 @@
+--- src/lib/util.cc.orig	2021-05-05 19:30:42.113899600 +0100
++++ src/lib/util.cc	2021-05-05 19:31:46.193899600 +0100
+@@ -366,8 +366,8 @@
  #endif
- #include <magick/version.h>
- extern "C" {
-+#include <libavfilter/avfilter.h>
- #include <libavcodec/avcodec.h>
- #include <libavformat/avformat.h>
- #include <libswscale/swscale.h>
---- src/lib/ffmpeg_encoder.cc.orig	2017-11-10 23:04:51.272478500 +0000
-+++ src/lib/ffmpeg_encoder.cc	2017-11-10 23:05:22.051766100 +0000
-@@ -102,6 +102,9 @@
- 	_butler.reset (new Butler (_player, film->log(), map, _output_audio_channels));
- }
  
-+#define CODEC_FLAG_GLOBAL_HEADER 0x00400000
-+#define CODEC_FLAG_QSCALE        0x0002
-+
- void
- FFmpegEncoder::setup_video ()
- {
+ DCPOMATIC_DISABLE_WARNINGS
+-	av_register_all ();
+-	avfilter_register_all ();
++//	av_register_all (); FFmpeg API means all formats and filters are all registered.
++//	avfilter_register_all ();
+ DCPOMATIC_ENABLE_WARNINGS
+ 
+ #ifdef DCPOMATIC_OSX

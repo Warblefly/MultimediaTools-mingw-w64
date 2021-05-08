@@ -1,0 +1,11 @@
+--- liblib/CMakeLists.txt.orig	2021-05-01 15:50:06.193899600 +0100
++++ liblib/CMakeLists.txt	2021-05-01 15:50:23.353899600 +0100
+@@ -109,7 +109,7 @@
+ ENDIF()
+ 
+ IF(ENABLE_NCZARR_ZIP)
+-  SET(TLL_LIBS ${TLL_LIBS} ${Zip_LIBRARIES})
++  SET(TLL_LIBS ${TLL_LIBS} z)
+ ENDIF()
+ 
+ IF(ENABLE_S3_SDK)

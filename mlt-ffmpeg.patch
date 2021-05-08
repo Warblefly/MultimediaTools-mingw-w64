@@ -1,0 +1,80 @@
+--- src/modules/avformat/factory.c.orig	2021-05-01 12:13:47.363899600 +0100
++++ src/modules/avformat/factory.c	2021-05-01 12:16:18.163899600 +0100
+@@ -46,35 +46,35 @@
+ // A static flag used to determine if avformat has been initialised
+ static int avformat_initialised = 0;
+ 
+-static int avformat_lockmgr(void **mutex, enum AVLockOp op)
+-{
+-	pthread_mutex_t** pmutex = (pthread_mutex_t**) mutex;
+-
+-	switch (op)
+-	{
+-	case AV_LOCK_CREATE:
+-		*pmutex = (pthread_mutex_t*) malloc(sizeof(pthread_mutex_t));
+-		if (!*pmutex) return -1;
+-		pthread_mutex_init(*pmutex, NULL);
+-		break;
+-	case AV_LOCK_OBTAIN:
+-		if (!*pmutex) return -1;
+-		pthread_mutex_lock(*pmutex);
+-		break;
+-	case AV_LOCK_RELEASE:
+-		if (!*pmutex) return -1;
+-		pthread_mutex_unlock(*pmutex);
+-		break;
+-	case AV_LOCK_DESTROY:
+-		if (!*pmutex) return -1;
+-		pthread_mutex_destroy(*pmutex);
+-		free(*pmutex);
+-		*pmutex = NULL;
+-		break;
+-	}
++//static int avformat_lockmgr(void **mutex, enum AVLockOp op)
++//{
++//	pthread_mutex_t** pmutex = (pthread_mutex_t**) mutex;
+ 
+-	return 0;
+-}
++//	switch (op)
++//	{
++//	case AV_LOCK_CREATE:
++//		*pmutex = (pthread_mutex_t*) malloc(sizeof(pthread_mutex_t));
++//		if (!*pmutex) return -1;
++//		pthread_mutex_init(*pmutex, NULL);
++//		break;
++//	case AV_LOCK_OBTAIN:
++//		if (!*pmutex) return -1;
++//		pthread_mutex_lock(*pmutex);
++//		break;
++//	case AV_LOCK_RELEASE:
++//		if (!*pmutex) return -1;
++//		pthread_mutex_unlock(*pmutex);
++//		break;
++//	case AV_LOCK_DESTROY:
++//		if (!*pmutex) return -1;
++//		pthread_mutex_destroy(*pmutex);
++//		free(*pmutex);
++//		*pmutex = NULL;
++//		break;
++//	}
++//
++//	return 0;
++//}
+ 
+ static void unregister_lockmgr( void *p )
+ {
+@@ -87,9 +87,10 @@
+ 	if ( avformat_initialised == 0 )
+ 	{
+ 		avformat_initialised = 1;
+-		av_lockmgr_register( &avformat_lockmgr );
+-		mlt_factory_register_for_clean_up( &avformat_lockmgr, unregister_lockmgr );
+-		av_register_all( );
++// FFmpeg API changes
++//		av_lockmgr_register( &avformat_lockmgr );
++//		mlt_factory_register_for_clean_up( &avformat_lockmgr, unregister_lockmgr );
++//		av_register_all( );
+ #ifdef AVDEVICE
+ 		avdevice_register_all();
+ #endif
