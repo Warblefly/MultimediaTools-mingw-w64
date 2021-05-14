@@ -5863,12 +5863,14 @@ build_vlc() {
     apply_patch file://${top_dir}/vlc-dcomp-unpatch.patch # EGL unavailable in pure mingw-w64 build
     apply_patch file://${top_dir}/vlc-trunc.patch
     apply_patch file://${top_dir}/vlc-swapbuffers-conflict.patch
+    apply_patch file://${top_dir}/vlc-dwmapi.patch
     export LIVE555_CFLAGS="-I${mingw_w64_x86_64_prefix}/include/liveMedia -I${mingw_w64_x86_64_prefix}/include/UsageEnvironment -I${mingw_w64_x86_64_prefix}/include/BasicUsageEnvironment -I${mingw_w64_x86_64_prefix}/include/groupsock"
     export LIBMPEG2_CFLAGS="-I${mingw_w64_x86_64_prefix}/include/mpeg2dec"
     export SCHROEDINGER_CFLAGS="-I${mingw_w64_x86_64_prefix}/include/schroedinger-1.0"
     export OPUS_CFLAGS="-I${mingw_w64_x86_64_prefix}/include/opus"
     export DSM_LIBS="-lws2_32 -ldsm"
     export AOM_LIBS="-laom -lpthread -lm"
+#    export QT_LIBS="-ldwmapi"
     export SRT_LIBS="-lws2_32 -lsrt"
     export BUILDCC=/usr/bin/gcc
     #export cpu_count=1
