@@ -1,0 +1,11 @@
+--- libcdi/src/Makefile.am.orig	2021-05-22 18:27:30.233322500 +0100
++++ libcdi/src/Makefile.am	2021-05-22 18:28:58.003322500 +0100
+@@ -179,7 +179,7 @@
+ 	$(libcdi_la_HAVE_LIBGRIB_API_extra_sources) \
+ 	$(libcdipio_la_HAVE_PARALLEL_NC4_extra_sources)
+ 
+-
++libcdi_la_LDFLAGS = -no-undefined -version-info 0:0:0 
+ 
+ libcdi_f2003_la_SOURCES = mo_cdi.f90
+ libcdi_f2003_ladir = $(includedir)

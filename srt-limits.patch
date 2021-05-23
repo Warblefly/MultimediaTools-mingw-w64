@@ -1,0 +1,10 @@
+--- srtcore/sync.h.orig	2021-05-21 11:12:47.323322500 +0100
++++ srtcore/sync.h	2021-05-21 11:13:50.933322500 +0100
+@@ -15,6 +15,7 @@
+ //#define ENABLE_CXX17
+ 
+ #include <cstdlib>
++#include <limits>
+ #ifdef ENABLE_STDCXX_SYNC
+ #include <chrono>
+ #include <thread>

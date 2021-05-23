@@ -756,7 +756,7 @@ do_cleanup() {
 
 build_libx265() {
 if [ ! -f libx265.built ]; then
-  do_git_checkout https://github.com/videolan/x265.git x265 #1388601db0d23f8d8c3259886e9fcb747c1d5b52
+  do_git_checkout https://bitbucket.org/multicoreware/x265_git.git x265 #1388601db0d23f8d8c3259886e9fcb747c1d5b52
   cd x265
     apply_patch file://${top_dir}/x265-CMakeVersion.patch
 #    apply_patch file://${top_dir}/x265-headers-revert.patch
@@ -765,19 +765,19 @@ if [ ! -f libx265.built ]; then
     cd source
 	mkdir -p 12bit 10bit 8bit
 	cd 12bit
-    		local cmake_params="-DENABLE_STATIC=ON -DENABLE_SHARED=OFF -DENABLE_ASSEMBLY=ON -DHIGH_BIT_DEPTH=ON -DMAIN12=1 -DEXPORT_C_API=0 -DENABLE_CLI=0"
+    		local cmake_params="-DENABLE_STATIC=ON -DENABLE_SHARED=OFF -DENABLE_ASSEMBLY=ON -DHIGH_BIT_DEPTH=ON -DMAIN12=1 -DEXPORT_C_API=0 -DENABLE_CLI=0 -DCMAKE_ASM_NASM_FLAGS=-w-macro-params-legacy"
 		do_cmake .. "$cmake_params"
 		do_make
 		cp -vf libx265.a ../8bit/libx265_main12.a
 	cd ..
 	cd 10bit
-		local cmake_params="-DENABLE_STATIC=ON -DENABLE_SHARED=OFF -DENABLE_ASSEMBLY=ON -DHIGH_BIT_DEPTH=ON -DENABLE_HDR10_PLUS=1 -DENABLE_CLI=0 -DEXPORT_C_API=0"
+		local cmake_params="-DENABLE_STATIC=ON -DENABLE_SHARED=OFF -DENABLE_ASSEMBLY=ON -DHIGH_BIT_DEPTH=ON -DENABLE_HDR10_PLUS=1 -DENABLE_CLI=0 -DEXPORT_C_API=0 -DCMAKE_ASM_NASM_FLAGS=-w-macro-params-legacy"
 		do_cmake .. "$cmake_params"
 		do_make
 		cp -vf libx265.a ../8bit/libx265_main10.a
 	cd ..
 	cd 8bit
-		local cmake_params="-DENABLE_STATIC=ON -DENABLE_SHARED=OFF -DENABLE_ASSEMBLY=ON -DENABLE_CLI=1 -DEXTRA_LINK_FLAGS=-L -DLINKED_10BIT=1 -DLINKED_12BIT=1 -DEXTRA_LIB='$(pwd)/libx265_main10.a;$(pwd)/libx265_main12.a'"
+		local cmake_params="-DENABLE_STATIC=ON -DENABLE_SHARED=OFF -DENABLE_ASSEMBLY=ON -DENABLE_CLI=1 -DEXTRA_LINK_FLAGS=-L -DLINKED_10BIT=1 -DLINKED_12BIT=1 -DCMAKE_ASM_NASM_FLAGS=-w-macro-params-legacy -DEXTRA_LIB='$(pwd)/libx265_main10.a;$(pwd)/libx265_main12.a'"
 		do_cmake .. "$cmake_params"
 		do_make
 		mv -vf libx265.a libx265_main.a
@@ -966,7 +966,8 @@ build_qt() {
 				#pply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qttools/raw/rawhide/f/qttools-qt5-suffix.patch
 				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qttools/raw/rawhide/f/qttools-gcc11.patch
 			cd ..
-			apply_patch file://${top_dir}/qt5-qtcore-case.patch 
+			apply_patch file://${top_dir}/qt5-qtcore-case.patch
+		        apply_patch file://${top_dir}/qt-limits.patch	
 		cd ..
 
 		mkdir qt-build
@@ -6344,6 +6345,7 @@ build_aom() {
     export LD=x86_64-w64-mingw32-ld
     export AR=x86_64-w64-mingw32-ar
     export CXX=x86_64-w64-mingw32-g++
+#    apply_patch file://${top_dir}/aom-warn.patch
 #    apply_patch file://${top_dir}/aom-pthread.patch
 #    do_configure "--target=x86_64-win64-gcc --prefix=${mingw_w64_x86_64_prefix} --enable-webm-io --enable-pic --enable-multithread --enable-runtime-cpu-detect --enable-postproc --enable-av1 --enable-lowbitdepth --disable-unit-tests"
     mkdir -pv ../aom_build
@@ -6911,6 +6913,7 @@ build_rist() {
 build_srt() {
 	download_and_unpack_file https://github.com/Haivision/srt/archive/refs/tags/v1.4.2.tar.gz srt-1.4.2
 	cd srt-1.4.2
+		apply_patch file://${top_dir}/srt-limits.patch
 		do_cmake .
 		do_make_install
 	cd ..
@@ -6925,6 +6928,29 @@ build_libvmaf() {
 
 build_swig() {
 	generic_download_and_install http://prdownloads.sourceforge.net/swig/swig-4.0.2.tar.gz swig-4.0.2
+}
+
+build_libposixrandom() {
+	do_git_checkout https://github.com/Warblefly/libPosixRandom libPosixRandom
+	cd libPosixRandom
+		do_cmake
+		do_make
+		do_make_install
+	cd ..
+}
+
+build_cdo() {
+	download_and_unpack_file https://code.mpimet.mpg.de/attachments/download/24638/cdo-1.9.10.tar.gz cdo-1.9.10
+	cd cdo-1.9.10
+		apply_patch file://${top_dir}/cdo-cdi-shared.patch
+		apply_patch file://${top_dir}/cdo-cdi-posix.patch
+		autoreconf -fvi
+		cd libcdi
+			apply_patch file://${top_dir}/libcdi-posix.patch
+			autoreconf -fvi
+		cd ..
+		generic_configure_make_install "--enable-cdi-lib=yes --enable-hirlam-extensions=yes --enable-cdi-app=yes"
+	cd ..
 }
 
 build_uavs3d() {
@@ -7300,6 +7326,8 @@ build_dependencies() {
   build_srt
   build_libvmaf
   build_swig
+  build_libposixrandom
+  build_cdo
   #build_uavs3d
 #  build_librsvg
 }

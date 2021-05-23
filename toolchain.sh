@@ -142,15 +142,15 @@ echo "Mingw-w64 headers are installed."
 
 echo "Cloning GCC..."
 
-#git clone --depth 1 -b master --single-branch https://github.com/gcc-mirror/gcc.git gcc || echo "Seems we have GCC."
+git clone --depth 1 -b releases/gcc-11 --single-branch https://github.com/gcc-mirror/gcc.git gcc || echo "Seems we have GCC."
 
-git clone --depth 1 git://gcc.gnu.org/git/gcc.git gcc-dir.tmp
-git --git-dir=gcc-dir.tmp/.git fetch --depth 1 origin 3fc88aa16f1bf661db4518d6d62869f081981981
-git --git-dir=gcc-dir.tmp/.git archive --prefix=mingw-gcc-10.2.1-20200723/ 3fc88aa16f1bf661db4518d6d62869f081981981 | gzip -v -v -9 > mingw-gcc-10.2.1-20200723.tar.gz
-rm -rf gcc-dir.tmp
-tar xvvf mingw-gcc-10.2.1-20200723.tar.gz
-rm mingw-gcc-10.2.1-20200723.tar.gz
-mv mingw-gcc-10.2.1-20200723 gcc
+#git clone --depth 1 git://gcc.gnu.org/git/gcc.git gcc-dir.tmp
+#git --git-dir=gcc-dir.tmp/.git fetch --depth 1 origin 3fc88aa16f1bf661db4518d6d62869f081981981
+#git --git-dir=gcc-dir.tmp/.git archive --prefix=mingw-gcc-10.2.1-20200723/ 3fc88aa16f1bf661db4518d6d62869f081981981 | gzip -v -v -9 > mingw-gcc-10.2.1-20200723.tar.gz
+#rm -rf gcc-dir.tmp
+#tar xvvf mingw-gcc-10.2.1-20200723.tar.gz
+#rm mingw-gcc-10.2.1-20200723.tar.gz
+#mv mingw-gcc-10.2.1-20200723 gcc
 
 echo "GCC has arrived."
 
@@ -163,8 +163,8 @@ cd gcc
 		tar xvvf mpfr-4.1.0.tar.xz && ln -sv mpfr-4.1.0 mpfr
 		wget https://ftp.gnu.org/gnu/mpc/mpc-1.2.1.tar.gz || exit 1
 		tar xvvf mpc-1.2.1.tar.gz && ln -sv mpc-1.2.1 mpc
-		wget http://isl.gforge.inria.fr/isl-0.23.tar.xz || exit 1
-		tar xvvf isl-0.23.tar.xz && ln -sv isl-0.23 isl
+		wget http://isl.gforge.inria.fr/isl-0.24.tar.xz || exit 1
+		tar xvvf isl-0.24.tar.xz && ln -sv isl-0.24 isl
 		touch gcc_accessories_source
 	else
 		echo "Accessories already downloaded and linked."
