@@ -1,0 +1,22 @@
+--- src/grib_api_internal.h.orig	2021-05-24 18:53:35.303322500 +0100
++++ src/grib_api_internal.h	2021-05-24 18:54:42.183322500 +0100
+@@ -166,19 +166,8 @@
+         if (!(a)) codes_assertion_failed(#a, __FILE__, __LINE__); \
+     } while (0)
+ 
+-#ifdef __gnu_hurd__
+ #define COMPILE_TIME_ASSERT(condition) \
+     extern int compile_time_assert[!!(condition)-1]
+-#else
+-/* Compile time assertion - Thanks to Ralf Holly */
+-#define COMPILE_TIME_ASSERT(condition)        \
+-    do {                                      \
+-        enum                                  \
+-        {                                     \
+-            assert_static__ = 1 / (condition) \
+-        };                                    \
+-    } while (0)
+-#endif
+ 
+ #ifdef DEBUG
+ #define DebugAssert(a) Assert(a)

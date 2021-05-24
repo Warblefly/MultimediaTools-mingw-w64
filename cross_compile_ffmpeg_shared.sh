@@ -2950,9 +2950,9 @@ build_liba52() {
 
 build_p11kit() {
 #  generic_download_and_install https://p11-glue.freedesktop.org/releases/p11-kit-0.23.2.tar.gz p11-kit-0.23.2
-  do_git_checkout https://github.com/p11-glue/p11-kit.git p11-kit #f00183944fad943216ac5842f6b23ab5c4149e50
+  do_git_checkout https://github.com/p11-glue/p11-kit.git p11-kit 34b568727ff98ebb36f45a3d63c07f165c58219b
   cd p11-kit
-    generic_meson_ninja_install 
+    generic_meson_ninja_install "-Dnls=false" 
   cd ..
 #  cd p11-kit-0.23.2
 }
@@ -6939,6 +6939,24 @@ build_libposixrandom() {
 	cd ..
 }
 
+build_eccodes() {
+	do_git_checkout https://github.com/ecmwf/ecbuild ecbuild
+	export old_path=${PATH}
+	export PATH=${top_dir}/sandbox/x86_64/ecbuild/bin:${PATH}
+	do_git_checkout https://github.com/ecmwf/eccodes.git eccodes
+	cd eccodes
+		apply_patch file://${top_dir}/eccodes-msvc.patch
+#		apply_patch file://${top_dir}/eccodes-assert.patch
+	cd ..
+	mkdir eccodes_build
+	cd eccodes_build
+		do_cmake ../eccodes "-DENABLE_PNG=ON -DENABLE_EECODES_THREADS=ON -DENABLE_FORTRAN=OFF -DENABLE_JPG_LIBOPENJPEG=ON -DENABLE_JPG_LIBJASPER=OFF -DCMAKE_VERBOSE_MAKEFILE=ON -DENABLE_BUILD_TOOLS=OFF"
+		do_make
+		do_make_install
+	cd ..
+	export PATH=${old_path}
+}
+
 build_cdo() {
 	download_and_unpack_file https://code.mpimet.mpg.de/attachments/download/24638/cdo-1.9.10.tar.gz cdo-1.9.10
 	cd cdo-1.9.10
@@ -7327,6 +7345,7 @@ build_dependencies() {
   build_libvmaf
   build_swig
   build_libposixrandom
+  build_eccodes
   build_cdo
   #build_uavs3d
 #  build_librsvg
