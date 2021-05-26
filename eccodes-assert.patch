@@ -1,12 +1,38 @@
---- src/grib_api_internal.h.orig	2021-05-24 18:53:35.303322500 +0100
-+++ src/grib_api_internal.h	2021-05-24 18:54:42.183322500 +0100
-@@ -166,19 +166,8 @@
+--- tools/grib_tools.c.orig	2021-05-25 19:35:16.943322500 +0100
++++ tools/grib_tools.c	2021-05-25 19:35:37.703322500 +0100
+@@ -338,10 +338,6 @@
+             exit(1);
+         }
+         if (options->infile_offset) {
+-#ifndef ECCODES_ON_WINDOWS
+-            /* Check at compile time to ensure our file offset is at least 64 bits */
+-            COMPILE_TIME_ASSERT(sizeof(options->infile_offset) >= 8);
+-#endif
+             err = fseeko(infile->file, options->infile_offset, SEEK_SET);
+             if (err) {
+                 /*fprintf(stderr, "Invalid file offset: %ld\n", options->infile_offset);*/
+--- tools/grib_options.c.orig	2021-05-25 19:36:15.143322500 +0100
++++ tools/grib_options.c	2021-05-25 19:36:36.783322500 +0100
+@@ -248,10 +248,6 @@
+     if (grib_options_on("X:"))
+         options->infile_offset = atol(grib_options_get_option("X:"));
+ 
+-#ifndef ECCODES_ON_WINDOWS
+-    /* Check at compile time to ensure our file offset is at least 64 bits */
+-    COMPILE_TIME_ASSERT(sizeof(options->infile_offset) >= 8);
+-#endif
+ 
+     has_output      = grib_options_on("U");
+     has_input_extra = grib_options_on("I");
+--- src/grib_api_internal.h.orig	2021-05-25 19:40:34.073322500 +0100
++++ src/grib_api_internal.h	2021-05-25 19:40:55.263322500 +0100
+@@ -166,20 +166,6 @@
          if (!(a)) codes_assertion_failed(#a, __FILE__, __LINE__); \
      } while (0)
  
 -#ifdef __gnu_hurd__
- #define COMPILE_TIME_ASSERT(condition) \
-     extern int compile_time_assert[!!(condition)-1]
+-#define COMPILE_TIME_ASSERT(condition) \
+-    extern int compile_time_assert[!!(condition)-1]
 -#else
 -/* Compile time assertion - Thanks to Ralf Holly */
 -#define COMPILE_TIME_ASSERT(condition)        \
@@ -17,6 +43,7 @@
 -        };                                    \
 -    } while (0)
 -#endif
- 
+-
  #ifdef DEBUG
  #define DebugAssert(a) Assert(a)
+ #define DebugAssertAccess(array, index, size)                                                                             \

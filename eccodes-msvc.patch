@@ -62,3 +62,17 @@
  
  # gfortran 10 has become stricter with argument matching
  if( HAVE_FORTRAN AND CMAKE_Fortran_COMPILER_ID MATCHES "GNU" AND NOT CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 10 )
+--- tools/grib_tools.c.orig	2021-05-25 19:51:43.093322500 +0100
++++ tools/grib_tools.c	2021-05-25 19:52:11.163322500 +0100
+@@ -625,11 +625,7 @@
+     struct stat s;
+     int stat_val = 0;
+ 
+-#ifndef ECCODES_ON_WINDOWS
+-    stat_val = lstat(path, &s);
+-#else
+     stat_val = stat(path, &s);
+-#endif
+ 
+     if (stat_val != 0) {
+         grib_context_log(c, (GRIB_LOG_ERROR) | (GRIB_LOG_PERROR), "Cannot stat %s", path);

@@ -115,3 +115,49 @@
  
  bool gridVerbose = false;
  
+--- libcdi/app/Makefile.am.orig	2021-05-25 16:45:07.873322500 +0100
++++ libcdi/app/Makefile.am	2021-05-25 16:45:43.563322500 +0100
+@@ -22,7 +22,7 @@
+ endif
+ #
+ createtable_SOURCES = createtable.c
+-createtable_LDADD   = $(top_builddir)/src/libcdi.la
++createtable_LDADD   = $(top_builddir)/src/libcdi.la -lmingwex
+ if ENABLE_ALL_STATIC
+ createtable_LDFLAGS = -all-static
+ endif
+--- libcdi/src/gribapi_utilities.c.orig	2021-05-25 16:55:26.103322500 +0100
++++ libcdi/src/gribapi_utilities.c	2021-05-25 17:02:55.623322500 +0100
+@@ -172,7 +172,11 @@
+ {
+   char* temp = getenv("TZ"), *result = NULL;
+   if(temp) result = strdup(temp);
++#ifdef _WIN32
++  (void)_putenv_s("TZ", "UTC");
++#else
+   setenv("TZ", "UTC", 1);
++#endif
+   return result;
+ }
+ 
+@@ -181,12 +185,20 @@
+ {
+   if(savedTz)
+     {
++#ifdef _WIN32
++      (void)_putenv_s("TZ", savedTz);
++#else
+       setenv("TZ", savedTz, 1);
++#endif
+       Free(savedTz);
+     }
+   else
+     {
++#if _WIN32
++	    (void)_putenv_s("TZ", "");
++#else
+       unsetenv("TZ");
++#endif
+     }
+ }
+ 

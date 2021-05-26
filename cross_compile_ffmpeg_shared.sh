@@ -6329,7 +6329,7 @@ build_movit() {
 }
 
 build_aom() {
-  do_git_checkout https://aomedia.googlesource.com/aom aom #312b85e99e4b1cc50c884ce35f6d715f76b275ea # bbe0a0a1cd34dc5aa9040f1d8b68468f32b895e4
+  do_git_checkout https://aomedia.googlesource.com/aom aom b647d8aca84250402aa2f0c905eed8fefce27851 #312b85e99e4b1cc50c884ce35f6d715f76b275ea # bbe0a0a1cd34dc5aa9040f1d8b68468f32b895e4
   cd aom
     old_LDFLAGS=${LDFLAGS}
     old_CFLAGS=${CFLAGS}
@@ -6946,11 +6946,11 @@ build_eccodes() {
 	do_git_checkout https://github.com/ecmwf/eccodes.git eccodes
 	cd eccodes
 		apply_patch file://${top_dir}/eccodes-msvc.patch
-#		apply_patch file://${top_dir}/eccodes-assert.patch
+		apply_patch file://${top_dir}/eccodes-assert.patch
 	cd ..
 	mkdir eccodes_build
 	cd eccodes_build
-		do_cmake ../eccodes "-DENABLE_PNG=ON -DENABLE_EECODES_THREADS=ON -DENABLE_FORTRAN=OFF -DENABLE_JPG_LIBOPENJPEG=ON -DENABLE_JPG_LIBJASPER=OFF -DCMAKE_VERBOSE_MAKEFILE=ON -DENABLE_BUILD_TOOLS=OFF"
+		do_cmake ../eccodes "-DENABLE_PNG=ON -DENABLE_EECODES_THREADS=ON -DENABLE_FORTRAN=OFF -DENABLE_JPG_LIBOPENJPEG=ON -DENABLE_JPG_LIBJASPER=OFF -DCMAKE_VERBOSE_MAKEFILE=ON -DENABLE_BUILD_TOOLS=ON"
 		do_make
 		do_make_install
 	cd ..
@@ -6967,7 +6967,7 @@ build_cdo() {
 			apply_patch file://${top_dir}/libcdi-posix.patch
 			autoreconf -fvi
 		cd ..
-		generic_configure_make_install "--enable-cdi-lib=yes --enable-hirlam-extensions=yes --enable-cdi-app=yes"
+		generic_configure_make_install "--enable-cdi-lib=yes --enable-hirlam-extensions=yes --enable-cdi-app=yes --with-eccodes=${mingw_w64_x86_64_prefix}"
 	cd ..
 }
 
