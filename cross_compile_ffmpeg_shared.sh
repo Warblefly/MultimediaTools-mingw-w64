@@ -506,8 +506,8 @@ do_cmake() {
     export PKG_CONFIG_PATH="${mingw_w64_x86_64_prefix}/lib/pkgconfig"
     export PKG_CONFIG_LIBDIR="${mingw_w64_x86_64_prefix}/lib/pkgconfig"
     echo doing cmake in $cur_dir2 with PATH=$PATH  with extra_args=$extra_args like this:
-    echo cmake $source_dir $extra_args -DBUILD_SHARED_LIBS=1 -DBUILD_STATIC_LIBS=0 -DENABLE_STATIC_RUNTIME=0 -DENABLE_SHARED_RUNTIME=1 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_RANLIB=${cross_prefix}ranlib -DCMAKE_C_COMPILER=${cross_prefix}gcc -DCMAKE_CXX_COMPILER=${cross_prefix}g++ -DCMAKE_Fortran_COMPILER:FILEPATH=${cross_prefix}gfortran -DCMAKE_RC_COMPILER=${cross_prefix}windres -DCMAKE_INSTALL_PREFIX=$mingw_w64_x86_64_prefix -DCMAKE_BUILD_TYPE=Release || exit 1
-    cmake $source_dir $extra_args -DBUILD_SHARED_LIBS=1 -DBUILD_STATIC_LIBS=0 -DENABLE_STATIC_RUNTIME=0 -DENABLE_SHARED_RUNTIME=1 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_RANLIB=${cross_prefix}ranlib -DCMAKE_C_COMPILER=${cross_prefix}gcc -DCMAKE_CXX_COMPILER=${cross_prefix}g++ -DCMAKE_RC_COMPILER=${cross_prefix}windres -DCMAKE_INSTALL_PREFIX=$mingw_w64_x86_64_prefix -DCMAKE_BUILD_TYPE=Release || exit 1
+    echo cmake $source_dir $extra_args -DBUILD_SHARED_LIBS=1 -DBUILD_STATIC_LIBS=0 -DENABLE_STATIC_RUNTIME=0 -DENABLE_SHARED_RUNTIME=1 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_RANLIB=${cross_prefix}ranlib -DCMAKE_C_COMPILER=${cross_prefix}gcc -DCMAKE_CXX_COMPILER=${cross_prefix}g++ -DCMAKE_Fortran_COMPILER=${cross_prefix}gfortran -DCMAKE_RC_COMPILER=${cross_prefix}windres -DCMAKE_INSTALL_PREFIX=$mingw_w64_x86_64_prefix -DCMAKE_BUILD_TYPE=Release || exit 1
+    cmake $source_dir $extra_args -DBUILD_SHARED_LIBS=1 -DBUILD_STATIC_LIBS=0 -DENABLE_STATIC_RUNTIME=0 -DENABLE_SHARED_RUNTIME=1 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_RANLIB=${cross_prefix}ranlib -DCMAKE_C_COMPILER=${cross_prefix}gcc -DCMAKE_CXX_COMPILER=${cross_prefix}g++ -DCMAKE_Fortran_COMPILER=${cross_prefix}gfortran -DCMAKE_RC_COMPILER=${cross_prefix}windres -DCMAKE_INSTALL_PREFIX=$mingw_w64_x86_64_prefix -DCMAKE_BUILD_TYPE=Release || exit 1
     touch $touch_name || exit 1
     unset CMAKE_INCLUDE_PATH
     unset CMAKE_PREFIX_PATH
@@ -5792,20 +5792,26 @@ build_exif() {
 }
 
 build_hdf() {
-	download_and_unpack_file https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-1.10.6/src/hdf5-1.10.6.tar.bz2 hdf5-1.10.6
-	cd hdf5-1.10.6
-		mkdir -pv build
-		cd build
-			do_cmake ..
-			do_make
-			do_make_install
-		cd ..
+	do_git_checkout https://github.com/HDFGroup/hdf5.git hdf5
+	cd hdf5
+#	download_and_unpack_file https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.12/hdf5-1.12.0/src/hdf5-1.12.0.tar.bz2 hdf5-1.12.0
+#	cd hdf5-1.12.0
+		apply_patch file://${top_dir}/hdf5-shared.patch
+		generic_configure_make_install "--enable-build-mode=production --disable-fortran --enable-cxx --enable-hl --enable-tools --enable-deprecated-symbols --enable-zlib"
 	cd ..
+}
+#		mkdir -pv build
+#		cd build
+#			do_cmake .. "-DBUILD_TESTING=OFF -DHDF5_BUILD_HL_LIB=ON -DHDF5_BUILD_CPP_LIB=ON -DHDF5_BUILD_FORTRAN=OFF -DHDF5_BUILD_TOOLS=ON -DHDF5_ENABLE_DEPRETATED_SYMBOLS=ON -DHDF5_ENABLE_Z_LIB_SUPPORT=ON"
+#			do_make
+#			do_make_install
+#		cd ..
+#	cd ..
 #  generic_download_and_install http://www.hdfgroup.org/ftp/HDF5/current/src/hdf5-1.8.19.tar.bz2 hdf5-1.8.19
 #  cd hdf5-1.10.1
 
 #  cd ..
-}
+
 
 build_netcdf() {
 #  do_git_checkout https://github.com/Unidata/netcdf-c.git netcdf-c ba24e3c08e52e869c18f8f34e2d78622e60e6ce7
@@ -5865,6 +5871,7 @@ build_vlc() {
     apply_patch file://${top_dir}/vlc-trunc.patch
     apply_patch file://${top_dir}/vlc-swapbuffers-conflict.patch
     apply_patch file://${top_dir}/vlc-dwmapi.patch
+    apply_patch file://${top_dir}/vlc-ffmpeg4.patch
     export LIVE555_CFLAGS="-I${mingw_w64_x86_64_prefix}/include/liveMedia -I${mingw_w64_x86_64_prefix}/include/UsageEnvironment -I${mingw_w64_x86_64_prefix}/include/BasicUsageEnvironment -I${mingw_w64_x86_64_prefix}/include/groupsock"
     export LIBMPEG2_CFLAGS="-I${mingw_w64_x86_64_prefix}/include/mpeg2dec"
     export SCHROEDINGER_CFLAGS="-I${mingw_w64_x86_64_prefix}/include/schroedinger-1.0"
@@ -5875,7 +5882,7 @@ build_vlc() {
     export SRT_LIBS="-lws2_32 -lsrt"
     export BUILDCC=/usr/bin/gcc
     #export cpu_count=1
-    generic_configure_make_install "--disable-vulkan --disable-avcodec --disable-avformat --disable-swscale --enable-qt --disable-medialibrary --disable-dvbpsi --disable-gst-decode --disable-asdcp --disable-ncurses --disable-opencv --disable-dbus --disable-sdl --disable-telx --disable-silent-rules --disable-pulse JACK_LIBS=-ljack64 JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib LIVE555_LIBS=-llivemedia ASDCP_LIBS=lasdcp ASDCP_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/asdcp"
+    generic_configure_make_install "--disable-vulkan --disable-opencv --enable-qt --disable-dvbpsi --disable-gst-decode --disable-asdcp --disable-ncurses --disable-dbus --disable-sdl --disable-telx --disable-silent-rules --disable-pulse JACK_LIBS=-ljack64 JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib LIVE555_LIBS=-llivemedia ASDCP_LIBS=lasdcp ASDCP_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/asdcp"
     # X264 is disabled because of an API change. We ought to be able to re-enable it when vlc has caught up.
     #export cpu_count=8
     unset PKG_CONFIG_PATH
@@ -6967,7 +6974,7 @@ build_cdo() {
 			apply_patch file://${top_dir}/libcdi-posix.patch
 			autoreconf -fvi
 		cd ..
-		generic_configure_make_install "--enable-cdi-lib=yes --enable-hirlam-extensions=yes --enable-cdi-app=yes --with-eccodes=${mingw_w64_x86_64_prefix}"
+		generic_configure_make_install "--enable-cdi-lib=yes --enable-hirlam-extensions=yes --enable-cdi-app=yes --with-eccodes=${mingw_w64_x86_64_prefix} --with-netcdf=yes --with-hdf5=yes"
 	cd ..
 }
 
@@ -7301,7 +7308,7 @@ build_dependencies() {
   build_libmpeg2
   build_vim
   build_ilmbase
-#  build_hdf
+  build_hdf
   build_netcdf
   build_cunit
   build_libmysofa

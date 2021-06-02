@@ -1,0 +1,53 @@
+--- modules/codec/avcodec/video.c.orig	2021-06-01 16:09:48.024234600 +0100
++++ modules/codec/avcodec/video.c	2021-06-01 16:10:42.214234600 +0100
+@@ -1629,7 +1629,7 @@
+         AV_PIX_FMT_D3D11VA_VLD,
+         AV_PIX_FMT_DXVA2_VLD,
+ #endif
+-        AV_PIX_FMT_VAAPI_VLD,
++        AV_PIX_FMT_VAAPI,
+         AV_PIX_FMT_VDPAU,
+         AV_PIX_FMT_NONE,
+     };
+--- modules/codec/avcodec/va.c.orig	2021-06-01 16:11:30.114234600 +0100
++++ modules/codec/avcodec/va.c	2021-06-01 16:11:58.544234600 +0100
+@@ -34,7 +34,7 @@
+ {
+     switch (hwfmt)
+     {
+-        case AV_PIX_FMT_VAAPI_VLD:
++        case AV_PIX_FMT_VAAPI:
+             switch (swfmt)
+             {
+                 case AV_PIX_FMT_YUVJ420P:
+--- modules/codec/avcodec/encoder.c.orig	2021-06-01 22:01:43.184234600 +0100
++++ modules/codec/avcodec/encoder.c	2021-06-01 22:03:43.254234600 +0100
+@@ -1240,7 +1240,7 @@
+     }
+ 
+     block_t *p_block = encode_avframe( p_enc, p_sys, frame );
+-
++#if 0
+     if( p_block )
+     {
+        switch ( p_sys->p_context->coded_frame->pict_type )
+@@ -1261,7 +1261,7 @@
+            p_block->i_flags |= BLOCK_FLAG_TYPE_PB;
+        }
+     }
+-
++#endif /* #if 0 */
+     return p_block;
+ }
+ 
+--- modules/codec/avcodec/subtitle.c.orig	2021-06-01 22:18:52.284234600 +0100
++++ modules/codec/avcodec/subtitle.c	2021-06-01 22:19:19.704234600 +0100
+@@ -114,7 +114,7 @@
+     }
+ 
+ #if LIBAVFORMAT_VERSION_MICRO >= 100
+-    av_codec_set_pkt_timebase(context, AV_TIME_BASE_Q);
++/*    av_codec_set_pkt_timebase(context, AV_TIME_BASE_Q); */
+ #endif
+ 
+     /* */

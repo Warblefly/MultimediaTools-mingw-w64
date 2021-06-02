@@ -1,0 +1,155 @@
+--- tools/h5ls/h5ls.c.orig	2021-05-26 18:19:55.523322500 +0100
++++ tools/h5ls/h5ls.c	2021-05-26 18:20:30.433322500 +0100
+@@ -29,6 +29,9 @@
+ #include "h5tools_utils.h"
+ #include "h5tools_dump.h"
+ #include "h5trav.h"
++#ifdef _WIN32
++#include <windows.h>
++#endif
+ 
+ /* Name of tool */
+ #define PROGRAMNAME "h5ls"
+--- src/Makefile.am.orig	2021-05-26 18:03:31.763322500 +0100
++++ src/Makefile.am	2021-05-26 18:03:55.483322500 +0100
+@@ -30,7 +30,7 @@
+ lib_LTLIBRARIES=libhdf5.la
+ 
+ # Add libtool numbers to the HDF5 library (from config/lt_vers.am)
+-libhdf5_la_LDFLAGS= -version-info $(LT_VERS_INTERFACE):$(LT_VERS_REVISION):$(LT_VERS_AGE) $(AM_LDFLAGS)
++libhdf5_la_LDFLAGS= -no-undefined -version-info $(LT_VERS_INTERFACE):$(LT_VERS_REVISION):$(LT_VERS_AGE) $(AM_LDFLAGS)
+ 
+ # H5Tinit.c and H5lib_settings.c are generated files and should be cleaned.
+ MOSTLYCLEANFILES=H5Tinit.c H5lib_settings.c
+--- Makefile.am.orig	2021-05-26 18:14:32.713322500 +0100
++++ Makefile.am	2021-05-26 18:14:48.273322500 +0100
+@@ -77,9 +77,9 @@
+    HDF5_HL_DIR=
+ endif
+ 
+-SUBDIRS = src test $(TESTPARALLEL_DIR) tools . $(CXX_DIR) $(FORTRAN_DIR) \
++SUBDIRS = src $(TESTPARALLEL_DIR) tools . $(CXX_DIR) $(FORTRAN_DIR) \
+           $(JAVA_DIR) $(HDF5_HL_DIR)
+-DIST_SUBDIRS = src test testpar tools . c++ fortran hl examples java
++DIST_SUBDIRS = src testpar tools . c++ fortran hl examples java
+ 
+ # Some files generated during configure that should be cleaned
+ DISTCLEANFILES=config/stamp1 config/stamp2
+--- tools/h5repack/Makefile.am.orig	2021-05-26 18:36:14.613322500 +0100
++++ tools/h5repack/Makefile.am	2021-05-26 18:37:00.083322500 +0100
+@@ -45,7 +45,7 @@
+ h5repack_LDFLAGS = $(LT_STATIC_EXEC) $(AM_LDFLAGS)
+ 
+ # Depend on the hdf5 library, the tools library, the test library
+-LDADD=$(LIBH5TOOLS) $(LIBH5TEST) $(LIBHDF5)
++LDADD=$(LIBH5TOOLS) $(LIBHDF5)
+ 
+ # Source files
+ COMMON_SOURCES=h5repack.c h5repack_copy.c h5repack_filters.c \
+--- tools/h5repack/Makefile.am.orig	2021-05-26 18:51:19.393322500 +0100
++++ tools/h5repack/Makefile.am	2021-05-26 18:51:53.783322500 +0100
+@@ -42,7 +42,7 @@
+ bin_PROGRAMS=h5repack
+ 
+ # Add h5repack specific linker flags here
+-h5repack_LDFLAGS = $(LT_STATIC_EXEC) $(AM_LDFLAGS)
++h5repack_LDFLAGS = -no-undefined $(LT_STATIC_EXEC) $(AM_LDFLAGS)
+ 
+ # Depend on the hdf5 library, the tools library, the test library
+ LDADD=$(LIBH5TOOLS) $(LIBHDF5)
+--- tools/Makefile.am.orig	2021-05-26 18:57:02.463322500 +0100
++++ tools/Makefile.am	2021-05-26 18:57:15.263322500 +0100
+@@ -24,7 +24,7 @@
+ CONFIG=ordered
+ 
+ # All subdirectories
+-SUBDIRS=lib h5diff h5ls h5dump misc h5import h5repack h5jam h5copy h5stat \
++SUBDIRS=lib h5diff h5ls h5dump misc h5import h5jam h5copy h5stat \
+ 	h5format_convert perform
+ 
+ include $(top_srcdir)/config/conclude.am
+--- src/H5private.h.orig	2021-05-26 19:01:54.153322500 +0100
++++ src/H5private.h	2021-05-26 19:02:53.683322500 +0100
+@@ -1103,7 +1103,11 @@
+     #define HDmemset(X,C,Z)    memset(X,C,Z)
+ #endif /* HDmemset */
+ #ifndef HDmkdir
++#ifdef _WIN32
++    #define HDmkdir(S,M)    mkdir(S)
++#else
+     #define HDmkdir(S,M)    mkdir(S,M)
++#endif /* _WIN32 */
+ #endif /* HDmkdir */
+ #ifndef HDmkfifo
+     #define HDmkfifo(S,M)    mkfifo(S,M)
+--- tools/Makefile.am.orig	2021-05-26 19:07:06.523322500 +0100
++++ tools/Makefile.am	2021-05-26 19:07:16.253322500 +0100
+@@ -25,6 +25,6 @@
+ 
+ # All subdirectories
+ SUBDIRS=lib h5diff h5ls h5dump misc h5import h5jam h5copy h5stat \
+-	h5format_convert perform
++	h5format_convert
+ 
+ include $(top_srcdir)/config/conclude.am
+--- c++/src/Makefile.am.orig	2021-05-26 19:10:44.593322500 +0100
++++ c++/src/Makefile.am	2021-05-26 19:11:01.953322500 +0100
+@@ -28,7 +28,7 @@
+ lib_LTLIBRARIES=libhdf5_cpp.la
+ 
+ # Add libtool numbers to the HDF5 C++ library (from config/lt_vers.am)
+-libhdf5_cpp_la_LDFLAGS= -version-info $(LT_CXX_VERS_INTERFACE):$(LT_CXX_VERS_REVISION):$(LT_CXX_VERS_AGE) $(AM_LDFLAGS)
++libhdf5_cpp_la_LDFLAGS= -no-undefined -version-info $(LT_CXX_VERS_INTERFACE):$(LT_CXX_VERS_REVISION):$(LT_CXX_VERS_AGE) $(AM_LDFLAGS)
+ 
+ bin_SCRIPTS=h5c++
+ 
+--- c++/Makefile.am.orig	2021-05-26 19:14:30.323322500 +0100
++++ c++/Makefile.am	2021-05-26 19:14:52.333322500 +0100
+@@ -22,9 +22,9 @@
+ 
+ ## Only recurse into subdirectories if C++ interface is enabled.
+ if BUILD_CXX_CONDITIONAL
+-   SUBDIRS=src test
++   SUBDIRS=src 
+ endif
+-DIST_SUBDIRS = src test examples
++DIST_SUBDIRS = src examples
+ 
+ # Install examples
+ install-examples uninstall-examples:
+--- hl/src/Makefile.am.orig	2021-05-26 19:20:29.193322500 +0100
++++ hl/src/Makefile.am	2021-05-26 19:20:46.023322500 +0100
+@@ -28,7 +28,7 @@
+ lib_LTLIBRARIES=libhdf5_hl.la
+ 
+ # Add libtool numbers to the HDF5 hl library (from config/lt_vers.am)
+-libhdf5_hl_la_LDFLAGS= -version-info $(LT_HL_VERS_INTERFACE):$(LT_HL_VERS_REVISION):$(LT_HL_VERS_AGE) $(AM_LDFLAGS)
++libhdf5_hl_la_LDFLAGS= -no-undefined -version-info $(LT_HL_VERS_INTERFACE):$(LT_HL_VERS_REVISION):$(LT_HL_VERS_AGE) $(AM_LDFLAGS)
+ 
+ # List sources to include in the HDF5 HL Library.
+ libhdf5_hl_la_SOURCES=H5DO.c H5DS.c H5IM.c H5LT.c H5LTanalyze.c H5LTparse.c H5PT.c H5TB.c H5LD.c
+--- hl/Makefile.am.orig	2021-05-26 19:24:42.203322500 +0100
++++ hl/Makefile.am	2021-05-26 19:24:59.153322500 +0100
+@@ -37,9 +37,9 @@
+ ## Don't recurse into any subdirectories if HDF5 is not configured to
+ ## use the HL library
+ if BUILD_HDF5_HL_CONDITIONAL
+-   SUBDIRS=src test tools $(CXX_DIR) $(FORTRAN_DIR)
++   SUBDIRS=src tools $(CXX_DIR) $(FORTRAN_DIR)
+ endif
+-DIST_SUBDIRS=src test tools c++ fortran examples
++DIST_SUBDIRS=src tools c++ fortran examples
+ 
+ # Install examples
+ install-examples uninstall-examples:
+--- hl/c++/src/Makefile.am.orig	2021-05-26 19:28:39.633322500 +0100
++++ hl/c++/src/Makefile.am	2021-05-26 19:28:58.153322500 +0100
+@@ -28,7 +28,7 @@
+ lib_LTLIBRARIES=libhdf5_hl_cpp.la
+ 
+ # Add libtool numbers to the HDF5 HL C++ library (from config/lt_vers.am)
+-libhdf5_hl_cpp_la_LDFLAGS= -version-info $(LT_HL_CXX_VERS_INTERFACE):$(LT_HL_CXX_VERS_REVISION):$(LT_HL_CXX_VERS_AGE) $(AM_LDFLAGS)
++libhdf5_hl_cpp_la_LDFLAGS= -no-undefined -version-info $(LT_HL_CXX_VERS_INTERFACE):$(LT_HL_CXX_VERS_REVISION):$(LT_HL_CXX_VERS_AGE) $(AM_LDFLAGS)
+ 
+ # Source files for the library
+ # At the moment, only the H5PT Packet Table has a C++ API.
