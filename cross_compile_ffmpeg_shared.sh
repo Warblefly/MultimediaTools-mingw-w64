@@ -2584,7 +2584,7 @@ do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfile
         export WINDRES=x86_64-w64-mingw32-windres
 #        export orig_cpu_count=$cpu_count
 #        export cpu_count=1
-        generic_configure_make_install "--enable-shared --disable-static"
+        generic_configure_make_install "CXXFLAGS=-fpermissive --enable-shared --disable-static"
 #        generic_download_and_install https://download.filezilla-project.org/libfilezilla/libfilezilla-0.19.3.tar.bz2 libfilezilla-0.19.3 "--disable-shared --enable-static"
         unset CC
         unset CXX
@@ -4689,7 +4689,7 @@ build_libmms() {
 
 build_curl() {
 #  generic_download_and_install http://curl.haxx.se/download/curl-7.51.0.tar.bz2 curl-7.51.0 "--enable-ipv6 --with-librtmp --with-ca-fallback"
-  do_git_checkout https://github.com/curl/curl.git curl
+  do_git_checkout https://github.com/curl/curl.git curl 9655474548b3cefdb2b1d4504c82b44cc01a1861
   cd curl
     apply_patch file://${top_dir}/curl.patch
     generic_configure_make_install "--enable-ipv6 --with-librtmp --with-ca-fallback --with-gnutls"
