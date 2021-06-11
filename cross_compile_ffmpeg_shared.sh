@@ -4689,7 +4689,7 @@ build_libmms() {
 
 build_curl() {
 #  generic_download_and_install http://curl.haxx.se/download/curl-7.51.0.tar.bz2 curl-7.51.0 "--enable-ipv6 --with-librtmp --with-ca-fallback"
-  do_git_checkout https://github.com/curl/curl.git curl 9655474548b3cefdb2b1d4504c82b44cc01a1861
+  do_git_checkout https://github.com/curl/curl.git curl # 9655474548b3cefdb2b1d4504c82b44cc01a1861
   cd curl
     apply_patch file://${top_dir}/curl.patch
     generic_configure_make_install "--enable-ipv6 --with-librtmp --with-ca-fallback --with-gnutls"
@@ -6911,8 +6911,9 @@ build_rabbitmq() {
 }
 
 build_rist() {
-	do_git_checkout https://code.videolan.org/rist/librist.git librist
+	do_git_checkout https://code.videolan.org/rist/librist.git librist 8f139809 
 	cd librist
+#		apply_patch file://${top_dir}/librist-thread.patch
 		generic_meson_ninja_install
 	cd ..
 }
