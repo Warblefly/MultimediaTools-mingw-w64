@@ -7454,7 +7454,7 @@ build_apps() {
   build_mkvtoolnix
   build_wx
   build_filezilla
-  build_wxsvg
+#  build_wxsvg
   build_mediainfo
   build_dvdauthor
 #  build_audacity

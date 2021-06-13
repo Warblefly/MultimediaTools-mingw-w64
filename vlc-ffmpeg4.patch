@@ -51,3 +51,57 @@
  #endif
  
      /* */
+--- modules/demux/avformat/mux.c.orig	2021-06-12 11:31:26.381934500 +0100
++++ modules/demux/avformat/mux.c	2021-06-12 11:32:26.541934500 +0100
+@@ -406,11 +406,11 @@
+                                 VLC_TIME_BASE_Q, p_stream->time_base );
+ 
+     /* this is another hack to prevent libavformat from triggering the "non monotone timestamps" check in avformat/utils.c */
+-    if( p_stream->cur_dts >= pkt.dts )
++    if( p_stream->internal->cur_dts >= pkt.dts )
+     {
+         msg_Warn( p_mux, "Non monotonic stream %d(%4.4s) %"PRId64" >= %"PRId64,
+-                  p_input->fmt.i_id, (const char *) &p_input->fmt.i_codec, p_stream->cur_dts, pkt.dts );
+-        p_stream->cur_dts = pkt.dts - 1;
++                  p_input->fmt.i_id, (const char *) &p_input->fmt.i_codec, p_stream->internal->cur_dts, pkt.dts );
++        p_stream->internal->cur_dts = pkt.dts - 1;
+     }
+ 
+     if( av_write_frame( p_sys->oc, &pkt ) < 0 )
+@@ -422,7 +422,7 @@
+         return VLC_EGENERIC;
+     }
+ 
+-    p_stream->cur_dts = pkt.dts;
++    p_stream->internal->cur_dts = pkt.dts;
+ 
+     block_Release( p_data );
+     return VLC_SUCCESS;
+--- modules/demux/avformat/mux.c.orig	2021-06-13 18:23:30.381934500 +0100
++++ modules/demux/avformat/mux.c	2021-06-13 18:26:17.181934500 +0100
+@@ -405,6 +405,7 @@
+         pkt.dts = av_rescale_q( p_data->i_dts - VLC_TICK_0,
+                                 VLC_TIME_BASE_Q, p_stream->time_base );
+ 
++#if 0
+     /* this is another hack to prevent libavformat from triggering the "non monotone timestamps" check in avformat/utils.c */
+     if( p_stream->internal->cur_dts >= pkt.dts )
+     {
+@@ -412,6 +413,7 @@
+                   p_input->fmt.i_id, (const char *) &p_input->fmt.i_codec, p_stream->internal->cur_dts, pkt.dts );
+         p_stream->internal->cur_dts = pkt.dts - 1;
+     }
++#endif /* #if 0 */
+ 
+     if( av_write_frame( p_sys->oc, &pkt ) < 0 )
+     {
+@@ -422,7 +424,9 @@
+         return VLC_EGENERIC;
+     }
+ 
++#if 0
+     p_stream->internal->cur_dts = pkt.dts;
++#endif /* #if 0 */
+ 
+     block_Release( p_data );
+     return VLC_SUCCESS;
