@@ -5871,7 +5871,7 @@ build_vlc() {
     apply_patch file://${top_dir}/vlc-trunc.patch
     apply_patch file://${top_dir}/vlc-swapbuffers-conflict.patch
     apply_patch file://${top_dir}/vlc-dwmapi.patch
-    apply_patch file://${top_dir}/vlc-ffmpeg4.patch
+#    apply_patch file://${top_dir}/vlc-ffmpeg4.patch
     export LIVE555_CFLAGS="-I${mingw_w64_x86_64_prefix}/include/liveMedia -I${mingw_w64_x86_64_prefix}/include/UsageEnvironment -I${mingw_w64_x86_64_prefix}/include/BasicUsageEnvironment -I${mingw_w64_x86_64_prefix}/include/groupsock"
     export LIBMPEG2_CFLAGS="-I${mingw_w64_x86_64_prefix}/include/mpeg2dec"
     export SCHROEDINGER_CFLAGS="-I${mingw_w64_x86_64_prefix}/include/schroedinger-1.0"
@@ -6966,10 +6966,17 @@ build_eccodes() {
 }
 
 build_cdo() {
-	download_and_unpack_file https://code.mpimet.mpg.de/attachments/download/24638/cdo-1.9.10.tar.gz cdo-1.9.10
-	cd cdo-1.9.10
+#	download_and_unpack_file https://code.mpimet.mpg.de/attachments/download/24638/cdo-1.9.10.tar.gz cdo-1.9.10
+	download_and_unpack_file https://code.mpimet.mpg.de/attachments/download/25921/cdo-2.0.0rc3.tar.gz cdo-2.0.0rc3
+	cd cdo-2.0.0rc3
 		apply_patch file://${top_dir}/cdo-cdi-shared.patch
 		apply_patch file://${top_dir}/cdo-cdi-posix.patch
+#		cd src/lib/yac
+#			mkdir -p core
+#			cd core
+#				wget https://gitlab.dkrz.de/dkrz-sw/yac/-/raw/master/src/core/ppm_xfuncs.h
+#			cd ..
+#		cd ../../..
 		autoreconf -fvi
 		cd libcdi
 			apply_patch file://${top_dir}/libcdi-posix.patch
@@ -7019,7 +7026,7 @@ build_ffmpeg() {
 #  apply_patch_p1 file://${top_dir}/ffmpeg-decklink-teletext-2-reverse.patch
 #		apply_patch file://${top_dir}/ffmpeg-bs2b.patch
 #		apply_patch file://${top_dir}/ffmpeg-freetype.patch
-		apply_patch file://${top_dir}/ffmpeg-preprocessor.patch
+#		apply_patch file://${top_dir}/ffmpeg-preprocessor.patch
 		apply_patch file://${top_dir}/ffmpeg-nvidia.patch
 		do_configure "${standard_options} ${licensing_options} ${configuration_options} ${component_options} ${library_options} ${hardware_options} ${toolchain_options} ${developer_options}" 
 #  rm -f */*.a */*.dll *.exe # just in case some dependency library has changed, force it to re-link even if the ffmpeg source hasn't changed...
@@ -7353,8 +7360,8 @@ build_dependencies() {
   build_libvmaf
   build_swig
   build_libposixrandom
-  build_eccodes
-  build_cdo
+#  build_eccodes
+#  build_cdo
   #build_uavs3d
 #  build_librsvg
 }
@@ -7382,7 +7389,7 @@ build_apps() {
 #  fi
 #  build_ocaml
   build_exiv2
-  build_wgrib2
+#  build_wgrib2
 #  build_cdrecord # NOTE: just now, cdrecord doesn't work on 64-bit mingw. It scans the emulated SCSI bus but no more.
 #  build_cdrkit # No. Still not compiled in MinGW
   build_lsdvd
@@ -7462,7 +7469,7 @@ build_apps() {
   build_movit
   build_mlt # Framework, but relies on FFmpeg, Qt, and many other libraries we've built.
 #  build_movit
-  build_xygrib
+#  build_xygrib
   #build_DJVnew # Requires FFmpeg libraries
   build_qjackctl
 #  build_jackmix
