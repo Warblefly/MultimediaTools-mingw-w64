@@ -161,3 +161,30 @@
      }
  }
  
+--- src/lib/yac/utils.h.orig	2021-06-21 19:10:01.598245500 +0100
++++ src/lib/yac/utils.h	2021-06-21 19:11:05.548245500 +0100
+@@ -60,7 +60,7 @@
+ #endif
+ 
+ #include <stdlib.h>
+-#ifdef CDO
++#if 1
+ #include <stdint.h> // uint64_t
+ #include <limits.h> // SIZE_MAX
+ #define UNUSED(x) (void)(x)
+--- src/mpim_grid/gridreference.cc.orig	2021-06-21 19:22:42.698245500 +0100
++++ src/mpim_grid/gridreference.cc	2021-06-21 19:24:17.248245500 +0100
+@@ -32,10 +32,10 @@
+ #include <cdi.h>
+ 
+ #include "gridreference.h"
+-#include "process_int.h"
+-#include "cdo_output.h"
++#include "../process_int.h"
++#include "../cdo_output.h"
+ #include <mpim_grid.h>
+-#include "cdi_lockedIO.h"
++#include "../cdi_lockedIO.h"
+ 
+ // callback function for curl for writing the network retrieved grid file
+ #ifdef HAVE_LIBCURL
