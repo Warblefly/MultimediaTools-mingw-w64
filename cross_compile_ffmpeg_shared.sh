@@ -74,7 +74,7 @@ check_missing_packages () {
     exit 1
   fi
 
-  if uname -a | grep -i -q -- "microsoft" ; then
+  if uname -a | grep -q -- "-microsoft" ; then
     if cat /proc/sys/fs/binfmt_misc/WSLInterop | grep -q enabled ; then
       echo "windows WSL detected: you must first disable 'binfmt' by running this 
       sudo bash -c 'echo 0 > /proc/sys/fs/binfmt_misc/WSLInterop'
@@ -1619,7 +1619,7 @@ build_libmysofa() {
   #    sed -i.bak 's/CUnit\.h/Cunit\.h/' tests.c
   #    sed -i.bak 's/CUnit\.h/Cunit\.h/' tests.h
     cd ../..
-    apply_patch file://${top_dir}/libmysofa-shared.patch
+#    apply_patch file://${top_dir}/libmysofa-shared.patch
     do_cmake "-DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_COLOR_MAKEFILE=ON -DBUILD_TESTS=OFF"
     do_make
     do_make_install
@@ -2958,11 +2958,12 @@ build_p11kit() {
 }
 
 build_libidn2() {
-  do_git_checkout https://github.com/libidn/libidn2.git libidn2 # 301a43b5ac41f0fbea41d70444c0942ae93624cd
-  cd libidn2
-    generic_configure_make_install "--disable-doc"
+  generic_download_and_install https://ftp.gnu.org/gnu/libidn/libidn2-2.3.1.tar.gz libidn2-2.3.1
+# do_git_checkout https://github.com/libidn/libidn2.git libidn2 # 301a43b5ac41f0fbea41d70444c0942ae93624cd
+#  cd libidn2
+#    generic_configure_make_install "--disable-doc"
 
-  cd ..
+#  cd ..
 }
 
 build_xerces() {
@@ -5797,7 +5798,13 @@ build_hdf() {
 #	download_and_unpack_file https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.12/hdf5-1.12.0/src/hdf5-1.12.0.tar.bz2 hdf5-1.12.0
 #	cd hdf5-1.12.0
 		apply_patch file://${top_dir}/hdf5-shared.patch
-		generic_configure_make_install "--enable-build-mode=production --disable-fortran --enable-cxx --enable-hl --enable-tools --enable-deprecated-symbols --enable-zlib"
+		mkdir -pv build
+		cd build
+			do_cmake .. "-DBUILD_TESTING=OFF -DHDF5_BUILD_HL_LIB=ON -DHDFFILE_BUILD_CPP_LIB=ON -DHDF5_BUILD_TOOLS=ON -DHDF5_ENABLE_Z_LIB_SUPPORT=ON -DHAVE_IOEO_EXITCODE=0"
+			do_make
+			do_make_install
+#		generic_configure_make_install "--enable-build-mode=production --disable-fortran --enable-cxx --enable-hl --enable-tools --enable-deprecated-symbols --enable-zlib"
+		cd ..
 	cd ..
 }
 #		mkdir -pv build
@@ -7316,13 +7323,13 @@ build_dependencies() {
   build_libmpeg2
   build_vim
   build_ilmbase
-  build_hdf
+#  build_hdf
   build_netcdf
   build_cunit
   build_libmysofa
   build_libiberty
   build_libspatialaudio
-  build_libidn
+  #build_libidn
 #  build_librsvg
 #  build_gobject_introspection
   build_libepoxy
