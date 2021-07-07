@@ -12,21 +12,14 @@ These binaries are for Windows 64-bit editions only, and have been tested only o
 
 Your Windows installation needs to have certain packages installed:
 
-* Python 3.5 or later
+* Python 3.9 or later
 * Perl, the multi-threaded version
 
 ...and, if you use some of my scripts for on-line television viewing,
 
 * The Python m3u8 module (run "pip install m3u8" from an Administrator prompt)
 
-The installer sets certain environment variables for some facilities to work properly. 
-
-* FONTCONFIG_FILE=fonts.conf
-* FONTCONFIG_PATH=C:\Users\\---YOUR-USER-NAME---\AppData\Local\fontconfig
-* FREI0R_PATH=C:\Program Files\ffmpeg\lib\frei0r-1
-* TESSDATA_PREFIX=C:\Program Files\ffmpeg\share\ (note that TESSDATA_PREFIX is the *parent* of the tessdata language directory)
-* TERMINFO=C:\Program Files\ffmpeg\share\terminfo
-* VIMRUNTIME=C:\Program Files\ffmpeg\share\vim
+The installer sets certain environment variables for some facilities to work properly. You'll find them in build_shared.sh 
 
 # After Installing
 
@@ -46,7 +39,7 @@ apt upgrade
 
 3. Install the pre-requisites. On Debian running under Windows, you can do this.
 ```
-apt install software-properties-common extra-cmake-modules libsdl1.2debian libsdl1.2-dev libsdl2-2.0-0 libsdl2-dev ant asciidoc autoconf autoconf-archive autogen autopoint bison bzr cargo cmake curl cvs docbook2x ed flex g++ libgdk-pixbuf2.0-dev gengetopt git gperf gtk-doc-tools gtk-update-icon-cache gyp intltool libgmp-dev liborc-0.4-0 liborc-dev libsamplerate-dev libtasn1-bin librhash0 libtool libtool-bin libunittest++2 lua5.3 lzip mercurial meson nsis mm-common nasm patchutils pax python-dev ragel rsync ronn ruby-json rake-compiler ruby-ronn sassc scons libspeex-dev libspeexdsp-dev sqlite3 ssh sshpass sssd-tools subversion swig libwxbase3.0-dev wget wx-common xutils-dev yasm zsh
+apt install gcc-10 g++-10 make autoconf curl wget texinfo libgmp-dev bison flex xz-utils libz-dev python3 autopoint libtool libtool-bin cmake bzip2 gettext pkg-config libtasn1-bin meson gengetopt subversion nasm yasm python3-distutils libglib2.0-bin libglib2.0-dev intltool libxml2-utils autoconf-archive gperf sqlite3 unzip gyp python2 gtk-update-icon-cache gtk-doc-tools zip libspeexdsp-dev libsamplerate0-dev software-properties-common swig docbook-xsl xsltproc rake wx-common lua5.3 nsis sshpass rsync python3-mako
 ```
 Then, switch your Java development kit to an earlier version. You used to need this to compile libbluray but its code is so old, and I don't need to play Blu-Ray discs other than to duplicate their contents, that I no longer do this.
 ```
@@ -655,15 +648,13 @@ BINARY DISTRIBUTION
 I keep a binary installer on my website.
 <a href="http://gallery.johnwarburton.net/MultimediaTools-mingw-w64-Open-source.exe">http://gallery.johnwarburton.net/MultimediaTools-mingw-w64-Open-source.exe</a>
 
-This is an XZ archive, which can be opened using popular tools such as 7zip. Otherwise, making the EXE takes a desperately long time in the single-threaded nsis application.
-
 Some of the binaries use shared libraries, ending in .dll. Like the executable programs, they're in the /bin/ directory of the distribution. Please keep them together with the .exe programs.
 
 
 BACKGROUND
 ==========
 
-Supporting the cross-compilation of the very versatile FFmpeg utilities under mingw-w64, Roger Pack with Zeranoe and others publish a set of patches and a build script to, first, compile a working mingw-w64 environment on a POSIX system, then compile a very full FFmpeg and associated libraries and utilities within mingw-w64 ready for installation on a Windows 64-bit system.
+Supporting the cross-compilation of the very versatile FFmpeg utilities under mingw-w64, Roger Pack with Zeranoe (closed now) and others publish a set of patches and a build script to, first, compile a working mingw-w64 environment on a POSIX system, then compile a very full FFmpeg and associated libraries and utilities within mingw-w64 ready for installation on a Windows 64-bit system.
 
 With grateful thanks to the Zeranoe and other developers especially Roger Pack, I have extended this build system for my own purposes. At first, this was developed using the Cygwin compatibility suite for Windows, but now it is developed on GNU/Linux.
 
@@ -689,5 +680,5 @@ LICENCE
 
 My script, very much derived from others' work, is released under the GNU Affero GPL Version 3 licence. You will find it at the top of this repository. Please adhere to it. All other programs have their own open source licences, which can be found within their source trees.
 
-The version of FFmpeg built here is non-redistributable.
+The version of FFmpeg built here is believed to be non-redistributable.
 
