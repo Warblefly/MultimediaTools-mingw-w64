@@ -41,6 +41,12 @@ apt upgrade
 ```
 apt install gcc-10 g++-10 make autoconf curl wget texinfo libgmp-dev bison flex xz-utils libz-dev python3 autopoint libtool libtool-bin cmake bzip2 gettext pkg-config libtasn1-bin meson gengetopt subversion nasm yasm python3-distutils libglib2.0-bin libglib2.0-dev intltool libxml2-utils autoconf-archive gperf sqlite3 unzip gyp python2 gtk-update-icon-cache gtk-doc-tools zip libspeexdsp-dev libsamplerate0-dev software-properties-common swig docbook-xsl xsltproc rake wx-common lua5.3 nsis sshpass rsync python3-mako
 ```
+
+Then, ensure your gcc is the one we have just installed.
+```
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 10
+sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-10 10
+```
 Then, switch your Java development kit to an earlier version. You used to need this to compile libbluray but its code is so old, and I don't need to play Blu-Ray discs other than to duplicate their contents, that I no longer do this.
 ```
 apt-key adv --keyserver keyserver.ubuntu.com --recv-keys C2518248EEA14886  
@@ -52,21 +58,19 @@ apt upgrade
 apt-get install oracle-java8-installer  
 ```
 
-Then, install version 10 of the NVidia cuda toolkit. This is behind the version distributed with Debian sid, so must be installed like this:
+Then, install version 11 of the NVidia cuda toolkit. This is behind the version distributed with Debian sid, so must be installed like this:
 ```
-apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/debian10/x86_64/7fa2af80.pub
-add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/debian10/x86_64/ /"
-add-apt-repository contrib
-apt-get update
-apt-get -y install cuda
-ln -s /etc/alternatives/cuda/bin/nvcc /usr/bin/nvcc
+sudo apt install cuda-nvcc-11-3
+sudo ln -s /usr/local/cuda-11.3/bin/nvcc /usr/bin/nvcc
+sudo ln -s /usr/local/cuda-11.3/nvvm/bin/cicc /usr/bin/cicc
+sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 10
 ```
 
 4. Link an executable, thus: ln -s /usr/bin/luac5.3 /usr/bin/luac
 5. Clone my package from git (see the address at the top of this page).
 6. cd into the top directory of the git tree.
 7. Read the top of ./build_shared.sh, and edit the location to which scp should copy your binary archive.
-8. Execute ./build_shared.sh, and give it the password for your scp when prompted.
+8. Execute ./build_shared.sh, and give it the password for your scp when prompted. Note: you'll need to ssh into the machines where you're copying these files before this upload will work.
 9. Wait for a long, long time. On an eight-core i7 at 4.5GHz with 16GB RAM and solid state drives, the compile takes six hours.
 10. The archive you can copy and unpack has been placed in the root of your build tree and has been sent by scp to the webserver of your choice. Note that the scp copy will only succeed if you have already used ssh to login to the remote server under the username you're using.
 11. To recompile only the packages that have been updated, simply run the script again. You may need manually to clear out mpv, aom, vim and vim_console
