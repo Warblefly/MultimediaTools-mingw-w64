@@ -1,0 +1,13 @@
+--- src/commonui/registry.cpp.orig	2021-07-14 16:39:18.247008500 +0100
++++ src/commonui/registry.cpp	2021-07-14 16:39:46.117008500 +0100
+@@ -1,7 +1,10 @@
+ #include "registry.h"
+ 
++#include <stdexcept>
++#include <limits>
+ #include <libfilezilla/string.hpp>
+ 
++
+ regkey::~regkey()
+ {
+ 	close();

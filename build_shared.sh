@@ -5,6 +5,7 @@
 # My aim is to make the cross compilation script default to these values
 # so that this command line can be discarded.
 
+export PATH=/usr/local/bin:/usr/bin:/bin
 
 # A default, switch to n for testing other parts of the build quickly.
 
