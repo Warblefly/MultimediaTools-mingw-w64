@@ -38,43 +38,43 @@ yes_no_sel () {
 }
 
 check_missing_packages () {
-  local check_packages=('cmp' 'bzip2' 'nvcc' 'rsync' 'sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'gperf' 'ruby' 'doxygen' 'xsltproc' 'autogen' 'rake' 'autopoint' 'wget' 'zip' 'gtkdocize' 'python-config' 'ant' 'sdl-config' 'sdl2-config' 'gyp' 'mm-common-prepare' 'sassc' 'nasm' 'ragel' 'gengetopt' 'asn1Parser' 'ronn' 'docbook2x-man'  'intltool-update' 'gtk-update-icon-cache' 'gdk-pixbuf-csource' 'interdiff' 'orcc' 'luac' 'makensis' 'swig' 'meson' 'scons' 'lzip' 'sqlite3' 'zsh')
-  for package in "${check_packages[@]}"; do
-    type -P "$package" >/dev/null || missing_packages=("$package" "${missing_packages[@]}")
-  done
+#  local check_packages=('cmp' 'bzip2' 'nvcc' 'rsync' 'sshpass' 'curl' 'pkg-config' 'make' 'gettext' 'git' 'svn' 'cmake' 'gcc' 'autoconf' 'libtool' 'automake' 'yasm' 'cvs' 'flex' 'bison' 'makeinfo' 'g++' 'ed' 'hg' 'patch' 'pax' 'gperf' 'ruby' 'doxygen' 'xsltproc' 'autogen' 'rake' 'autopoint' 'wget' 'zip' 'gtkdocize' 'python-config' 'ant' 'sdl-config' 'sdl2-config' 'gyp' 'mm-common-prepare' 'sassc' 'nasm' 'ragel' 'gengetopt' 'asn1Parser' 'ronn' 'docbook2x-man'  'intltool-update' 'gtk-update-icon-cache' 'gdk-pixbuf-csource' 'interdiff' 'orcc' 'luac' 'makensis' 'swig' 'meson' 'scons' 'lzip' 'sqlite3' 'zsh')
+#  for package in "${check_packages[@]}"; do
+#    type -P "$package" >/dev/null || missing_packages=("$package" "${missing_packages[@]}")
+#  done
 
-  if [[ -n "${missing_packages[@]}" ]]; then
-    clear
-    echo "Could not find the following execs (svn is actually package subversion, autopoint is gettext or gettext-devel, sassc is libsass, makeinfo is actually package texinfo if you're missing them): ${missing_packages[@]}"
-    echo 'Install the missing packages before running this script.'
-    echo "for ubuntu: $ sudo apt-get install subversion curl texinfo g++ bison flex cvs yasm automake libtool autoconf gcc cmake git make pkg-config zlib1g-dev mercurial"
-    echo "for gentoo (a non ubuntu distro): same as above, but no g++, no gcc, git is dev-vcs/git, zlib1g-dev is zlib, pkg-config is dev-util/pkgconfig, add ed..."
-    exit 1
-  fi
+#  if [[ -n "${missing_packages[@]}" ]]; then
+#    clear
+#    echo "Could not find the following execs (svn is actually package subversion, autopoint is gettext or gettext-devel, sassc is libsass, makeinfo is actually package texinfo if you're missing them): ${missing_packages[@]}"
+#    echo 'Install the missing packages before running this script.'
+#    echo "for ubuntu: $ sudo apt-get install subversion curl texinfo g++ bison flex cvs yasm automake libtool autoconf gcc cmake git make pkg-config zlib1g-dev mercurial"
+#    echo "for gentoo (a non ubuntu distro): same as above, but no g++, no gcc, git is dev-vcs/git, zlib1g-dev is zlib, pkg-config is dev-util/pkgconfig, add ed..."
+#    exit 1
+#  fi
 
-  local out=`cmake --version` # like cmake version 2.8.7
-  local version_have=`echo "$out" | cut -d " " -f 3`
+#  local out=`cmake --version` # like cmake version 2.8.7
+#  local version_have=`echo "$out" | cut -d " " -f 3`
 
-  function version { echo "$@" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }'; }
+#  function version { echo "$@" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }'; }
 
-  if [[ $(version $version_have)  < $(version '2.8.10') ]]; then
-    echo "your cmake version is too old $version_have wanted 2.8.10"
-    exit 1
-  fi
+#  if [[ $(version $version_have)  < $(version '2.8.10') ]]; then
+#    echo "your cmake version is too old $version_have wanted 2.8.10"
+#    exit 1
+#  fi
 
-  if [[ ! -f /usr/include/zlib.h ]]; then
-    echo "warning: you may need to install zlib development headers first if you want to build mp4box [on ubuntu: $ apt-get install zlib1g-dev]" # XXX do like configure does and attempt to compile and include zlib.h instead?
-    sleep 1
-  fi
+#  if [[ ! -f /usr/include/zlib.h ]]; then
+#    echo "warning: you may need to install zlib development headers first if you want to build mp4box [on ubuntu: $ apt-get install zlib1g-dev]" # XXX do like configure does and attempt to compile and include zlib.h instead?
+#    sleep 1
+#  fi
 
-  out=`yasm --version`
-  yasm_version=`echo "$out" | cut -d " " -f 2` # like 1.1.0.112
-  if [[ $(version $yasm_version)  < $(version '1.2.0') ]]; then
-    echo "your yasm version is too old $yasm_version wanted 1.2.0"
-    exit 1
-  fi
+#  out=`yasm --version`
+#  yasm_version=`echo "$out" | cut -d " " -f 2` # like 1.1.0.112
+#  if [[ $(version $yasm_version)  < $(version '1.2.0') ]]; then
+#    echo "your yasm version is too old $yasm_version wanted 1.2.0"
+#    exit 1
+#  fi
 
-  if uname -a | grep -q -- "-microsoft" ; then
+  if uname -a | grep -q -- "\-microsoft" ; then
     if cat /proc/sys/fs/binfmt_misc/WSLInterop | grep -q enabled ; then
       echo "windows WSL detected: you must first disable 'binfmt' by running this 
       sudo bash -c 'echo 0 > /proc/sys/fs/binfmt_misc/WSLInterop'
@@ -2648,8 +2648,8 @@ build_libass() {
 }
 
 build_gmp() {
-  download_and_unpack_file https://gmplib.org/download/gmp/gmp-6.1.2.tar.bz2 gmp-6.1.2
-  cd gmp-6.1.2
+  download_and_unpack_file https://gmplib.org/download/gmp/gmp-6.2.1.tar.bz2 gmp-6.2.1
+  cd gmp-6.2.1
 #    export CC_FOR_BUILD=/usr/bin/gcc
 #    export CPP_FOR_BUILD=usr/bin/cpp
     apply_patch file://${top_dir}/gmp-exeext.patch
@@ -7576,7 +7576,7 @@ while true; do
 done
 
 intro # remember to always run the intro, since it adjust pwd
-#check_missing_packages
+check_missing_packages
 # Install a decent set of colours for vim. Makes development easier.
 #do_git_checkout https://github.com/amix/vimrc.git ~/.vim_runtime
 #chmod +x ~/.vim_runtime/install_awesome_vimrc.sh
