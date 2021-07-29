@@ -117,6 +117,13 @@ cd mingw-w64/mingw-w64-headers
 	else
 		echo "Already patched."
 	fi
+	
+	if [[ ! -f mingw_propvarutil_patched ]]; then
+		cat $top_dir/mingw-propvarutil.patch | patch -p0 --verbose || exit 1
+		touch mingw-propvarutil_patched
+	else
+		echo "Already patched."
+	fi
 
 #        if [[ ! -f stpcpy_patched ]]; then
 #                cat $top_dir/mingw-stpcpy.patch | patch -p0 --verbose || exit 1
@@ -129,6 +136,7 @@ cd ../..
 echo "Going to install mingw-w64 headers..."
 mkdir -pv mingw-headers-build
 cd mingw-headers-build
+
 	if [[ ! -f mingw_headers_configure ]]; then
 		../mingw-w64/mingw-w64-headers/configure --enable-sdk=all --enable-secure-api --prefix=$working_directory/$host --host=$host --build=x86_64-linux-gnu
 		touch mingw_headers_configure
