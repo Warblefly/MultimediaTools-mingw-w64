@@ -937,7 +937,7 @@ build_qt() {
 				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtbase/raw/rawhide/f/qt5-qtbase-external-angle.patch
 				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtbase/raw/rawhide/f/qt5-qtbase-qt5main.patch
 				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtbase/raw/rawhide/f/qt5-qtbase-dynamic-hostlib.patch
-				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtbase/raw/rawhide/f/qt5-qtbase-build-tools-rpath.patch
+#				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtbase/raw/rawhide/f/qt5-qtbase-build-tools-rpath.patch
 				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtbase/raw/rawhide/f/qt5-qtbase-importlib-ext.patch
 				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtbase/raw/rawhide/f/qt5-qtbase-cmake-macros.patch
 				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtbase/raw/rawhide/f/qt5-qtbase-python3.patch
@@ -1696,6 +1696,7 @@ build_dcpomatic() {
 #    apply_patch file://${top_dir}/dcpomatic-src-wx-wscript.patch
     apply_patch file://${top_dir}/dcpomatic-unicode.patch
     apply_patch file://${top_dir}/dcpomatic-rc.patch
+    apply_patch file://${top_dir}/dcpomatic-channels.patch
 #    apply_patch file://${top_dir}/dcpomatic-display.patch
 ##    apply_patch file://${top_dir}/dcpomatic-j2k.patch
 ##    apply_patch file://${top_dir}/dcpomatic-test-wscript.patch
@@ -1708,8 +1709,8 @@ build_dcpomatic() {
 #    sed -i.bak 's!wx-3\.0/wx/msw/wx\.rc!wx-3.1/wx/msw/wx.rc!' platform/windows/dcpomatic_batch.rc
 #    sed -i.bak 's!wx-3\.0/wx/msw/wx\.rc!wx-3.1/wx/msw/wx.rc!' platform/windows/dcpomatic_server.rc
 #    sed -i.bak 's!wx-3\.0/wx/msw/wx\.rc!wx-3.1/wx/msw/wx.rc!' platform/windows/dcpomatic_kdm.rc
-    export CFLAGS="-fpermissive -Wno-format" # -DBOOST_ASIO_DISABLE_STD_FUTURE=1"
-    export CXXFLAGS="-fpermissive -Wno-format"
+    export CFLAGS="-Wno-format" # -DBOOST_ASIO_DISABLE_STD_FUTURE=1"
+    export CXXFLAGS="-Wno-format"
     env
     do_configure "configure WINRC=x86_64-w64-mingw32-windres CXX=x86_64-w64-mingw32-g++ -v -pp --prefix=${mingw_w64_x86_64_prefix} --target-windows --check-cxx-compiler=gxx --disable-tests" "./waf"
     ./waf build -v || exit 1
@@ -2557,10 +2558,13 @@ build_libopenshot() {
 		apply_patch file://${top_dir}/libopenshot.patch
 		mkdir -p build
 		cd build
+			export old_ld_library_path=${LD_LIBRARY_PATH}
+			export LD_LIBRARY_PATH=${mingw_w64_x86_64_prefix}/../lib/
 			do_cmake ../ "-DCMAKE_CXX_FLAGS=-fcommon -DCMAKE_CXX_FLAGS=-fpermissive -DLIBOPENSHOT_AUDIO_INCLUDE_DIR=${mingw_w64_x86_64_prefix}/include/libopenshot-audio -DUNITTEST++_INCLUDE_DIR=${mingw_w64_x86_64_prefix}/include/UnitTest++ -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_EXE_LINKER_FLAGS=-Wl,--allow-multiple-definition -DCMAKE_SHARED_LINKER_FLAGS=-Wl,--allow-multiple-definition" 
 			${top_dir}/correct_headers.sh 
 			do_make "V=1"
 			do_make_install
+			export LD_LIBRARY_PATH=${old_ld_library_path}
 		cd ..
 	cd ..
 }
@@ -4378,12 +4382,15 @@ build_mkvtoolnix() {
     echo "Environment is: "
     env
 #    export cpu_count=1
+    export old_ld_library_path=${LD_LIBRARY_PATH}
+    export LD_LIBRARY_PATH=${mingw_w64_x86_64_prefix}/../lib/
     do_rake_and_rake_install "V=1"
 #    export cpu_count=8
     export CC=${old_CC}
     export AR=${old_AR}
     export LD=${old_LD}
     export CXX=${old_CXX}
+    export LD_LIBRARY_PATH=${old_ld_library_path}
     #    export LDFLAGS=${orig_ldflags}
     # To run the program, mkvtoolnix-gui expects to see the 'magic' file from 'file'
     # in its bin directory.
@@ -5550,7 +5557,7 @@ build_libplacebo() {
   do_git_checkout https://github.com/haasn/libplacebo.git libplacebo # e79ea1902ea7c797f5cd2ff2de937a789408c136 # 08b45ede97262d73778f1bee40ac845702e240d4 # 5198e1564c5f2900b7b1f98561b6323d27bd78bb
   cd libplacebo
     #apply_patch file://${top_dir}/libplacebo-win32.patch
-    generic_meson_ninja_install "-Dvulkan-registry=${mingw_w64_x86_64_prefix}/share/vulkan/registry/vk.xml"
+    generic_meson_ninja_install "-Ddemos=false -Dvulkan-registry=${mingw_w64_x86_64_prefix}/share/vulkan/registry/vk.xml"
   cd ..
 }
 
@@ -5775,8 +5782,11 @@ build_flacon() {
         cd flacon
 	apply_patch file://${top_dir}/flacon.patch
         do_cmake && ${top_dir}/correct_headers.sh
+	export old_ld_library_path=${LD_LIBRARY_PATH}
+        export LD_LIBRARY_PATH=${mingw_w64_x86_64_prefix}/../lib/
         do_make
         do_make_install
+	export LD_LIBRARY_PATH=${old_ld_library_path}
     cd ..
 }
 
@@ -5891,12 +5901,15 @@ build_vlc() {
     export SRT_LIBS="-lws2_32 -lsrt"
     export BUILDCC=/usr/bin/gcc
     #export cpu_count=1
+    export old_ld_library_path=${LD_LIBRARY_PATH}
+    export LD_LIBRARY_PATH=${mingw_w64_x86_64_prefix}/../lib/
     generic_configure_make_install "--disable-vulkan --disable-opencv --enable-qt --disable-dvbpsi --disable-gst-decode --disable-asdcp --disable-ncurses --disable-dbus --disable-sdl --disable-telx --disable-silent-rules --disable-pulse JACK_LIBS=-ljack64 JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib LIVE555_LIBS=-llivemedia ASDCP_LIBS=lasdcp ASDCP_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/asdcp"
     # X264 is disabled because of an API change. We ought to be able to re-enable it when vlc has caught up.
     #export cpu_count=8
     unset PKG_CONFIG_PATH
     unset PKG_CONFIG_LIBDIR
     unset PKG_CONFIG_SYSROOT_DIR
+    export LD_LIBRARY_PATH=${old_ld_library_path}
   cd ..
 }
 
@@ -6037,8 +6050,11 @@ build_qjackctl() {
 #  cd ..
 #  cd qjackctl/src
 #    apply_patch file://${top_dir}/qjackctl-configure.ac.patch
-#	do_cmake .
+#	do_cmake 
+    export old_ld_library_path=${LD_LIBRARY_PATH}
+    export LD_LIBRARY_PATH=${mingw_w64_x86_64_prefix}/../lib/.
     generic_configure_make_install "JACK_LIBS=-ljack64 LIBS=-lportaudio CFLAGS=-D_GNU_SOURCE CXXFLAGS=-D_GNU_SOURCE --enable-xunique=no --disable-alsa-seq" # enable-jack-version=yes
+    export LD_LIBRARY_PATH=${old_ld_library_path}
     # make install doesn't work
 #    	do_make_install
 	
@@ -6675,7 +6691,7 @@ build_graphicsmagick() {
 
 build_graphicsmagicksnapshot() {
 	# This retrieves the namne of the first .xz file, which is usually the most recent snapshot.
-  export gm_filename=`curl -s ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/ --stderr - | grep tar\.xz | awk '{print $9}'`
+  export gm_filename=`curl -s ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/ --stderr - | grep tar\.xz | awk '{print $9}' | head -n 1`
   export gm_directory=${gm_filename%.tar.xz}
   echo "Latest snapshot is: $gm_filename..."
   download_and_unpack_file ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/$gm_filename $gm_directory
@@ -7014,7 +7030,7 @@ build_librsvg() {
 }
 
 build_ffmpeg() {
-	do_git_checkout https://git.ffmpeg.org/ffmpeg.git ffmpeg_git #  b06082d1d5d6eeed5f477456beba087dcf9432bc
+	do_git_checkout https://github.com/FFmpeg/FFmpeg.git ffmpeg_git #912f125c4224da6c6b07e53b1c0d3fbdb429a989 #57b5ec6ba7df442caebc401c4a7ef3ebc066b519 #4ff73add5dbe6c319d693355be44df2e17a0b8bf #05c9f6f4ef818cf1e7fdef8e118c9497e58326af #  b06082d1d5d6eeed5f477456beba087dcf9432bc
 	local standard_options="--prefix=$mingw_w64_x86_64_prefix --logfile=/dev/tty"
 	local licensing_options="--enable-nonfree --enable-version3 --enable-gpl"
 	local configuration_options="--disable-static --enable-shared --enable-runtime-cpudetect --enable-gray --disable-w32threads"
@@ -7037,6 +7053,7 @@ build_ffmpeg() {
 #		apply_patch file://${top_dir}/ffmpeg-freetype.patch
 #		apply_patch file://${top_dir}/ffmpeg-preprocessor.patch
 		apply_patch file://${top_dir}/ffmpeg-nvidia.patch
+		apply_patch file://${top_dir}/ffmpeg-channel_layout.patch
 		do_configure "${standard_options} ${licensing_options} ${configuration_options} ${component_options} ${library_options} ${hardware_options} ${toolchain_options} ${developer_options}" 
 #  rm -f */*.a */*.dll *.exe # just in case some dependency library has changed, force it to re-link even if the ffmpeg source hasn't changed...
 #  rm already_ran_make*
@@ -7632,7 +7649,7 @@ if [ -d "x86_64-w64-mingw32" ]; then # they installed a 64-bit compiler
   echo "Building 64-bit ffmpeg..."
   host_target='x86_64-w64-mingw32'
   mingw_w64_x86_64_prefix="$cur_dir/x86_64-w64-mingw32/$host_target"
-  export PATH="$cur_dur/depot_tools:$cur_dir/x86_64-w64-mingw32/bin:/bin:/usr/bin:/usr/local/bin"
+  export PATH="$cur_dir/depot_tools:$cur_dir/x86_64-w64-mingw32/bin:/bin:/usr/bin:/usr/local/bin"
   export PKG_CONFIG_PATH="$cur_dir/x86_64-w64-mingw32/x86_64-w64-mingw32/lib/pkgconfig"
   export mingw_compiler_path="$cur_dir/mingw"
   mkdir -p x86_64

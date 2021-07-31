@@ -11,3 +11,34 @@
  DCPOMATIC_ENABLE_WARNINGS
  
  #ifdef DCPOMATIC_OSX
+--- src/lib/ffmpeg_image_proxy.cc.orig	2021-07-27 18:55:05.320475600 +0100
++++ src/lib/ffmpeg_image_proxy.cc	2021-07-27 18:55:45.050475600 +0100
+@@ -150,7 +150,7 @@
+ 		   directly from the file).  This code just does enough to allow the
+ 		   probe code to take a hint from "foo.tga" and so try targa format.
+ 		*/
+-		AVInputFormat* f = av_find_input_format ("image2");
++		const AVInputFormat* f = av_find_input_format ("image2");
+ 		format_context = avformat_alloc_context ();
+ 		format_context->pb = avio_context;
+ 		format_context->iformat = f;
+--- src/lib/ffmpeg_file_encoder.cc.orig	2021-07-27 19:05:56.200475600 +0100
++++ src/lib/ffmpeg_file_encoder.cc	2021-07-27 19:06:40.760475600 +0100
+@@ -61,7 +61,7 @@
+ 		: _format_context (format_context)
+ 		, _stream_index (stream_index)
+ 	{
+-		_codec = avcodec_find_encoder_by_name (codec_name.c_str());
++		const AVCodec* _codec = avcodec_find_encoder_by_name (codec_name.c_str());
+ 		if (!_codec) {
+ 			throw EncodeError (String::compose("avcodec_find_encoder_by_name failed for %1", codec_name));
+ 		}
+@@ -306,7 +306,7 @@
+ void
+ FFmpegFileEncoder::setup_video ()
+ {
+-	_video_codec = avcodec_find_encoder_by_name (_video_codec_name.c_str());
++	const AVCodec* _video_codec = avcodec_find_encoder_by_name (_video_codec_name.c_str());
+ 	if (!_video_codec) {
+ 		throw EncodeError (String::compose("avcodec_find_encoder_by_name failed for %1", _video_codec_name));
+ 	}

@@ -26,7 +26,7 @@ export PATH="$working_directory/bin:/usr/local/bin:/usr/bin:/bin"
 echo "Getting binutils..."
 #	wget http://ftp.gnu.org/gnu/binutils/binutils-2.36.1.tar.bz2 || exit 1
 #        tar xvvf binutils-2.36.1.tar.bz2 && ln -sv binutils-2.36.1 binutils
-	git clone --depth 1 --single-branch -b binutils-2_36-branch git://github.com/bminor/binutils-gdb.git binutils || echo "Seems we have binutils."
+	git clone --depth 1 --single-branch -b binutils-2_37-branch git://github.com/bminor/binutils-gdb.git binutils || echo "Seems we have binutils."
 #	git clone --depth 1 --single-branch -b binutils-2_36-branch git://sourceware.org/git/binutils-gdb.git binutils || echo "Seems we have binutils."
 echo "Binutils has arrived."
 
@@ -118,12 +118,12 @@ cd mingw-w64/mingw-w64-headers
 		echo "Already patched."
 	fi
 	
-	if [[ ! -f mingw_propvarutil_patched ]]; then
-		cat $top_dir/mingw-propvarutil.patch | patch -p0 --verbose || exit 1
-		touch mingw-propvarutil_patched
-	else
-		echo "Already patched."
-	fi
+#	if [[ ! -f mingw_propvarutil_patched ]]; then
+#		cat $top_dir/mingw-propvarutil.patch | patch -p0 --verbose || exit 1
+#		touch mingw-propvarutil_patched
+#	else
+#		echo "Already patched."
+#	fi
 
 #        if [[ ! -f stpcpy_patched ]]; then
 #                cat $top_dir/mingw-stpcpy.patch | patch -p0 --verbose || exit 1
