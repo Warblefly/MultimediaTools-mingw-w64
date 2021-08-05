@@ -1969,7 +1969,7 @@ build_libflite() {
 }
 
 build_libgsm() {
-  download_and_unpack_file http://www.quut.com/gsm/gsm-1.0.13.tar.gz gsm-1.0-pl13
+  download_and_unpack_file https://ftp.radix.pro/sources/packages/m/gsm/gsm-1.0.13.tar.gz gsm-1.0-pl13
   cd gsm-1.0-pl13
   apply_patch file://${top_dir}/libgsm.patch # for openssl to work with it, I think?
   # not do_make here since this actually fails [in error]
