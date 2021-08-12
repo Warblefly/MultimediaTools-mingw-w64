@@ -41,44 +41,6 @@
  endif
  
  nodist_libqt_plugin_la_SOURCES += \
---- modules/gui/qt/maininterface/compositor.cpp.orig	2020-08-27 22:04:05.800000000 +0100
-+++ modules/gui/qt/maininterface/compositor.cpp	2020-08-27 22:04:28.540000000 +0100
-@@ -19,34 +19,10 @@
- #include "compositor.hpp"
- #include "compositor_dummy.hpp"
- 
--#ifdef _WIN32
--#ifdef HAVE_DCOMP_H
--#  include "compositor_dcomp.hpp"
--#endif
--#  include "compositor_win7.hpp"
--#endif
--
- namespace vlc {
- 
- Compositor* Compositor::createCompositor(qt_intf_t *p_intf)
- {
--    bool ret;
--    VLC_UNUSED(ret);
--#ifdef _WIN32
--#ifdef HAVE_DCOMP_H
--    CompositorDirectComposition* dcomp_compositor = new CompositorDirectComposition(p_intf);
--    ret = dcomp_compositor->init();
--    if (ret)
--        return dcomp_compositor;
--    delete dcomp_compositor;
--    msg_Dbg(p_intf, "failed to create DirectComposition backend, use fallback");
--#endif
--    CompositorWin7* win7_compositor = new CompositorWin7(p_intf);
--    if (win7_compositor->init())
--        return win7_compositor;
--    delete win7_compositor;
--    msg_Dbg(p_intf, "failed to create Win7 compositor backend, use fallback");
--#endif
-     return new CompositorDummy(p_intf);
- }
- 
-
 --- modules/gui/qt/Makefile.am.orig	2020-11-01 20:01:03.040000000 +0000
 +++ modules/gui/qt/Makefile.am	2020-11-01 20:02:28.410000000 +0000
 @@ -232,9 +232,7 @@
@@ -103,4 +65,35 @@
 +nodist_libqt_plugin_la_SOURCES += gui/qt/maininterface/main_interface_win32.moc.cpp 
  
  endif
+ 
+--- modules/gui/qt/maininterface/compositor.cpp.orig	2021-08-10 20:48:36.736213500 +0100
++++ modules/gui/qt/maininterface/compositor.cpp	2021-08-10 20:49:01.426213500 +0100
+@@ -19,13 +19,6 @@
+ #include "compositor.hpp"
+ #include "compositor_dummy.hpp"
+ 
+-#ifdef _WIN32
+-#ifdef HAVE_DCOMP_H
+-#  include "compositor_dcomp.hpp"
+-#endif
+-#  include "compositor_win7.hpp"
+-#endif
+-
+ namespace vlc {
+ 
+ template<typename T>
+--- modules/gui/qt/maininterface/compositor.cpp.orig	2021-08-11 17:09:20.846213500 +0100
++++ modules/gui/qt/maininterface/compositor.cpp	2021-08-11 17:10:44.466213500 +0100
+@@ -36,12 +36,6 @@
+     Compositor* (*instanciate)(qt_intf_t *p_intf);
+     bool (*preInit)(qt_intf_t *p_intf);
+ } static compositorList[] = {
+-#ifdef _WIN32
+-#ifdef HAVE_DCOMP_H
+-    {"dcomp", &instanciateCompositor<CompositorDirectComposition>, &preInit<CompositorDirectComposition> },
+-#endif
+-    {"win7", &instanciateCompositor<CompositorWin7>, &preInit<CompositorWin7> },
+-#endif
+     {"dummy", &instanciateCompositor<CompositorDummy>, &preInit<CompositorDummy> }
+ };
  

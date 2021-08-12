@@ -1690,13 +1690,13 @@ build_dcpomatic() {
   cd dcpomatic
     apply_patch file://${top_dir}/dcpomatic-wscript.patch
 #    apply_patch file://${top_dir}/dcpomatic-audio_ring_buffers.h.patch
-    apply_patch file://${top_dir}/dcpomatic-ffmpeg.patch
+#    apply_patch file://${top_dir}/dcpomatic-ffmpeg.patch
     apply_patch file://${top_dir}/dcpomatic-boost.patch
     apply_patch file://${top_dir}/dcpomatic-gl.patch
 #    apply_patch file://${top_dir}/dcpomatic-src-wx-wscript.patch
     apply_patch file://${top_dir}/dcpomatic-unicode.patch
     apply_patch file://${top_dir}/dcpomatic-rc.patch
-    apply_patch file://${top_dir}/dcpomatic-channels.patch
+#    apply_patch file://${top_dir}/dcpomatic-channels.patch
 #    apply_patch file://${top_dir}/dcpomatic-display.patch
 ##    apply_patch file://${top_dir}/dcpomatic-j2k.patch
 ##    apply_patch file://${top_dir}/dcpomatic-test-wscript.patch
