@@ -1732,7 +1732,7 @@ build_gcal() {
 }
 
 build_unbound() {
-  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.13.1 "CFLAGS=-O1 libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
+  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.13.2 "CFLAGS=-O1 libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
 }
 
 build_libxavs() {
@@ -2083,7 +2083,7 @@ build_ASIOSDK() {
 }
 
 build_portaudio_without_jack_cmake() {
-	do_git_checkout https://github.com/PortAudio/portaudio.git portaudio_without_jack
+	do_git_checkout https://github.com/PortAudio/portaudio.git portaudio_without_jack f9823ddf948accc544914cbb3b14a9da822d4aa6
 	cd portaudio_without_jack
 		do_cmake "-DCMAKE_BUILD_TYPE=Release -DPA_USE_ASIO=ON -DPA_USE_DS=ON -DPA_USE_DIRECTSOUNDFULLDUPLEXCREATE=OFF -DPA_USE_WMME=ON -DPA_USE_WASAPI=ON -DPA_USE_WDMKS=ON -DPA_USE_WDMKS_DEVICE_INFO=ON -DPA_USE_JACK=OFF -DPA_UNICODE_BUILD=ON -DPA_BUILD_SHARED=ON -DPA_BUILD_STATIC=OFF"
 		do_make
@@ -2092,7 +2092,7 @@ build_portaudio_without_jack_cmake() {
 }
 
 build_portaudio_with_jack_cmake() {
-	do_git_checkout https://github.com/PortAudio/portaudio.git portaudio
+	do_git_checkout https://github.com/PortAudio/portaudio.git portaudio f9823ddf948accc544914cbb3b14a9da822d4aa6
 	cd portaudio
 		apply_patch file://${top_dir}/portaudio_with_jack.patch
 		do_cmake "-DCMAKE_BUILD_TYPE=Release -DPA_USE_ASIO=ON -DPA_USE_DS=ON -DPA_USE_DIRECTSOUNDFULLDUPLEXCREATE=OFF -DPA_USE_WMME=ON -DPA_USE_WASAPI=ON -DPA_USE_WDMKS=ON -DPA_USE_WDMKS_DEVICE_INFO=ON -DPA_USE_JACK=ON -DPA_UNICODE_BUILD=ON -DPA_BUILD_SHARED=ON -DPA_BUILD_STATIC=OFF -DCMAKE_VERBOSE_MAKEFILE=ON"

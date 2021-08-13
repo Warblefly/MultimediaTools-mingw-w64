@@ -1,0 +1,10 @@
+--- libavcodec/avcodec.h.orig	2021-07-28 12:00:31.900475600 +0100
++++ libavcodec/avcodec.h	2021-07-28 12:01:23.790475600 +0100
+@@ -31,6 +31,7 @@
+ #include "libavutil/attributes.h"
+ #include "libavutil/avutil.h"
+ #include "libavutil/buffer.h"
++#include "libavutil/channel_layout.h"
+ #include "libavutil/dict.h"
+ #include "libavutil/frame.h"
+ #include "libavutil/log.h"

@@ -1,0 +1,20 @@
+--- src/lib/ffmpeg_examiner.cc.orig	2021-07-27 10:39:28.220475600 +0100
++++ src/lib/ffmpeg_examiner.cc	2021-07-27 10:39:52.610475600 +0100
+@@ -35,6 +35,7 @@
+ #include <libavutil/pixdesc.h>
+ #include <libavutil/eval.h>
+ #include <libavutil/display.h>
++#include <libavutil/channel_layout.h>
+ }
+ DCPOMATIC_ENABLE_WARNINGS
+ #include <iostream>
+--- src/lib/ffmpeg_file_encoder.cc.orig	2021-07-27 11:41:59.110475600 +0100
++++ src/lib/ffmpeg_file_encoder.cc	2021-07-27 11:42:45.740475600 +0100
+@@ -30,6 +30,7 @@
+ #include "cross.h"
+ #include "compose.hpp"
+ #include <iostream>
++#include <libavutil/channel_layout.h>
+ 
+ #include "i18n.h"
+ 
