@@ -1,5 +1,5 @@
---- include/CrashHandler.h.orig	2020-04-20 20:05:26.862080760 +0100
-+++ include/CrashHandler.h	2020-04-20 20:05:41.421725990 +0100
+--- src/CrashHandler.h.orig	2020-04-20 20:05:26.862080760 +0100
++++ src/CrashHandler.h	2020-04-20 20:05:41.421725990 +0100
 @@ -37,7 +37,7 @@
  #ifdef __MINGW32__
  	#include <winsock2.h>

@@ -2077,9 +2077,10 @@ build_readline() {
 }
 
 build_ASIOSDK() {
-  download_and_unpack_file http://www.steinberg.net/sdk_downloads/asiosdk2.3.zip ASIOSDK2.3
-  ln -s ASIOSDK2.3 ASIOSDK2
-  ln -s ASIOSDK2.3 asiosdk2
+  download_and_unpack_file https://download.steinberg.net/sdk_downloads/asiosdk_2.3.3_2019-06-14.zip asiosdk_2.3.3_2019-06-14
+
+  ln -s asiosdk_2.3.3_2019-06-14/common ASIOSDK2
+  ln -s asiosdk_2.3.3_2019-06-14/common asiosdk2
 }
 
 build_portaudio_without_jack_cmake() {
@@ -2560,7 +2561,7 @@ build_libopenshot() {
 		cd build
 			export old_ld_library_path=${LD_LIBRARY_PATH}
 			export LD_LIBRARY_PATH=${mingw_w64_x86_64_prefix}/../lib/
-			do_cmake ../ "-DCMAKE_CXX_FLAGS=-fcommon -DCMAKE_CXX_FLAGS=-fpermissive -DLIBOPENSHOT_AUDIO_INCLUDE_DIR=${mingw_w64_x86_64_prefix}/include/libopenshot-audio -DUNITTEST++_INCLUDE_DIR=${mingw_w64_x86_64_prefix}/include/UnitTest++ -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_EXE_LINKER_FLAGS=-Wl,--allow-multiple-definition -DCMAKE_SHARED_LINKER_FLAGS=-Wl,--allow-multiple-definition" 
+			do_cmake ../ "-DCMAKE_CXX_FLAGS=-fcommon -DCMAKE_CXX_FLAGS=-fpermissive -DLIBOPENSHOT_AUDIO_INCLUDE_DIR=${mingw_w64_x86_64_prefix}/include/libopenshot-audio -DENABLE_TESTS=OFF -DUNITTEST++_INCLUDE_DIR=${mingw_w64_x86_64_prefix}/include/UnitTest++ -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_EXE_LINKER_FLAGS=-Wl,--allow-multiple-definition -DCMAKE_SHARED_LINKER_FLAGS=-Wl,--allow-multiple-definition" 
 			${top_dir}/correct_headers.sh 
 			do_make "V=1"
 			do_make_install
@@ -3755,7 +3756,7 @@ build_mpv() {
     unset CC
     unset LD
     #env
-    do_configure "configure -v -pp --prefix=${mingw_w64_x86_64_prefix} --enable-dvdnav --enable-cdda --disable-x11 --disable-debug-build --enable-sdl2 --enable-libmpv-shared --disable-libmpv-static" "./waf"
+    do_configure "configure -v -pp --prefix=${mingw_w64_x86_64_prefix} --enable-dvdnav --enable-cdda --disable-x11 --disable-debug-build --enable-sdl2 --enable-libmpv-shared --disable-libmpv-static --enable-ffmpeg-strict-abi" "./waf"
     # In this cross-compile for Windows, we keep the Python script up-to-date and therefore
     # must call it directly by its full name, because mpv can only explore for executables
     # with the .exe suffix.
@@ -7467,7 +7468,7 @@ build_apps() {
   build_libdash
   build_aubio
   build_libopenshotaudio
-  build_libopenshot
+  #build_libopenshot
   #build_pulseaudio
   build_mpv
   build_libplacebo

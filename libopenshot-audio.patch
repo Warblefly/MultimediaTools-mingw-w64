@@ -1,11 +1,11 @@
 --- CMakeLists.txt.orig	2019-08-14 04:40:26.504413749 +0100
 +++ CMakeLists.txt	2019-08-14 04:40:35.868317779 +0100
-@@ -127,7 +127,7 @@
-                 ws2_32.lib
-                 wininet.lib
-                 version.lib
--                Shlwapi.dll
-+                shlwapi.dll
- 		)
+@@ -214,7 +214,7 @@
+     ws2_32.lib
+     wininet.lib
+     version.lib
+-    Shlwapi.dll
++    shlwapi.dll
+   )
  endif()
  
