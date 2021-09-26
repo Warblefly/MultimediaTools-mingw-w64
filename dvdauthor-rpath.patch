@@ -1,0 +1,10 @@
+--- bootstrap.orig	2021-09-26 17:33:19.134601700 +0100
++++ bootstrap	2021-09-26 17:33:33.224601700 +0100
+@@ -15,6 +15,6 @@
+ # Created by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+ #-
+ mkdir autotools m4
+-cp /usr/share/gettext/config.rpath autotools/
++cp /usr/local/share/gettext/config.rpath autotools/
+ autoreconf -i
+ 

@@ -1,13 +1,3 @@
---- wscript.orig	2020-01-11 15:55:51.584524418 +0000
-+++ wscript	2020-01-11 15:56:08.228366378 +0000
-@@ -148,7 +148,6 @@
-     if conf.env.TARGET_WINDOWS:
-         conf.env.append_value('CXXFLAGS', '-DDCPOMATIC_WINDOWS')
-         conf.env.append_value('CXXFLAGS', '-DWIN32_LEAN_AND_MEAN')
--        conf.env.append_value('CXXFLAGS', '-DBOOST_USE_WINDOWS_H')
-         conf.env.append_value('CXXFLAGS', '-DUNICODE')
- 	conf.env.append_value('CXXFLAGS', '-D_UNICODE')
-         conf.env.append_value('CXXFLAGS', '-DBOOST_THREAD_PROVIDES_GENERIC_SHARED_MUTEX_ON_WIN')
 --- wscript.orig	2020-04-13 14:16:23.792665488 +0100
 +++ wscript	2020-04-13 14:18:23.775643143 +0100
 @@ -173,8 +173,8 @@
@@ -30,3 +20,13 @@
          conf.env.append_value('LINKFLAGS', '-pthread')
  
      # Linux
+--- wscript.orig	2021-09-26 19:50:41.124601700 +0100
++++ wscript	2021-09-26 19:50:53.824601700 +0100
+@@ -150,7 +150,6 @@
+     if conf.env.TARGET_WINDOWS:
+         conf.env.append_value('CXXFLAGS', '-DDCPOMATIC_WINDOWS')
+         conf.env.append_value('CXXFLAGS', '-DWIN32_LEAN_AND_MEAN')
+-        conf.env.append_value('CXXFLAGS', '-DBOOST_USE_WINDOWS_H')
+         conf.env.append_value('CXXFLAGS', '-DUNICODE')
+         conf.env.append_value('CXXFLAGS', '-DBOOST_THREAD_PROVIDES_GENERIC_SHARED_MUTEX_ON_WIN')
+         conf.env.append_value('CXXFLAGS', '-mfpmath=sse')

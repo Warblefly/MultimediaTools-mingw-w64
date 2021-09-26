@@ -756,7 +756,7 @@ do_cleanup() {
 
 build_libx265() {
 if [ ! -f libx265.built ]; then
-  do_git_checkout https://bitbucket.org/multicoreware/x265_git.git x265 #1388601db0d23f8d8c3259886e9fcb747c1d5b52
+  do_git_checkout https://bitbucket.org/multicoreware/x265_git.git x265 c8905a745633543a1a0df6044a09386057a95be2
   cd x265
     apply_patch file://${top_dir}/x265-CMakeVersion.patch
 #    apply_patch file://${top_dir}/x265-headers-revert.patch
@@ -767,19 +767,19 @@ if [ ! -f libx265.built ]; then
 	cd 12bit
     		local cmake_params="-DENABLE_STATIC=ON -DENABLE_SHARED=OFF -DENABLE_ASSEMBLY=ON -DHIGH_BIT_DEPTH=ON -DMAIN12=1 -DEXPORT_C_API=0 -DENABLE_CLI=0 -DCMAKE_ASM_NASM_FLAGS=-w-macro-params-legacy"
 		do_cmake .. "$cmake_params"
-		do_make
+		do_make "V=1"
 		cp -vf libx265.a ../8bit/libx265_main12.a
 	cd ..
 	cd 10bit
 		local cmake_params="-DENABLE_STATIC=ON -DENABLE_SHARED=OFF -DENABLE_ASSEMBLY=ON -DHIGH_BIT_DEPTH=ON -DENABLE_HDR10_PLUS=1 -DENABLE_CLI=0 -DEXPORT_C_API=0 -DCMAKE_ASM_NASM_FLAGS=-w-macro-params-legacy"
 		do_cmake .. "$cmake_params"
-		do_make
+		do_make "V=1"
 		cp -vf libx265.a ../8bit/libx265_main10.a
 	cd ..
 	cd 8bit
 		local cmake_params="-DENABLE_STATIC=ON -DENABLE_SHARED=OFF -DENABLE_ASSEMBLY=ON -DENABLE_CLI=1 -DEXTRA_LINK_FLAGS=-L -DLINKED_10BIT=1 -DLINKED_12BIT=1 -DCMAKE_ASM_NASM_FLAGS=-w-macro-params-legacy -DEXTRA_LIB='$(pwd)/libx265_main10.a;$(pwd)/libx265_main12.a'"
 		do_cmake .. "$cmake_params"
-		do_make
+		do_make "V=1"
 		mv -vf libx265.a libx265_main.a
 		${cross_prefix}ar -M <<EOF
 CREATE libx265.a
@@ -881,7 +881,7 @@ build_librtmp() {
    # TODO do_make here instead...
     make SYS=mingw CRYPTO=GNUTLS OPT=-O2 CROSS_COMPILE=$cross_prefix SHARED=yes LIB_GNUTLS="`pkg-config --libs gnutls` -lz" || exit 1
    # The makefile doesn't install
-    cp -fv rtmpdump.exe rtmpgw.exe rtmpsrv.exe rtmpsuck.exe "${mingw_w64_x86_64_prefix}/bin"
+    cp -fv rtmpdump.exe rtmpgw.exe rtmpsrv.exe rtmpsuck.exe "${mingw_w64_x86_64_prefix}/bin"
 
   cd ..
 }
@@ -1428,6 +1428,7 @@ build_mlt() {
 #    apply_patch file://${top_dir}/mlt-CMakeLists.patch
 #    apply_patch file://${top_dir}/mlt-opencv.patch
 #    apply_patch file://${top_dir}/mlt-ffmpeg.patch
+    apply_patch_p1 file://${top_dir}/tracker-opencv-mlt-reverse.patch
     do_cmake "-DMOD_OPENCV=ON -DWINDOWS_DEPLOY=OFF -DMOD_GDK=OFF -DMOD_AVFORMAT=OFF"
     do_make
     cp -v src/framework/libmlt.def . 
@@ -1684,7 +1685,7 @@ build_opendcp() {
 }
 
 build_dcpomatic() {
-  do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic v2.15.x #97193e96c637ca92eeaf6e72ee38aa628308973b # v2.15.x #402fa9a3577975e9cf9728c815da1b17796fe325 # v2.15.x #9cff6ec974a4d0270091fe5c753483b0d53ecd46
+  do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic fc1441eeaa3c0805c37809685ea7a3f5ca173666 # v2.15.x #97193e96c637ca92eeaf6e72ee38aa628308973b # v2.15.x #402fa9a3577975e9cf9728c815da1b17796fe325 # v2.15.x #9cff6ec974a4d0270091fe5c753483b0d53ecd46
 #  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic new-ffmpeg-take2 #edbccd8d04a33f9e8d03677d8ebc671f40b0f822 #v2.15.x # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
 #  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.123" dcpomatic-2.15.123
   cd dcpomatic
@@ -3479,7 +3480,7 @@ build_libgcrypt() {
   do_git_checkout git://git.gnupg.org/libgcrypt.git libgcrypt #cdaeb86f067b94d9dff4235ade20dde6479d9bb8 # 86e5e06a97ae13b8bbf6923ecc76e02b9c429b46
   cd libgcrypt
   export holding_path="${PATH}"
-  export PATH="/usr/bin:/bin:${top_dir}/sandbox/x86_64-w64-mingw32/bin"
+  export PATH="/usr/local/bin:/usr/bin:/bin:${top_dir}/sandbox/x86_64-w64-mingw32/bin"
     # apply_patch file://${top_dir}/libgcrypt-pkgconfig.patch
     generic_configure_make_install "CC_FOR_BUILD=gcc CFLAGS=-DGPGRT_ENABLE_ES_MACROS GPG_ERROR_CONFIG=${mingw_w64_x86_64_prefix}/bin/gpg-error-config GPGRT_CONFIG=${mingw_w64_x86_64_prefix}/bin/gpgrt-config --disable-doc"
 #    echo "Installing pkg-config file because it's added by us"
@@ -4401,14 +4402,17 @@ build_mkvtoolnix() {
 }
 
 build_gavl() {
-#  generic_download_and_install https://downloads.sourceforge.net/project/gmerlin/gavl/1.4.0/gavl-1.4.0.tar.gz gavl-1.4.0 "--enable-shared=yes"
- do_svn_checkout svn://svn.code.sf.net/p/gmerlin/code/trunk/gavl gavl 5729 # 5412
- cd gavl
-   apply_patch file://${top_dir}/gavl-ac-try-run.patch
-   export ac_cv_have_clock_monotonic=yes 
-   generic_configure_make_install "ac_cv_have_clock_monotonic=yes --enable-shared=yes --without-doxygen"
-   unset ac_cv_have_clock_monotonic
- cd ..
+	download_and_unpack_file https://downloads.sourceforge.net/project/gmerlin/gavl/1.4.0/gavl-1.4.0.tar.gz gavl-1.4.0 
+# do_svn_checkout svn://svn.code.sf.net/p/gmerlin/code/trunk/gavl gavl 5729 # 5412
+	cd gavl-1.4.0
+	apply_patch file://${top_dir}/gavl-ac-try-run.patch
+	apply_patch file://${top_dir}/gavl-64bit-asm.patch
+	apply_patch file://${top_dir}/gavl-dll.patch
+	export ac_cv_have_clock_monotonic=yes
+	rm -v ./configure	
+	generic_configure_make_install "--without-doxygen ac_cv_have_clock_monotonic=yes --enable-shared=yes --without-doxygen"
+	unset ac_cv_have_clock_monotonic
+cd ..
 }
 
 build_gomp() {
@@ -4447,7 +4451,7 @@ build_poppler() {
     export CFLAGS="-DMINGW_HAS_SECURE_API"
     export CXXFLAGS=-fpermissive
     export PKG_CONFIG_PATH="${mingw_w64_x86_64_prefix}/lib/pkgconfig"
-    do_cmake "-DENABLE_XPDF_HEADERS=ON -DSPLASH_CMYK=ON -DBUILD_SHARED_LIBS=ON -DENABLE_ZLIB_UNCOMPRESS=ON -DENABLE_GLIB=OFF -DCMAKE_VERBOSE_MAKEFILE=ON -DENABLE_LIBOPENJPEG=unmaintained" && ${top_dir}/correct_headers.sh
+    do_cmake "-DENABLE_XPDF_HEADERS=ON -DSPLASH_CMYK=ON -DBUILD_SHARED_LIBS=ON -DENABLE_ZLIB_UNCOMPRESS=ON -DENABLE_GLIB=OFF -DCMAKE_VERBOSE_MAKEFILE=ON -DENABLE_LIBOPENJPEG=unmaintained -DENABLE_QT5=OFF -DENABLE_QT6=OFF" && ${top_dir}/correct_headers.sh
     do_make_install
 
     export CFLAGS="${CFLAGS_ORIG}"
@@ -4838,7 +4842,7 @@ build_openmaxil() {
 build_lua() {
   # Needed for mpv to use YouTube URLs. mpv looks for it in pkg-config path so might be
   # best to compile our own mingw version
-  download_and_unpack_file http://www.lua.org/ftp/lua-5.2.3.tar.gz lua-5.2.3
+  download_and_unpack_file https://ftp.osuosl.org/pub/blfs/conglomeration/lua/lua-5.2.3.tar.gz lua-5.2.3
   cd lua-5.2.3
     apply_patch_p1 file://${top_dir}/lua-5.2.3-static-mingw.patch
     # Adjustments when not building on Cygwin
@@ -4885,7 +4889,7 @@ build_sox() {
   do_git_checkout https://git.code.sf.net/p/sox/code sox
   cd sox
   if [[ ! -f "configure" ]]; then
-    autoconf-archive
+#    autoconf-archive
     autoreconf -fiv
 
   fi
@@ -5022,6 +5026,7 @@ build_dvdauthor() {
 #iconv does bad mojo in mingw-w64. And who doesn't want Unicode anyway, these days?
     export am_cv_func_iconv=no
     apply_patch_p1 file://${top_dir}/dvdauthor-mingw.patch
+    apply_patch file://${top_dir}/dvdauthor-rpath.patch
 #    apply_patch file://${top_dir}/dvdauthor-configure-ac.patch
 #    apply_patch file://${top_dir}/dvdauthor-mkdir-mingw32.patch
 #    apply_patch file://${top_dir}/dvdauthor-compat-c-langinfo.patch
@@ -5563,13 +5568,13 @@ build_libplacebo() {
 }
 
 build_gdk_pixbuf() {
-  download_and_unpack_file http://ftp.gnome.org/pub/GNOME/sources/gdk-pixbuf/2.36/gdk-pixbuf-2.36.12.tar.xz gdk-pixbuf-2.36.12 "--with-libjasper --disable-glibtest --enable-always-build-tests=no --enable-relocations --with-included-loaders=yes --build=x86_64-unknown-linux-gnu"
-#  do_git_checkout https://git.gnome.org/browse/gdk-pixbuf gdk-pixbuf
-    cd gdk-pixbuf-2.36.12
-      apply_patch file://${top_dir}/gdk-pixbuf.patch
-      rm -v ./configure
-      generic_configure_make_install "--with-libjasper --disable-glibtest --enable-relocations --with-included-loaders=yes --disable-installed-tests --disable-always-build-tests --build=x86_64-unknown-linux-gnu"
-
+#  download_and_unpack_file http://ftp.gnome.org/pub/GNOME/sources/gdk-pixbuf/2.36/gdk-pixbuf-2.36.12.tar.xz gdk-pixbuf-2.36.12 # "--with-libjasper --disable-glibtest --enable-always-build-tests=no --enable-relocations --with-included-loaders=yes --build=x86_64-unknown-linux-gnu"
+  do_git_checkout https://git.gnome.org/browse/gdk-pixbuf gdk-pixbuf
+    cd gdk-pixbuf
+    # apply_patch file://${top_dir}/gdk-pixbuf.patch
+    #  rm -v ./configure
+    #  generic_configure_make_install "--with-libjasper --disable-glibtest --enable-relocations --with-included-loaders=yes --disable-installed-tests --disable-always-build-tests --build=x86_64-unknown-linux-gnu"
+    generic_meson_ninja_install
   cd ..
 }
 
@@ -5833,27 +5838,28 @@ build_hdf() {
 
 
 build_netcdf() {
-#  do_git_checkout https://github.com/Unidata/netcdf-c.git netcdf-c ba24e3c08e52e869c18f8f34e2d78622e60e6ce7
-  download_and_unpack_file https://github.com/Unidata/netcdf-c/archive/v4.7.4.tar.gz netcdf-c-4.7.4
-  cd netcdf-c-4.7.4
+#  do_git_checkout https://github.com/Unidata/netcdf-c.git netcdf-c main #ba24e3c08e52e869c18f8f34e2d78622e60e6ce7
+  download_and_unpack_file https://github.com/Unidata/netcdf-c/archive/v4.8.1.tar.gz netcdf-c-4.8.1
+  cd netcdf-c-4.8.1
 #    apply_patch file://${top_dir}/netcdf-shared.patch
 #    apply_patch file://${top_dir}/netcdf-errno.patch
 #    apply_patch file://${top_dir}/netcdf-gcc.patch
 #    apply_patch file://${top_dir}/netcdf-mingw.patch
 #    apply_patch file://${top_dir}/netcdf-getopt.patch
-#    apply_patch file://${top_dir}/netcdf-libs.patch
+    apply_patch file://${top_dir}/netcdf-libs.patch
     apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-netcdf/0001-mingw-cmake.patch
-    apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-netcdf/0002-dutil-correcttypo.patch
+#    apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-netcdf/0002-dutil-correcttypo.patch
     apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-netcdf/0003-ncconfigure-strlcat-export.patch
-    apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-netcdf/0004-ddispatch-set-temp.patch
+#    apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-netcdf/0004-ddispatch-set-temp.patch
     apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-netcdf/0006-cvt-conversion.patch
     apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-netcdf/0007-mingw-config.patch
-    apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-netcdf/0008-mingw-and-msvc-common.patch
-    apply_patch file://${top_dir}/netcdf-0009-mingw-getopt.patch
-#    apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-netcdf/0009-mingw-getopt.patch
-    apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-netcdf/0010-fix-typo.patch
-    apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-netcdf/0011-fix-multiple-def.patch
-    do_cmake . "-DENABLE_HDF5=OFF -DENABLE_DAP=ON -DENABLE_TESTS=OFF -DENABLE_NETCDF_4=OFF"
+#    apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-netcdf/0008-mingw-and-msvc-common.patch
+#    apply_patch file://${top_dir}/netcdf-0009-mingw-getopt.patch
+    #
+    apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-netcdf/0009-mingw-getopt.patch
+#    apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-netcdf/0010-fix-typo.patch
+#    apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-netcdf/0011-fix-multiple-def.patch
+    do_cmake . "-DCMAKE_BUILD_TYPE=Release -DENABLE_DAP=ON -DENABLE_TESTS=OFF -DENABLE_NETCDF_4=OFF"
     do_make_install
     #generic_configure_make_install "CFLAGS=-fcommon --enable-dll --disable-netcdf4"
   cd ..

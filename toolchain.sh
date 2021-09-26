@@ -26,7 +26,7 @@ export PATH="$working_directory/bin:/usr/local/bin:/usr/bin:/bin"
 echo "Getting binutils..."
 #	wget http://ftp.gnu.org/gnu/binutils/binutils-2.36.1.tar.bz2 || exit 1
 #        tar xvvf binutils-2.36.1.tar.bz2 && ln -sv binutils-2.36.1 binutils
-	git clone --depth 1 --single-branch -b binutils-2_37-branch git://github.com/bminor/binutils-gdb.git binutils || echo "Seems we have binutils."
+	git clone --depth 1 --single-branch -b binutils-2_37 git://github.com/bminor/binutils-gdb.git binutils || echo "Seems we have binutils."
 #	git clone --depth 1 --single-branch -b binutils-2_36-branch git://sourceware.org/git/binutils-gdb.git binutils || echo "Seems we have binutils."
 echo "Binutils has arrived."
 
@@ -55,16 +55,16 @@ cd binutils
 #	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-testsuite-fixes.patch | patch -p1
 #	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-config.patch | patch -p1
 
-	echo "Preparing libiberty..."
-	pushd libiberty
-		autoconf
-	popd
-	echo "Libiberty prepared."
-	echo "Preparing intl..."
-	pushd intl
-		autoconf
-	popd 
-	echo "Into prepared."
+#	echo "Preparing libiberty..."
+#	pushd libiberty
+#		autoconf
+#	popd
+#	echo "Libiberty prepared."
+#	echo "Preparing intl..."
+#	pushd intl
+#		autoconf
+#	popd 
+#	echo "Intl prepared."
 cd ..
 
 mkdir -pv binutils-build
@@ -183,8 +183,9 @@ cd ..
 # Apply patch. Not sure how long this will be required
 
 cd gcc
-	curl https://src.fedoraproject.org/rpms/mingw-gcc/raw/f34/f/mingw-gcc-config.patch | patch -p1
-	curl https://src.fedoraproject.org/rpms/mingw-gcc/raw/f34/f/0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch | patch -p1
+	cat ${top_dir}/gcc-autoconf.patch | patch -p0
+	curl https://src.fedoraproject.org/rpms/mingw-gcc/raw/rawhide/f/mingw-gcc-config.patch | patch -p1
+	curl https://src.fedoraproject.org/rpms/mingw-gcc/raw/rawhide/f/0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch | patch -p1
 	pushd libiberty
 		autoconf -f
 	popd

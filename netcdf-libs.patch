@@ -1,11 +1,11 @@
---- liblib/CMakeLists.txt.orig	2021-05-01 15:50:06.193899600 +0100
-+++ liblib/CMakeLists.txt	2021-05-01 15:50:23.353899600 +0100
-@@ -109,7 +109,7 @@
- ENDIF()
+--- cmake/modules/FindZip.cmake.orig	2021-09-26 15:10:04.624601700 +0100
++++ cmake/modules/FindZip.cmake	2021-09-26 15:10:18.994601700 +0100
+@@ -31,7 +31,7 @@
+   ENDIF(EXISTS "${Zip_LIBRARY_DIRS}/lib")
  
- IF(ENABLE_NCZARR_ZIP)
--  SET(TLL_LIBS ${TLL_LIBS} ${Zip_LIBRARIES})
-+  SET(TLL_LIBS ${TLL_LIBS} z)
- ENDIF()
- 
- IF(ENABLE_S3_SDK)
+   # Find Zip libraries
+-  FIND_LIBRARY(Zip_DEBUG_LIBRARY NAMES zipd zip_d libzipd libzip_d libzip
++  FIND_LIBRARY(Zip_DEBUG_LIBRARY NAMES zipd zip_d libzipd libzip_d 
+                PATH_SUFFIXES Debug ${CMAKE_LIBRARY_ARCHITECTURE} ${CMAKE_LIBRARY_ARCHITECTURE}/Debug
+                PATHS ${Zip_LIBRARY_DIRS} NO_DEFAULT_PATH)
+   FIND_LIBRARY(Zip_RELEASE_LIBRARY NAMES zip libzip
