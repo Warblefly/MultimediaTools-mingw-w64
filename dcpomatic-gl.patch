@@ -1,21 +1,51 @@
---- src/wx/wscript.orig	2019-12-17 18:18:01.900659092 +0000
-+++ src/wx/wscript	2019-12-17 18:18:31.984362315 +0000
-@@ -252,12 +252,12 @@
-                    define_name='DCPOMATIC_USE_RTERROR',
-                    mandatory=False)
+--- src/wx/wscript.orig	2021-10-03 17:57:34.473098000 +0100
++++ src/wx/wscript	2021-10-03 18:00:36.643098000 +0100
+@@ -274,12 +274,12 @@
+         conf.env.LIB_RTAUDIO.append('mfuuid')
+         conf.env.LIB_RTAUDIO.append('wmcodecdspuuid')
  
 -    if conf.env.TARGET_WINDOWS or conf.env.TARGET_LINUX:
 -        conf.check_cfg(package='gl', args='--cflags --libs', uselib_store='GL', mandatory=True)
 -        conf.check_cfg(package='glu', args='--cflags --libs', uselib_store='GLU', mandatory=True)
++#    if conf.env.TARGET_WINDOWS or conf.env.TARGET_LINUX:
++#        conf.check_cfg(package='gl', args='--cflags --libs', uselib_store='GL', mandatory=True)
++#        conf.check_cfg(package='glu', args='--cflags --libs', uselib_store='GLU', mandatory=True)
+         if conf.env.TARGET_WINDOWS:
+             conf.check_cfg(package='glew', args='--cflags --libs', uselib_store='GLEW', mandatory=True)
 -    else:
++#    else:
+         conf.env.STLIB_GL = 'gl'
+         conf.env.STLIB_GLU = 'glu'
+ 
+--- src/wx/wscript.orig	2021-10-03 18:04:57.103098000 +0100
++++ src/wx/wscript	2021-10-03 18:05:29.523098000 +0100
+@@ -277,11 +277,12 @@
+ #    if conf.env.TARGET_WINDOWS or conf.env.TARGET_LINUX:
+ #        conf.check_cfg(package='gl', args='--cflags --libs', uselib_store='GL', mandatory=True)
+ #        conf.check_cfg(package='glu', args='--cflags --libs', uselib_store='GLU', mandatory=True)
+-        if conf.env.TARGET_WINDOWS:
+-            conf.check_cfg(package='glew', args='--cflags --libs', uselib_store='GLEW', mandatory=True)
++#        if conf.env.TARGET_WINDOWS:
++#            conf.check_cfg(package='glew', args='--cflags --libs', uselib_store='GLEW', mandatory=True)
+ #    else:
+         conf.env.STLIB_GL = 'gl'
+         conf.env.STLIB_GLU = 'glu'
++        conf.env.STLIB_GLEW = 'glew'
+ 
+     if conf.env.TARGET_LINUX:
+         conf.check_cxx(fragment="""
+--- src/wx/wscript.orig	2021-10-03 18:34:36.673098000 +0100
++++ src/wx/wscript	2021-10-03 18:36:44.153098000 +0100
+@@ -280,9 +280,9 @@
+ #        if conf.env.TARGET_WINDOWS:
+ #            conf.check_cfg(package='glew', args='--cflags --libs', uselib_store='GLEW', mandatory=True)
+ #    else:
 -        conf.env.STLIB_GL = 'gl'
 -        conf.env.STLIB_GLU = 'glu'
-+    #if conf.env.TARGET_WINDOWS or conf.env.TARGET_LINUX:
-+    #    conf.check_cfg(package='gl', args='--cflags --libs', uselib_store='GL', mandatory=True)
-+    #    conf.check_cfg(package='glu', args='--cflags --libs', uselib_store='GLU', mandatory=True)
-+    #else:
-+    conf.env.STLIB_GL = 'opengl32'
-+    conf.env.STLIB_GLU = 'glu32'
+-        conf.env.STLIB_GLEW = 'glew'
++        conf.env.LIB_GL = ['opengl32']
++        conf.env.LIB_GLU = ['glu32']
++        conf.env.LIB_GLEW = ['glew32']
  
      if conf.env.TARGET_LINUX:
          conf.check_cxx(fragment="""

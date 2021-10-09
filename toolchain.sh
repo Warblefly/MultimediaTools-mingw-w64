@@ -171,7 +171,7 @@ cd gcc
 		tar xvvf mpfr-4.1.0.tar.xz && ln -sv mpfr-4.1.0 mpfr
 		wget https://ftp.gnu.org/gnu/mpc/mpc-1.2.1.tar.gz || exit 1
 		tar xvvf mpc-1.2.1.tar.gz && ln -sv mpc-1.2.1 mpc
-		wget http://isl.gforge.inria.fr/isl-0.24.tar.xz || exit 1
+		wget http://slackware.uk/slackware/slackware64-current/source/l/isl/isl-0.24.tar.xz || exit 1
 		tar xvvf isl-0.24.tar.xz && ln -sv isl-0.24 isl
 		touch gcc_accessories_source
 	else
