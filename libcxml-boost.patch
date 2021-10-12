@@ -9,3 +9,23 @@
          conf.env.append_value('CXXFLAGS', '-DLIBCXML_WINDOWS')
      else:
          boost_lib_suffix = ''
+--- src/cxml.cc.orig	2021-10-10 13:21:50.455278800 +0100
++++ src/cxml.cc	2021-10-10 13:22:09.465278800 +0100
+@@ -23,6 +23,7 @@
+ #include <boost/filesystem.hpp>
+ #include <boost/algorithm/string.hpp>
+ #include <cstdio>
++#include <memory>
+ 
+ using std::shared_ptr;
+ using std::string;
+--- src/cxml.h.orig	2021-10-10 13:27:12.225278800 +0100
++++ src/cxml.h	2021-10-10 13:27:24.515278800 +0100
+@@ -27,6 +27,7 @@
+ #include <stdint.h>
+ #include <string>
+ #include <vector>
++#include <memory>
+ 
+ /* Hack for OS X compile failure; see https://bugs.launchpad.net/hugin/+bug/910160 */
+ #ifdef check

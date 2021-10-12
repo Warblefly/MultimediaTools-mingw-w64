@@ -30,3 +30,66 @@
          conf.env.append_value('CXXFLAGS', '-DBOOST_THREAD_PROVIDES_GENERIC_SHARED_MUTEX_ON_WIN')
          conf.env.append_value('CXXFLAGS', '-mfpmath=sse')
          conf.env.append_value('CXXFLAGS', '-Wcast-align')
+--- src/lib/dcp_subtitle.h.orig	2021-10-10 19:34:12.815278800 +0100
++++ src/lib/dcp_subtitle.h	2021-10-10 19:34:29.565278800 +0100
+@@ -24,6 +24,7 @@
+ 
+ 
+ #include <boost/filesystem.hpp>
++#include <memory>
+ 
+ 
+ namespace dcp {
+--- src/lib/zipper.h.orig	2021-10-10 19:41:02.235278800 +0100
++++ src/lib/zipper.h	2021-10-10 19:41:23.315278800 +0100
+@@ -21,6 +21,7 @@
+ 
+ #include <boost/filesystem.hpp>
+ #include <vector>
++#include <memory>
+ 
+ 
+ class Zipper
+--- src/lib/case_insensitive_sorter.cc.orig	2021-10-10 19:53:53.265278800 +0100
++++ src/lib/case_insensitive_sorter.cc	2021-10-10 19:54:21.385278800 +0100
+@@ -31,7 +31,7 @@
+ {
+ 	auto x = a.string();
+ 	auto y = b.string();
+-	transform (x.begin(), x.end(), x.begin(), ::tolower);
+-	transform (y.begin(), y.end(), y.begin(), ::tolower);
++	std::transform (x.begin(), x.end(), x.begin(), ::tolower);
++	std::transform (y.begin(), y.end(), y.begin(), ::tolower);
+ 	return x < y;
+ }
+--- src/lib/case_insensitive_sorter.cc.orig	2021-10-10 20:02:40.175278800 +0100
++++ src/lib/case_insensitive_sorter.cc	2021-10-10 20:02:58.525278800 +0100
+@@ -21,7 +21,7 @@
+ 
+ #include "case_insensitive_sorter.h"
+ #include <boost/filesystem.hpp>
+-
++#include <algorithm>
+ 
+ using std::string;
+ 
+@@ -31,7 +31,7 @@
+ {
+ 	auto x = a.string();
+ 	auto y = b.string();
+-	std::transform (x.begin(), x.end(), x.begin(), ::tolower);
+-	std::transform (y.begin(), y.end(), y.begin(), ::tolower);
++	transform (x.begin(), x.end(), x.begin(), ::tolower);
++	transform (y.begin(), y.end(), y.begin(), ::tolower);
+ 	return x < y;
+ }
+--- src/wx/fonts_dialog.h.orig	2021-10-10 20:15:33.175278800 +0100
++++ src/wx/fonts_dialog.h	2021-10-10 20:15:47.385278800 +0100
+@@ -25,6 +25,7 @@
+ #include <wx/wx.h>
+ DCPOMATIC_ENABLE_WARNINGS
+ #include <boost/filesystem.hpp>
++#include <memory>
+ 
+ 
+ class Content;
