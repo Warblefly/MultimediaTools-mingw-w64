@@ -69,22 +69,6 @@
  
  endif
  
---- modules/gui/qt/maininterface/compositor.cpp.orig	2021-08-10 20:48:36.736213500 +0100
-+++ modules/gui/qt/maininterface/compositor.cpp	2021-08-10 20:49:01.426213500 +0100
-@@ -19,13 +19,6 @@
- #include "compositor.hpp"
- #include "compositor_dummy.hpp"
- 
--#ifdef _WIN32
--#ifdef HAVE_DCOMP_H
--#  include "compositor_dcomp.hpp"
--#endif
--#  include "compositor_win7.hpp"
--#endif
--
- namespace vlc {
- 
- template<typename T>
 --- modules/gui/qt/maininterface/compositor.cpp.orig	2021-08-11 17:09:20.846213500 +0100
 +++ modules/gui/qt/maininterface/compositor.cpp	2021-08-11 17:10:44.466213500 +0100
 @@ -36,12 +36,6 @@
@@ -100,3 +84,16 @@
      {"dummy", &instanciateCompositor<CompositorDummy>, &preInit<CompositorDummy> }
  };
  
+--- modules/gui/qt/maininterface/compositor.cpp.orig	2021-10-14 21:39:49.935278800 +0100
++++ modules/gui/qt/maininterface/compositor.cpp	2021-10-14 21:42:41.545278800 +0100
+@@ -26,10 +26,6 @@
+ 
+ #ifdef _WIN32
+ #include "main_interface_win32.hpp"
+-#ifdef HAVE_DCOMP_H
+-#  include "compositor_dcomp.hpp"
+-#endif
+-#  include "compositor_win7.hpp"
+ #endif
+ 
+ using namespace vlc;
