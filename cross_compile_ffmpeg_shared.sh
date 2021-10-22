@@ -1685,7 +1685,7 @@ build_opendcp() {
 }
 
 build_dcpomatic() {
-  do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic 805d4a48fa6e4d8e28fd582a2ae6ba78b8343144 main # v2.15.x # fc1441eeaa3c0805c37809685ea7a3f5ca173666 # v2.15.x #97193e96c637ca92eeaf6e72ee38aa628308973b # v2.15.x #402fa9a3577975e9cf9728c815da1b17796fe325 # v2.15.x #9cff6ec974a4d0270091fe5c753483b0d53ecd46
+  do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic main #805d4a48fa6e4d8e28fd582a2ae6ba78b8343144 main # v2.15.x # fc1441eeaa3c0805c37809685ea7a3f5ca173666 # v2.15.x #97193e96c637ca92eeaf6e72ee38aa628308973b # v2.15.x #402fa9a3577975e9cf9728c815da1b17796fe325 # v2.15.x #9cff6ec974a4d0270091fe5c753483b0d53ecd46
 #  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic new-ffmpeg-take2 #edbccd8d04a33f9e8d03677d8ebc671f40b0f822 #v2.15.x # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
 #  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.123" dcpomatic-2.15.123
   cd dcpomatic
@@ -3281,9 +3281,9 @@ build_libdcp() {
 
 build_libsub() {
 #  do_git_checkout git://git.carlh.net/git/libsub.git libsub 1.0
-  do_git_checkout https://git.carlh.net/git/libsub.git libsub
+#  do_git_checkout https://git.carlh.net/git/libsub.git libsub
 #  download_and_unpack_file http://carlh.net/downloads/libsub/libsub-1.4.24.tar.bz2 libsub-1.4.24
-#  do_git_checkout https://github.com/cth103/libsub.git libsub
+  do_git_checkout https://github.com/cth103/libsub.git libsub
   cd libsub
     # include <iostream> is missing
 #    apply_patch file://${top_dir}/libdcp-reader.h.patch
@@ -6646,6 +6646,19 @@ build_imagemagick()
   cd ..
 }
 
+build_jpegxl() {
+	do_git_checkout https://gitlab.com/wg1/jpeg-xl.git jpeg-xl
+	cd jpeg-xl
+		git submodule update --init --recursive
+		mkdir -pv build
+		cd build
+			do_cmake .. "-DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_SYSTEM_PROCESSOR=AMD64"
+			do_make
+			do_make_install
+		cd ..
+	cd ..
+}
+
 build_jasper() {
   download_and_unpack_file https://www.ece.uvic.ca/~frodo/jasper/software/jasper-1.900.29.tar.gz jasper-1.900.29
   cd jasper-1.900.29
@@ -7262,6 +7275,7 @@ build_dependencies() {
   build_libsamplerate # for librubberband
   build_libbs2b
   build_wavpack
+  build_jpegxl
   build_libdcadec
   build_libgame-music-emu
   build_sox # This is a problem: it must be built before libgsm is created otherwise libgsm clashes with libsndfile

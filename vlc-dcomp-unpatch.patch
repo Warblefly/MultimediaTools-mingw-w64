@@ -25,9 +25,9 @@
 -	gui/qt/maininterface/compositor_dcomp_uisurface.cpp \
 -	gui/qt/maininterface/compositor_dcomp_uisurface.hpp
 -endif
+ 
  endif
  
- # Meta-object compilation
 --- modules/gui/qt/Makefile.am.orig	2020-08-27 21:54:47.030000000 +0100
 +++ modules/gui/qt/Makefile.am	2020-08-27 21:54:58.530000000 +0100
 @@ -348,13 +348,6 @@
@@ -69,21 +69,6 @@
  
  endif
  
---- modules/gui/qt/maininterface/compositor.cpp.orig	2021-08-11 17:09:20.846213500 +0100
-+++ modules/gui/qt/maininterface/compositor.cpp	2021-08-11 17:10:44.466213500 +0100
-@@ -36,12 +36,6 @@
-     Compositor* (*instanciate)(qt_intf_t *p_intf);
-     bool (*preInit)(qt_intf_t *p_intf);
- } static compositorList[] = {
--#ifdef _WIN32
--#ifdef HAVE_DCOMP_H
--    {"dcomp", &instanciateCompositor<CompositorDirectComposition>, &preInit<CompositorDirectComposition> },
--#endif
--    {"win7", &instanciateCompositor<CompositorWin7>, &preInit<CompositorWin7> },
--#endif
-     {"dummy", &instanciateCompositor<CompositorDummy>, &preInit<CompositorDummy> }
- };
- 
 --- modules/gui/qt/maininterface/compositor.cpp.orig	2021-10-14 21:39:49.935278800 +0100
 +++ modules/gui/qt/maininterface/compositor.cpp	2021-10-14 21:42:41.545278800 +0100
 @@ -26,10 +26,6 @@
@@ -97,3 +82,21 @@
  #endif
  
  using namespace vlc;
+--- modules/gui/qt/maininterface/compositor.cpp.orig	2021-10-22 15:08:12.539866000 +0100
++++ modules/gui/qt/maininterface/compositor.cpp	2021-10-22 15:08:35.029866000 +0100
+@@ -49,15 +49,6 @@
+     Compositor* (*instanciate)(qt_intf_t *p_intf);
+     bool (*preInit)(qt_intf_t *p_intf);
+ } static compositorList[] = {
+-#ifdef _WIN32
+-#ifdef HAVE_DCOMP_H
+-    {"dcomp", &instanciateCompositor<CompositorDirectComposition>, &preInit<CompositorDirectComposition> },
+-#endif
+-    {"win7", &instanciateCompositor<CompositorWin7>, &preInit<CompositorWin7> },
+-#endif
+-#ifdef QT5_HAS_X11_COMPOSITOR
+-    {"x11", &instanciateCompositor<CompositorX11>, &preInit<CompositorX11> },
+-#endif
+     {"dummy", &instanciateCompositor<CompositorDummy>, &preInit<CompositorDummy> }
+ };
+ 
