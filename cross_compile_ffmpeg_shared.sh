@@ -3757,7 +3757,7 @@ build_mpv() {
     unset CC
     unset LD
     #env
-    do_configure "configure -v -pp --prefix=${mingw_w64_x86_64_prefix} --enable-dvdnav --enable-cdda --disable-x11 --disable-debug-build --enable-sdl2 --enable-libmpv-shared --disable-libmpv-static --enable-ffmpeg-strict-abi" "./waf"
+    do_configure "configure -v -pp --prefix=${mingw_w64_x86_64_prefix} --enable-dvdnav --enable-cdda --disable-x11 --disable-debug-build --enable-sdl2 --enable-libmpv-shared --disable-libmpv-static" "./waf"
     # In this cross-compile for Windows, we keep the Python script up-to-date and therefore
     # must call it directly by its full name, because mpv can only explore for executables
     # with the .exe suffix.
