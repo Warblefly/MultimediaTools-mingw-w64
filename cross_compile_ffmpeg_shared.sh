@@ -5144,8 +5144,8 @@ build_youtube-dl() {
 #  do_git_checkout https://github.com/rg3/youtube-dl youtube-dl
   do_git_checkout https://github.com/yt-dlp/yt-dlp.git yt-dlp
   cd yt-dlp
-    do_make youtube-dl
-    cp youtube-dl "${mingw_w64_x86_64_prefix}/bin/youtube-dl.py"
+    do_make yt-dlp
+    cp yt-dlp "${mingw_w64_x86_64_prefix}/bin/yt-dlp.py"
   cd ..
 }
 
@@ -7471,7 +7471,7 @@ build_apps() {
   #build_kf5_threadweaver
   #build_digikam
   build_libde265
-  #build_youtube-dl
+  build_youtube-dl
   build_mjpegtools
   build_unittest
 # build_qt5
