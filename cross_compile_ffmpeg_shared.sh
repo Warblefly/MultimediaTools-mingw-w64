@@ -5141,8 +5141,9 @@ build_libde265() {
 }
 
 build_youtube-dl() {
-  do_git_checkout https://github.com/rg3/youtube-dl youtube-dl
-  cd youtube-dl
+#  do_git_checkout https://github.com/rg3/youtube-dl youtube-dl
+  do_git_checkout https://github.com/yt-dlp/yt-dlp.git yt-dlp
+  cd yt-dlp
     do_make youtube-dl
     cp youtube-dl "${mingw_w64_x86_64_prefix}/bin/youtube-dl.py"
   cd ..
@@ -6817,7 +6818,7 @@ build_ocio() {
 }
 
 build_otio() {
-	do_git_checkout https://github.com/PixarAnimationStudios/OpenTimelineIO.git OpenTimelineIO # 5aa24fbe89d615448876948fe4b4900455c9a3e8
+	do_git_checkout https://github.com/PixarAnimationStudios/OpenTimelineIO.git OpenTimelineIO main # 5aa24fbe89d615448876948fe4b4900455c9a3e8
 	cd OpenTimelineIO
 #		apply_patch file://${top_dir}/opentime.patch
 		do_cmake "-DCMAKE_VERBOSE_MAKEFILE=ON -DOTIO_PYTHON_INSTALL=OFF"
@@ -7470,7 +7471,7 @@ build_apps() {
   #build_kf5_threadweaver
   #build_digikam
   build_libde265
-  build_youtube-dl
+  #build_youtube-dl
   build_mjpegtools
   build_unittest
 # build_qt5
