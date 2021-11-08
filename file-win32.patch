@@ -25,25 +25,66 @@
  
  ${MAGIC}: $(EXTRA_DIST) $(FILE_COMPILE_DEP)
  	@rm -fr magic
---- src/compress.c.orig	2020-01-12 10:43:07.350109332 +0000
-+++ src/compress.c	2020-01-12 10:44:09.652894826 +0000
-@@ -380,7 +380,8 @@
+--- src/compress.c.orig	2021-11-03 21:12:23.512696900 +0000
++++ src/compress.c	2021-11-03 21:14:05.242696900 +0000
+@@ -380,7 +380,7 @@
  sread(int fd, void *buf, size_t n, int canbepipe __attribute__((__unused__)))
  {
  	ssize_t rv;
 -#ifdef FIONREAD
-+/*#ifdef FIONREAD */
-+#if 0
++#if defined(FIONREAD) && !defined(WIN32)
  	int t = 0;
  #endif
  	size_t rn = n;
-@@ -388,7 +389,8 @@
+@@ -388,7 +388,7 @@
  	if (fd == STDIN_FILENO)
  		goto nocheck;
  
 -#ifdef FIONREAD
-+/*#ifdef FIONREAD*/
-+#if 0
++#if defined(FIONREAD) && !defined(WIN32)
  	if (canbepipe && (ioctl(fd, FIONREAD, &t) == -1 || t == 0)) {
  #ifdef FD_ZERO
  		ssize_t cnt;
+--- src/funcs.c.orig	2021-11-03 21:14:30.892696900 +0000
++++ src/funcs.c	2021-11-03 21:16:21.292696900 +0000
+@@ -813,6 +813,10 @@
+ protected int
+ file_pipe_closexec(int *fds)
+ {
++#ifdef WIN32
++	// F_SETFD is not supported on Windows
++	return 0;
++#else
+ #ifdef HAVE_PIPE2
+ 	return pipe2(fds, O_CLOEXEC);
+ #else
+@@ -822,11 +826,17 @@
+ 	(void)fcntl(fds[1], F_SETFD, FD_CLOEXEC);
+ 	return 0;
+ #endif
++#endif
+ }
+ 
+ protected int
+ file_clear_closexec(int fd) {
++#ifdef WIN32
++	// F_SETFD is not supported on Windows
++	return 0;
++#else
+ 	return fcntl(fd, F_SETFD, 0);
++#endif
+ }
+ 
+ protected char *
+--- src/magic.c.orig	2021-11-03 21:16:55.062696900 +0000
++++ src/magic.c	2021-11-03 21:17:54.682696900 +0000
+@@ -460,7 +460,8 @@
+ 			rv = 0;
+ 			goto done;
+ 		}
+-#if O_CLOEXEC == 0
++#if O_CLOEXEC == 0 && !defined(WIN32)
++		// F_SETFD is not supported on Windows
+ 		(void)fcntl(fd, F_SETFD, FD_CLOEXEC);
+ #endif
+ 	}

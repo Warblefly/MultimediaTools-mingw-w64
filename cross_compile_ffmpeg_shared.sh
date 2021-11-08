@@ -2286,7 +2286,7 @@ build_lilv() {
 
 
 build_leptonica() {
-  do_git_checkout https://github.com/DanBloomberg/leptonica.git leptonica a0b59604bcf24b13af168fa45d54bbedab1d3d5d #f1ebb73bf939bca13570c35db8cc656d2735c1d7
+  do_git_checkout https://github.com/DanBloomberg/leptonica.git leptonica # a0b59604bcf24b13af168fa45d54bbedab1d3d5d #f1ebb73bf939bca13570c35db8cc656d2735c1d7
   cd leptonica
     generic_configure_make_install "LIBS=-lopenjpeg --disable-silent-rules --without-libopenjpeg"
 
@@ -3493,7 +3493,7 @@ build_libgcrypt() {
 }
 
 build_tesseract() {
-  do_git_checkout https://github.com/tesseract-ocr/tesseract tesseract 1188e0a516a963ae6f7dd741fead17e43dae463c #fef64d795cdb0db5315c11f936b7efd1424994b2
+  do_git_checkout https://github.com/tesseract-ocr/tesseract tesseract main # 1188e0a516a963ae6f7dd741fead17e43dae463c #fef64d795cdb0db5315c11f936b7efd1424994b2
   # Problem with latest tree and FFmpeg. Should be fixed soon
 #  download_and_unpack_file https://github.com/tesseract-ocr/tesseract/archive/3.05.00dev.tar.gz tesseract-3.05.00dev
   cd tesseract
@@ -4346,7 +4346,7 @@ build_boost() {
 }
 
 build_mkvtoolnix() {
-  do_git_checkout https://gitlab.com/mbunkus/mkvtoolnix mkvtoolnix  ab4caebe3df291ff65a66ca6bd4e4c47c5fbe6b4 # main #16772170030715717341c3d5460d3d1fecf501a4
+  do_git_checkout https://gitlab.com/mbunkus/mkvtoolnix mkvtoolnix main #  ab4caebe3df291ff65a66ca6bd4e4c47c5fbe6b4 # main #16772170030715717341c3d5460d3d1fecf501a4
 #    download_and_unpack_file https://mkvtoolnix.download/sources/mkvtoolnix-43.0.0.tar.xz mkvtoolnix-43.0.0
   cd mkvtoolnix # -43.0.0
     # Two libraries needed for mkvtoolnix
@@ -5187,8 +5187,8 @@ build_mjpegtools() {
 
 build_file() {
   # Also contains libmagic
-  do_git_checkout https://github.com/file/file.git file_native 3dc9066f0b59513951626d8596ea67e23a0fd42e #13ba1a3639f7a40f3bffbabf2737cbdde314faf4
-  do_git_checkout https://github.com/file/file.git file 3dc9066f0b59513951626d8596ea67e23a0fd42e #13ba1a3639f7a40f3bffbabf2737cbdde314faf4
+  do_git_checkout https://github.com/file/file.git file_native #3dc9066f0b59513951626d8596ea67e23a0fd42e #13ba1a3639f7a40f3bffbabf2737cbdde314faf4
+  do_git_checkout https://github.com/file/file.git file #3dc9066f0b59513951626d8596ea67e23a0fd42e #13ba1a3639f7a40f3bffbabf2737cbdde314faf4
   # We use the git version of file and libmagic, which is updated more
   # often than distributions track. File requires its own binary to compile
   # its list of magic numbers. Therefore, because we are cross-compiling,
@@ -6369,7 +6369,7 @@ build_movit() {
 }
 
 build_aom() {
-  do_git_checkout https://aomedia.googlesource.com/aom aom b647d8aca84250402aa2f0c905eed8fefce27851 #312b85e99e4b1cc50c884ce35f6d715f76b275ea # bbe0a0a1cd34dc5aa9040f1d8b68468f32b895e4
+  do_git_checkout https://aomedia.googlesource.com/aom aom #b647d8aca84250402aa2f0c905eed8fefce27851 #312b85e99e4b1cc50c884ce35f6d715f76b275ea # bbe0a0a1cd34dc5aa9040f1d8b68468f32b895e4
   cd aom
     old_LDFLAGS=${LDFLAGS}
     old_CFLAGS=${CFLAGS}

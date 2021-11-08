@@ -54,14 +54,3 @@
                         lib=['boost_date_time%s' % boost_lib_suffix, 'boost_system%s' % boost_lib_suffix],
                         uselib_store='BOOST_DATETIME')
  
---- wscript.orig	2021-10-10 19:23:43.595278800 +0100
-+++ wscript	2021-10-10 19:23:58.875278800 +0100
-@@ -605,7 +605,7 @@
- 
- def build(bld):
-     create_version_cc(VERSION, bld.env.CXXFLAGS)
--    download_supporters(not bld.env.DEBUG)
-+    download_supporters(False)
- 
-     bld.recurse('src')
-     bld.recurse('graphics')
