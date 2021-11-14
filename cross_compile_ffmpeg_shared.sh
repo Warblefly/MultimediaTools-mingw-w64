@@ -3467,7 +3467,7 @@ build_iconvgettext() {
 build_libgpg-error() {
   # We remove one of the .po files due to a bug in Cygwin's iconv that causes it to loop when converting certain character encodings
 #  download_and_unpack_file ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-1.22.tar.bz2 libgpg-error-1.22
-  do_git_checkout git://git.gnupg.org/libgpg-error.git libgpg-error # 12349de46d241cfbadbdf99773d6cabfcbc97578 # 78b679a778ddf37b8952f1808fd8c52cc8163f17
+  do_git_checkout git://git.gnupg.org/libgpg-error.git libgpg-error libgpg-error-1.42 # 12349de46d241cfbadbdf99773d6cabfcbc97578 # 78b679a778ddf37b8952f1808fd8c52cc8163f17
   cd libgpg-error
 #    apply_patch file://${top_dir}/gpg-error-pid.patch
 #    rm po/ro.* # The Romanian translation causes Cygwin's iconv to loop. This is a Cygwin bug.
@@ -3846,9 +3846,10 @@ build_traverso() {
 
 
 build_wx() {
-  do_git_checkout https://github.com/wxWidgets/wxWidgets.git wxWidgets v3.1.3 # WX_3_0_BRANCH #  8c8557812be37697d4c2ffdad35141a51a9bc71d # WX_3_0_BRANCH
+  do_git_checkout https://github.com/wxWidgets/wxWidgets.git wxWidgets v3.1.5 # WX_3_0_BRANCH #  8c8557812be37697d4c2ffdad35141a51a9bc71d # WX_3_0_BRANCH
 #  download_and_unpack_file https://github.com/wxWidgets/wxWidgets/archive/v3.0.4.tar.gz wxWidgets-3.0.4
   cd wxWidgets
+    git submodule update --init 3rdparty/catch
 #    apply_patch_p1 https://github.com/wxWidgets/wxWidgets/commit/73e9e18ea09ffffcaac50237def0d9728a213c02.patch
 #    rm -v configure
     generic_configure_make_install "--with-msw --enable-monolithic --disable-debug --disable-debug_flag --enable-unicode --enable-optimise --with-libpng --with-libjpeg --with-libtiff --with-opengl --disable-option-checking --enable-compat28 --enable-compat30" # --with-opengl --disable-mslu --enable-unicode --enable-monolithic --with-regex=builtin --disable-precomp-headers --enable-graphics_ctx --enable-webview --enable-mediactrl --with-libpng=sys --with-libxpm=builtin --with-libjpeg=sys --with-libtiff=sys" # "--without-opengl  --enable-checklst --with-regex=yes --with-msw --with-libpng=sys --with-libjpeg=sys --with-libtiff=sys --with-zlib=yes --enable-graphics_ctx --enable-webview --enable-mediactrl --disable-official_build --disable-option-checking" # --with-regex=yes
@@ -5508,11 +5509,11 @@ build_gettext() {
 }
 
 build_pcre() {
-  generic_download_and_install https://ftp.pcre.org/pub/pcre/pcre-8.44.tar.bz2 pcre-8.44 "--enable-pcre16 --enable-pcre32 --enable-newline-is-any --enable-jit --enable-utf --enable-pcregrep-libz --enable-pcregrep-libbz2 --enable-pcregrep-libreadline --enable-unicode-properties"
+  generic_download_and_install https://downloads.sourceforge.net/project/pcre/pcre/8.45/pcre-8.45.tar.bz2 pcre-8.45 "--enable-pcre16 --enable-pcre32 --enable-newline-is-any --enable-jit --enable-utf --enable-pcregrep-libz --enable-pcregrep-libbz2 --enable-pcregrep-libreadline --enable-unicode-properties"
 }
 
 build_pcre2() {
-	generic_download_and_install https://ftp.pcre.org/pub/pcre/pcre2-10.35.tar.bz2 pcre2-10.35 "--enable-pcre2-16 --enable-pcre2-32 --enable-jit --enable-newline-is-any --enable-utf --enable-pcre2grep-libz --enable-pcre2grep-libbz2"
+	generic_download_and_install https://downloads.sourceforge.net/project/pcre/pcre2/10.37/pcre2-10.37.tar.bz2 pcre2-10.37 "--enable-pcre2-16 --enable-pcre2-32 --enable-jit --enable-newline-is-any --enable-utf --enable-pcre2grep-libz --enable-pcre2grep-libbz2"
 }
 
 build_glib() {
@@ -6132,21 +6133,22 @@ build_vulkan() {
 
     #download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Loader/archive/sdk-1.1.73.0.tar.gz Vulkan-Loader-sdk-1.1.73.0
     #download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Headers/archive/sdk-1.1.92.0.tar.gz Vulkan-Headers-sdk-1.1.92.0
-    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Headers/archive/v1.2.166.tar.gz Vulkan-Headers-1.2.166
+    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Headers/archive/v1.2.194.tar.gz Vulkan-Headers-1.2.194
     #cd Vulkan-Loader-sdk-1.1.73.0
-    cd Vulkan-Headers-1.2.166
+    cd Vulkan-Headers-1.2.194
         do_cmake
         do_make
         do_make_install
     cd ..
-    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Loader/archive/v1.2.166.tar.gz Vulkan-Loader-1.2.166
-    cd Vulkan-Loader-1.2.166
+    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Loader/archive/v1.2.194.tar.gz Vulkan-Loader-1.2.194
+    cd Vulkan-Loader-1.2.194
         #apply_patch_p1 file://${top_dir}/001-build-fix.patch
         #apply_patch_p1 file://${top_dir}/002-proper-def-files-for-32bit.patch
         #apply_patch_p1 file://${top_dir}/003-generate-pkgconfig-files.patch
         #apply_patch_p1 file://${top_dir}/004-installation-commands.patch
         #apply_patch_p1 file://${top_dir}/005-mingw-dll-name.patch
         #apply_patch file://${top_dir}/006-commit.patch
+	apply_patch_p1 https://github.com/KhronosGroup/Vulkan-Loader/commit/8c0ee92.patch
         apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vulkan-loader/002-proper-def-files-for-32bit.patch
         apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vulkan-loader/003-generate-pkgconfig-files.patch
         apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vulkan-loader/004-disable-suffix-in-static-lib.patch
