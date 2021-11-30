@@ -1398,7 +1398,7 @@ build_libsoxr() {
 }
 
 build_googletest() {
-  do_git_checkout https://github.com/google/googletest.git googletest
+  do_git_checkout https://github.com/google/googletest.git googletest main
   cd googletest
     do_cmake "-DBUILD_SHARED_LIBS=ON"
     do_make_install
@@ -1408,7 +1408,7 @@ build_googletest() {
 }
 
 build_mlt() {
-  do_git_checkout https://github.com/mltframework/mlt.git mlt # 18b8609
+  do_git_checkout https://github.com/mltframework/mlt.git mlt # 657324445da65328be866364d6b5b66c7a7a9e10 # 18b8609
   cd mlt
 #    apply_patch file://${top_dir}/mlt-mingw-sandbox.patch
     export CXX=x86_64-w64-mingw32-g++
@@ -2600,29 +2600,31 @@ do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfile
 }
 
 build_filezilla() {
-
-  do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla #10093 #9844 #9530 #9450 # 9262 # 9056
+  do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla  #10093 #9844 #9530 #9450 # 9262 # 9056
 #  download_and_unpack_file "https://dl3.cdn.filezilla-project.org/client/FileZilla_3.46.3_src.tar.bz2?h=oLc72s8yghgbX19g_lnNNw&x=1580289968" filezilla-3.46.3
   cd filezilla
     export CC=x86_64-w64-mingw32-gcc
     export CXX=x86_64-w64-mingw32-g++
     export WINDRES=x86_64-w64-mingw32-windres
+    export orig_path="${PATH}"
+    export PATH="${mingw_w64_x86_64_prefix}/bin:${mingw_w64_x86_64_prefix}/../bin:/usr/local/bin:/usr/bin:/bin"
 #    export orig_cpu_count=$cpu_count
 #    export cpu_count=1
     #env
     #apply_patch file://{$top_dir}/filezilla-install.patch
     #export CFLAGS="-g -O0 -Wall"
     rm -vf configure Makefile.in config.in
-    apply_patch file://${top_dir}/filezilla-wxWidgets.patch
+#    apply_patch file://${top_dir}/filezilla-wxWidgets.patch
     apply_patch file://${top_dir}/filezilla-limits.patch
 #    apply_patch file://${top_dir}/filezilla-wx31.patch
-    generic_configure_make_install "CFLAGS=-fcommon --disable-dependency-tracking --with-pugixml=builtin"
+    generic_configure_make_install "CFLAGS=-fcommon  --disable-dependency-tracking --with-pugixml=builtin"
 #    unset CFLAGS
 #   generic_download_and_install https://download.filezilla-project.org/client/FileZilla_3.44.2_src.tar.bz2 filezilla-3.44.2
     #unset CFLAGS
     unset CC
     unset CXX
     unset WINDRES
+    export PATH="${orig_path}"
 #   export cpu_count=$orig_cpu_count
   cd ..
 }
@@ -3846,13 +3848,14 @@ build_traverso() {
 
 
 build_wx() {
-  do_git_checkout https://github.com/wxWidgets/wxWidgets.git wxWidgets v3.1.5 # WX_3_0_BRANCH #  8c8557812be37697d4c2ffdad35141a51a9bc71d # WX_3_0_BRANCH
+  do_git_checkout https://github.com/wxWidgets/wxWidgets.git wxWidgets 27d0e7804c0c4a3366e3c800a5475d05083fc290 #91402a0de882ee2b8c07f66e5b5d041c25e48fe6 #0f5c2851f40facef6fe8e7f603df2cc6a90250a1 #WX_3_0_BRANCH #  8c8557812be37697d4c2ffdad35141a51a9bc71d # WX_3_0_BRANCH
 #  download_and_unpack_file https://github.com/wxWidgets/wxWidgets/archive/v3.0.4.tar.gz wxWidgets-3.0.4
   cd wxWidgets
     git submodule update --init 3rdparty/catch
+    git submodule update --init 3rdparty/nanosvg
 #    apply_patch_p1 https://github.com/wxWidgets/wxWidgets/commit/73e9e18ea09ffffcaac50237def0d9728a213c02.patch
 #    rm -v configure
-    generic_configure_make_install "--with-msw --enable-monolithic --disable-debug --disable-debug_flag --enable-unicode --enable-optimise --with-libpng --with-libjpeg --with-libtiff --with-opengl --disable-option-checking --enable-compat28 --enable-compat30" # --with-opengl --disable-mslu --enable-unicode --enable-monolithic --with-regex=builtin --disable-precomp-headers --enable-graphics_ctx --enable-webview --enable-mediactrl --with-libpng=sys --with-libxpm=builtin --with-libjpeg=sys --with-libtiff=sys" # "--without-opengl  --enable-checklst --with-regex=yes --with-msw --with-libpng=sys --with-libjpeg=sys --with-libtiff=sys --with-zlib=yes --enable-graphics_ctx --enable-webview --enable-mediactrl --disable-official_build --disable-option-checking" # --with-regex=yes
+    generic_configure_make_install "CFLAGS=-Wnarrowing CXXFLAGS=-Wnarrowing --with-msw --enable-monolithic --disable-debug --disable-debug_flag --enable-unicode --enable-optimise --with-libpng --with-libjpeg --with-libtiff --with-opengl --disable-option-checking --enable-compat28 --enable-compat30" # --with-opengl --disable-mslu --enable-unicode --enable-monolithic --with-regex=builtin --disable-precomp-headers --enable-graphics_ctx --enable-webview --enable-mediactrl --with-libpng=sys --with-libxpm=builtin --with-libjpeg=sys --with-libtiff=sys" # "--without-opengl  --enable-checklst --with-regex=yes --with-msw --with-libpng=sys --with-libjpeg=sys --with-libtiff=sys --with-zlib=yes --enable-graphics_ctx --enable-webview --enable-mediactrl --disable-official_build --disable-option-checking" # --with-regex=yes
     # wx-config needs to be visible to this script when compiling
     cp -v ${mingw_w64_x86_64_prefix}/bin/wx-config ${mingw_w64_x86_64_prefix}/../bin/wx-config
     # wxWidgets doesn't include the DLL run-time libraries in the right place.
@@ -3861,6 +3864,8 @@ build_wx() {
     cd -
     cp -v ${mingw_w64_x86_64_prefix}/lib/wx*dll ${mingw_w64_x86_64_prefix}/bin
   cd ..
+  generic_download_and_install https://github.com/wxWidgets/wxWidgets/releases/download/v3.0.5/wxWidgets-3.0.5.tar.bz2 wxWidgets-3.0.5 "CFLAGS=-Wno-narrowing CXXFLAGS=-Wno-narrowing --with-msw --enable-monolithic --disable-debug --disable-debug_flag --enable-unicode --enable-optimize --with-libpng --with-libjpeg --with-libtiff --with-opengl --disable-option-checking --enable-compat28 --enable-compat30"
+  cp -v ${mingw_w64_x86_64_prefix}/lib/wx*dll ${mingw_w64_x86_64_prefix}/bin
   #do_git_checkout https://github.com/wxWidgets/wxWidgets.git wxWidgetsLATEST
 #  download_and_unpack_file https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxWidgets-3.1.1.tar.bz2 wxWidgets-3.1.1
 #  cd wxWidgets-3.1.1
@@ -6352,8 +6357,9 @@ build_eigen() {
 }
 
 build_movit() {
-  do_git_checkout https://git.sesse.net/movit movit
-  cd movit
+#  do_git_checkout https://git.sesse.net/movit movit
+  download_and_unpack_file https://movit.sesse.net/movit-1.6.3.tar.gz movit-1.6.3
+  cd movit-1.6.3
     apply_patch file://${top_dir}/movit-ffs.patch
     apply_patch file://${top_dir}/movit-call_once.patch # Revert thread use not available
 #    apply_patch file://${top_dir}/movit-resample.patch # GCC and Eigen don't get on here
@@ -6516,7 +6522,7 @@ build_iculehb() {
 }
 
 build_rtaudio() {
-  do_git_checkout https://github.com/thestk/rtaudio.git rtaudio
+  do_git_checkout https://github.com/thestk/rtaudio.git rtaudio d8f189b660bdb5a05bdb7a69ff81b6a4d71d39bf
   cd rtaudio
     do_cmake "-DCMAKE_VERBOSE_MAKEFILE=ON -DRTAUDIO_API_WASAPI=ON -DRTAUDIO_API_ALSA=OFF -DRTAUDIO_API_PULSE=OFF -DRTAUDIO_API_JACK=OFF -DRTAUDIO_API_CORE=OFF"
     do_make "V=1"
@@ -6714,10 +6720,10 @@ build_graphicsmagick() {
 
 build_graphicsmagicksnapshot() {
 	# This retrieves the namne of the first .xz file, which is usually the most recent snapshot.
-  export gm_filename=`curl -s ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/ --stderr - | grep tar\.xz | awk '{print $9}' | head -n 1`
+  export gm_filename=`curl -s ftp://ftp.icm.edu.pl/pub/unix/graphics/GraphicsMagick/snapshots/ --stderr - | grep tar\.xz | awk '{print $9}' | tail -n 1`
   export gm_directory=${gm_filename%.tar.xz}
   echo "Latest snapshot is: $gm_filename..."
-  download_and_unpack_file ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/$gm_filename $gm_directory
+  download_and_unpack_file ftp://ftp.icm.edu.pl/pub/unix/graphics/GraphicsMagick/snapshots/$gm_filename $gm_directory
   cd $gm_directory
     apply_patch file://${top_dir}/graphicmagick-mingw64.patch
     mkdir -pv build

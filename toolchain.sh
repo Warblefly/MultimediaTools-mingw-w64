@@ -150,7 +150,11 @@ echo "Mingw-w64 headers are installed."
 
 echo "Cloning GCC..."
 
-git clone --depth 1 -b releases/gcc-11 --single-branch https://github.com/gcc-mirror/gcc.git gcc || echo "Seems we have GCC."
+#git clone --depth 1 -b releases/gcc-11 --single-branch https://github.com/gcc-mirror/gcc.git gcc || echo "Seems we have GCC."
+git clone https://github.com/gcc-mirror/gcc.git gcc
+cd gcc
+	git checkout 81b2b5e4c1b3377035203c3cb1acaf33655937b2 || echo "Seems we have GCC." 
+cd ..
 
 #git clone --depth 1 git://gcc.gnu.org/git/gcc.git gcc-dir.tmp
 #git --git-dir=gcc-dir.tmp/.git fetch --depth 1 origin 3fc88aa16f1bf661db4518d6d62869f081981981

@@ -1,11 +1,11 @@
---- src/commonui/registry.cpp.orig	2021-11-14 18:22:48.680956200 +0000
-+++ src/commonui/registry.cpp	2021-11-14 18:23:12.120956200 +0000
-@@ -4,6 +4,8 @@
+--- src/commonui/registry.cpp.orig	2021-11-21 15:35:30.638783600 +0000
++++ src/commonui/registry.cpp	2021-11-21 15:36:28.508783600 +0000
+@@ -1,6 +1,8 @@
+ #include "registry.h"
  
- #include <limits>
- 
+ #include <libfilezilla/string.hpp>
++#include <limits>
 +#include <stdexcept>
-+
+ 
  regkey::~regkey()
  {
- 	close();
