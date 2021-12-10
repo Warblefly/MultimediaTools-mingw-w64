@@ -21,8 +21,8 @@
  ])
  
  
---- modules/gui/qt/maininterface/main_interface_win32.cpp.orig	2020-01-03 17:19:25.827161445 +0000
-+++ modules/gui/qt/maininterface/main_interface_win32.cpp	2020-01-03 17:20:10.762708682 +0000
+--- modules/gui/qt/maininterface/mainctx_win32.cpp.orig	2020-01-03 17:19:25.827161445 +0000
++++ modules/gui/qt/maininterface/mainctx_win32.cpp	2020-01-03 17:20:10.762708682 +0000
 @@ -37,7 +37,7 @@
  #include <assert.h>
  

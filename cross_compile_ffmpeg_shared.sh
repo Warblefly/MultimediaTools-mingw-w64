@@ -5418,13 +5418,13 @@ build_aubio() {
 	apply_patch file://${top_dir}/aubio_mingw.patch
         mkdir aubio_build
         cd aubio_build
-            wget https://waf.io/waf-2.0.21.tar.bz2
-    	    tar xvvf waf-2.0.21.tar.bz2
-            cd waf-2.0.21
+            wget https://gitlab.com/ita1024/waf/-/archive/waf-2.0.21/waf-waf-2.0.21.tar.bz2
+    	    tar xvvf waf-waf-2.0.21.tar.bz2
+            cd waf-waf-2.0.21
                 NOCLIMB=1 python waf-light --tools=c_emscripten
             cd ..
         cd ..
-    cp -v aubio_build/waf-2.0.21/waf .
+    cp -v aubio_build/waf-waf-2.0.21/waf .
     rm -rvf aubio_build
     do_configure "configure AR=x86_64-w64-mingw32-ar PKGCONFIG=x86_64-w64-mingw32-pkg-config WINRC=x86_64-w64-mingw32-windres CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ -v -pp --prefix=${mingw_w64_x86_64_prefix} --enable-double --disable-fftw3f --enable-fftw3 --with-target-platform=win64 --disable-jack --disable-tests --notests --disable-examples --disable-avcodec" "./waf"
     ./waf build || exit 1
@@ -7066,7 +7066,7 @@ build_ffmpeg() {
 	local component_options="--enable-filter=frei0r --enable-decoder=aac"
 	local library_options="--enable-avisynth --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdc1394 --enable-libfdk-aac --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-gnutls --enable-libgsm --enable-libilbc --enable-libjack --enable-libklvanc --enable-liblensfun --enable-libmodplug --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopencv --enable-libopenmpt --enable-libopus --enable-librabbitmq --enable-librist --enable-librubberband --enable-librtmp --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libtesseract --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxavs2 --enable-libxvid --enable-libxml2 --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 --enable-decklink --enable-libmysofa --enable-opencl --enable-opengl --enable-vulkan"
 	local hardware_options="--enable-cuda-nvcc --enable-libmfx"
-	local toolchain_options="--arch=x86_64 --cross-prefix=$cross_prefix --enable-cross-compile --target-os=mingw32 --extra-version=Compiled_by_John_Warburton --enable-pic --nvccflags=-I/usr/local/cuda-11.3/targets/x86_64-linux/include"
+	local toolchain_options="--arch=x86_64 --cross-prefix=$cross_prefix --enable-cross-compile --target-os=mingw32 --extra-version=Compiled_by_John_Warburton --enable-pic --nvccflags=-I/usr/local/cuda-11.4/targets/x86_64-linux/include"
 	local developer_options="--disable-debug --enable-stripping"
 	cd ffmpeg_git
 
