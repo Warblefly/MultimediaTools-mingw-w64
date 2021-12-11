@@ -1733,7 +1733,7 @@ build_gcal() {
 }
 
 build_unbound() {
-  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.13.2 "CFLAGS=-O1 libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
+  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.14.0 "CFLAGS=-O1 libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
 }
 
 build_libxavs() {
@@ -5917,7 +5917,7 @@ build_vlc() {
     #export cpu_count=1
     export old_ld_library_path=${LD_LIBRARY_PATH}
     export LD_LIBRARY_PATH=${mingw_w64_x86_64_prefix}/../lib/
-    generic_configure_make_install "--disable-vulkan --disable-opencv --enable-qt --disable-dvbpsi --disable-gst-decode --disable-asdcp --disable-ncurses --disable-dbus --disable-sdl --disable-telx --disable-silent-rules --disable-pulse JACK_LIBS=-ljack64 JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib LIVE555_LIBS=-llivemedia ASDCP_LIBS=lasdcp ASDCP_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/asdcp"
+    generic_configure_make_install "--disable-decklink --disable-vulkan --disable-opencv --enable-qt --disable-dvbpsi --disable-gst-decode --disable-asdcp --disable-ncurses --disable-dbus --disable-sdl --disable-telx --disable-silent-rules --disable-pulse JACK_LIBS=-ljack64 JACK_CFLAGS=-L${mingw_w64_x86_64_prefix}/../lib LIVE555_LIBS=-llivemedia ASDCP_LIBS=lasdcp ASDCP_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/asdcp"
     # X264 is disabled because of an API change. We ought to be able to re-enable it when vlc has caught up.
     #export cpu_count=8
     unset PKG_CONFIG_PATH
@@ -6872,6 +6872,12 @@ build_libdecklink() {
   cp -v ${top_dir}/DeckLinkAPI.h $mingw_w64_x86_64_prefix/include/DeckLinkAPI.h  || exit 1
   cp -v ${top_dir}/DeckLinkAPI_i.c $mingw_w64_x86_64_prefix/include/DeckLinkAPI_i.c  || exit 1
   cp -v ${top_dir}/DeckLinkAPIVersion.h $mingw_w64_x86_64_prefix/include/DeckLinkAPIVersion.h  || exit 1
+#  cp -v ${top_dir}/DeckLinkAPITypes.h $mingw_w64_x86_64_prefix/include/DeckLinkAPITypes.h  || exit 1
+#  cp -v ${top_dir}/DeckLinkAPIModes.h $mingw_w64_x86_64_prefix/include/DeckLinkAPIModes.h  || exit 1
+#  cp -v ${top_dir}/DeckLinkAPIDiscovery.h $mingw_w64_x86_64_prefix/include/DeckLinkAPIDiscovery.h  || exit 1
+#  cp -v ${top_dir}/DeckLinkAPIConfiguration.h $mingw_w64_x86_64_prefix/include/DeckLinkAPIConfiguration.h  || exit 1
+#  cp -v ${top_dir}/DeckLinkAPIDeckControl.h $mingw_w64_x86_64_prefix/include/DeckLinkAPIDeckControl.h  || exit 1
+#  cp -v ${top_dir}/LinuxCOM.h $mingw_w64_x86_64_prefix/include/LinuxCOM.h  || exit 1
 #  fi
 }
 

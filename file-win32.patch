@@ -58,33 +58,13 @@
  #ifdef HAVE_PIPE2
  	return pipe2(fds, O_CLOEXEC);
  #else
-@@ -822,11 +826,17 @@
- 	(void)fcntl(fds[1], F_SETFD, FD_CLOEXEC);
+--- src/funcs.c.orig	2021-12-10 22:49:53.637327800 +0000
++++ src/funcs.c	2021-12-10 22:51:44.797327800 +0000
+@@ -850,6 +850,7 @@
+ # endif
  	return 0;
  #endif
 +#endif
  }
  
  protected int
- file_clear_closexec(int fd) {
-+#ifdef WIN32
-+	// F_SETFD is not supported on Windows
-+	return 0;
-+#else
- 	return fcntl(fd, F_SETFD, 0);
-+#endif
- }
- 
- protected char *
---- src/magic.c.orig	2021-11-03 21:16:55.062696900 +0000
-+++ src/magic.c	2021-11-03 21:17:54.682696900 +0000
-@@ -460,7 +460,8 @@
- 			rv = 0;
- 			goto done;
- 		}
--#if O_CLOEXEC == 0
-+#if O_CLOEXEC == 0 && !defined(WIN32)
-+		// F_SETFD is not supported on Windows
- 		(void)fcntl(fd, F_SETFD, FD_CLOEXEC);
- #endif
- 	}

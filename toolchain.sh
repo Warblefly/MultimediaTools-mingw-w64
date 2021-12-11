@@ -175,7 +175,7 @@ cd gcc
 		tar xvvf mpfr-4.1.0.tar.xz && ln -sv mpfr-4.1.0 mpfr
 		wget https://ftp.gnu.org/gnu/mpc/mpc-1.2.1.tar.gz || exit 1
 		tar xvvf mpc-1.2.1.tar.gz && ln -sv mpc-1.2.1 mpc
-		wget http://slackware.uk/slackware/slackware64-current/source/l/isl/isl-0.24.tar.xz || exit 1
+		wget https://www.mirrorservice.org/sites/ftp.slackware.com/pub/slackware/slackware64-current/source/l/isl/isl-0.24.tar.xz || exit 1
 		tar xvvf isl-0.24.tar.xz && ln -sv isl-0.24 isl
 		touch gcc_accessories_source
 	else
@@ -285,6 +285,34 @@ cd mingw-winpthreads-build
 	fi
 	echo "Winpthreads made and installed."
 cd ..
+
+mkdir -pv mingw-widl-build
+cd mingw-widl-build
+	
+	echo "Configuring widl tool..."
+	if [[ ! -f widl_configured ]]; then
+		../mingw-w64/mingw-w64-tools/widl/configure --prefix=$working_directory/$host --host=$host --build=x86_64-linux-gnu
+		touch widl_configure
+	else
+		echo "widl already configured."
+	fi
+
+	if [[ ! -f widl_make ]]; then
+		make -j $cpu_count || exit 1
+		touch widl_make
+	else
+		echo "widl already made."
+	fi
+
+	if [[ ! -f widl_make_install ]]; then
+		make install || exit 1
+		touch widl_make_install
+	else
+		echo "widl already installed."
+	fi
+	echo "Widl made and installed."
+cd ..
+
 
 cd gcc-build
 	
