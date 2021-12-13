@@ -291,7 +291,7 @@ cd mingw-widl-build
 	
 	echo "Configuring widl tool..."
 	if [[ ! -f widl_configured ]]; then
-		../mingw-w64/mingw-w64-tools/widl/configure --prefix=$working_directory/$host --host=$host --build=x86_64-linux-gnu
+		../mingw-w64/mingw-w64-tools/widl/configure --prefix=$working_directory/$host --target=x86_64-w64-mingw32 # --host=x86_64-linux-gnu --build=x86_64-linux-gnu
 		touch widl_configure
 	else
 		echo "widl already configured."

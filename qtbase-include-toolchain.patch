@@ -1,0 +1,11 @@
+diff -rupN --no-dereference qtbase-everywhere-src-6.2.1/cmake/QtConfig.cmake.in qtbase-everywhere-src-6.2.1-new/cmake/QtConfig.cmake.in
+--- qtbase-everywhere-src-6.2.1/cmake/QtConfig.cmake.in	2021-10-20 13:54:23.000000000 +0200
++++ qtbase-everywhere-src-6.2.1-new/cmake/QtConfig.cmake.in	2021-11-01 12:28:14.792384033 +0100
+@@ -1,5 +1,7 @@
+ @PACKAGE_INIT@
+ 
++include(${CMAKE_CURRENT_LIST_DIR}/../Qt@PROJECT_VERSION_MAJOR@/qt.toolchain.cmake OPTIONAL)
++
+ cmake_minimum_required(VERSION @min_new_policy_version@...@max_new_policy_version@)
+ 
+ include("${CMAKE_CURRENT_LIST_DIR}/@INSTALL_CMAKE_NAMESPACE@ConfigExtras.cmake")

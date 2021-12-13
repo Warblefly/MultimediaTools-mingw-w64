@@ -902,22 +902,22 @@ build_drm() {
 
 
 build_qt6() {
-	download_and_unpack_file https://download.qt.io/official_releases/qt/6.0/6.0.0/single/qt-everywhere-src-6.0.0.tar.xz qt-everywhere-src-6.0.0
-	cd qt-everywhere-src-6.0.0
+	download_and_unpack_file https://download.qt.io/official_releases/qt/6.2/6.2.1/single/qt-everywhere-src-6.2.1.tar.xz qt-everywhere-src-6.2.1
+	cd qt-everywhere-src-6.2.1
 		cd qtbase
-			apply_patch file://${top_dir}/qt6-cmake-suffix.patch
-			apply_patch file://${top_dir}/qt6-dbus-location.patch
-			apply_patch file://${top_dir}/qt6-find-static-depends.patch
-			apply_patch file://${top_dir}/qt6-static-libs.patch
-			apply_patch file://${top_dir}/qt6-find-mariadb.patch
-			apply_patch file://${top_dir}/qt6-override-suffixes-static.patch
+			apply_patch_p1 file://${top_dir}/qtbase-import-lib-suffix.patch
+			apply_patch_p1 file://${top_dir}/qtbase-cmake-prefix-path.patch
+			apply_patch_p1 file://${top_dir}/qtbase-include-toolchain.patch
+			apply_patch_p1 file://${top_dir}/qtbase-python3.patch
+			apply_patch_p1 file://${top_dir}/qtbase-readlink.patch
 		cd ..
 		export MAKEFLAGS="-j8"
 		export PKG_CONFIG=${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config
 		export PKG_CONFIG_LIBDIR=${mingw_w64_x86_64_prefix}/lib/pkgconfig
 		export PKG_CONFIG_SYSROOT_DIR=${mingw_w64_x86_64_prefix}
-		do_cmake "-G Ninja -B build-x86_64-w64-mingw32 -DFEATURE_pkg_config=ON -DFEATURE_system-pcre2=ON -DFEATURE_system_freetype=ON -DFEATURE_system_harfbuzz=ON -DFEATURE_system_sqlite=ON -DINPUT_openssl=runtime -DQT_HOST_PATH=/usr -DQT_INCLUDE_DIRS_NO_SYSTEM=ON"
-		cmake --build build-x86_64-w64-mingw32
+		do_cmake "-G Ninja -B build-x86_64-w64-mingw32 -DCMAKE_BUILD_TYPE=Release -DFEATURE_pkg_config=ON -DQT_FEATURE_egl=OFF -DQT_FEATURE_fontconfig=ON -DQT_FEATURE_icu=ON -DQT_FEATURE_openssl_linked=ON -DQT_FEATURE_system_harfbuzz=ON -DQT_FEATURE_system_sqlite=ON -DQT_HOST_PATH=/usr -DQt6HostInfo_DIR=/usr/lib/x86_64-linux-gnu/cmake/Qt6HostInfo"
+#		cmake --build build-x86_64-w64-mingw32
+		do_ninja_and_ninja_install
 	cd ..
 }
 
@@ -7458,7 +7458,7 @@ build_apps() {
   build_fdkaac-commandline
 #  build_cdrecord
   build_qt
-#build_qt6
+  #build_qt6
   #build_kf5_config
   #build_kf5_coreaddons
   #build_kf5_itemmodels

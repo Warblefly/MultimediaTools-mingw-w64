@@ -39,7 +39,7 @@ apt upgrade
 
 3. Install the pre-requisites. On Debian running under Windows, you can do this.
 ```
-apt install gcc-10 g++-10 make autoconf curl wget texinfo libgmp-dev bison flex xz-utils libz-dev python3 autopoint libtool libtool-bin cmake bzip2 gettext pkg-config libtasn1-bin meson gengetopt subversion nasm yasm python3-distutils libglib2.0-bin libglib2.0-dev intltool libxml2-utils autoconf-archive gperf sqlite3 unzip gyp python2 gtk-update-icon-cache gtk-doc-tools zip libspeexdsp-dev libsamplerate0-dev software-properties-common swig docbook-xsl xsltproc rake wx-common lua5.3 nsis sshpass rsync python3-mako
+apt install gcc-10 g++-10 make autoconf curl wget texinfo libgmp-dev bison flex xz-utils libz-dev python3 autopoint libtool libtool-bin cmake bzip2 gettext pkg-config libtasn1-bin meson gengetopt subversion nasm yasm python3-distutils libglib2.0-bin libglib2.0-dev intltool libxml2-utils autoconf-archive gperf sqlite3 unzip gyp python2 gtk-update-icon-cache gtk-doc-tools zip libspeexdsp-dev libsamplerate0-dev software-properties-common swig docbook-xsl xsltproc rake wx-common lua5.3 nsis sshpass rsync python3-mako qt6-base-dev
 ```
 
 Then, ensure your gcc is the one we have just installed.
