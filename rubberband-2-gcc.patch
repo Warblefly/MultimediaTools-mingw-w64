@@ -1,0 +1,22 @@
+--- src/StretchCalculator.h.orig	2021-12-18 17:08:48.577821100 +0000
++++ src/StretchCalculator.h	2021-12-18 17:09:30.457821100 +0000
+@@ -28,6 +28,8 @@
+ 
+ #include <vector>
+ #include <map>
++#include <cstdint>
++
+ 
+ namespace RubberBand
+ {
+--- meson.build.orig	2021-12-18 17:10:07.737821100 +0000
++++ meson.build	2021-12-18 17:10:49.427821100 +0000
+@@ -392,7 +392,7 @@
+ general_compile_args = [ arch_flags, feature_defines ]
+ general_dependencies = [ feature_dependencies, thread_dep ]
+ 
+-if system == 'windows'
++if cpp.get_id() == 'msvc'
+   if get_option('no_shared')
+     rubberband_static_name = 'rubberband'
+   else

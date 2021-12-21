@@ -3422,8 +3422,8 @@ build_vamp-sdk() {
 }
 
 build_librubberband() {
-  download_and_unpack_file https://breakfastquay.com/files/releases/rubberband-1.9.0.tar.bz2 rubberband-1.9.0
-  cd rubberband-1.9.0
+  download_and_unpack_file  https://breakfastquay.com/files/releases/rubberband-2.0.0.tar.bz2 rubberband-2.0.0
+  cd rubberband-2.0.0
 ##     sed -i.bak 's/:= ar/:= x86_64-w64-mingw32-ar/' Makefile.in
 #     sed -i.bak 's#:= bin/rubberband#:= bin/rubberband.exe#' Makefile.in
 #     export SNDFILE_LIBS="-lsndfile -lspeex -logg -lspeexdsp -lFLAC -lvorbisenc -lvorbis -logg -lvorbisfile -logg -lFLAC++ -lsndfile"
@@ -3436,9 +3436,10 @@ build_librubberband() {
      # Need to force static linkers to link other libraries that rubberband depends on
 #     sed -i.bak 's/-lrubberband/-lrubberband -lsamplerate -lfftw3 -lstdc++/' "$PKG_CONFIG_PATH/rubberband.pc"
 #     export cpu_count=$original_cpu_count
-    apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-rubberband/01-mingw-shared.patch
-    apply_patch file://${top_dir}/rubberband-exe.patch
-    generic_configure_make_install
+#    apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-rubberband/01-mingw-shared.patch
+#    apply_patch file://${top_dir}/rubberband-exe.patch
+    apply_patch file://${top_dir}/rubberband-2-gcc.patch
+    generic_meson_ninja_install "--auto-features=enabled -Dfft=fftw -Dresampler=libsamplerate"
 
     #mv -v ${mingw_w64_x86_64_prefix}/bin/rubberband.exe ${mingw_w64_x86_64_prefix}/bin/rubberband.exe
   cd ..
@@ -3759,6 +3760,7 @@ build_mpv() {
     unset CC
     unset LD
     #env
+    apply_patch file://${top_dir}/mpv-ksaudio.patch
     do_configure "configure -v -pp --prefix=${mingw_w64_x86_64_prefix} --enable-dvdnav --enable-cdda --disable-x11 --disable-debug-build --enable-sdl2 --enable-libmpv-shared --disable-libmpv-static" "./waf"
     # In this cross-compile for Windows, we keep the Python script up-to-date and therefore
     # must call it directly by its full name, because mpv can only explore for executables

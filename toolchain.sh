@@ -100,6 +100,10 @@ echo "mingw-w64 has arrived."
 #	git checkout ad98746ace05548a19c25274164592111846b778
 #cd ..
 
+#cd mingw-w64
+#cat ../../mingw-w64-reverse-ks.patch | patch -p1 || exit 1
+#cd ..
+
 cd mingw-w64/mingw-w64-headers
 	echo "patching shlguid.h..."
 	
