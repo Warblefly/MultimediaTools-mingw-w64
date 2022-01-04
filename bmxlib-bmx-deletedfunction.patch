@@ -1,0 +1,11 @@
+--- src/common/URI.cpp.orig	2021-12-30 21:53:51.588837600 +0000
++++ src/common/URI.cpp	2021-12-30 21:54:05.858837600 +0000
+@@ -309,7 +309,7 @@
+     else
+         result = uriUriStringToUnixFilenameA(uri_str.c_str(), filename.GetStr());
+     if (result)
+-        return 0;
++        return "";
+ 
+     return filename.GetCStr();
+ }

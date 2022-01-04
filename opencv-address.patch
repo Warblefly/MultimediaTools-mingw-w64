@@ -1,0 +1,11 @@
+--- cmake/OpenCVCompilerOptions.cmake.orig	2021-12-28 23:20:45.858837600 +0000
++++ cmake/OpenCVCompilerOptions.cmake	2021-12-28 23:21:10.548837600 +0000
+@@ -121,7 +121,7 @@
+   endif()
+   add_extra_compiler_option(-Werror=return-type)
+   add_extra_compiler_option(-Werror=non-virtual-dtor)
+-  add_extra_compiler_option(-Werror=address)
++  #  add_extra_compiler_option(-Werror=address)
+   add_extra_compiler_option(-Werror=sequence-point)
+   add_extra_compiler_option(-Wformat)
+   add_extra_compiler_option(-Werror=format-security -Wformat)

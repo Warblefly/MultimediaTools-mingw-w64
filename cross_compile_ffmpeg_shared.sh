@@ -1568,9 +1568,10 @@ do_git_checkout http://github.com/opencv/opencv_contrib.git "opencv_contrib" 3.4
 #    apply_patch file://${top_dir}/opencv-wrong-slash.patch
 #    apply_patch file://${top_dir}/opencv-location.patch
 #    apply_patch file://${top_dir}/opencv-strict.patch
+    apply_patch file://${top_dir}/opencv-address.patch
     mkdir -pv build
     cd build
-      do_cmake .. "-DOPENCV_EXTRA_MODULES_PATH=../../opencv_contrib/modules -DOPENCV_GENERATE_PKGCONFIG=ON -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DWITH_FFMPEG=ON -DOPENCV_GENERATE_PKGCONFIG=ON -DENABLE_PIC=TRUE -DOPENCV_ENABLE_NONFREE=ON -DOPENCV_FORCE_3RDPARTY_BUILD=OFF -DBUILD_ZLIB=OFF -DBUILD_TIFF=OFF -DBUILD_JASPER=OFF -DBUILD_JPEG=OFF -DBUILD_PNG=OFF -DBUILD_OPENEXR=OFF -DBUILD_WEBP=OFF -DWITH_JASPER=ON -DWITH_JPEG=ON -DWITH_WEBP=ON -DWITH_OPENEXR=ON -DWITH_PNG=ON -DWITH_WIN32UI=ON -DWITH_PTHREADS_PF=ON -DWITH_TIFF=ON -DWITH_DSHOW=ON -DWITH_DIRECTX=ON -DWITH_IMGCODEC_HDR=ON -DWITH_CUDA=ON -DWITH_OPENMP=ON  " # ".. -DCMAKE_CXX_STANDARD=14 -DWITH_IPP=OFF -DWITH_EIGEN=ON -DWITH_VFW=ON -DWITH_DSHOW=ON -DOPENCV_ENABLE_NONFREE=ON -DWITH_GTK=ON -DWITH_WIN32UI=ON -DWITH_DIRECTX=ON -DBUILD_SHARED_LIBS=ON -DBUILD_opencv_apps=ON -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_JASPER=OFF -DBUILD_JPEG=OFF -DBUILD_OPENEXR=OFF -DBUILD_PNG=OFF -DBUILD_TIFF=OFF -DBUILD_ZLIB=OFF -DENABLE_SSE41=ON -DENABLE_SSE42=ON -DWITH_WEBP=OFF -DBUILD_EXAMPLES=ON -DINSTALL_C_EXAMPLES=ON -DWITH_OPENGL=ON -DINSTALL_PYTHON_EXAMPLES=ON -DCMAKE_CXX_FLAGS=-DMINGW_HAS_SECURE_API=1 -DCMAKE_C_FLAGS=-DMINGW_HAS_SECURE_API=1 -DOPENCV_LINKER_LIBS=boost_thread-mt-x64;boost_system-mt-x64 -DCMAKE_VERBOSE=ON -DINSTALL_TO_MANGLED_PATHS=OFF" && ${top_dir}/correct_headers.sh"
+      do_cmake .. "-DOPENCV_EXTRA_MODULES_PATH=../../opencv_contrib/modules -DOPENCV_GENERATE_PKGCONFIG=ON -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DWITH_FFMPEG=ON -DOPENCV_GENERATE_PKGCONFIG=ON -DENABLE_PIC=TRUE -DOPENCV_ENABLE_NONFREE=ON -DOPENCV_FORCE_3RDPARTY_BUILD=OFF -DBUILD_ZLIB=OFF -DBUILD_TIFF=OFF -DBUILD_JASPER=OFF -DBUILD_JPEG=OFF -DBUILD_PNG=OFF -DBUILD_OPENEXR=OFF -DBUILD_WEBP=OFF -DWITH_JASPER=ON -DWITH_JPEG=ON -DWITH_WEBP=ON -DWITH_OPENEXR=ON -DWITH_PNG=ON -DWITH_WIN32UI=ON -DWITH_PTHREADS_PF=ON -DWITH_TIFF=ON -DWITH_DSHOW=ON -DWITH_DIRECTX=ON -DWITH_IMGCODEC_HDR=ON -DWITH_CUDA=ON -DWITH_OPENMP=ON -DCMAKE_CXX_FLAGS=-Wno-error=address -DCMAKE_C_FLAGS=-Wno-error=address -DCMAKE_VERBOSE_MAKEFILE=ON " # ".. -DCMAKE_CXX_STANDARD=14 -DWITH_IPP=OFF -DWITH_EIGEN=ON -DWITH_VFW=ON -DWITH_DSHOW=ON -DOPENCV_ENABLE_NONFREE=ON -DWITH_GTK=ON -DWITH_WIN32UI=ON -DWITH_DIRECTX=ON -DBUILD_SHARED_LIBS=ON -DBUILD_opencv_apps=ON -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_JASPER=OFF -DBUILD_JPEG=OFF -DBUILD_OPENEXR=OFF -DBUILD_PNG=OFF -DBUILD_TIFF=OFF -DBUILD_ZLIB=OFF -DENABLE_SSE41=ON -DENABLE_SSE42=ON -DWITH_WEBP=OFF -DBUILD_EXAMPLES=ON -DINSTALL_C_EXAMPLES=ON -DWITH_OPENGL=ON -DINSTALL_PYTHON_EXAMPLES=ON -DCMAKE_CXX_FLAGS=-DMINGW_HAS_SECURE_API=1 -DCMAKE_C_FLAGS=-DMINGW_HAS_SECURE_API=1 -DOPENCV_LINKER_LIBS=boost_thread-mt-x64;boost_system-mt-x64 -DCMAKE_VERBOSE=ON -DINSTALL_TO_MANGLED_PATHS=OFF" && ${top_dir}/correct_headers.sh"
 #      sed -i.bak "s|DBL_EPSILON|2.2204460492503131E-16|g" modules/imgproc/include/opencv2/imgproc/types_c.h
       do_make_install
 #      cp -v ${mingw_w64_x86_64_prefix}/lib/libopencv_core320.dll.a ${mingw_w64_x86_64_prefix}/lib/libopencv_core.dll.a
@@ -2050,8 +2051,8 @@ build_libdvdcss() {
 build_gdb() {
   export LIBS="-lpsapi -ldl"
   export MAKEFLAGS="VERBOSE=1"
-  download_and_unpack_file ftp://sourceware.org/pub/gdb/releases/gdb-9.2.tar.xz gdb-9.2
-  cd gdb-9.2
+  download_and_unpack_file ftp://sourceware.org/pub/gdb/releases/gdb-11.1.tar.xz gdb-11.1
+  cd gdb-11.1
 #    cd readline
 #    generic_configure_make_install
 #   cd ..
@@ -2987,8 +2988,8 @@ build_xerces() {
 build_gnutls() {
 #  download_and_unpack_file https://www.gnupg.org/ftp/gcrypt/gnutls/v3.3/gnutls-3.3.27.tar.xz gnutls-3.3.27
    # do_git_checkout https://gitlab.com/gnutls/gnutls.git gnutls
-  download_and_unpack_file https://www.gnupg.org/ftp/gcrypt/gnutls/v3.7/gnutls-3.7.0.tar.xz gnutls-3.7.0
-  cd gnutls-3.7.0
+  download_and_unpack_file https://www.gnupg.org/ftp/gcrypt/gnutls/v3.7/gnutls-3.7.2.tar.xz gnutls-3.7.2
+  cd gnutls-3.7.2
 #    git submodule init
 #    git submodule update
     make autoreconf
@@ -4161,6 +4162,7 @@ build_bmx() {
   cd bmxlib-bmx
     sed -i.bak 's/) -version-info/) -no-undefined -version-info/' src/Makefile.am
 #    apply_patch file://${top_dir}/bmxlib-bmx-apps-writers-Makefile-am.patch
+    apply_patch file://${top_dir}/bmxlib-bmx-deletedfunction.patch
     if [[ ! -f ./configure ]]; then
       ./autogen.sh
     fi
@@ -4236,6 +4238,7 @@ build_libmodplug() {
 build_libopenmpt() {
 	download_and_unpack_file https://lib.openmpt.org/files/libopenmpt/src/libopenmpt-0.5.7+release.autotools.tar.gz libopenmpt-0.5.7+release.autotools
 	cd libopenmpt-0.5.7+release.autotools
+		apply_patch file://${top_dir}/libopenmpt-memory.patch
 		generic_configure_make_install "--without-portaudiocpp"
 	cd ..
 }
@@ -4711,7 +4714,7 @@ build_libmms() {
 
 build_curl() {
 #  generic_download_and_install http://curl.haxx.se/download/curl-7.51.0.tar.bz2 curl-7.51.0 "--enable-ipv6 --with-librtmp --with-ca-fallback"
-  do_git_checkout https://github.com/curl/curl.git curl # 9655474548b3cefdb2b1d4504c82b44cc01a1861
+  do_git_checkout https://github.com/curl/curl.git curl e7f9c904ca20a91a0c87f9ca5812c9ac0307125d # 9655474548b3cefdb2b1d4504c82b44cc01a1861
   cd curl
     apply_patch file://${top_dir}/curl.patch
     generic_configure_make_install "--enable-ipv6 --with-librtmp --with-ca-fallback --with-gnutls"
@@ -4721,7 +4724,7 @@ build_curl() {
 
 build_curl_early() {
 #  generic_download_and_install http://curl.haxx.se/download/curl-7.51.0.tar.bz2 curl-7.51.0 "--enable-ipv6 --with-librtmp --with-ca-fallback"
-  do_git_checkout https://github.com/curl/curl.git curl_early
+  do_git_checkout https://github.com/curl/curl.git curl_early e7f9c904ca20a91a0c87f9ca5812c9ac0307125d
   cd curl_early
     apply_patch file://${top_dir}/curl.patch
     generic_configure_make_install "--enable-ipv6 --with-ca-fallback --with-gnutls"
