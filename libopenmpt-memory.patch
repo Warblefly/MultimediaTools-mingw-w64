@@ -1,0 +1,10 @@
+--- openmpt123/openmpt123.cpp.orig	2021-12-28 22:31:27.468837600 +0000
++++ openmpt123/openmpt123.cpp	2021-12-28 22:31:51.768837600 +0000
+@@ -46,6 +46,7 @@
+ #include <limits>
+ #include <locale>
+ #include <map>
++#include <memory>
+ #include <random>
+ #include <set>
+ #include <sstream>
