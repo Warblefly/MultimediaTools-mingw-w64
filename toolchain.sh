@@ -38,7 +38,7 @@ cd binutils
 #	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-revert-PLT-elision.patch | patch -p1
 #	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-readelf-other-sym-info.patch | patch -p1
 #	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-2.27-aarch64-ifunc.patch | patch -p1
-	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-do-not-link-with-static-libstdc++.patch | patch -p1 || exit 1
+	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-do-not-link-with-static-libstdc++.patch | patch -p1
 #	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/f34/f/binutils-gold-ignore-discarded-note-relocs.patch | patch -p1
 #	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-special-sections-in-groups.patch | patch -p1
 #	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-fix-testsuite-failures.patch | patch -p1

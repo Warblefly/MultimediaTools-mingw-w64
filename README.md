@@ -39,14 +39,17 @@ apt upgrade
 
 3. Install the pre-requisites. On Debian running under Windows, you can do this.
 ```
-apt install gcc-10 g++-10 make autoconf curl wget texinfo libgmp-dev bison flex xz-utils libz-dev python3 autopoint libtool libtool-bin cmake bzip2 gettext pkg-config libtasn1-bin meson gengetopt subversion nasm yasm python3-distutils libglib2.0-bin libglib2.0-dev intltool libxml2-utils autoconf-archive gperf sqlite3 unzip gyp python2 gtk-update-icon-cache gtk-doc-tools zip libspeexdsp-dev libsamplerate0-dev software-properties-common swig docbook-xsl xsltproc rake wx-common lua5.3 nsis sshpass rsync python3-mako qt6-base-dev
+apt install gcc-10 g++-10 make autoconf curl wget texinfo libgmp-dev bison flex xz-utils libz-dev python3 autopoint libtool libtool-bin cmake bzip2 gettext pkg-config libtasn1-bin meson gengetopt subversion nasm yasm python3-distutils libglib2.0-bin libglib2.0-dev intltool libxml2-utils autoconf-archive gperf sqlite3 unzip gyp python2 gtk-update-icon-cache gtk-doc-tools zip libspeexdsp-dev libsamplerate0-dev software-properties-common swig docbook-xsl xsltproc rake wx-common lua5.3 nsis sshpass rsync python3-mako
 ```
 
-Then, ensure your gcc is the one we have just installed.
+Then, ensure your gcc is the one we have just installed -- if you need to. A clean Debian install doesn't need this.
 ```
 sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 10
 sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-10 10
 ```
+
+Then, link /usr/bin/python3 to /usr/bin/python
+
 Then, switch your Java development kit to an earlier version. You used to need this to compile libbluray but its code is so old, and I don't need to play Blu-Ray discs other than to duplicate their contents, that I no longer do this.
 ```
 apt-key adv --keyserver keyserver.ubuntu.com --recv-keys C2518248EEA14886  
@@ -58,15 +61,18 @@ apt upgrade
 apt-get install oracle-java8-installer  
 ```
 
+Install autotools in the 2.69 version, not the 2.71 version that comes with Debian Sid. Use dpkg and the --force-depends option to allow this.
+Install intltools, without dependencies (you'll need to use dpkg for this: dpkg --install --force-depends intltool_0.51.0-6_all.deb).
+
 Then, install version 11 of the NVidia cuda toolkit. This is behind the version distributed with Debian sid, so must be installed like this:
 ```
-sudo apt install cuda-nvcc-11-3
-sudo ln -s /usr/local/cuda-11.3/bin/nvcc /usr/bin/nvcc
-sudo ln -s /usr/local/cuda-11.3/nvvm/bin/cicc /usr/bin/cicc
-sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 10
+sudo apt install nvidia-cuda-toolkit
+#sudo ln -s /usr/local/cuda-11.3/bin/nvcc /usr/bin/nvcc
+#sudo ln -s /usr/local/cuda-11.3/nvvm/bin/cicc /usr/bin/cicc
+#sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 10
 ```
 
-4. Link an executable, thus: ln -s /usr/bin/luac5.3 /usr/bin/luac
+4. Link an executable, thus: ln -s /usr/bin/luac5.3 /usr/bin/luac [NO LONGER REQUIRED]
 5. Clone my package from git (see the address at the top of this page).
 6. cd into the top directory of the git tree.
 7. Read the top of ./build_shared.sh, and edit the location to which scp should copy your binary archive.

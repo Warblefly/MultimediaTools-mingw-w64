@@ -5037,7 +5037,7 @@ build_dvdauthor() {
 #iconv does bad mojo in mingw-w64. And who doesn't want Unicode anyway, these days?
     export am_cv_func_iconv=no
     apply_patch_p1 file://${top_dir}/dvdauthor-mingw.patch
-    apply_patch file://${top_dir}/dvdauthor-rpath.patch
+#    apply_patch file://${top_dir}/dvdauthor-rpath.patch
 #    apply_patch file://${top_dir}/dvdauthor-configure-ac.patch
 #    apply_patch file://${top_dir}/dvdauthor-mkdir-mingw32.patch
 #    apply_patch file://${top_dir}/dvdauthor-compat-c-langinfo.patch
