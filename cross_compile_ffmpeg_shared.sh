@@ -932,6 +932,7 @@ build_qt() {
 #		download_and_unpack_file https://download.qt.io/archive/qt/${QT_BASE}/${QT_VERSION}/single/qt-everywhere-src-${QT_VERSION}.tar.xz "qt-everywhere-src-${QT_VERSION}"
 	        download_and_unpack_file https://download.qt.io/archive/qt/5.15/5.15.2/single/qt-everywhere-src-5.15.2.tar.xz qt-everywhere-src-5.15.2
 		cd "qt-everywhere-src-${QT_VERSION}"
+		apply_patch file://${top_dir}/qt5-no-qmltests.patch
 			cd qtbase
 				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtbase/raw/rawhide/f/qt5-qtbase-mingw-profile.patch
 				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtbase/raw/rawhide/f/qt5-qtbase-external-angle.patch
@@ -982,7 +983,7 @@ build_qt() {
 			export PKG_CONFIG=${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config
 			export PKG_CONFIG_LIBDIR=${mingw_w64_x86_64_prefix}/lib/pkgconfig
 			export PKG_CONFIG_SYSROOT_DIR=${mingw_w64_x86_64_prefix}
-			../qt-everywhere-src-${QT_VERSION}/configure -xplatform mingw-w64-g++ -verbose -release -force-debug-info -prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -opensource -make tools -confirm-license -openssl -nomake examples -nomake tests -no-d3d12 -no-wmf -skip qtquickcontrols -skip qtwebglplugin -skip qt3d -skip qtandroidextras -skip qtcharts -skip qtconnectivity -skip qtdatavis3d -skip qtgamepad -skip qtimageformats -skip qtlocation -skip qtlottie -skip qtmacextras -skip qtnetworkauth -skip qtpurchasing -skip qtquick3d -skip qtquicktimeline -skip qtremoteobjects -skip qtscript -skip qtscxml -skip qtsensors -skip qtserialbus -skip qtserialport -skip qtspeech -skip qtvirtualkeyboard -skip qtwayland -skip qtwebchannel -skip qtwebengine -skip qtwebsockets -skip qtx11extras -opengl desktop -device-option CROSS_COMPILE=$cross_prefix -pkg-config -sql-sqlite -device-option PKG_CONFIG=x86_64-w64-mingw32-pkg-config -device-option PKG_CONFIG_LIBDIR=${mingw_w64_x86_64_prefix}/lib/pkgconfig -device-option PKG_CONFIG_SYSROOT_DIR=${mingw_w64_x86_64_prefix} -no-feature-relocatable -shared -skip qtactiveqt || exit 1
+			../qt-everywhere-src-${QT_VERSION}/configure -xplatform mingw-w64-g++ -verbose -release -force-debug-info -prefix ${mingw_w64_x86_64_prefix} -hostprefix ${mingw_w64_x86_64_prefix}/../ -opensource -make tools -confirm-license -openssl -nomake examples -nomake tests -no-wmf -skip qtquickcontrols -skip qtwebglplugin -skip qt3d -skip qtandroidextras -skip qtcharts -skip qtconnectivity -skip qtdatavis3d -skip qtdeclarative -skip qtgamepad -skip qtimageformats -skip qtlocation -skip qtlottie -skip qtmacextras -skip qtnetworkauth -skip qtpurchasing -skip qtquick3d -skip qtquicktimeline -skip qtremoteobjects -skip qtscript -skip qtscxml -skip qtsensors -skip qtserialbus -skip qtserialport -skip qtspeech -skip qtvirtualkeyboard -skip qtwayland -skip qtwebchannel -skip qtwebengine -skip qtwebsockets -skip qtx11extras -opengl desktop -device-option CROSS_COMPILE=$cross_prefix -pkg-config -sql-sqlite -device-option PKG_CONFIG=x86_64-w64-mingw32-pkg-config -device-option PKG_CONFIG_LIBDIR=${mingw_w64_x86_64_prefix}/lib/pkgconfig -device-option PKG_CONFIG_SYSROOT_DIR=${mingw_w64_x86_64_prefix} -no-feature-relocatable -shared -skip qtactiveqt || exit 1
 			export old_ld_library_path=${LD_LIBRARY_PATH}
 			export LD_LIBRARY_PATH=$PWD/qtbase/lib
 			do_make || exit 1
@@ -1429,11 +1430,16 @@ build_mlt() {
 #    apply_patch file://${top_dir}/mlt-opencv.patch
 #    apply_patch file://${top_dir}/mlt-ffmpeg.patch
     apply_patch_p1 file://${top_dir}/tracker-opencv-mlt-reverse.patch
-    do_cmake "-DMOD_OPENCV=ON -DWINDOWS_DEPLOY=OFF -DMOD_GDK=OFF -DMOD_AVFORMAT=OFF"
-    do_make
-    cp -v src/framework/libmlt.def . 
-    cp -v src/mlt++/libmlt++.def .
-    do_make_install
+    mkdir mlt_build
+    cd mlt_build
+	    do_cmake .. "-DMOD_OPENCV=ON -DWINDOWS_DEPLOY=OFF -DMOD_GDK=OFF -DMOD_AVFORMAT=OFF"
+	    do_make
+    
+	    cp -v src/framework/libmlt.def . 
+	    cp -v src/mlt++/libmlt++.def .
+
+    	    do_make_install
+    cd ..
     # The Makefiles don't use Autotools, and put the binaries in the wrong places with
     # no executable extension for 'melt.exe'
     # Also, the paths are not correct for Windows execution. So we must move things
@@ -1571,7 +1577,7 @@ do_git_checkout http://github.com/opencv/opencv_contrib.git "opencv_contrib" 3.4
     apply_patch file://${top_dir}/opencv-address.patch
     mkdir -pv build
     cd build
-      do_cmake .. "-DOPENCV_EXTRA_MODULES_PATH=../../opencv_contrib/modules -DOPENCV_GENERATE_PKGCONFIG=ON -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DWITH_FFMPEG=ON -DOPENCV_GENERATE_PKGCONFIG=ON -DENABLE_PIC=TRUE -DOPENCV_ENABLE_NONFREE=ON -DOPENCV_FORCE_3RDPARTY_BUILD=OFF -DBUILD_ZLIB=OFF -DBUILD_TIFF=OFF -DBUILD_JASPER=OFF -DBUILD_JPEG=OFF -DBUILD_PNG=OFF -DBUILD_OPENEXR=OFF -DBUILD_WEBP=OFF -DWITH_JASPER=ON -DWITH_JPEG=ON -DWITH_WEBP=ON -DWITH_OPENEXR=ON -DWITH_PNG=ON -DWITH_WIN32UI=ON -DWITH_PTHREADS_PF=ON -DWITH_TIFF=ON -DWITH_DSHOW=ON -DWITH_DIRECTX=ON -DWITH_IMGCODEC_HDR=ON -DWITH_CUDA=ON -DWITH_OPENMP=ON -DCMAKE_CXX_FLAGS=-Wno-error=address -DCMAKE_C_FLAGS=-Wno-error=address -DCMAKE_VERBOSE_MAKEFILE=ON " # ".. -DCMAKE_CXX_STANDARD=14 -DWITH_IPP=OFF -DWITH_EIGEN=ON -DWITH_VFW=ON -DWITH_DSHOW=ON -DOPENCV_ENABLE_NONFREE=ON -DWITH_GTK=ON -DWITH_WIN32UI=ON -DWITH_DIRECTX=ON -DBUILD_SHARED_LIBS=ON -DBUILD_opencv_apps=ON -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_JASPER=OFF -DBUILD_JPEG=OFF -DBUILD_OPENEXR=OFF -DBUILD_PNG=OFF -DBUILD_TIFF=OFF -DBUILD_ZLIB=OFF -DENABLE_SSE41=ON -DENABLE_SSE42=ON -DWITH_WEBP=OFF -DBUILD_EXAMPLES=ON -DINSTALL_C_EXAMPLES=ON -DWITH_OPENGL=ON -DINSTALL_PYTHON_EXAMPLES=ON -DCMAKE_CXX_FLAGS=-DMINGW_HAS_SECURE_API=1 -DCMAKE_C_FLAGS=-DMINGW_HAS_SECURE_API=1 -DOPENCV_LINKER_LIBS=boost_thread-mt-x64;boost_system-mt-x64 -DCMAKE_VERBOSE=ON -DINSTALL_TO_MANGLED_PATHS=OFF" && ${top_dir}/correct_headers.sh"
+      do_cmake .. "-DOPENCV_EXTRA_MODULES_PATH=../../opencv_contrib/modules -DOPENCV_GENERATE_PKGCONFIG=ON -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DWITH_FFMPEG=ON -DOPENCV_GENERATE_PKGCONFIG=ON -DENABLE_PIC=TRUE -DOPENCV_ENABLE_NONFREE=ON -DOPENCV_FORCE_3RDPARTY_BUILD=OFF -DBUILD_ZLIB=OFF -DBUILD_TIFF=OFF -DBUILD_JASPER=OFF -DBUILD_JPEG=OFF -DWITH_GSTREAMER=OFF -DBUILD_PNG=OFF -DBUILD_OPENEXR=OFF -DBUILD_WEBP=OFF -DWITH_JASPER=ON -DWITH_JPEG=ON -DWITH_WEBP=ON -DWITH_OPENEXR=ON -DWITH_PNG=ON -DWITH_WIN32UI=ON -DWITH_PTHREADS_PF=ON -DWITH_TIFF=ON -DWITH_DSHOW=ON -DWITH_DIRECTX=ON -DWITH_IMGCODEC_HDR=ON -DWITH_CUDA=ON -DWITH_OPENMP=ON -DCMAKE_CXX_FLAGS=-Wno-error=address -DCMAKE_C_FLAGS=-Wno-error=address -DCMAKE_VERBOSE_MAKEFILE=ON " # ".. -DCMAKE_CXX_STANDARD=14 -DWITH_IPP=OFF -DWITH_EIGEN=ON -DWITH_VFW=ON -DWITH_DSHOW=ON -DOPENCV_ENABLE_NONFREE=ON -DWITH_GTK=ON -DWITH_WIN32UI=ON -DWITH_DIRECTX=ON -DBUILD_SHARED_LIBS=ON -DBUILD_opencv_apps=ON -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_JASPER=OFF -DBUILD_JPEG=OFF -DBUILD_OPENEXR=OFF -DBUILD_PNG=OFF -DBUILD_TIFF=OFF -DBUILD_ZLIB=OFF -DENABLE_SSE41=ON -DENABLE_SSE42=ON -DWITH_WEBP=OFF -DBUILD_EXAMPLES=ON -DINSTALL_C_EXAMPLES=ON -DWITH_OPENGL=ON -DINSTALL_PYTHON_EXAMPLES=ON -DCMAKE_CXX_FLAGS=-DMINGW_HAS_SECURE_API=1 -DCMAKE_C_FLAGS=-DMINGW_HAS_SECURE_API=1 -DOPENCV_LINKER_LIBS=boost_thread-mt-x64;boost_system-mt-x64 -DCMAKE_VERBOSE=ON -DINSTALL_TO_MANGLED_PATHS=OFF" && ${top_dir}/correct_headers.sh"
 #      sed -i.bak "s|DBL_EPSILON|2.2204460492503131E-16|g" modules/imgproc/include/opencv2/imgproc/types_c.h
       do_make_install
 #      cp -v ${mingw_w64_x86_64_prefix}/lib/libopencv_core320.dll.a ${mingw_w64_x86_64_prefix}/lib/libopencv_core.dll.a
@@ -3851,14 +3857,14 @@ build_traverso() {
 
 
 build_wx() {
-  do_git_checkout https://github.com/wxWidgets/wxWidgets.git wxWidgets 27d0e7804c0c4a3366e3c800a5475d05083fc290 #91402a0de882ee2b8c07f66e5b5d041c25e48fe6 #0f5c2851f40facef6fe8e7f603df2cc6a90250a1 #WX_3_0_BRANCH #  8c8557812be37697d4c2ffdad35141a51a9bc71d # WX_3_0_BRANCH
+	do_git_checkout https://github.com/wxWidgets/wxWidgets.git wxWidgets # WX_3_0_BRANCH # 27d0e7804c0c4a3366e3c800a5475d05083fc290 #91402a0de882ee2b8c07f66e5b5d041c25e48fe6 #0f5c2851f40facef6fe8e7f603df2cc6a90250a1 #WX_3_0_BRANCH #  8c8557812be37697d4c2ffdad35141a51a9bc71d # WX_3_0_BRANCH
 #  download_and_unpack_file https://github.com/wxWidgets/wxWidgets/archive/v3.0.4.tar.gz wxWidgets-3.0.4
   cd wxWidgets
     git submodule update --init 3rdparty/catch
     git submodule update --init 3rdparty/nanosvg
 #    apply_patch_p1 https://github.com/wxWidgets/wxWidgets/commit/73e9e18ea09ffffcaac50237def0d9728a213c02.patch
 #    rm -v configure
-    generic_configure_make_install "CFLAGS=-Wnarrowing CXXFLAGS=-Wnarrowing --with-msw --enable-monolithic --disable-debug --disable-debug_flag --enable-unicode --enable-optimise --with-libpng --with-libjpeg --with-libtiff --with-opengl --disable-option-checking --enable-compat28 --enable-compat30" # --with-opengl --disable-mslu --enable-unicode --enable-monolithic --with-regex=builtin --disable-precomp-headers --enable-graphics_ctx --enable-webview --enable-mediactrl --with-libpng=sys --with-libxpm=builtin --with-libjpeg=sys --with-libtiff=sys" # "--without-opengl  --enable-checklst --with-regex=yes --with-msw --with-libpng=sys --with-libjpeg=sys --with-libtiff=sys --with-zlib=yes --enable-graphics_ctx --enable-webview --enable-mediactrl --disable-official_build --disable-option-checking" # --with-regex=yes
+    generic_configure_make_install "CFLAGS=-Wnarrowing CXXFLAGS=-Wnarrowing --with-msw --enable-monolithic --disable-debug --disable-debug_flag --enable-unicode --enable-optimise --with-libpng --with-libjpeg --with-libtiff --with-opengl --disable-option-checking" # --enable-compat30" # --with-opengl --disable-mslu --enable-unicode --enable-monolithic --with-regex=builtin --disable-precomp-headers --enable-graphics_ctx --enable-webview --enable-mediactrl --with-libpng=sys --with-libxpm=builtin --with-libjpeg=sys --with-libtiff=sys" # "--without-opengl  --enable-checklst --with-regex=yes --with-msw --with-libpng=sys --with-libjpeg=sys --with-libtiff=sys --with-zlib=yes --enable-graphics_ctx --enable-webview --enable-mediactrl --disable-official_build --disable-option-checking" # --with-regex=yes
     # wx-config needs to be visible to this script when compiling
     cp -v ${mingw_w64_x86_64_prefix}/bin/wx-config ${mingw_w64_x86_64_prefix}/../bin/wx-config
     # wxWidgets doesn't include the DLL run-time libraries in the right place.
@@ -3867,7 +3873,7 @@ build_wx() {
     cd -
     cp -v ${mingw_w64_x86_64_prefix}/lib/wx*dll ${mingw_w64_x86_64_prefix}/bin
   cd ..
-  generic_download_and_install https://github.com/wxWidgets/wxWidgets/releases/download/v3.0.5/wxWidgets-3.0.5.tar.bz2 wxWidgets-3.0.5 "CFLAGS=-Wno-narrowing CXXFLAGS=-Wno-narrowing --with-msw --enable-monolithic --disable-debug --disable-debug_flag --enable-unicode --enable-optimize --with-libpng --with-libjpeg --with-libtiff --with-opengl --disable-option-checking --enable-compat28 --enable-compat30"
+  generic_download_and_install https://github.com/wxWidgets/wxWidgets/releases/download/v3.0.5.1/wxWidgets-3.0.5.1.tar.bz2 wxWidgets-3.0.5.1 "CFLAGS=-Wno-narrowing CXXFLAGS=-Wno-narrowing --with-msw --enable-monolithic --disable-debug --disable-debug_flag --enable-unicode --enable-optimize --with-libpng --with-libjpeg --with-libtiff --with-opengl --disable-option-checking --enable-compat28 --enable-compat30"
   cp -v ${mingw_w64_x86_64_prefix}/lib/wx*dll ${mingw_w64_x86_64_prefix}/bin
   #do_git_checkout https://github.com/wxWidgets/wxWidgets.git wxWidgetsLATEST
 #  download_and_unpack_file https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxWidgets-3.1.1.tar.bz2 wxWidgets-3.1.1
@@ -7397,7 +7403,7 @@ build_dependencies() {
 #  build_gtk2
 #  build_gtk
 #  build_gtkmm
-  build_graphicsmagicksnapshot
+  #build_graphicsmagicksnapshot
   build_eigen
   build_libdv
   #build_lash
@@ -7547,7 +7553,7 @@ build_apps() {
   build_synaesthesia
   # Because loudness scanner installs its own out-of-date libebur128, we must re-install our own.
 #  build_dvdstyler
-  build_vlc
+  #build_vlc
 }
 
 # set some parameters initial values
