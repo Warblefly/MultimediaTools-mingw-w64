@@ -6651,6 +6651,19 @@ build_libMXF() {
   cd ..
 }
 
+build_kodi()
+{
+	do_git_checkout https://github.com/xbmc/xbmc.git xbmc
+	cd xbmc
+		mkdir build
+		cd build
+			do_cmake ..
+			do_make
+			do_make_install
+		cd ..
+	cd ..
+}
+
 build_imagemagick()
 {
 #  do_svn_checkout https://subversion.imagemagick.org/subversion/ImageMagick/trunk ImageMagick
@@ -7403,7 +7416,7 @@ build_dependencies() {
 #  build_gtk2
 #  build_gtk
 #  build_gtkmm
-  #build_graphicsmagicksnapshot
+  build_graphicsmagicksnapshot
   build_eigen
   build_libdv
   #build_lash
@@ -7551,6 +7564,7 @@ build_apps() {
   build_dcpomatic
 #  build_loudness-scanner Broken by FFmpeg API changes. Sorry.
   build_synaesthesia
+  #build_kodi
   # Because loudness scanner installs its own out-of-date libebur128, we must re-install our own.
 #  build_dvdstyler
   #build_vlc
