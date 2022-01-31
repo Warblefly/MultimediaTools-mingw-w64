@@ -630,7 +630,7 @@ download_and_unpack_bz2file() {
 generic_meson() {
     local extra_configure_options="$1"
     mkdir -pv build
-    do_meson "--prefix=${mingw_w64_x86_64_prefix} --libdir=${mingw_w64_x86_64_prefix}/lib --buildtype release --strip --default-library shared --cross-file ${top_dir}/meson-cross.mingw.txt $extra_configure_options . build"
+    do_meson "--prefix=${mingw_w64_x86_64_prefix} --libdir=${mingw_w64_x86_64_prefix}/lib --buildtype release --strip --default-library shared --cross-file ${top_dir}/meson-cross.mingw.txt ${extra_configure_options} . build"
 }
 
 generic_configure() {
@@ -675,8 +675,8 @@ do_ninja_and_ninja_install() {
     do_ninja "$extra_ninja_options"
     local touch_name=$(get_small_touchfile_name already_ran_make_install "$extra_ninja_options")
     if [ ! -f $touch_name ]; then
-        echo "ninja installing $(pwd) as $ PATH=$PATH ninja -C build install $extra_make_options"
-        ninja -C build install || exit 1
+        echo "ninja installing $(pwd) as $ PATH=$PATH ninja --verbose -C build install $extra_make_options"
+        ninja --verbose -C build install || exit 1
         touch $touch_name || exit 1
     fi
 }
@@ -689,9 +689,9 @@ do_ninja() {
 
        if [ ! -f $touch_name ]; then
           echo
-          echo "ninja-ing $cur_dir2 as $ PATH=$PATH ninja -C build "${extra_make_options}"
+          echo "ninja-ing $cur_dir2 as $ PATH=$PATH ninja --verbose -C build "${extra_make_options}"
           echo
-          ninja -C build "${extra_make_options} || exit 1
+          ninja --verbose -C build "${extra_make_options} || exit 1
           touch $touch_name || exit 1 # only touch if the build was OK
        else
           echo "already did ninja $(basename "$cur_dir2")"
@@ -1574,7 +1574,7 @@ do_git_checkout http://github.com/opencv/opencv_contrib.git "opencv_contrib" 3.4
 #    apply_patch file://${top_dir}/opencv-wrong-slash.patch
 #    apply_patch file://${top_dir}/opencv-location.patch
 #    apply_patch file://${top_dir}/opencv-strict.patch
-    apply_patch file://${top_dir}/opencv-address.patch
+#    apply_patch file://${top_dir}/opencv-address.patch
     mkdir -pv build
     cd build
       do_cmake .. "-DOPENCV_EXTRA_MODULES_PATH=../../opencv_contrib/modules -DOPENCV_GENERATE_PKGCONFIG=ON -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DWITH_FFMPEG=ON -DOPENCV_GENERATE_PKGCONFIG=ON -DENABLE_PIC=TRUE -DOPENCV_ENABLE_NONFREE=ON -DOPENCV_FORCE_3RDPARTY_BUILD=OFF -DBUILD_ZLIB=OFF -DBUILD_TIFF=OFF -DBUILD_JASPER=OFF -DBUILD_JPEG=OFF -DWITH_GSTREAMER=OFF -DBUILD_PNG=OFF -DBUILD_OPENEXR=OFF -DBUILD_WEBP=OFF -DWITH_JASPER=ON -DWITH_JPEG=ON -DWITH_WEBP=ON -DWITH_OPENEXR=ON -DWITH_PNG=ON -DWITH_WIN32UI=ON -DWITH_PTHREADS_PF=ON -DWITH_TIFF=ON -DWITH_DSHOW=ON -DWITH_DIRECTX=ON -DWITH_IMGCODEC_HDR=ON -DWITH_CUDA=ON -DWITH_OPENMP=ON -DCMAKE_CXX_FLAGS=-Wno-error=address -DCMAKE_C_FLAGS=-Wno-error=address -DCMAKE_VERBOSE_MAKEFILE=ON " # ".. -DCMAKE_CXX_STANDARD=14 -DWITH_IPP=OFF -DWITH_EIGEN=ON -DWITH_VFW=ON -DWITH_DSHOW=ON -DOPENCV_ENABLE_NONFREE=ON -DWITH_GTK=ON -DWITH_WIN32UI=ON -DWITH_DIRECTX=ON -DBUILD_SHARED_LIBS=ON -DBUILD_opencv_apps=ON -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_JASPER=OFF -DBUILD_JPEG=OFF -DBUILD_OPENEXR=OFF -DBUILD_PNG=OFF -DBUILD_TIFF=OFF -DBUILD_ZLIB=OFF -DENABLE_SSE41=ON -DENABLE_SSE42=ON -DWITH_WEBP=OFF -DBUILD_EXAMPLES=ON -DINSTALL_C_EXAMPLES=ON -DWITH_OPENGL=ON -DINSTALL_PYTHON_EXAMPLES=ON -DCMAKE_CXX_FLAGS=-DMINGW_HAS_SECURE_API=1 -DCMAKE_C_FLAGS=-DMINGW_HAS_SECURE_API=1 -DOPENCV_LINKER_LIBS=boost_thread-mt-x64;boost_system-mt-x64 -DCMAKE_VERBOSE=ON -DINSTALL_TO_MANGLED_PATHS=OFF" && ${top_dir}/correct_headers.sh"
@@ -1711,7 +1711,7 @@ build_dcpomatic() {
 ##    apply_patch file://${top_dir}/dcpomatic-libsub.patch
 ##    apply_patch file://${top_dir}/dcpomatic-LogColorspace.patch
      # M_PI is missing in mingw-w64
-#    sed -i.bak 's/M_PI/3.14159265358979323846/g' src/lib/audio_filter.cc
+    sed -i.bak 's/M_PI/3.14159265358979323846/g' src/lib/audio_filter.cc
      # The RC file looks for wxWidgets 3.0 rc, but it's 3.1 in our build
 #    sed -i.bak 's!wx-3\.0/wx/msw/wx\.rc!wx-3.1/wx/msw/wx.rc!' platform/windows/dcpomatic.rc
 #    sed -i.bak 's!wx-3\.0/wx/msw/wx\.rc!wx-3.1/wx/msw/wx.rc!' platform/windows/dcpomatic_batch.rc
@@ -2057,8 +2057,8 @@ build_libdvdcss() {
 build_gdb() {
   export LIBS="-lpsapi -ldl"
   export MAKEFLAGS="VERBOSE=1"
-  download_and_unpack_file ftp://sourceware.org/pub/gdb/releases/gdb-11.1.tar.xz gdb-11.1
-  cd gdb-11.1
+  download_and_unpack_file ftp://sourceware.org/pub/gdb/releases/gdb-11.2.tar.xz gdb-11.2
+  cd gdb-11.2
 #    cd readline
 #    generic_configure_make_install
 #   cd ..
@@ -3487,7 +3487,7 @@ build_libgpg-error() {
 
 build_libgcrypt() {
 #  generic_download_and_install ftp://ftp.gnupg.org/gcrypt/libgcrypt/libgcrypt-1.8.1.tar.gz libgcrypt-1.8.1 "GPG_ERROR_CONFIG=${mingw_w64_x86_64_prefix}/bin/gpg-error-config"
-  do_git_checkout git://git.gnupg.org/libgcrypt.git libgcrypt #cdaeb86f067b94d9dff4235ade20dde6479d9bb8 # 86e5e06a97ae13b8bbf6923ecc76e02b9c429b46
+  do_git_checkout git://git.gnupg.org/libgcrypt.git libgcrypt libgcrypt-1.9.4 #cdaeb86f067b94d9dff4235ade20dde6479d9bb8 # 86e5e06a97ae13b8bbf6923ecc76e02b9c429b46
   cd libgcrypt
   export holding_path="${PATH}"
   export PATH="/usr/local/bin:/usr/bin:/bin:${top_dir}/sandbox/x86_64-w64-mingw32/bin"
@@ -6482,17 +6482,29 @@ build_harfbuzz() {
 }
 
 build_pulseaudio() {
-  download_and_unpack_file https://freedesktop.org/software/pulseaudio/releases/pulseaudio-14.2.tar.xz pulseaudio-14.2
-    cd pulseaudio-14.2
-        apply_patch file://${top_dir}/pulseaudio-size.patch
-	apply_patch file://${top_dir}/pulseaudio-conf.patch
+#	do_git_checkout https://gitlab.freedesktop.org/pulseaudio/pulseaudio.git pulseaudio
+	download_and_unpack_file https://freedesktop.org/software/pulseaudio/releases/pulseaudio-15.0.tar.xz pulseaudio-15.0
+#	cd pulseaudio-14.2
+	cd pulseaudio-15.0
+#		git checkout 6329a2498eb038f8a9537888280a62b00a93f68e
+#		apply_patch file://${top_dir}/pulseaudio-no-doxygen.patch
+#	apply_patch file://${top_dir}/pulseaudio-size.patch
+#	apply_patch file://${top_dir}/pulseaudio-conf.patch
 #	apply_patch file://${top_dir}/pulseaudio-inet.patch
-        generic_configure_make_install "LIBS=-lintl --enable-orc --enable-waveout --disable-silent-rules --disable-gsettings --disable-dbus" # "LIBS=-lintl --enable-orc --enable-waveout --disable-silent-rules -disable-gsettings --disable-dbus"
+#	apply_patch file://${top_dir}/pulseaudio-gaskin-1.patch
+#	apply_patch file://${top_dir}/pulseaudio-gaskin-2.patch 
+#	apply_patch file://${top_dir}/pulseaudio-gaskin-3.patch 
+#	apply_patch file://${top_dir}/pulseaudio-gaskin-4.patch 
+	apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-pulseaudio/0001-remove-assert-pid_t-mismatch.patch
+	apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-pulseaudio/0002-meson-check-version-script.patch
+	apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-pulseaudio/0003-Fix-pointer-to-integer-cast-warnings.patch
+		generic_meson_ninja_install "-Dtests=false -Ddbus=disabled -Ddatabase=simple -Ddoxygen=false -Drunning-from-build-tree=false -Dlegacy-database-entry-format=false -Dwebrtc-aec=disabled -Dbluez5=disabled -Dc_args=-D_WIN32_WINNT=0x0A00 -Dsystemd=disabled -Djack=disabled -Dmodlibexecdir=${mingw_w64_x86_64_prefix}/bin"
+#        generic_configure_make_install "LIBS=-lintl --enable-orc --enable-waveout --disable-silent-rules --disable-gsettings --disable-dbus" # "LIBS=-lintl --enable-orc --enable-waveout --disable-silent-rules -disable-gsettings --disable-dbus"
         # Main library is in wrong place for our paths
-        cp -vf ${mingw_w64_x86_64_prefix}/lib/pulseaudio/*dll ${mingw_w64_x86_64_prefix}/bin
-        cp -vf ${mingw_w64_x86_64_prefix}/lib/pulse-14.2/bin/*dll ${mingw_w64_x86_64_prefix}/bin
-        cp -vf ${mingw_w64_x86_64_prefix}/lib/bin/*dll ${mingw_w64_x86_64_prefix}/bin
-    cd ..
+#	        cp -vf ${mingw_w64_x86_64_prefix}/lib/pulse-15.0/modules/*dll ${mingw_w64_x86_64_prefix}/bin
+#	        cp -vf ${mingw_w64_x86_64_prefix}/lib/pulse-15.0/bin/*dll ${mingw_w64_x86_64_prefix}/bin
+#	        cp -vf ${mingw_w64_x86_64_prefix}/lib/bin/*dll ${mingw_w64_x86_64_prefix}/bin
+	cd ..
 }
 
 build_pamix() {
@@ -7093,8 +7105,8 @@ build_ffmpeg() {
 	local standard_options="--prefix=$mingw_w64_x86_64_prefix --logfile=/dev/tty"
 	local licensing_options="--enable-nonfree --enable-version3 --enable-gpl"
 	local configuration_options="--disable-static --enable-shared --enable-runtime-cpudetect --enable-gray --disable-w32threads"
-	local component_options="--enable-filter=frei0r --enable-decoder=aac"
-	local library_options="--enable-avisynth --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdc1394 --enable-libfdk-aac --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-gnutls --enable-libgsm --enable-libilbc --enable-libjack --enable-libklvanc --enable-liblensfun --enable-libmodplug --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopencv --enable-libopenmpt --enable-libopus --enable-librabbitmq --enable-librist --enable-librubberband --enable-librtmp --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libtesseract --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxavs2 --enable-libxvid --enable-libxml2 --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 --enable-decklink --enable-libmysofa --enable-opencl --enable-opengl --enable-vulkan"
+	local component_options="--enable-filter=frei0r --disable-decoder=aac" #--enable-decoder=aac"
+	local library_options="--enable-avisynth --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdc1394 --enable-libfdk-aac --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-gnutls --enable-libgsm --enable-libilbc --enable-libjack --enable-libklvanc --enable-liblensfun --enable-libpulse --enable-libmodplug --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopencv --enable-libopenmpt --enable-libopus --enable-librabbitmq --enable-librist --enable-librubberband --enable-librtmp --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libtesseract --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxavs2 --enable-libxvid --enable-libxml2 --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 --enable-decklink --enable-libmysofa --enable-opencl --enable-opengl --enable-vulkan"
 	local hardware_options="--enable-cuda-nvcc --enable-libmfx"
 	local toolchain_options="--arch=x86_64 --cross-prefix=$cross_prefix --enable-cross-compile --target-os=mingw32 --extra-version=Compiled_by_John_Warburton --enable-pic --nvccflags=-I/usr/local/cuda-11.4/targets/x86_64-linux/include"
 	local developer_options="--disable-debug --enable-stripping"
@@ -7519,6 +7531,7 @@ build_apps() {
   build_dvdbackup
   build_codec2
   build_ffmpegnv
+  build_pulseaudio
   build_ffmpeg
   #build_pamix
   #build_meterbridge
@@ -7528,7 +7541,7 @@ build_apps() {
   build_aubio
   build_libopenshotaudio
   #build_libopenshot
-  #build_pulseaudio
+#  build_pulseaudio
   build_mpv
   build_libplacebo
   # opendcp unmaintained for sixteen months, uses outdated asdcp library
@@ -7691,6 +7704,7 @@ export PKG_CONFIG_LIBDIR= # disable pkg-config from reverting back to and findin
 
 
 original_path="$PATH"
+
 if [ -d "mingw-w64-i686" ]; then # they installed a 32-bit compiler
   echo "Building 32-bit ffmpeg..."
   host_target='i686-w64-mingw32'
