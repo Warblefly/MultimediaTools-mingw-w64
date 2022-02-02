@@ -1,0 +1,11 @@
+--- ext/opencv/meson.build.orig	2022-02-01 12:15:04.222336600 +0000
++++ ext/opencv/meson.build	2022-02-01 12:15:28.072336600 +0000
+@@ -118,7 +118,7 @@
+   gstopencv = library('gstopencv',
+     gstopencv_sources,
+     cpp_args : gst_plugins_bad_args + gstopencv_cargs + [ '-DGST_USE_UNSTABLE_API' ],
+-    link_args : [noseh_link_args, '-lopencv_tracking'],
++    link_args : [noseh_link_args, '-lopencv_tracking3417'],
+     include_directories : [configinc, libsinc],
+     dependencies : [gstbase_dep, gstvideo_dep, opencv_dep, gstopencv_dep],
+     install : true,

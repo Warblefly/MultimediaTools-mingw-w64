@@ -3808,35 +3808,40 @@ build_atomicparsley() {
 build_gstreamer() {
 	
     #do_git_checkout https://github.com/GStreamer/gstreamer.git gstreamer # 6babf1f086cce9cc392e2dc8a6cdf252d9b4cc48
-	download_and_unpack_file https://gstreamer.freedesktop.org/src/gstreamer/gstreamer-1.18.0.tar.xz gstreamer-1.18.0
-	cd gstreamer-1.18.0
+	download_and_unpack_file https://gstreamer.freedesktop.org/src/gstreamer/gstreamer-1.19.90.tar.xz gstreamer-1.19.90
+	cd gstreamer-1.19.90
     #cd gstreamer
         	mkdir -vp tests/examples/controller/include # to work around a bad include directory
         	generic_meson_ninja_install #"--disable-silent-rules --disable-fatal-warnings"
   	cd ..
-	download_and_unpack_file https://gstreamer.freedesktop.org/src/gst-plugins-base/gst-plugins-base-1.18.0.tar.xz gst-plugins-base-1.18.0
-	cd gst-plugins-base-1.18.0
+	download_and_unpack_file https://gstreamer.freedesktop.org/src/gst-plugins-base/gst-plugins-base-1.19.90.tar.xz gst-plugins-base-1.19.90
+	cd gst-plugins-base-1.19.90
 #    do_git_checkout https://github.com/GStreamer/gst-plugins-base.git gst-plugins-base 909baa2360f7ba7b6e2e27a2ad565e3142630abe
  #   cd gst-plugins-base
-        mkdir -vp gst-libs/gst/video/include
-        mkdir -vp gst-libs/gst/tag/include
-        mkdir -vp ext/gl/include
-        mkdir -vp ext/pango/include
-        mkdir -vp tests/examples/audio/include
-        mkdir -vp tests/examples/gio/include
-        mkdir -vp tests/examples/playback/include
-        mkdir -vp tests/examples/gl/generic/include
-        mkdir -vp tests/examples/gl/gtk/include
-        mkdir -vp tests/examples/overlay/include
-        mkdir -vp tests/examples/seek/include
-        mkdir -vp tests/examples/gl/gtk/filternovideooverlay/include
-        mkdir -vp tests/examples/gl/gtk/filtervideooverlay/include
-        mkdir -vp tests/examples/snapshot/include
-        mkdir -vp tests/examples/gl/gtk/fxtest/include
-        mkdir -vp tests/examples/gl/gtk/switchvideooverlay/include
-        mkdir -vp tests/examples/gl/gtk/3dvideo/include
-        generic_meson_ninja_install "-Dexamples=disabled -Dc_args=-fcommon" #"CFLAGS=-fcommon -Dexamples=false"
-    cd ..
+        	mkdir -vp gst-libs/gst/video/include
+	        mkdir -vp gst-libs/gst/tag/include
+	        mkdir -vp ext/gl/include
+	        mkdir -vp ext/pango/include
+	        mkdir -vp tests/examples/audio/include
+	        mkdir -vp tests/examples/gio/include
+	        mkdir -vp tests/examples/playback/include
+	        mkdir -vp tests/examples/gl/generic/include
+	        mkdir -vp tests/examples/gl/gtk/include
+	        mkdir -vp tests/examples/overlay/include
+	        mkdir -vp tests/examples/seek/include
+	        mkdir -vp tests/examples/gl/gtk/filternovideooverlay/include
+	        mkdir -vp tests/examples/gl/gtk/filtervideooverlay/include
+	        mkdir -vp tests/examples/snapshot/include
+	        mkdir -vp tests/examples/gl/gtk/fxtest/include
+	        mkdir -vp tests/examples/gl/gtk/switchvideooverlay/include
+	        mkdir -vp tests/examples/gl/gtk/3dvideo/include
+	        generic_meson_ninja_install "-Dexamples=disabled -Dc_args=-fcommon" #"CFLAGS=-fcommon -Dexamples=false"
+	cd ..
+	download_and_unpack_file https://gstreamer.freedesktop.org/src/gst-plugins-bad/gst-plugins-bad-1.19.90.tar.xz gst-plugins-bad-1.19.90
+	cd gst-plugins-bad-1.19.90
+		apply_patch file://${top_dir}/gst-plugins-bad-opencv.patch
+		generic_meson_ninja_install "-Dexamples=disabled -Dc_args=-fcommon"
+	cd ..
 }
 
 build_audacity() {
@@ -5366,7 +5371,7 @@ build_lzo() {
 }
 
 build_dvbpsi() {
-  do_git_checkout http://code.videolan.org/videolan/libdvbpsi.git libdvbpsi
+  do_git_checkout https://code.videolan.org/videolan/libdvbpsi.git libdvbpsi 7860d9e7223bc0fd378ec2fc495a1fe91109258d
   cd libdvbpsi
     apply_patch file://${top_dir}/libdvbpsi.patch
     generic_configure_make_install
@@ -5890,7 +5895,7 @@ build_netcdf() {
 build_vlc() {
   # VLC normally requires its own libraries to be linked. However, it in fact builds with latest
   # versions of everything compiled here. At the moment..
-  do_git_checkout https://github.com/videolan/vlc.git vlc # 7b81168938cf2fd2217cbc5bf701ab23ad8655b9 # a047b31b978e4a3bd86b3c1a8f7dec9281d1a056
+  do_git_checkout https://github.com/videolan/vlc.git vlc  # 7b81168938cf2fd2217cbc5bf701ab23ad8655b9 # a047b31b978e4a3bd86b3c1a8f7dec9281d1a056
   cd vlc
     unset CFLAGS
     unset CXXFLAGS
@@ -5938,9 +5943,42 @@ build_vlc() {
   cd ..
 }
 
+build_vlc3() {
+	do_git_checkout https://github.com/videolan/vlc vlc 3.0.x
+	cd vlc
+		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vlc/0001-Use-libdir-for-plugins-on-msys2.patch
+		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vlc/0002-MinGW-w64-lfind-s-_NumOfElements-is-an-unsigned-int.patch
+		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vlc/0003-MinGW-w64-don-t-pass-static-to-pkg-config-if-SYS-min.patch
+		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vlc/0004-Revert-Win32-prefer-the-static-libraries-when-creati.patch
+		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vlc/0005-Remove-legacy-defines.patch
+		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vlc/0006-Linking-libqt_plugin-with-winmm.patch
+		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vlc/0007-Mingw-load-libraries-not-only-from-system32.patch
+#		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vlc/0011-Add-include-on-WINSTORE-for-QueueTimer-functions.patch
+#		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vlc/0012-Only-build-correct-modules-for-WINSTORE.patch
+		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vlc/0013-remove-AllocConsole-reference-for-WINSTORE.patch
+#		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vlc/0014-Remove-some-legacy-mingw.org-header-defines.patch
+		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vlc/0019-qt5-headers.patch
+		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vlc/0022-disable-stack-protector-flags.patch
+		# We don't restrict OpenCV to version 4 and above.
+		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vlc/0025-iovec-redefined.patch
+		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vlc/0029-recent-srt.patch
+		# Mingw-w64 doesn't _FORTIFY_SOURCE because glibc isn't there
+		apply_patch file://${top_dir}/vlc-fortify.patch
+		apply_patch file://${top_dir}/vlc-qt5-include.patch
+		apply_patch file://${top_dir}/vlc-disable-gl.patch
+		apply_patch file://${top_dir}/vlc-rename-libpthreadGC2.patch
+		export old_ld_library_path=${LD_LIBRARY_PATH}
+		export LD_LIBRARY_PATH=${mingw_w64_x86_64_prefix}/../lib/
+		export DSM_LIBS="-lws2_32 -ldsm"
+		generic_configure_make_install "LIBS=-lssp LIBS=-lsynchronization CFLAGS=-D_FORTIFY_SOURCE=0 --enable-qt --disable-dav1d --disable-dbus --disable-telx --disable-pulse --disable-opencv --disable-gles2 --disable-gst-decode --disable-ncurses"
+		export LD_LIBRARY_PATH=${old_ld_library_path}
+	cd ..
+}
+
 build_meson_cross() {
     rm -fv meson-cross.mingw.txt
     echo "[binaries]" >> meson-cross.mingw.txt
+endif
     echo "c = '${cross_prefix}gcc'" >> meson-cross.mingw.txt
     echo "cpp = '${cross_prefix}g++'" >> meson-cross.mingw.txt
     echo "ar = '${cross_prefix}ar'" >> meson-cross.mingw.txt
@@ -7428,7 +7466,7 @@ build_dependencies() {
 #  build_gtk2
 #  build_gtk
 #  build_gtkmm
-  build_graphicsmagicksnapshot
+#  build_graphicsmagicksnapshot
   build_eigen
   build_libdv
   #build_lash
@@ -7580,7 +7618,7 @@ build_apps() {
   #build_kodi
   # Because loudness scanner installs its own out-of-date libebur128, we must re-install our own.
 #  build_dvdstyler
-  #build_vlc
+  build_vlc3
 }
 
 # set some parameters initial values
