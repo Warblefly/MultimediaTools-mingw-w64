@@ -7143,7 +7143,7 @@ build_ffmpeg() {
 	local standard_options="--prefix=$mingw_w64_x86_64_prefix --logfile=/dev/tty"
 	local licensing_options="--enable-nonfree --enable-version3 --enable-gpl"
 	local configuration_options="--disable-static --enable-shared --enable-runtime-cpudetect --enable-gray --disable-w32threads"
-	local component_options="--enable-filter=frei0r --disable-decoder=aac" #--enable-decoder=aac"
+	local component_options="--enable-filter=frei0r --enable-decoder=aac" # fdk_aac gets much decoding wrong
 	local library_options="--enable-avisynth --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdc1394 --enable-libfdk-aac --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-gnutls --enable-libgsm --enable-libilbc --enable-libjack --enable-libklvanc --enable-liblensfun --enable-libpulse --enable-libmodplug --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopencv --enable-libopenmpt --enable-libopus --enable-librabbitmq --enable-librist --enable-librubberband --enable-librtmp --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libtesseract --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxavs2 --enable-libxvid --enable-libxml2 --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 --enable-decklink --enable-libmysofa --enable-opencl --enable-opengl --enable-vulkan"
 	local hardware_options="--enable-cuda-nvcc --enable-libmfx"
 	local toolchain_options="--arch=x86_64 --cross-prefix=$cross_prefix --enable-cross-compile --target-os=mingw32 --extra-version=Compiled_by_John_Warburton --enable-pic --nvccflags=-I/usr/local/cuda-11.4/targets/x86_64-linux/include"
@@ -7466,7 +7466,7 @@ build_dependencies() {
 #  build_gtk2
 #  build_gtk
 #  build_gtkmm
-#  build_graphicsmagicksnapshot
+  build_graphicsmagicksnapshot
   build_eigen
   build_libdv
   #build_lash
