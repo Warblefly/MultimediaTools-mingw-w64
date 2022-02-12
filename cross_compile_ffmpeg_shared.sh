@@ -1740,7 +1740,7 @@ build_gcal() {
 }
 
 build_unbound() {
-  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.14.0 "CFLAGS=-O1 libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
+  generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.15.0 "CFLAGS=-O1 libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
 }
 
 build_libxavs() {
@@ -5966,7 +5966,7 @@ build_vlc3() {
 		apply_patch file://${top_dir}/vlc-fortify.patch
 		apply_patch file://${top_dir}/vlc-qt5-include.patch
 		apply_patch file://${top_dir}/vlc-disable-gl.patch
-		apply_patch file://${top_dir}/vlc-rename-libpthreadGC2.patch
+#		apply_patch file://${top_dir}/vlc-rename-libpthreadGC2.patch
 		export old_ld_library_path=${LD_LIBRARY_PATH}
 		export LD_LIBRARY_PATH=${mingw_w64_x86_64_prefix}/../lib/
 		export DSM_LIBS="-lws2_32 -ldsm"
