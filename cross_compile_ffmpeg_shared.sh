@@ -2702,7 +2702,7 @@ build_libxml2() {
 #	do_cmake "-DLIBXML2_WITH_TESTS=OFF -DLIBXML2_WITH_PYTHON=OFF"
 #	do_make
 #	do_make_install
-    generic_configure_make_install "LIBS=-lws2_32 --without-readline --without-python --enable-ipv6 --disable-silent-rules"
+    generic_configure_make_install "LIBS=-lws2_32 --with-ftp --without-readline --without-python --enable-ipv6 --disable-silent-rules"
     sed -i.bak 's/-lxml2.*$/-lxml2 -lws2_32/' "$PKG_CONFIG_PATH/libxml-2.0.pc" # Shared applications need Winsock
     cp -v ${mingw_w64_x86_64_prefix}/bin/xml2-config ${mingw_w64_x86_64_prefix}/bin/x86_64-w64-mingw32-xml2-config
 
@@ -3226,14 +3226,18 @@ build_asdcplib-cth() {
     export CFLAGS="-DKM_WIN32"
     export LIBS="-lws2_32 -lcrypto -lssl -lgdi32 -lboost_filesystem-mt-x64 -lboost_system-mt-x64"
     apply_patch file://${top_dir}/asdcplib-cth-wscript.patch
-    apply_patch file://${top_dir}/asdcplib-cth-snprintf.patch
+#    apply_patch file://${top_dir}/asdcplib-cth-snprintf.patch
     # Don't look for boost libraries ending in -mt -- all our libraries are multithreaded anyway
     #sed -i.bak "s/boost_lib_suffix = '-mt'/boost_lib_suffix = ''/" wscript
 #    sed -i.bak "s/boost_lib_suffix = '-mt'/boost_lib_suffix = ''/" test/wscript
     export CC=x86_64-w64-mingw32-g++
     export CXX=x86_64-w64-mingw32-g++
     export AR=x86_64-w64-mingw32-ar
-    do_configure "configure -v -pp --prefix=${mingw_w64_x86_64_prefix} --libdir=${mingw_w64_x86_64_prefix}/lib --target-windows --check-cxx-compiler=gxx" "./waf"
+    rm -fv ./waf
+    wget https://waf.io/waf-2.0.23
+    mv -v ./waf-2.0.23 ./waf
+    chmod +x ./waf
+    do_configure "configure -vvv -pp --prefix=${mingw_w64_x86_64_prefix} --libdir=${mingw_w64_x86_64_prefix}/lib --target-windows-64 --check-cxx-compiler=gxx" "./waf"
     ./waf build || exit 1
     ./waf install || exit 1
         # The installation puts the pkgconfig file and the import DLL in the wrong place
@@ -4368,7 +4372,7 @@ build_boost() {
 }
 
 build_mkvtoolnix() {
-  do_git_checkout https://gitlab.com/mbunkus/mkvtoolnix mkvtoolnix main #  ab4caebe3df291ff65a66ca6bd4e4c47c5fbe6b4 # main #16772170030715717341c3d5460d3d1fecf501a4
+  do_git_checkout https://gitlab.com/mbunkus/mkvtoolnix mkvtoolnix 81cfb605dbf6f602fe370ddd4d7e53f4b0b94dc7 # main #  ab4caebe3df291ff65a66ca6bd4e4c47c5fbe6b4 # main #16772170030715717341c3d5460d3d1fecf501a4
 #    download_and_unpack_file https://mkvtoolnix.download/sources/mkvtoolnix-43.0.0.tar.xz mkvtoolnix-43.0.0
   cd mkvtoolnix # -43.0.0
     # Two libraries needed for mkvtoolnix
@@ -4397,6 +4401,7 @@ build_mkvtoolnix() {
     #rm -vf src/info/sys_windows.cpp
 #    apply_patch file://${top_dir}/mkvtoolnix-version.patch
 #    apply_patch file://${top_dir}/mkvtoolnix-tests.patch
+    export LIBS="-lole32"
     generic_configure "--with-boost=${mingw_w64_x86_64_prefix} --with-boost-system=boost_system-mt-x64 --with-boost-filesystem=boost_filesystem-mt-x64 --with-boost-date-time=boost_date_time-mt-x64 --with-boost-regex=boost_regex-mt-x64 --enable-qt --enable-static-qt=no --disable-static-qt --enable-optimization=yes --enable-debug=no"
     # Now we must prevent inclusion of sys_windows.cpp because our build uses shared libraries,
     # and this piece of code unfortunately tries to pull in a static version of the Windows Qt
@@ -4415,6 +4420,7 @@ build_mkvtoolnix() {
     export LD=${old_LD}
     export CXX=${old_CXX}
     export LD_LIBRARY_PATH=${old_ld_library_path}
+    unset LIBS
     #    export LDFLAGS=${orig_ldflags}
     # To run the program, mkvtoolnix-gui expects to see the 'magic' file from 'file'
     # in its bin directory.
@@ -5689,8 +5695,8 @@ build_libcxml(){
     # libdir must be set
     # We have to tell wscript not to look in /usr/local/lib. This ought not to be hard-coded
     sed -i.bak "s!libpath='/usr/local/!libpath='${mingw_w64_x86_64_prefix}/!" wscript
-    apply_patch file://${top_dir}/libcxml-boost.patch
-    do_configure "configure --target-windows -vv -pp --prefix=${mingw_w64_x86_64_prefix} --check-cxx-compiler=gxx" "./waf" # --libdir=${mingw_w64_x86_64_prefix}/lib WINRC=x86_64-w64-mingw32-windres CXX=x86_64-w64-mingw32-g++
+#    apply_patch file://${top_dir}/libcxml-boost.patch
+    do_configure "configure --target-windows-64 -vv -pp --prefix=${mingw_w64_x86_64_prefix} --check-cxx-compiler=gxx" "./waf" # --libdir=${mingw_w64_x86_64_prefix}/lib WINRC=x86_64-w64-mingw32-windres CXX=x86_64-w64-mingw32-g++
     ./waf build || exit 1
     ./waf install || exit 1
     # The installation puts the pkgconfig file and the DLL import library in the wrong place
@@ -5765,7 +5771,7 @@ build_libxml++ () {
 #  cd ..
 #  generic_download_and_install https://git.gnome.org/browse/libxml++/snapshot/libxml++-3.0.1.tar.xz libxml++-3.0.1
 #  export ACLOCAL_PATH=${orig_aclocalpath}
-  generic_download_and_install http://ftp.gnome.org/pub/GNOME/sources/libxml++/2.40/libxml++-2.40.1.tar.xz libxml++-2.40.1
+  generic_download_and_install http://ftp.gnome.org/pub/GNOME/sources/libxml++/2.42/libxml++-2.42.1.tar.xz libxml++-2.42.1 "--disable-documentation"
 }
 
 build_libexif() {
@@ -5961,7 +5967,7 @@ build_vlc3() {
 		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vlc/0022-disable-stack-protector-flags.patch
 		# We don't restrict OpenCV to version 4 and above.
 		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vlc/0025-iovec-redefined.patch
-		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vlc/0029-recent-srt.patch
+#		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vlc/0029-recent-srt.patch
 		# Mingw-w64 doesn't _FORTIFY_SOURCE because glibc isn't there
 		apply_patch file://${top_dir}/vlc-fortify.patch
 		apply_patch file://${top_dir}/vlc-qt5-include.patch
@@ -5970,7 +5976,8 @@ build_vlc3() {
 		export old_ld_library_path=${LD_LIBRARY_PATH}
 		export LD_LIBRARY_PATH=${mingw_w64_x86_64_prefix}/../lib/
 		export DSM_LIBS="-lws2_32 -ldsm"
-		generic_configure_make_install "LIBS=-lssp LIBS=-lsynchronization CFLAGS=-D_FORTIFY_SOURCE=0 --enable-qt --disable-dav1d --disable-dbus --disable-telx --disable-pulse --disable-opencv --disable-gles2 --disable-gst-decode --disable-ncurses"
+		export SRT_LIBS="-lws2_32 -lsrt"
+		generic_configure_make_install "LIBS=-lssp LIBS=-lsynchronization CFLAGS=-D_FORTIFY_SOURCE=0 --enable-qt --disable-dav1d --disable-dbus --disable-telx --disable-pulse --disable-opencv --disable-gles2 --disable-gst-decode --disable-ncurses --disable-silent-rules"
 		export LD_LIBRARY_PATH=${old_ld_library_path}
 	cd ..
 }
@@ -6974,15 +6981,15 @@ build_ffmpegnv() {
 }
 
 build_avisynthplus() {
-	do_git_checkout https://github.com/AviSynth/AviSynthPlus.git AviSynthPlus a8c863005d8e0cd7b8f74932df1533ded0b7280b
+	do_git_checkout https://github.com/AviSynth/AviSynthPlus.git AviSynthPlus #a8c863005d8e0cd7b8f74932df1533ded0b7280b
 	cd AviSynthPlus
 #		apply_patch file://${top_dir}/avisynthplus-memcpy.patch
-		apply_patch file://${top_dir}/AviSynthPlus-inlines.patch
-		apply_patch file://${top_dir}/avisynthplus-std.patch
-		do_cmake "-DBUILD_SHIBATCH=OFF"
+#		apply_patch file://${top_dir}/AviSynthPlus-inlines.patch
+#		apply_patch file://${top_dir}/avisynthplus-std.patch
+		do_cmake "-DBUILD_SHIBATCH=OFF -DHEADERS_ONLY=on"
 		mv -vf GNUmakefile dontusethis
-		do_make "all"
-		do_make_install
+		do_make "VersionGen install"
+#		do_make_install
 	cd ..
 }
 
