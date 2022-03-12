@@ -1720,7 +1720,7 @@ build_dcpomatic() {
     export CFLAGS="-Wno-format" # -DBOOST_ASIO_DISABLE_STD_FUTURE=1"
     export CXXFLAGS="-Wno-format"
     env
-    do_configure "configure WINRC=x86_64-w64-mingw32-windres CXX=x86_64-w64-mingw32-g++ -v -pp --prefix=${mingw_w64_x86_64_prefix} --target-windows --check-cxx-compiler=gxx --disable-tests" "./waf"
+    do_configure "configure WINRC=x86_64-w64-mingw32-windres CXX=x86_64-w64-mingw32-g++ -v -pp --prefix=${mingw_w64_x86_64_prefix} --target-windows-64 --check-cxx-compiler=gxx --disable-tests" "./waf"
     ./waf build -v || exit 1
     ./waf install || exit 1
     # Now put the graphics in the correct place
@@ -2622,7 +2622,7 @@ build_filezilla() {
     #export CFLAGS="-g -O0 -Wall"
     rm -vf configure Makefile.in config.in
 #    apply_patch file://${top_dir}/filezilla-wxWidgets.patch
-    apply_patch file://${top_dir}/filezilla-limits.patch
+#    apply_patch file://${top_dir}/filezilla-limits.patch
 #    apply_patch file://${top_dir}/filezilla-wx31.patch
     generic_configure_make_install "CFLAGS=-fcommon  --disable-dependency-tracking --with-pugixml=builtin"
 #    unset CFLAGS
@@ -2753,7 +2753,7 @@ build_libxmlsec() {
 }
 
 build_libaacs() {
-  do_git_checkout https://code.videolan.org/videolan/libaacs.git libaacs
+  do_git_checkout https://code.videolan.org/videolan/libaacs.git libaacs 381d0a09
   cd libaacs
     generic_configure_make_install "CFLAGS=-DGPGRT_ENABLE_ES_MACROS --with-libgcrypt-prefix=${mingw_w64_x86_64_prefix} --with-gpg-error-prefix=${mingw_w64_x86_64_prefix}"
   cd ..
@@ -5456,7 +5456,7 @@ build_aubio() {
 }
 
 build_libdsm() {
-  do_git_checkout https://github.com/videolabs/libdsm.git libdsm #03e98f930c45f4b9c34a98cc1f9a69c78567e9a3
+  do_git_checkout https://github.com/videolabs/libdsm.git libdsm 521108476e1b049c2cffba6a7b48a7e856de5674 #03e98f930c45f4b9c34a98cc1f9a69c78567e9a3
   cd libdsm
     apply_patch file://${top_dir}/libdsm-meson.patch
 #    apply_patch file://${top_dir}/libdsm-fortify.patch
@@ -6799,6 +6799,16 @@ build_graphicsmagick() {
   cd ..
 }
 
+build_freeglut() {
+	download_and_unpack_file https://downloads.sourceforge.net/project/freeglut/freeglut/3.2.2/freeglut-3.2.2.tar.gz freeglut-3.2.2
+	cd freeglut-3.2.2
+		export GNU_HOST=x86_64-w64-mingw32
+		do_cmake "-DGNU_HOST=$GNU_HOST -DCMAKE_TOOLCHAIN_FILE=mingw_cross_toolchain.cmake"
+		do_make
+		do_make_install
+	cd ..
+}
+
 build_graphicsmagicksnapshot() {
 	# This retrieves the namne of the first .xz file, which is usually the most recent snapshot.
   export gm_filename=`curl -s ftp://ftp.icm.edu.pl/pub/unix/graphics/GraphicsMagick/snapshots/ --stderr - | grep tar\.xz | awk '{print $9}' | tail -n 1`
@@ -7382,6 +7392,7 @@ build_dependencies() {
   build_libuuid
   build_libass # needs freetype, needs fribidi, needs fontconfig
   build_intel_quicksync_mfx
+  build_freeglut
   build_glew
 #  build_libopenjpeg
 #  build_libopenjpeg2

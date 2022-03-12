@@ -1,25 +1,3 @@
---- wscript.orig	2020-04-13 14:16:23.792665488 +0100
-+++ wscript	2020-04-13 14:18:23.775643143 +0100
-@@ -173,8 +173,8 @@
-         conf.check(lib='winmm', uselib_store='WINMM', msg="Checking for library winmm")
-         conf.check(lib='ksuser', uselib_store='KSUSER', msg="Checking for library ksuser")
-         conf.check(lib='setupapi', uselib_store='SETUPAPI', msg="Checking for library setupapi")
--        boost_lib_suffix = '-mt'
--        boost_thread = 'boost_thread-mt'
-+        boost_lib_suffix = '-mt-x64'
-+        boost_thread = 'boost_thread-mt-x64'
-         conf.check_cxx(fragment="""
-                                #include <boost/locale.hpp>\n
-                                int main() { std::locale::global (boost::locale::generator().generate ("")); }\n
-@@ -188,7 +188,7 @@
-     if conf.env.TARGET_LINUX or conf.env.TARGET_OSX:
-         conf.env.append_value('CXXFLAGS', '-DDCPOMATIC_POSIX')
-         boost_lib_suffix = ''
--        boost_thread = 'boost_thread'
-+        boost_thread = 'boost_thread-mt-x64'
-         conf.env.append_value('LINKFLAGS', '-pthread')
- 
-     # Linux
 --- wscript.orig	2021-09-26 19:50:41.124601700 +0100
 +++ wscript	2021-09-26 19:50:53.824601700 +0100
 @@ -150,7 +150,6 @@
