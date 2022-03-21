@@ -1,14 +1,3 @@
---- wscript.orig	2019-02-11 13:00:59.033847787 +0000
-+++ wscript	2019-02-11 13:01:15.501654981 +0000
-@@ -150,7 +150,7 @@
-         conf.check_cfg(package='libcxml', atleast_version='0.15.2', args='--cflags --libs', uselib_store='CXML', mandatory=True)
- 
-     if conf.options.target_windows:
--        boost_lib_suffix = '-mt'
-+        boost_lib_suffix = '-mt-x64'
-     else:
-         boost_lib_suffix = ''
- 
 --- cscript.orig	2019-02-11 13:24:48.444500934 +0000
 +++ cscript	2019-02-11 13:25:30.620452820 +0000
 @@ -83,7 +83,7 @@
@@ -20,28 +9,6 @@
                    'libxml2-2.dll', 'libxmlsec1-openssl.dll', 'libxmlsec1.dll', 'zlib1.dll', 'libglib-2.0-0.dll', 'libgmodule-2.0-0.dll', 'libgobject-2.0-0.dll',
                    'libsigc-2.0-0.dll', 'libiconv-2.dll', 'liblzma-5.dll', 'libxslt-1.dll', 'libintl-8.dll', 'libpcre-1.dll', 'libffi-6.dll']:
              shutil.copyfile('%s/bin/%s' % (target.windows_prefix, f), os.path.join(d, f))
---- wscript.orig	2019-02-11 13:34:19.645984076 +0000
-+++ wscript	2019-02-11 13:34:46.589795611 +0000
-@@ -207,7 +207,7 @@
-     create_version_cc(bld, VERSION)
- 
-     if bld.env.TARGET_WINDOWS:
--        boost_lib_suffix = '-mt'
-+        boost_lib_suffix = '-mt-x64'
-     else:
-         boost_lib_suffix = ''
- 
---- test/wscript.orig	2019-02-11 13:48:19.642895426 +0000
-+++ test/wscript	2019-02-11 13:48:38.346720754 +0000
-@@ -33,7 +33,7 @@
- 
- def configure(conf):
-     if conf.options.target_windows:
--        boost_lib_suffix = '-mt'
-+        boost_lib_suffix = '-mt-x64'
-     else:
-         boost_lib_suffix = ''
- 
 --- wscript.orig	2021-04-21 18:14:31.320000000 +0100
 +++ wscript	2021-04-21 18:14:56.440000000 +0100
 @@ -196,7 +196,7 @@

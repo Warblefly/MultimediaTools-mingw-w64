@@ -3274,7 +3274,7 @@ build_libdcp() {
 #    apply_patch file://${top_dir}/libdcp-shared_ptr.patch
 #    apply_patch_p1 "http://main.carlh.net/gitweb/?p=libdcp.git;a=patch;h=730ba2273b136ad5a3bfc1a185d69e6cc50a65af"
     export CXX=x86_64-w64-mingw32-g++
-    do_configure "configure -v -pp --prefix=${mingw_w64_x86_64_prefix} --target-windows --check-cxx-compiler=gxx --enable-debug --disable-tests" "./waf" # --disable-gcov
+    do_configure "configure -v -pp --prefix=${mingw_w64_x86_64_prefix} --target-windows-64 --check-cxx-compiler=gxx --enable-debug --disable-tests" "./waf" # --disable-gcov
     ./waf build || exit 1
     ./waf install || exit 1
     unset CXX
@@ -3757,7 +3757,7 @@ build_vim() {
 
 
 build_mpv() {
-  do_git_checkout https://github.com/mpv-player/mpv.git mpv # 4c516a064a8246c9067eee32578a7a78feb371dc
+  do_git_checkout https://github.com/mpv-player/mpv.git mpv # 27c38eac1040cd781f39d977ce53adcd65ddcfb6 # 4c516a064a8246c9067eee32578a7a78feb371dc
   cd mpv
 #    apply_patch file://${top_dir}/mpv-disable-rectangle.patch
     export oldpath="${PATH}"
@@ -7156,7 +7156,7 @@ build_librsvg() {
 }
 
 build_ffmpeg() {
-	do_git_checkout https://github.com/FFmpeg/FFmpeg.git ffmpeg_git #912f125c4224da6c6b07e53b1c0d3fbdb429a989 #57b5ec6ba7df442caebc401c4a7ef3ebc066b519 #4ff73add5dbe6c319d693355be44df2e17a0b8bf #05c9f6f4ef818cf1e7fdef8e118c9497e58326af #  b06082d1d5d6eeed5f477456beba087dcf9432bc
+	do_git_checkout https://github.com/FFmpeg/FFmpeg.git ffmpeg_git # e645a1ddb90a863e129108aad9aa7e2d417f3615 #912f125c4224da6c6b07e53b1c0d3fbdb429a989 #57b5ec6ba7df442caebc401c4a7ef3ebc066b519 #4ff73add5dbe6c319d693355be44df2e17a0b8bf #05c9f6f4ef818cf1e7fdef8e118c9497e58326af #  b06082d1d5d6eeed5f477456beba087dcf9432bc
 	local standard_options="--prefix=$mingw_w64_x86_64_prefix --logfile=/dev/tty"
 	local licensing_options="--enable-nonfree --enable-version3 --enable-gpl"
 	local configuration_options="--disable-static --enable-shared --enable-runtime-cpudetect --enable-gray --disable-w32threads"
