@@ -1,0 +1,11 @@
+--- src/lib/util.cc.orig	2022-04-12 13:34:55.052494300 +0100
++++ src/lib/util.cc	2022-04-12 13:35:37.692494300 +0100
+@@ -1136,7 +1136,7 @@
+ 	}
+ 
+ 	if (!boost::filesystem::exists(liberation_normal)) {
+-		liberation_normal = "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf";
++		liberation_normal = "C:/Windows/Fonts/LiberationSans-Regular.ttf";
+ 	}
+ 
+ 	return liberation_normal;

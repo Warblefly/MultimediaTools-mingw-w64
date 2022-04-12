@@ -1710,6 +1710,7 @@ build_dcpomatic() {
 ##    apply_patch file://${top_dir}/dcpomatic-test-wscript.patch
 ##    apply_patch file://${top_dir}/dcpomatic-libsub.patch
 ##    apply_patch file://${top_dir}/dcpomatic-LogColorspace.patch
+    apply_patch file://${top_dir}/dcpomatic-font-fix.patch
      # M_PI is missing in mingw-w64
     sed -i.bak 's/M_PI/3.14159265358979323846/g' src/lib/audio_filter.cc
      # The RC file looks for wxWidgets 3.0 rc, but it's 3.1 in our build
@@ -6194,24 +6195,24 @@ build_vulkan() {
 
     #download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Loader/archive/sdk-1.1.73.0.tar.gz Vulkan-Loader-sdk-1.1.73.0
     #download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Headers/archive/sdk-1.1.92.0.tar.gz Vulkan-Headers-sdk-1.1.92.0
-    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Headers/archive/v1.2.194.tar.gz Vulkan-Headers-1.2.194
+    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Headers/archive/v1.3.211.tar.gz Vulkan-Headers-1.3.211
     #cd Vulkan-Loader-sdk-1.1.73.0
-    cd Vulkan-Headers-1.2.194
+    cd Vulkan-Headers-1.3.211
         do_cmake
         do_make
         do_make_install
     cd ..
-    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Loader/archive/v1.2.194.tar.gz Vulkan-Loader-1.2.194
-    cd Vulkan-Loader-1.2.194
+    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Loader/archive/v1.3.211.tar.gz Vulkan-Loader-1.3.211
+    cd Vulkan-Loader-1.3.211
         #apply_patch_p1 file://${top_dir}/001-build-fix.patch
         #apply_patch_p1 file://${top_dir}/002-proper-def-files-for-32bit.patch
         #apply_patch_p1 file://${top_dir}/003-generate-pkgconfig-files.patch
         #apply_patch_p1 file://${top_dir}/004-installation-commands.patch
         #apply_patch_p1 file://${top_dir}/005-mingw-dll-name.patch
         #apply_patch file://${top_dir}/006-commit.patch
-	apply_patch_p1 https://github.com/KhronosGroup/Vulkan-Loader/commit/8c0ee92.patch
+#	apply_patch_p1 https://github.com/KhronosGroup/Vulkan-Loader/commit/8c0ee92.patch
         apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vulkan-loader/002-proper-def-files-for-32bit.patch
-        apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vulkan-loader/003-generate-pkgconfig-files.patch
+#        apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vulkan-loader/003-generate-pkgconfig-files.patch
         apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vulkan-loader/004-disable-suffix-in-static-lib.patch
 	apply_patch file://${top_dir}/Vulkan-Loader-pc-for-qt-fix.patch
         #echo "#define SPIRV_TOOLS_COMMIT_ID \"8d8a71278bf9e83dd0fb30d5474386d30870b74d\"" > spirv_tools_commit_id.h
@@ -6220,7 +6221,7 @@ build_vulkan() {
         export CFLAGS="-D_WIN32_WINNT=0x0A00 -D__STDC_FORMAT_MACROS"
         export CPPFLAGS="-D_WIN32_WINNT=0x0A00 -D__STDC_FORMAT_MACROS"
         export CXXFLAGS="-D_WIN32_WINNT=0x0A00 -D__USE_MINGW_ANSI_STDIO -D__STDC_FORMAT_MACROS -fpermissive"
-        do_cmake "-DCMAKE_BUILD_TYPE=Release -DBUILD_DEMOS=OFF -DBUILD_TESTS=OFF" # -DDISABLE_BUILD_PATH_DECORATION=ON -DDISABLE_BUILDTGT_DIR_DECORATION=ON"
+        do_cmake "-DENABLE_WERROR=OFF -DCMAKE_BUILD_TYPE=Release -DBUILD_DEMOS=OFF -DBUILD_TESTS=OFF -DCMAKE_VERBOSE_MAKEFILE=ON" # -DDISABLE_BUILD_PATH_DECORATION=ON -DDISABLE_BUILDTGT_DIR_DECORATION=ON"
         #apply_patch file://${top_dir}/vulkan-threads.patch
 #        apply_patch file://${top_dir}/vulkan-cfgmgr.patch
         do_make
