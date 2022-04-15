@@ -1692,7 +1692,7 @@ build_opendcp() {
 }
 
 build_dcpomatic() {
-  do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic v2.16.x #805d4a48fa6e4d8e28fd582a2ae6ba78b8343144 main # v2.15.x # fc1441eeaa3c0805c37809685ea7a3f5ca173666 # v2.15.x #97193e96c637ca92eeaf6e72ee38aa628308973b # v2.15.x #402fa9a3577975e9cf9728c815da1b17796fe325 # v2.15.x #9cff6ec974a4d0270091fe5c753483b0d53ecd46
+  do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic v2.16.8 #805d4a48fa6e4d8e28fd582a2ae6ba78b8343144 main # v2.15.x # fc1441eeaa3c0805c37809685ea7a3f5ca173666 # v2.15.x #97193e96c637ca92eeaf6e72ee38aa628308973b # v2.15.x #402fa9a3577975e9cf9728c815da1b17796fe325 # v2.15.x #9cff6ec974a4d0270091fe5c753483b0d53ecd46
 #  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic new-ffmpeg-take2 #edbccd8d04a33f9e8d03677d8ebc671f40b0f822 #v2.15.x # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
 #  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.123" dcpomatic-2.15.123
   cd dcpomatic
@@ -3259,7 +3259,7 @@ build_asdcplib-cth() {
 
 build_libdcp() {
   # Branches are slightly askew. 1.0 is where development takes place
-  do_git_checkout https://github.com/cth103/libdcp.git libdcp v1.8.x #d39880eef211a296fa8ef4712cdef5945d08527c c6665c157bdb6903661d21c571c7d112b54ad8fd # d989a83517fd77aa241c1423ac00cfed62d567fe # f3058b2f1b48ec613bda5781fe97e83a0dca83a9
+  do_git_checkout https://github.com/cth103/libdcp.git libdcp 04e215a7688239cb47fc86e8396756c685f338a1 #v1.8.13 #d39880eef211a296fa8ef4712cdef5945d08527c c6665c157bdb6903661d21c571c7d112b54ad8fd # d989a83517fd77aa241c1423ac00cfed62d567fe # f3058b2f1b48ec613bda5781fe97e83a0dca83a9
 #  do_git_checkout git://git.carlh.net/git/libdcp.git libdcp #b75d977a38f039fd68ed5d4055ae70b4bf631603 # v1.6.x # 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
 #  download_and_unpack_file https://carlh.net/downloads/libdcp/libdcp-1.6.17.tar.bz2 libdcp-1.6.17
   cd libdcp
@@ -4373,7 +4373,7 @@ build_boost() {
 }
 
 build_mkvtoolnix() {
-  do_git_checkout https://gitlab.com/mbunkus/mkvtoolnix mkvtoolnix 81cfb605dbf6f602fe370ddd4d7e53f4b0b94dc7 # main #  ab4caebe3df291ff65a66ca6bd4e4c47c5fbe6b4 # main #16772170030715717341c3d5460d3d1fecf501a4
+  do_git_checkout https://gitlab.com/mbunkus/mkvtoolnix mkvtoolnix release-58.0.0 # 81cfb605dbf6f602fe370ddd4d7e53f4b0b94dc7 # main #  ab4caebe3df291ff65a66ca6bd4e4c47c5fbe6b4 # main #16772170030715717341c3d5460d3d1fecf501a4
 #    download_and_unpack_file https://mkvtoolnix.download/sources/mkvtoolnix-43.0.0.tar.xz mkvtoolnix-43.0.0
   cd mkvtoolnix # -43.0.0
     # Two libraries needed for mkvtoolnix
@@ -4403,7 +4403,7 @@ build_mkvtoolnix() {
 #    apply_patch file://${top_dir}/mkvtoolnix-version.patch
 #    apply_patch file://${top_dir}/mkvtoolnix-tests.patch
     export LIBS="-lole32"
-    generic_configure "--with-boost=${mingw_w64_x86_64_prefix} --with-boost-system=boost_system-mt-x64 --with-boost-filesystem=boost_filesystem-mt-x64 --with-boost-date-time=boost_date_time-mt-x64 --with-boost-regex=boost_regex-mt-x64 --enable-qt --enable-static-qt=no --disable-static-qt --enable-optimization=yes --enable-debug=no"
+    generic_configure "--with-boost=${mingw_w64_x86_64_prefix} --with-boost-system=boost_system-mt-x64 --with-boost-filesystem=boost_filesystem-mt-x64 --with-boost-date-time=boost_date_time-mt-x64 --with-boost-regex=boost_regex-mt-x64 --disable-gui --disable-qt5 --disable-qt6 --enable-optimization=yes --enable-debug=no"
     # Now we must prevent inclusion of sys_windows.cpp because our build uses shared libraries,
     # and this piece of code unfortunately tries to pull in a static version of the Windows Qt
     # platform library libqwindows.a
@@ -5978,7 +5978,7 @@ build_vlc3() {
 		export LD_LIBRARY_PATH=${mingw_w64_x86_64_prefix}/../lib/
 		export DSM_LIBS="-lws2_32 -ldsm"
 		export SRT_LIBS="-lws2_32 -lsrt"
-		generic_configure_make_install "LIBS=-lssp LIBS=-lsynchronization CFLAGS=-D_FORTIFY_SOURCE=0 --enable-qt --disable-dav1d --disable-dbus --disable-telx --disable-pulse --disable-opencv --disable-gles2 --disable-gst-decode --disable-ncurses --disable-silent-rules"
+		generic_configure_make_install "LIBS=-lssp LIBS=-lsynchronization CFLAGS=-D_FORTIFY_SOURCE=0 --disable-qt --disable-dav1d --disable-dbus --disable-telx --disable-pulse --disable-opencv --disable-gles2 --disable-gst-decode --disable-ncurses --disable-silent-rules"
 		export LD_LIBRARY_PATH=${old_ld_library_path}
 	cd ..
 }
@@ -6633,7 +6633,7 @@ build_libjson() {
 do_git_checkout https://github.com/json-c/json-c.git json-c #da76ee26e7977cc4d796ed8c7e263d95cd94a199
     cd json-c
 #    	apply_patch file://${top_dir}/json-c-control.patch
-	do_cmake "-DENABLE_THREADING=ON -DDISABLE_WERROR=ON"
+	do_cmake "-DENABLE_THREADING=ON -DDISABLE_WERROR=ON -DBUILD_TESTING=OFF"
 	do_make
 	do_make_install
         #generic_configure_make_install "--enable-threading"
@@ -7550,7 +7550,7 @@ build_apps() {
   build_lsdvd
   build_fdkaac-commandline
 #  build_cdrecord
-  build_qt
+  #build_qt
   #build_qt6
   #build_kf5_config
   #build_kf5_coreaddons
@@ -7610,8 +7610,8 @@ build_apps() {
   build_cuetools
   build_xerces
 #  build_graphicsmagick
-  build_libdcp # Now needs graphicsmagick
-  build_libsub
+  #build_libdcp # Now needs graphicsmagick
+  #build_libsub
 #  build_pavucontrol
   build_gstreamer
   build_mkvtoolnix
@@ -7627,11 +7627,11 @@ build_apps() {
 #  build_movit
 #  build_xygrib
   #build_DJVnew # Requires FFmpeg libraries
-  build_qjackctl
+#  build_qjackctl
 #  build_jackmix
-  build_flacon
+  #build_flacon
   build_get_iplayer
-  build_dcpomatic
+  #build_dcpomatic
 #  build_loudness-scanner Broken by FFmpeg API changes. Sorry.
   build_synaesthesia
   #build_kodi

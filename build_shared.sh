@@ -125,7 +125,7 @@ Unicode true
  *
  **/
 
-SetCompress off
+;SetCompress off
 !ifndef ENVVARUPDATE_FUNCTION
 !define ENVVARUPDATE_FUNCTION
 !verbose push
@@ -436,8 +436,8 @@ LicenseForceSelection radiobuttons "Accept" "Decline"
 ShowInstDetails show
 ShowUninstDetails show
 ;SetCompressor /SOLID lzma
-;SetCompressor lzma
-SetCompressorDictSize 512
+SetCompressor lzma
+;SetCompressorDictSize 512
 XPStyle off
 
 
@@ -449,7 +449,7 @@ Page instfiles
 
 Section "install"
 BringToFront
-SetCompress off
+;SetCompress off
 setOutPath $INSTDIR
 
 setOutPath "$INSTDIR\bin"
@@ -552,7 +552,7 @@ SectionEnd
 
 
 Section "uninstall"
-SetCompress off
+;SetCompress off
 RMDir /r "$INSTDIR\bin"
 RMDir /r "$INSTDIR\lib"
 RMDir /r "$INSTDIR\plugins"
@@ -560,7 +560,7 @@ RMDir /r "$INSTDIR\share"
 RMDir /r "$INSTDIR\doc"
 Delete "$INSTDIR\uninstall.exe"
 SectionEnd
-SetCompress off
+;SetCompress off
 EOF
 
   # Make the Windows installer
