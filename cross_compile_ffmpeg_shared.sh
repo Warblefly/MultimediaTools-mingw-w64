@@ -740,8 +740,8 @@ do_cmake_and_install() {
     rm -f already_* # reset so that make will run again if option just changed
     local cur_dir2=$(pwd)
     echo doing cmake in $cur_dir2 with PATH=$PATH  with extra_args=$extra_args like this:
-    echo cmake –G”Unix Makefiles” . -DENABLE_STATIC_RUNTIME=0 -DENABLE_SHARED_RUNTIME=1 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_RANLIB=${cross_prefix}ranlib -DCMAKE_C_COMPILER=${cross_prefix}gcc -DCMAKE_CXX_COMPILER=${cross_prefix}g++ -DCMAKE_RC_COMPILER=${cross_prefix}windres -DCMAKE_INSTALL_PREFIX=$mingw_w64_x86_64_prefix $extra_args
-    cmake –G”Unix Makefiles” . -DENABLE_STATIC_RUNTIME=0 -DENABLE_SHARED_RUNTIME=1 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_RANLIB=${cross_prefix}ranlib -DCMAKE_C_COMPILER=${cross_prefix}gcc -DCMAKE_CXX_COMPILER=${cross_prefix}g++ -DCMAKE_RC_COMPILER=${cross_prefix}windres -DCMAKE_INSTALL_PREFIX=$mingw_w64_x86_64_prefix $extra_args || exit 1
+    echo cmake $source_dir $extra_args -DBUILD_SHARED_LIBS=1 -DBUILD_STATIC_LIBS=0 -DENABLE_STATIC_RUNTIME=0 -DENABLE_SHARED_RUNTIME=1 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_RANLIB=${cross_prefix}ranlib -DCMAKE_C_COMPILER=${cross_prefix}gcc -DCMAKE_CXX_COMPILER=${cross_prefix}g++ -DCMAKE_Fortran_COMPILER=${cross_prefix}gfortran -DCMAKE_RC_COMPILER=${cross_prefix}windres -DCMAKE_INSTALL_PREFIX=$mingw_w64_x86_64_prefix -DCMAKE_BUILD_TYPE=Release || exit 1
+    cmake $source_dir $extra_args -DBUILD_SHARED_LIBS=1 -DBUILD_STATIC_LIBS=0 -DENABLE_STATIC_RUNTIME=0 -DENABLE_SHARED_RUNTIME=1 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_RANLIB=${cross_prefix}ranlib -DCMAKE_C_COMPILER=${cross_prefix}gcc -DCMAKE_CXX_COMPILER=${cross_prefix}g++ -DCMAKE_Fortran_COMPILER=${cross_prefix}gfortran -DCMAKE_RC_COMPILER=${cross_prefix}windres -DCMAKE_INSTALL_PREFIX=$mingw_w64_x86_64_prefix -DCMAKE_BUILD_TYPE=Release || exit 1
     touch $touch_name || exit 1
   fi
   do_make_and_make_install
@@ -3929,12 +3929,19 @@ build_libbs2b() {
 }
 
 build_libgame-music-emu() {
-  download_and_unpack_file https://bitbucket.org/mpyne/game-music-emu/downloads/game-music-emu-0.6.2.tar.xz game-music-emu-0.6.2
-  cd game-music-emu-0.6.2
-    apply_patch file://${top_dir}/game-music-emu.patch
-    # sed -i.bak "s|SHARED|STATIC|" gme/CMakeLists.txt
-    do_cmake_and_install
+  download_and_unpack_file https://src.fedoraproject.org/repo/pkgs/game-music-emu/game-music-emu-0.6.3.tar.xz/sha512/4b20c69ced696bb879c34bcb7ce0f5f276642458d4cebca8ede673eed7d50664e527626e2077f85a3411a26660f1b3f01e43cccd72945e1edb2994421efeb552/game-music-emu-0.6.3.tar.xz game-music-emu-0.6.3
+  cd game-music-emu-0.6.3
+    apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-libgme/game-music-emu_414e0d993548_22e5c689f33f.patch
+    apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-libgme/game-music-emu_86a449eec09d_013d4676c689.patch
+    apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-libgme/game-music-emu_b3d158a30492_414e0d993548.patch
 
+#    apply_patch file://${top_dir}/game-music-emu.patch
+    # sed -i.bak "s|SHARED|STATIC|" gme/CMakeLists.txt
+    mkdir -p build
+    cd build
+      do_cmake ".." "-GNinja -DENABLE_UBSAN=OFF"
+    cd ..
+    do_ninja_and_ninja_install
   cd ..
 }
 
