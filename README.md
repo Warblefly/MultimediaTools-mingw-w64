@@ -1,5 +1,5 @@
 # MultimediaTools W64
-Scripts and patches to cross-compile, for Windows 64-bit, many multimedia utilities, including FFmpeg, Dcp-o-matic, SoX, the mpv player, and all the BBC Avid-compatible MXF utilities. Also includes all Qt5 (version 5.11.2) libraries that will compile on mingw-w64, GraphicMagick, Poppler-utils (for PDF files) and many, many more. 
+Scripts and patches to cross-compile, for Windows 64-bit, many multimedia utilities, including FFmpeg, SoX, the mpv player, and all the BBC Avid-compatible MXF utilities. Also includes GraphicMagick, Poppler-utils (for PDF files), filezilla and many, many more. 
 
 # How To Install
 
@@ -29,7 +29,7 @@ You might also want to play with the defaults for the mpv player, in %APPDATA%\R
 
 
 # How To Compile
-0. Compiling is becoming increasingly difficult. Source packages are constantly being updated (for which we rejoice, of course), and I am keeping up with these changes quite well. However, some changes that might break compilation go un-noticed because I only accomplish a completely clean build about once a month. Otherwise, packages such as GCC and QT remain at reasonable recent release levels, with some patches applied. This does not affect the latest and greatest versions of ffmpeg, mpv, vim/gvim, x264, x265 and their associated libraries that are all compiled from development sources.
+0. Compiling is becoming increasingly difficult. Source packages are constantly being updated (for which we rejoice, of course), and I am keeping up with these changes quite well. However, some changes that might break compilation go un-noticed because I only accomplish a completely clean build about once a month. This does not affect the latest and greatest versions of ffmpeg, mpv, vim/gvim, x264, x265 and their associated libraries that are all compiled from development sources.
 1. Ensure your development requirement is adequate. I now develop on a virtual machine, using Debian Testing running under WSL2. Remember to include contrib and non-free in your sources under /etc/apt/sources.list
 2. Update everything.
 ```
@@ -195,26 +195,6 @@ With these scripts, you can compile binaries, ready to run on 64-bit Windows. Ma
  * gdbus — a tool for working with D-Bus objects
  * gio-querymodules — GIO cache creation
  * qdbus — interrogates a D-Bus server
- * qdbusviewer — QT5 application that interrogates a D-Bus server
-* libaom — the moving image compression format under development by Google and others
-* DCP-o-matic
- * dcpomatic2 — a very flexible DCP creation package
- * dcpdiff — compares metadata and content, ignoring timestamps, of two DCPs
- * dcpdumpsub — extracts subtitles from DCP MXF
- * dcpinfo — outputs information about a DCP
- * dcpomatic2_batch — dcpomatic batch worker
- * dcpomatic2_cli — CLI to DCP-o-matic server
- * dcpomatic2_create — create DCP
- * dcpomatic2_kdm — DCP-o-matic KDM creator with GUI
- * dcpomatic2_kdm_cli — CLI DCP-o-matic KDM creator
- * dcpomatic2_server — DCP-o-matic server 
- * dcpomatic_server_cli — CLI to DCP-o-matic server 
-* OpenDCP — create SMTPE and Interop DCP packages
- * opendcp_j2k — creates OpenDCP compliant JPEG2000 images in XYZ colourspace from TIFF files
- * opendcp_largefile — tests for large-file support
- * opendcp_mxf — wraps J2K files or audio files in OpenDCP compliant MXF containers
- * opendcp_xml — creates the XML files that provide metadata for MXF containers within a DCP
- * opendcp_xml_verify — verifies the digital signature of an XML DCP file
 * openssl — package to generate, test and manipulate cryptographic keys
  * openssl — shell into libopenssl, for generating, testing and manipulating cryptographic keys and encryption/decryption
 * libebur128 — library and utilities for measuring loudness to EBU R.128 standard
@@ -299,7 +279,6 @@ With these scripts, you can compile binaries, ready to run on 64-bit Windows. Ma
  * jack_wait — check for Jack existence, or wait, until it either quits or gets started
  * jack_zombie — close down Jack server
  * jackd — Jack audio server daemon
-* qjackctl — visual control utility for the Jack Audio Daemon
 * libGLEW — the GNU OpenGL Extension Wrangler library
  * glewinfo — write OpenGL information to glewinfo.txt
  * visualinfo — comprehensively lists local machine's OpenGL capabilities
@@ -378,16 +357,6 @@ With these scripts, you can compile binaries, ready to run on 64-bit Windows. Ma
   * cacaplay — replays libcaca animation files
   * cacaview — display BMP images on a text terminal
   * img2txt — convert a BMP image to text, with a choice of encoding
-* libQT5
-  * canbusutil — display data received via the CanBUS automotive protocol
-  * qml — interprets/plays QML language
-  * qmlscene — loads and displays QML documents even before the application is complete
-  * qmltestrunner — runs tests in QML language programs
-  * qtdiag — retrieve much information relating to QT5's interaction with a host
-  * qtpaths — command line client to QStandardPaths
-  * qtplugininfo — Qt5 plugin meta-data dumper
-  * xmlpatterns — runs XQuery queries
-  * xmlpatternsvalidator — validates XML patterns
 * Tesseract — well-maintained optical character recognition (OCR) package
  * tesseract — command-line OCR
 * libtermcap
@@ -554,7 +523,6 @@ With these scripts, you can compile binaries, ready to run on 64-bit Windows. Ma
   * uconv — intelligently converts from one character set to another following ICU standards
 * Mediainfo — libraries and executable to parse many types of media files
  * mediainfo — command-line media file parser
- * mediainfo-gui — GUI to mediainfo. Icons lacking at time of writing
 * Get_Iplayer — package to download and save BBC iPlayer programmes, and hear live radio. Licence-fee payers may also watch live TV
  * get_iplayer.cmd — command-line launcher for get_iplayer
  * get_iplayer.pl — Perl program interacting with BBC iPlayer media servers
@@ -578,16 +546,6 @@ With these scripts, you can compile binaries, ready to run on 64-bit Windows. Ma
  * ngettext — displays native language translation of a textual message whose grammatical form depends on a number
  * recode-sr-latin — recodes Serbian text from Cyrillic to Latin script, STDIN->STDOUT
  * xgettext — extracts translatable strings from input files
-* DJV — versatile and accurate professional image sequence decoder and viewer
-  * djv_convert — batch processing and conversion of images and video files
-  * djv_info — report basic information on all video and image files within a directory
-  * djv_ls — directory listing
-  * djv_view — versatile viewer for high-end video files or image sequences
-  * djvGlslTest — test graphic manipulation capabilities
-  * djvImagePlayTest — test rendering speed
-  * djvImageViewTest — test rendering capability
-  * djvTest
-  * djvWidgetTest — test many different widget types
 * GTK+-3 The GIMP Toolkit widget set, version 3
 * doxygen — generate and update in-code documentation
 * liba52 — decode and separate A52 audio (Dolby AC-3)
@@ -665,6 +623,8 @@ BACKGROUND
 ==========
 
 Supporting the cross-compilation of the very versatile FFmpeg utilities under mingw-w64, Roger Pack with Zeranoe (closed now) and others publish a set of patches and a build script to, first, compile a working mingw-w64 environment on a POSIX system, then compile a very full FFmpeg and associated libraries and utilities within mingw-w64 ready for installation on a Windows 64-bit system.
+
+In April 2022, I removed QT, because its libraries take a very long time to compile (for good reasons), but all utilities relying on them are also available as reliable and trustworthy binaries from their developers (e.g. DCP-o-Matic), and are better supported with regards to matters such as FFmpeg integration than I could ever possibly manage.
 
 With grateful thanks to the Zeranoe and other developers especially Roger Pack, I have extended this build system for my own purposes. At first, this was developed using the Cygwin compatibility suite for Windows, but now it is developed on GNU/Linux.
 
