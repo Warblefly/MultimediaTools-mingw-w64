@@ -6,7 +6,7 @@
  #include "magick/utility.h"
 -#if defined(MSWINDOWS)
 -#  if defined(__MINGW32__)
--#    define _MSC_VER
+-#    define _MSC_VER 1200
 -#  else
 -#    include <win32config.h>
 -#  endif
@@ -23,7 +23,7 @@
  #if defined(HasXML)
 -#  if defined(MSWINDOWS)
 -#    if defined(__MINGW32__)
--#      define _MSC_VER
+-#      define _MSC_VER 1200
 -#    else
 -#      include <win32config.h>
 -#    endif
@@ -40,7 +40,7 @@
  #include "magick/utility.h"
 -#if defined(MSWINDOWS)
 -#  if defined(__MINGW32__)
--#    define _MSC_VER
+-#    define _MSC_VER 1200
 -#  else
 -#    include <win32config.h>
 -#  endif

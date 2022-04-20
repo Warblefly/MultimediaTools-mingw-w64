@@ -3867,24 +3867,24 @@ build_traverso() {
 
 
 build_wx() {
-	do_git_checkout https://github.com/wxWidgets/wxWidgets.git wxWidgets # WX_3_0_BRANCH # 27d0e7804c0c4a3366e3c800a5475d05083fc290 #91402a0de882ee2b8c07f66e5b5d041c25e48fe6 #0f5c2851f40facef6fe8e7f603df2cc6a90250a1 #WX_3_0_BRANCH #  8c8557812be37697d4c2ffdad35141a51a9bc71d # WX_3_0_BRANCH
+#	do_git_checkout https://github.com/wxWidgets/wxWidgets.git wxWidgets # WX_3_0_BRANCH # 27d0e7804c0c4a3366e3c800a5475d05083fc290 #91402a0de882ee2b8c07f66e5b5d041c25e48fe6 #0f5c2851f40facef6fe8e7f603df2cc6a90250a1 #WX_3_0_BRANCH #  8c8557812be37697d4c2ffdad35141a51a9bc71d # WX_3_0_BRANCH
 #  download_and_unpack_file https://github.com/wxWidgets/wxWidgets/archive/v3.0.4.tar.gz wxWidgets-3.0.4
-  cd wxWidgets
-    git submodule update --init 3rdparty/catch
-    git submodule update --init 3rdparty/nanosvg
+#  cd wxWidgets
+#    git submodule update --init 3rdparty/catch
+#    git submodule update --init 3rdparty/nanosvg
 #    apply_patch_p1 https://github.com/wxWidgets/wxWidgets/commit/73e9e18ea09ffffcaac50237def0d9728a213c02.patch
 #    rm -v configure
-    generic_configure_make_install "CFLAGS=-Wnarrowing CXXFLAGS=-Wnarrowing --with-msw --enable-monolithic --disable-debug --disable-debug_flag --enable-unicode --enable-optimise --with-libpng --with-libjpeg --with-libtiff --with-opengl --disable-option-checking" # --enable-compat30" # --with-opengl --disable-mslu --enable-unicode --enable-monolithic --with-regex=builtin --disable-precomp-headers --enable-graphics_ctx --enable-webview --enable-mediactrl --with-libpng=sys --with-libxpm=builtin --with-libjpeg=sys --with-libtiff=sys" # "--without-opengl  --enable-checklst --with-regex=yes --with-msw --with-libpng=sys --with-libjpeg=sys --with-libtiff=sys --with-zlib=yes --enable-graphics_ctx --enable-webview --enable-mediactrl --disable-official_build --disable-option-checking" # --with-regex=yes
+#    generic_configure_make_install "CFLAGS=-Wnarrowing CXXFLAGS=-Wnarrowing --with-msw --enable-monolithic --disable-debug --disable-debug_flag --enable-unicode --enable-optimise --with-libpng --with-libjpeg --with-libtiff --with-opengl --disable-option-checking" # --enable-compat30" # --with-opengl --disable-mslu --enable-unicode --enable-monolithic --with-regex=builtin --disable-precomp-headers --enable-graphics_ctx --enable-webview --enable-mediactrl --with-libpng=sys --with-libxpm=builtin --with-libjpeg=sys --with-libtiff=sys" # "--without-opengl  --enable-checklst --with-regex=yes --with-msw --with-libpng=sys --with-libjpeg=sys --with-libtiff=sys --with-zlib=yes --enable-graphics_ctx --enable-webview --enable-mediactrl --disable-official_build --disable-option-checking" # --with-regex=yes
     # wx-config needs to be visible to this script when compiling
-    cp -v ${mingw_w64_x86_64_prefix}/bin/wx-config ${mingw_w64_x86_64_prefix}/../bin/wx-config
+#    cp -v ${mingw_w64_x86_64_prefix}/bin/wx-config ${mingw_w64_x86_64_prefix}/../bin/wx-config
     # wxWidgets doesn't include the DLL run-time libraries in the right place.
-    cd ${mingw_w64_x86_64_prefix}/lib
-      for filename in ./libwx*dll.a; do cp -v "./$filename" "./$(echo $filename | sed -e 's/-x86_64-w64-mingw32//g')";  done
-    cd -
-    cp -v ${mingw_w64_x86_64_prefix}/lib/wx*dll ${mingw_w64_x86_64_prefix}/bin
-  cd ..
+#    cd ${mingw_w64_x86_64_prefix}/lib
+#      for filename in ./libwx*dll.a; do cp -v "./$filename" "./$(echo $filename | sed -e 's/-x86_64-w64-mingw32//g')";  done
+#    cd -
+#    cp -v ${mingw_w64_x86_64_prefix}/lib/wx*dll ${mingw_w64_x86_64_prefix}/bin
+#  cd ..
   generic_download_and_install https://github.com/wxWidgets/wxWidgets/releases/download/v3.0.5.1/wxWidgets-3.0.5.1.tar.bz2 wxWidgets-3.0.5.1 "CFLAGS=-Wno-narrowing CXXFLAGS=-Wno-narrowing --with-msw --enable-monolithic --disable-debug --disable-debug_flag --enable-unicode --enable-optimize --with-libpng --with-libjpeg --with-libtiff --with-opengl --disable-option-checking --enable-compat28 --enable-compat30"
-  cp -v ${mingw_w64_x86_64_prefix}/lib/wx*dll ${mingw_w64_x86_64_prefix}/bin
+#  cp -v ${mingw_w64_x86_64_prefix}/lib/wx*dll ${mingw_w64_x86_64_prefix}/bin
   #do_git_checkout https://github.com/wxWidgets/wxWidgets.git wxWidgetsLATEST
 #  download_and_unpack_file https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxWidgets-3.1.1.tar.bz2 wxWidgets-3.1.1
 #  cd wxWidgets-3.1.1
@@ -4157,7 +4157,7 @@ build_exiv2() {
 #  download_and_unpack_file https://exiv2.org/builds/exiv2-0.27.3-Source.tar.gz exiv2-0.27.3-Source
   cd exiv2
 #    apply_patch file://${top_dir}/exiv2-makernote.patch
-     cpu_count=1 # svn_version.h gets written too early otherwise
+#     cpu_count=1 # svn_version.h gets written too early otherwise
     # export LIBS="-lws2_32 -lwldap32"
 #     apply_patch file://${top_dir}/exiv2-vsnprintf.patch
      apply_patch file://${top_dir}/exiv2-time.patch
@@ -4175,7 +4175,7 @@ build_exiv2() {
 #    cp -Rv config/* .
 #    generic_configure_make_install
 #    do_make_install "VERBOSE=1"
-    cpu_count=$original_cpu_count
+#    cpu_count=$original_cpu_count
   cd ..
 #  unset LIBS
 }
@@ -4262,7 +4262,7 @@ build_libopenmpt() {
 	download_and_unpack_file https://lib.openmpt.org/files/libopenmpt/src/libopenmpt-0.5.7+release.autotools.tar.gz libopenmpt-0.5.7+release.autotools
 	cd libopenmpt-0.5.7+release.autotools
 		apply_patch file://${top_dir}/libopenmpt-memory.patch
-		generic_configure_make_install "--without-portaudiocpp"
+		generic_configure_make_install "--without-portaudiocpp --without-portaudio"
 	cd ..
 }
 
@@ -4341,8 +4341,8 @@ build_fmt() {
 }
 
 build_boost() {
-  download_and_unpack_file "https://ftp.osuosl.org/pub/blfs/conglomeration/boost/boost_1_77_0.tar.bz2" boost_1_77_0
-  cd boost_1_77_0
+  download_and_unpack_file "https://ftp.osuosl.org/pub/blfs/conglomeration/boost/boost_1_79_0.tar.bz2" boost_1_79_0
+  cd boost_1_79_0
   #  cd libs/serialization
   #    apply_patch file://${top_dir}/boost-codecvt.patch
   #  cd ../..
@@ -5993,7 +5993,6 @@ build_vlc3() {
 build_meson_cross() {
     rm -fv meson-cross.mingw.txt
     echo "[binaries]" >> meson-cross.mingw.txt
-endif
     echo "c = '${cross_prefix}gcc'" >> meson-cross.mingw.txt
     echo "cpp = '${cross_prefix}g++'" >> meson-cross.mingw.txt
     echo "ar = '${cross_prefix}ar'" >> meson-cross.mingw.txt
@@ -6819,25 +6818,26 @@ build_freeglut() {
 
 build_graphicsmagicksnapshot() {
 	# This retrieves the namne of the first .xz file, which is usually the most recent snapshot.
-  export gm_filename=`curl -s ftp://ftp.icm.edu.pl/pub/unix/graphics/GraphicsMagick/snapshots/ --stderr - | grep tar\.xz | awk '{print $9}' | tail -n 1`
-  export gm_directory=${gm_filename%.tar.xz}
-  echo "Latest snapshot is: $gm_filename..."
-  download_and_unpack_file ftp://ftp.icm.edu.pl/pub/unix/graphics/GraphicsMagick/snapshots/$gm_filename $gm_directory
-  cd $gm_directory
-    apply_patch file://${top_dir}/graphicmagick-mingw64.patch
-    mkdir -pv build
-    cd build
-      sed -i.bak 's/Libs: -L\${libdir} -lGraphicsMagick/Libs: -L${libdir} -lGraphicsMagick -lfreetype -lbz2 -lz -llcms2 -lpthread -lpng16 -ltiff -lgdi32 -lgdiplus -ljpe
-  g -lwebp -ljasper/' ../magick/GraphicsMagick.pc.in
-      # References to a libcorelib are not needed. The library doesn't exist on my platformi
-      export ac_cv_path_xml2_config=${mingw_w64_x86_64_prefix}/bin/xml2-config
-      do_configure "--with-magick-plus-plus --disable-static --enable-magick-compat --enable-shared --with-modules --host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-broken-coders --without-x
- LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix} CPPFLAGS=-I${mingw_w64_x86_64_prefix}" "../configure"
-      do_make_install || exit 1
-      unset ac_cv_path_xml2_config
-      cp -v config/* ${mingw_w64_x86_64_prefix}/share/GraphicsMagick-1.4/config/
+#  export gm_filename=`curl -s ftp://ftp.icm.edu.pl/pub/unix/graphics/GraphicsMagick/snapshots/ --stderr - | grep tar\.xz | awk '{print $9}' | tail -n 1`
+#  export gm_directory=${gm_filename%.tar.xz}
+#  echo "Latest snapshot is: $gm_filename..."
+#  download_and_unpack_file ftp://ftp.icm.edu.pl/pub/unix/graphics/GraphicsMagick/snapshots/$gm_filename $gm_directory
+#  cd $gm_directory
+    download_and_unpack_file https://downloads.sourceforge.net/project/graphicsmagick/graphicsmagick-snapshots/GraphicsMagick-1.4.020220417.tar.xz GraphicsMagick-1.4.020220417
+    cd GraphicsMagick-1.4.020220417
+
+#        apply_patch file://${top_dir}/graphicmagick-mingw64.patch
+        mkdir -pv build
+        cd build
+          sed -i.bak 's/Libs: -L\${libdir} -lGraphicsMagick/Libs: -L${libdir} -lGraphicsMagick -lfreetype -lbz2 -lz -llcms2 -lpthread -lpng16 -ltiff -lgdi32 -lgdiplus -ljpeg -lwebp -ljasper/' ../magick/GraphicsMagick.pc.in
+          # References to a libcorelib are not needed. The library doesn't exist on my platformi
+          export ac_cv_path_xml2_config=${mingw_w64_x86_64_prefix}/bin/xml2-config
+          do_configure "--with-magick-plus-plus --disable-static --enable-magick-compat --enable-shared --with-modules --host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-broken-coders --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix} CPPFLAGS=-I${mingw_w64_x86_64_prefix}" "../configure"
+          do_make_install || exit 1
+          unset ac_cv_path_xml2_config
+          cp -v config/* ${mingw_w64_x86_64_prefix}/share/GraphicsMagick-1.4/config/
+        cd ..
     cd ..
-  cd ..
 }
 
 #build_graphicsmagick() {
@@ -7169,7 +7169,7 @@ build_ffmpeg() {
 	local licensing_options="--enable-nonfree --enable-version3 --enable-gpl"
 	local configuration_options="--disable-static --enable-shared --enable-runtime-cpudetect --enable-gray --disable-w32threads"
 	local component_options="--enable-filter=frei0r --enable-decoder=aac" # fdk_aac gets much decoding wrong
-	local library_options="--enable-avisynth --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdc1394 --enable-libfdk-aac --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-gnutls --enable-libgsm --enable-libilbc --enable-libjack --enable-libklvanc --enable-liblensfun --enable-libpulse --enable-libmodplug --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopencv --enable-libopenmpt --enable-libopus --enable-librabbitmq --enable-librist --enable-librubberband --enable-librtmp --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libtesseract --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxavs2 --enable-libxvid --enable-libxml2 --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 --enable-decklink --enable-libmysofa --enable-opencl --enable-opengl --enable-vulkan"
+	local library_options="--enable-avisynth --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdc1394 --enable-libfdk-aac --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-gnutls --enable-libgsm --enable-libilbc --enable-libklvanc --enable-liblensfun --enable-libmodplug --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopencv --enable-libopenmpt --enable-libopus --enable-librabbitmq --enable-librist --enable-librubberband --enable-librtmp --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libtesseract --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxavs2 --enable-libxvid --enable-libxml2 --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 --enable-decklink --enable-libmysofa --enable-opencl --enable-opengl --enable-vulkan"
 	local hardware_options="--enable-cuda-nvcc --enable-libmfx"
 	local toolchain_options="--arch=x86_64 --cross-prefix=$cross_prefix --enable-cross-compile --target-os=mingw32 --extra-version=Compiled_by_John_Warburton --enable-pic --nvccflags=-I/usr/local/cuda-11.4/targets/x86_64-linux/include"
 	local developer_options="--disable-debug --enable-stripping"
@@ -7236,8 +7236,8 @@ build_dependencies() {
   build_libtool
   build_pkg-config # because MPV likes to see a mingw version of pkg-config
   build_iconv # Because Cygwin's iconv is buggy, and loops on certain character set conversions
-  build_libffi # for glib among others
-  build_locked_sstream # for dcp-o-matic dcpomatic
+  #build_libffi # for glib among others
+  #build_locked_sstream # for dcp-o-matic dcpomatic
   #build_doxygen
   build_libdlfcn # ffmpeg's frei0r implentation needs this <sigh>
   build_zlib # rtmp depends on it [as well as ffmpeg's optional but handy --enable-zlib]
@@ -7249,13 +7249,13 @@ build_dependencies() {
   build_snappy # For certain types of very fast video compression
   build_libpng # for openjpeg, needs zlib
   build_gmp # for libnettle
-  build_pcre # for glib and others
+  #build_pcre # for glib and others
   build_pcre2
   build_libnettle # needs gmp
   build_openssl
   build_openssl11
-  build_libexpat
-  build_unbound
+  #build_libexpat
+  #build_unbound
   build_libunistring # Needed for gnutls
   build_libtasn1
   build_p11kit # Needed for gnutls
@@ -7265,7 +7265,7 @@ build_dependencies() {
 #  build_guile # Needed for autogen
 #  build_autogen # Required for gnutls to see libopts
 #  build_iconv # mplayer I think needs it for freetype [just it though], vlc also wants it.  looks like ffmpeg can use it too...not sure what for :)
-  build_libidn2 # Required for gnutls
+  #build_libidn2 # Required for gnutls
   build_gnutls # needs libnettle, can use iconv it appears
 #  build_openssl
 #  build_gomp   # Not yet.
@@ -7276,7 +7276,7 @@ build_dependencies() {
   build_libflite # too big for the ffmpeg distro...
   build_sdlgit # needed for ffplay to be created
   build_sdl2
-  build_uchardet
+  #build_uchardet
   build_libopus
   build_libopencore
   build_libogg
@@ -7290,7 +7290,7 @@ build_dependencies() {
   build_libtheora # needs libvorbis, libogg
   build_orc
   build_libschroedinger # needs orc
-  build_libebur128
+  #build_libebur128
   build_regex # needed by ncurses and cddb among others
   build_termcap
   build_ncurses
@@ -7302,18 +7302,18 @@ build_dependencies() {
   build_freetype # uses bz2/zlib seemingly
   build_libexpat
   build_libxml2
-  build_libxslt
+  #build_libxslt
   build_libgpg-error # Needed by libgcrypt
   build_libgcrypt # Needed by libxmlsec
-  build_libxmlsec
-  build_libaacs
+  #build_libxmlsec
+  #build_libaacs
   build_libbdplus
   build_lcms2 # Openjpeg2 and others require this
 #  build_libudfread # Needed by libbluray but built as submodule
   build_libbluray # needs libxml2, freetype [FFmpeg, VLC use this, at least]
   build_libopenjpeg
   build_libopenjpeg2
-  build_libopenjpeg2carl2
+  #build_libopenjpeg2carl2
   build_libjpeg_turbo # mplayer can use this, VLC qt might need it? [replaces libjpeg],
                       # Place after other jpeg libraries so headers are over-written
   build_libdvdcss
@@ -7365,25 +7365,25 @@ build_dependencies() {
                                              # doesn't actually remove the installed library
   fi
   build_libfftw
-  build_leqm_nrt
+  #build_leqm_nrt
   build_libchromaprint
   build_libsndfile
   # build_libnvenc
-  build_live555
+  #build_live555
   build_googletest
   build_glib
-  build_mmcommon
-  build_libsigc++
-  build_glibmm
-  build_libxml++
-  build_libcxml
-  build_dbus
+  #build_mmcommon
+  #build_libsigc++
+  #build_glibmm
+  #build_libxml++
+  #build_libcxml
+  #build_dbus
   build_zstd
   build_libarchive
   build_jasper # JPEG2000 codec for GraphicsMagick among others
-  build_atk
-  build_atkmm
-  build_gdk_pixbuf
+  #build_atk
+  #build_atkmm
+  #build_gdk_pixbuf
   build_mimedb
   build_vamp-sdk
   build_libsamplerate # for librubberband
@@ -7397,7 +7397,7 @@ build_dependencies() {
   build_twolame
   build_fontconfig # needs expat, needs freetype (at least uses it if available), can use iconv, but I believe doesn't currently
   build_libfribidi
-  build_libuuid
+  #build_libuuid
   build_libass # needs freetype, needs fribidi, needs fontconfig
   build_intel_quicksync_mfx
   build_freeglut
@@ -7405,23 +7405,23 @@ build_dependencies() {
 #  build_libopenjpeg
 #  build_libopenjpeg2
   build_libwebp
-  build_filewalk
+  #build_filewalk
   build_curl_early
-  build_libproj
-  build_libnova
+  #build_libproj
+  #build_libnova
   build_poppler
   build_SWFTools
   build_ASIOSDK
   build_eigen
-  build_portaudio_without_jack_cmake
-  build_jack
-  build_portaudio_with_jack_cmake
+  #build_portaudio_without_jack_cmake
+  #build_jack
+  #build_portaudio_with_jack_cmake
 #  build_portaudio_with_jack_cpp
 #  build_openblas # Not until we make a Fortran compiler
   build_libopenmpt
   build_opencv
   build_frei0r
-  build_libjson
+  #build_libjson
   build_liba52
   build_leptonica
   build_serd
@@ -7429,7 +7429,7 @@ build_dependencies() {
   build_lv2
   build_sratom
   build_lilv
-  build_pixman
+  #build_pixman
   build_libssh
   #build_pthread_stubs
   #build_drm
@@ -7441,18 +7441,18 @@ build_dependencies() {
   build_shaderc
   build_vulkan
   build_angle
-  build_cairo
-  build_cairomm
+  #build_cairo
+  #build_cairomm
 #  build_pango
 #  build_pangomm
   build_icu
   build_harfbuzz
-  build_pango
-  build_pangomm
+  #build_pango
+  #build_pangomm
   build_iculehb
   build_icu_with_iculehb
-  build_libcroco
-  build_portablexdr
+  #build_libcroco
+  #build_portablexdr
   # build_lash
   build_tesseract
   if [[ "$non_free" = "y" ]]; then
@@ -7466,21 +7466,21 @@ build_dependencies() {
   build_ladspa # Not a real build: just copying the API header file into place
   build_librubberband # for mpv
   build_zmq
-#  build_libtasn1
-  build_cppzmq
-  build_libdsm
+  build_libtasn1
+  #build_cppzmq
+  #build_libdsm
   build_dvbpsi
   build_libebml
   build_libmatroska
-  build_pugixml
+  #build_pugixml
   build_1394camera
   build_libdc1394
   build_libmpeg2
   build_vim
-  build_ilmbase
+  #build_ilmbase
 #  build_hdf
-  build_netcdf
-  build_cunit
+  #build_netcdf
+  #build_cunit
   build_libmysofa
   build_libiberty
   build_libspatialaudio
@@ -7488,40 +7488,40 @@ build_dependencies() {
 #  build_librsvg
 #  build_gobject_introspection
   build_libepoxy
-  build_rtaudio
+  #build_rtaudio
 #  build_gtk2
 #  build_gtk
 #  build_gtkmm
   build_graphicsmagicksnapshot
-  build_eigen
+  #build_eigen
   build_libdv
   #build_lash
   build_aom
-  build_asdcplib-cth
-  build_cmark
+  #build_asdcplib-cth
+  #build_cmark
   build_opusfile
   build_libopusenc
 #  build_medialibrary
-  build_yamlcc
-  build_tinyxml
-  build_openmaxil
-  build_ocio
-  build_otio
+  #build_yamlcc
+  #build_tinyxml
+  #build_openmaxil
+  #build_ocio
+  #build_otio
   build_GLM
   build_GLFW
-  build_FSeq
-  build_picoJSON
-  build_rapidjson
+  #build_FSeq
+  #build_picoJSON
+  #build_rapidjson
   build_libaec
-  build_gctpc
+  #build_gctpc
   build_avisynthplus
   build_liblensfun
   build_rabbitmq
   build_rist
   build_srt
   build_libvmaf
-  build_swig
-  build_libposixrandom
+#  build_swig
+  #build_libposixrandom
 #  build_eccodes
 #  build_cdo
   #build_uavs3d
@@ -7595,7 +7595,7 @@ build_apps() {
   build_dvdbackup
   build_codec2
   build_ffmpegnv
-  build_pulseaudio
+#  build_pulseaudio
   build_ffmpeg
   #build_pamix
   #build_meterbridge
@@ -7644,7 +7644,7 @@ build_apps() {
   #build_kodi
   # Because loudness scanner installs its own out-of-date libebur128, we must re-install our own.
 #  build_dvdstyler
-  build_vlc3
+  #build_vlc3
 }
 
 # set some parameters initial values
