@@ -6523,10 +6523,11 @@ build_pugixml() {
 }
 
 build_harfbuzz() {
-  download_and_unpack_file https://github.com/harfbuzz/harfbuzz/releases/download/2.7.2/harfbuzz-2.7.2.tar.xz harfbuzz-2.7.2
+  download_and_unpack_file https://github.com/harfbuzz/harfbuzz/archive/refs/tags/4.2.0.tar.gz harfbuzz-4.2.0
+#  download_and_unpack_file https://github.com/harfbuzz/harfbuzz/releases/download/2.7.2/harfbuzz-2.7.2.tar.xz harfbuzz-2.7.2
 #  download_and_unpack_file https://www.freedesktop.org/software/harfbuzz/release/harfbuzz-1.7.6.tar.bz2 harfbuzz-1.7.6
 #  do_git_checkout https://github.com/behdad/harfbuzz.git harfbuzz
-  cd harfbuzz-2.7.2
+  cd harfbuzz-4.2.0
     generic_meson_ninja_install
 #    generic_configure_make_install
 
@@ -6823,8 +6824,8 @@ build_graphicsmagicksnapshot() {
 #  echo "Latest snapshot is: $gm_filename..."
 #  download_and_unpack_file ftp://ftp.icm.edu.pl/pub/unix/graphics/GraphicsMagick/snapshots/$gm_filename $gm_directory
 #  cd $gm_directory
-    download_and_unpack_file https://downloads.sourceforge.net/project/graphicsmagick/graphicsmagick-snapshots/GraphicsMagick-1.4.020220417.tar.xz GraphicsMagick-1.4.020220417
-    cd GraphicsMagick-1.4.020220417
+    download_and_unpack_file https://downloads.sourceforge.net/project/graphicsmagick/graphicsmagick-snapshots/GraphicsMagick-1.4.020220420.tar.xz GraphicsMagick-1.4.020220420
+    cd GraphicsMagick-1.4.020220420
 
 #        apply_patch file://${top_dir}/graphicmagick-mingw64.patch
         mkdir -pv build
