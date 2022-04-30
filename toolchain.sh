@@ -38,7 +38,7 @@ cd binutils
 #	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-revert-PLT-elision.patch | patch -p1
 #	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-readelf-other-sym-info.patch | patch -p1
 #	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-2.27-aarch64-ifunc.patch | patch -p1
-	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-do-not-link-with-static-libstdc++.patch | patch -p1
+#	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-do-not-link-with-static-libstdc++.patch | patch -p1
 #	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/f34/f/binutils-gold-ignore-discarded-note-relocs.patch | patch -p1
 #	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-special-sections-in-groups.patch | patch -p1
 #	curl https://src.fedoraproject.org/rpms/mingw-binutils/raw/rawhide/f/binutils-fix-testsuite-failures.patch | patch -p1
@@ -179,7 +179,7 @@ cd gcc
 		tar xvvf mpfr-4.1.0.tar.xz && ln -sv mpfr-4.1.0 mpfr
 		wget https://ftp.gnu.org/gnu/mpc/mpc-1.2.1.tar.gz || exit 1
 		tar xvvf mpc-1.2.1.tar.gz && ln -sv mpc-1.2.1 mpc
-		wget https://www.mirrorservice.org/sites/ftp.slackware.com/pub/slackware/slackware64-current/source/l/isl/isl-0.24.tar.xz || exit 1
+		wget https://libisl.sourceforge.io/isl-0.24.tar.xz || exit 1
 		tar xvvf isl-0.24.tar.xz && ln -sv isl-0.24 isl
 		touch gcc_accessories_source
 	else

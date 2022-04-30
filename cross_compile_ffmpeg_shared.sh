@@ -4276,7 +4276,7 @@ build_mpg123() {
 build_libcaca() {
   local cur_dir2=$(pwd)/libcaca
 #  do_git_checkout https://github.com/cacalabs/libcaca libcaca
-  download_and_unpack_file http://caca.zoy.org/raw-attachment/wiki/libcaca/libcaca-0.99.beta19.tar.gz libcaca-0.99.beta19
+  download_and_unpack_file https://src.fedoraproject.org/repo/pkgs/libcaca/libcaca-0.99.beta19.tar.gz/a3d4441cdef488099f4a92f4c6c1da00/libcaca-0.99.beta19.tar.gz libcaca-0.99.beta19
   cd libcaca-0.99.beta19
   # vsnprintf is defined both in libcaca and by mingw-w64-4.0.1 so we'll keep the system definition
   apply_patch_p1 file://${top_dir}/libcaca-vsnprintf.patch
@@ -6476,6 +6476,17 @@ build_aom() {
   cd ..
 }
 
+build_svtav1() {
+	do_git_checkout https://github.com/OpenVisualCloud/SVT-AV1.git SVT-AV1
+	cd SVT-AV1
+		cd Build
+		do_cmake .. "-DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_PROCESSOR=AMD64"
+		do_make
+		do_make_install
+		cd ..
+	cd ..
+}
+
 build_libdash() {
   do_git_checkout https://github.com/bitmovin/libdash.git libdash
   cd libdash
@@ -6824,9 +6835,20 @@ build_graphicsmagicksnapshot() {
 #  echo "Latest snapshot is: $gm_filename..."
 #  download_and_unpack_file ftp://ftp.icm.edu.pl/pub/unix/graphics/GraphicsMagick/snapshots/$gm_filename $gm_directory
 #  cd $gm_directory
-    download_and_unpack_file https://downloads.sourceforge.net/project/graphicsmagick/graphicsmagick-snapshots/GraphicsMagick-1.4.020220420.tar.xz GraphicsMagick-1.4.020220420
-    cd GraphicsMagick-1.4.020220420
-
+# What's the filename? Python program returns appropriate directory and filename
+    oIFS=$IFS
+    IFS=";"
+    read -r -a params <<< `${top_dir}/get_graphicsmagicsnapshot.py`
+    echo "We believe url is ${params[0]} and directory is ${params[1]}."
+    export filename="${params[0]}"
+    export directory="${params[1]}"
+    echo "We believe filename is ${filename} and directory is ${directory}"
+    download_and_unpack_file ${filename} ${directory}
+    echo "Changing directory to ${directory}"
+    cd ${directory}
+    echo "Now inside..."
+    pwd
+    IFS=$oIFS
 #        apply_patch file://${top_dir}/graphicmagick-mingw64.patch
         mkdir -pv build
         cd build
@@ -6838,6 +6860,8 @@ build_graphicsmagicksnapshot() {
           unset ac_cv_path_xml2_config
           cp -v config/* ${mingw_w64_x86_64_prefix}/share/GraphicsMagick-1.4/config/
         cd ..
+    unset filename
+    unset directory
     cd ..
 }
 
@@ -7170,7 +7194,7 @@ build_ffmpeg() {
 	local licensing_options="--enable-nonfree --enable-version3 --enable-gpl"
 	local configuration_options="--disable-static --enable-shared --enable-runtime-cpudetect --enable-gray --disable-w32threads"
 	local component_options="--enable-filter=frei0r --enable-decoder=aac" # fdk_aac gets much decoding wrong
-	local library_options="--enable-avisynth --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdc1394 --enable-libfdk-aac --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-gnutls --enable-libgsm --enable-libilbc --enable-libklvanc --enable-liblensfun --enable-libmodplug --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopencv --enable-libopenmpt --enable-libopus --enable-librabbitmq --enable-librist --enable-librubberband --enable-librtmp --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libtesseract --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxavs2 --enable-libxvid --enable-libxml2 --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 --enable-decklink --enable-libmysofa --enable-opencl --enable-opengl --enable-vulkan"
+	local library_options="--enable-libsvtav1 --enable-avisynth --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdc1394 --enable-libfdk-aac --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-gnutls --enable-libgsm --enable-libilbc --enable-libklvanc --enable-liblensfun --enable-libmodplug --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopencv --enable-libopenmpt --enable-libopus --enable-librabbitmq --enable-librist --enable-librubberband --enable-librtmp --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libtesseract --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxavs2 --enable-libxvid --enable-libxml2 --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 --enable-decklink --enable-libmysofa --enable-opencl --enable-opengl --enable-vulkan"
 	local hardware_options="--enable-cuda-nvcc --enable-libmfx"
 	local toolchain_options="--arch=x86_64 --cross-prefix=$cross_prefix --enable-cross-compile --target-os=mingw32 --extra-version=Compiled_by_John_Warburton --enable-pic --nvccflags=-I/usr/local/cuda-11.4/targets/x86_64-linux/include"
 	local developer_options="--disable-debug --enable-stripping"
@@ -7498,6 +7522,7 @@ build_dependencies() {
   build_libdv
   #build_lash
   build_aom
+  build_svtav1
   #build_asdcplib-cth
   #build_cmark
   build_opusfile
