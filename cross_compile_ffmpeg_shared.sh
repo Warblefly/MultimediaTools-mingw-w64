@@ -868,22 +868,24 @@ build_libx264() {
 build_librtmp() {
   #  download_and_unpack_file http://rtmpdump.mplayerhq.hu/download/rtmpdump-2.3.tgz rtmpdump-2.3 # has some odd configure failure
   #  cd rtmpdump-2.3/librtmp
-
-  do_git_checkout git://git.ffmpeg.org/rtmpdump rtmpdump # 883c33489403ed360a01d1a47ec76d476525b49e # trunk didn't build once...this one i sstable
-  cd rtmpdump
-    sed -i.bak 's/SYS=posix/SYS=mingw/' Makefile
-    sed -i.bak 's/SYS=posix/SYS=mingw/' librtmp/Makefile
-    cd librtmp
-      do_make_install "CRYPTO=GNUTLS OPT=-O2 CROSS_COMPILE=$cross_prefix SHARED=yes prefix=$mingw_w64_x86_64_prefix SYS=mingw"
+  if [ ! -f rtmp_built ]; then
+	  do_git_checkout git://git.ffmpeg.org/rtmpdump rtmpdump # 883c33489403ed360a01d1a47ec76d476525b49e # trunk didn't build once...this one i sstable
+	  cd rtmpdump
+	    sed -i.bak 's/SYS=posix/SYS=mingw/' Makefile
+	    sed -i.bak 's/SYS=posix/SYS=mingw/' librtmp/Makefile
+	    cd librtmp
+	      do_make_install "CRYPTO=GNUTLS OPT=-O2 CROSS_COMPILE=$cross_prefix SHARED=yes prefix=$mingw_w64_x86_64_prefix SYS=mingw"
       #make install CRYPTO=GNUTLS OPT='-O2 -g' "CROSS_COMPILE=$cross_prefix" SHARED=no "prefix=$mingw_w64_x86_64_prefix" || exit 1
-      sed -i.bak 's/-lrtmp -lz/-lrtmp -lwinmm -lz/' "$PKG_CONFIG_PATH/librtmp.pc"
-    cd ..
+	      sed -i.bak 's/-lrtmp -lz/-lrtmp -lwinmm -lz -lnettle -lgmp/' "$PKG_CONFIG_PATH/librtmp.pc"
+	    cd ..
    # TODO do_make here instead...
-    make SYS=mingw CRYPTO=GNUTLS OPT=-O2 CROSS_COMPILE=$cross_prefix SHARED=yes LIB_GNUTLS="`pkg-config --libs gnutls` -lz" || exit 1
+	    make SYS=mingw CRYPTO=GNUTLS OPT=-O2 CROSS_COMPILE=$cross_prefix SHARED=yes LIB_GNUTLS="`pkg-config --libs gnutls` -lz" || exit 1
    # The makefile doesn't install
-    cp -fv rtmpdump.exe rtmpgw.exe rtmpsrv.exe rtmpsuck.exe "${mingw_w64_x86_64_prefix}/bin"
+	    cp -fv rtmpdump.exe rtmpgw.exe rtmpsrv.exe rtmpsuck.exe "${mingw_w64_x86_64_prefix}/bin"
+	  cd ..
+	touch rtmp_built
+  fi
 
-  cd ..
 }
 
 build_pthread_stubs() {
@@ -2294,12 +2296,11 @@ build_lilv() {
 
 
 build_leptonica() {
-  do_git_checkout https://github.com/DanBloomberg/leptonica.git leptonica # a0b59604bcf24b13af168fa45d54bbedab1d3d5d #f1ebb73bf939bca13570c35db8cc656d2735c1d7
-  cd leptonica
-    generic_configure_make_install "LIBS=-lopenjpeg --disable-silent-rules --without-libopenjpeg"
-
-  cd ..
-#  generic_download_and_install http://www.leptonica.com/source/leptonica-1.73.tar.gz leptonica-1.73 "LIBS=-lopenjpeg --disable-silent-rules --without-libopenjpeg"
+#  do_git_checkout https://github.com/DanBloomberg/leptonica.git leptonica # a0b59604bcf24b13af168fa45d54bbedab1d3d5d #f1ebb73bf939bca13570c35db8cc656d2735c1d7
+#  cd leptonica
+#    generic_configure_make_install "LIBS=-lopenjpeg --disable-silent-rules --without-libopenjpeg"
+#  cd ..
+  generic_download_and_install http://github.com/DanBloomberg/leptonica/releases/download/1.82.0/leptonica-1.82.0.tar.gz leptonica-1.82.0 # "LIBS=-lopenjpeg --disable-silent-rules --without-libopenjpeg"
 }
 
 build_libpopt() {
@@ -2779,6 +2780,7 @@ build_libbluray() {
     apply_patch file://${top_dir}/libudfread-udfread-c.patch
     cd ../..
     #apply_patch file://${top_dir}/libbluray-java.patch
+    pkg-config --list-all
     generic_configure_make_install "--disable-silent-rules --disable-bdjava-jar" #"--disable-bdjava"
 
   cd ..
@@ -2995,15 +2997,16 @@ build_xerces() {
 build_gnutls() {
 #  download_and_unpack_file https://www.gnupg.org/ftp/gcrypt/gnutls/v3.3/gnutls-3.3.27.tar.xz gnutls-3.3.27
    # do_git_checkout https://gitlab.com/gnutls/gnutls.git gnutls
-  download_and_unpack_file https://www.gnupg.org/ftp/gcrypt/gnutls/v3.7/gnutls-3.7.2.tar.xz gnutls-3.7.2
-  cd gnutls-3.7.2
+  download_and_unpack_file https://www.gnupg.org/ftp/gcrypt/gnutls/v3.7/gnutls-3.7.4.tar.xz gnutls-3.7.4
+  cd gnutls-3.7.4
 #    git submodule init
 #    git submodule update
-    make autoreconf
+#    make autoreconf
     apply_patch file://${top_dir}/gnutls-ip.patch
     generic_configure "--enable-openssl-compatibility --disable-doc --enable-local-libopts --disable-libdane --with-zlib --enable-cxx --enable-nls" # --disable-cxx --disable-doc --without-p11-kit --disable-local-libopts --disable-libopts-install --with-included-libtasn1" # don't need the c++ version, in an effort to cut down on size... XXXX test difference...
 
     do_make_install
+    export PKG_CONFIG_PATH=${origpkgpath}
 
   cd ..
   sed -i.bak 's/-lgnutls *$/-lgcrypt -lgnutls -lnettle -lhogweed -lgmp -lcrypt32 -lws2_32 -liconv/' "$PKG_CONFIG_PATH/gnutls.pc"
@@ -3013,8 +3016,8 @@ build_gnutls() {
 }
 
 build_libnettle() {
-  download_and_unpack_file https://ftp.gnu.org/gnu/nettle/nettle-3.7.tar.gz nettle-3.7
-  cd nettle-3.7
+  download_and_unpack_file https://ftp.gnu.org/gnu/nettle/nettle-3.7.3.tar.gz nettle-3.7.3
+  cd nettle-3.7.3
     generic_configure # "--disable-openssl" # in case we have both gnutls and openssl, just use gnutls [except that gnutls uses this so...huh? https://github.com/rdp/ffmpeg-windows-build-helpers/issues/25#issuecomment-28158515
     do_make_install
 
@@ -3101,7 +3104,7 @@ build_libxvid() {
 }
 
 build_fontconfig() {
-  download_and_unpack_file https://www.freedesktop.org/software/fontconfig/release/fontconfig-2.13.92.tar.xz fontconfig-2.13.92
+  download_and_unpack_file https://download.nus.edu.sg/mirror/slackware/slackware-current/source/x/fontconfig/fontconfig-2.13.92.tar.xz fontconfig-2.13.92
   cd fontconfig-2.13.92
     export LDFLAGS="-lintl -liconv"
     apply_patch file://${top_dir}/fontconfig-cross.patch
@@ -3508,25 +3511,25 @@ build_libgcrypt() {
 }
 
 build_tesseract() {
-  do_git_checkout https://github.com/tesseract-ocr/tesseract tesseract main # 1188e0a516a963ae6f7dd741fead17e43dae463c #fef64d795cdb0db5315c11f936b7efd1424994b2
+#  do_git_checkout https://github.com/tesseract-ocr/tesseract tesseract main # 1188e0a516a963ae6f7dd741fead17e43dae463c #fef64d795cdb0db5315c11f936b7efd1424994b2
   # Problem with latest tree and FFmpeg. Should be fixed soon
-#  download_and_unpack_file https://github.com/tesseract-ocr/tesseract/archive/3.05.00dev.tar.gz tesseract-3.05.00dev
-  cd tesseract
+  download_and_unpack_file https://github.com/tesseract-ocr/tesseract/archive/5.1.0.tar.gz tesseract-5.1.0
+  cd tesseract-5.1.0
 #    apply_patch file://${top_dir}/tesseract-thread.patch
 #    apply_patch file://${top_dir}/tesseract-libgomp.patch
-    export LIBLEPT_HEADERSDIR="${mingw_w64_x86_64_prefix}/include/leptonica"
-    export LIBS="-larchive -ltiff -ljpeg -lpng -lwebp -lz" # -lboost_thread-mt-x64" # -lboost_thread_win32 -lboost_chrono"
-    old_cxxflags="${CXXFLAGS}"
-    export CXXFLAGS="-fpermissive"
-    sed -i.bak 's/Windows.h/windows.h/' opencl/openclwrapper.cpp
-    sed -i.bak 's/-ltesseract/-ltesseract -llept -larchive -ltiff -ljpeg -lpng -lwebp -lz/' tesseract.pc.in
+#    export LIBLEPT_HEADERSDIR="${mingw_w64_x86_64_prefix}/include/leptonica"
+#    export LIBS="-larchive -ltiff -ljpeg -lpng -lwebp -lz" # -lboost_thread-mt-x64" # -lboost_thread_win32 -lboost_chrono"
+#    old_cxxflags="${CXXFLAGS}"
+#    export CXXFLAGS="-fpermissive"
+#    sed -i.bak 's/Windows.h/windows.h/' opencl/openclwrapper.cpp
+#    sed -i.bak 's/-ltesseract/-ltesseract -llept -larchive -ltiff -ljpeg -lpng -lwebp -lz/' tesseract.pc.in
     # Unpack English language tessdata into data directory
     # tar xvvf ${top_dir}/tessdata-snapshot-20150411.tar.xz
     generic_configure_make_install "--without-tensorflow --enable-maintainer-mode" #"--disable-openmp"
 
-    unset LIBLEPT_HEADERSDIR
-    unset LIBS
-    export CXXFLAGS="${old_cxxflags}"
+#    unset LIBLEPT_HEADERSDIR
+#    unset LIBS
+#    export CXXFLAGS="${old_cxxflags}"
   cd ..
     # Fetch the training data
   mkdir -pv tessdata
@@ -4982,19 +4985,19 @@ build_pixman() {
 }
 
 build_cairo() {
-  download_and_unpack_file https://www.cairographics.org/releases/cairo-1.14.12.tar.xz cairo-1.14.12 # Was .8
-  cd cairo-1.14.12
-     rm -v autogen.sh configure
-     apply_patch file://${top_dir}/cairo-fortify.patch
-     generic_configure_make_install "--disable-silent-rules --enable-win32 --enable-win32-font --enable-gobject --enable-tee --enable-pdf --enable-ps --enable-svg --disable-dependency-tracking"
-
-  cd ..
-  download_and_unpack_file http://cairographics.org/snapshots/cairo-1.15.14.tar.xz cairo-1.15.14 # Was .4
-  cd cairo-1.15.14
-     rm -v autogen.sh configure
-     apply_patch file://${top_dir}/cairo-fortify.patch
-     generic_configure_make_install "--disable-silent-rules --enable-win32 --enable-win32-font --enable-gobject --enable-tee --enable-pdf --enable-ps --enable-svg --disable-dependency-tracking"
-  cd ..
+#  download_and_unpack_file https://www.cairographics.org/releases/cairo-1.14.12.tar.xz cairo-1.14.12 # Was .8
+#  cd cairo-1.14.12
+#     rm -v autogen.sh configure
+#     apply_patch file://${top_dir}/cairo-fortify.patch
+#     generic_configure_make_install "--disable-silent-rules --enable-win32 --enable-win32-font --enable-gobject --enable-tee --enable-pdf --enable-ps --enable-svg --disable-dependency-tracking"
+#
+#  cd ..
+#  download_and_unpack_file http://cairographics.org/snapshots/cairo-1.15.14.tar.xz cairo-1.15.14 # Was .4
+#  cd cairo-1.15.14
+#     rm -v autogen.sh configure
+#     apply_patch file://${top_dir}/cairo-fortify.patch
+#     generic_configure_make_install "--disable-silent-rules --enable-win32 --enable-win32-font --enable-gobject --enable-tee --enable-pdf --enable-ps --enable-svg --disable-dependency-tracking"
+#  cd ..
 
   download_and_unpack_file http://cairographics.org/snapshots/cairo-1.17.4.tar.xz cairo-1.17.4
   cd cairo-1.17.4
@@ -5349,10 +5352,11 @@ build_codec2() {
   unset CXX
   unset LD
   unset LDFLAGS
-  do_git_checkout https://github.com/svn2github/Codec2-dev.git codec2-dev
+  #do_git_checkout https://github.com/svn2github/Codec2-dev.git codec2-dev
+  do_git_checkout https://github.com/drowe67/codec2.git codec2-dev
   mkdir build-codec-2-mingw
   cd codec2-dev
-    apply_patch file://${top_dir}/codec2-src-CMakeFiles.txt.patch
+#	apply_patch file://${top_dir}/codec2-src-CMakeFiles.txt.patch
 #    apply_patch file://${top_dir}/codec2-CMakeFiles.txt.patch
   cd ..
   cd build-codec-2-mingw
@@ -5560,6 +5564,8 @@ build_glib() {
     export glib_cv_stack_grows=no
   #  apply_patch file://${top_dir}/glib-no-tests.patch
     rm aclocal.m4
+    export origpkgconfig=$PKG_CONFIG_PATH
+    export PKG_CONFIG_PATH=${mingw_w64_x86_64_prefix}/lib/pkgconfig
     apply_patch file://${top_dir}/glib-meson.patch
     # Work around mingw-w64 lacking strerror_s()
 #    sed -i.bak 's/strerror_s (buf, sizeof (buf), errnum);/strerror_r (errno, buf, sizeof (buf);/' glib/gstrfuncs.c
@@ -5616,7 +5622,11 @@ build_gdk_pixbuf() {
 }
 
 build_libsigc++() {
-  generic_download_and_install https://ftp.gnome.org/pub/GNOME/sources/libsigc++/3.0/libsigc++-3.0.2.tar.xz libsigc++-3.0.2
+	download_and_unpack_file https://ftp.gnome.org/pub/GNOME/sources/libsigc++/3.2/libsigc++-3.2.0.tar.xz libsigc++-3.2.0
+	cd libsigc++-3.2.0
+		generic_meson_ninja_install
+	cd ..
+
 #  do_git_checkout https://github.com/libsigcplusplus/libsigcplusplus.git libsigcplusplus libsigc++-2-10
 #  cd libsigc++-3.0.2
 #    orig_aclocalpath=${ACLOCAL_PATH}
@@ -5626,7 +5636,7 @@ build_libsigc++() {
 
 #    export ACLOCAL_PATH=${orig_aclocalpath}
 #  cd ..
-  generic_download_and_install https://download.gnome.org/sources/libsigc++/2.10/libsigc++-2.10.2.tar.xz libsigc++-2.10.2
+  generic_download_and_install https://download.gnome.org/sources/libsigc++/2.10/libsigc++-2.10.8.tar.xz libsigc++-2.10.8
 # generic_download_and_install https://download.gnome.org/sources/libsigc++/2.99/libsigc++-2.99.8.tar.xz libsigc++-2.99.8
 }
 
@@ -5722,12 +5732,12 @@ build_glibmm() {
 #  export GLIBMM_LIBS="-lgobject-2.0 -lgmodule-2.0 -lglib-2.0 -lboost_system-mt-x64 -lsigc-2.0 -lboost_thread-mt-x64"
 #  export GIOMM_LIBS="-lgio-2.0 -lgobject-2.0 -lgmodule-2.0 -lglib-2.0 -lboost_system-mt-x64 -lsigc-2.0"
 #  export NOCONFIGURE=1
-  download_and_unpack_file http://ftp.gnome.org/pub/GNOME/sources/glibmm/2.63/glibmm-2.63.1.tar.xz glibmm-2.63.1
-  cd glibmm-2.63.1
+#  download_and_unpack_file http://ftp.gnome.org/pub/GNOME/sources/glibmm/2.63/glibmm-2.63.1.tar.xz glibmm-2.63.1
+#  cd glibmm-2.63.1
 #    apply_patch file://${top_dir}/glibmm-2.63.1-mutex1.patch
 #    apply_patch file://${top_dir}/glibmm-2.63.1-mutex2.patch
-    generic_configure_make_install "GLIB_COMPILE_SCHEMAS=/usr/bin/glib-compile-schemas --disable-silent-rules"
-  cd ..
+#    generic_configure_make_install "GLIB_COMPILE_SCHEMAS=/usr/bin/glib-compile-schemas --disable-silent-rules"
+#  cd ..
 #  do_git_checkout https://github.com/GNOME/glibmm.git glibmm glibmm-2-52
 #  cd glibmm
 #    orig_aclocalpath=${ACLOCAL_PATH}
@@ -5744,21 +5754,27 @@ build_glibmm() {
 #  unset GLIBMM_LIBS
 #  unset GIOMM_LIBS
 #  unset NOCONFIGURE
-  download_and_unpack_file https://ftp.gnome.org/pub/GNOME/sources/glibmm/2.62/glibmm-2.62.0.tar.xz glibmm-2.62.0
-  cd glibmm-2.62.0
-#    apply_patch file://${top_dir}/glibmm-2.62.0-mutex.patch
-    generic_configure_make_install "GLIB_COMPILE_SCHEMAS=/usr/bin/glib-compile-schemas --disable-silent-rules"
-  cd ..
-  download_and_unpack_file https://ftp.gnome.org/pub/GNOME/sources/glibmm/2.61/glibmm-2.61.1.tar.xz glibmm-2.61.1
-  cd glibmm-2.61.1
-#    apply_patch file://${top_dir}/glibmm-2.61.1-mutex.patch
-    generic_configure_make_install "GLIB_COMPILE_SCHEMAS=/usr/bin/glib-compile-schemas --disable-silent-rules"
-  cd ..
-  download_and_unpack_file https://ftp.gnome.org/pub/GNOME/sources/glibmm/2.59/glibmm-2.59.1.tar.xz glibmm-2.59.1
-  cd glibmm-2.59.1
-#    apply_patch file://${top_dir}/glibmm-2.59.1-mutex.patch
-    generic_configure_make_install "GLIB_COMPILE_SCHEMAS=/usr/bin/glib-compile-schemas --disable-silent-rules"
-  cd ..
+#  download_and_unpack_file https://ftp.gnome.org/pub/GNOME/sources/glibmm/2.62/glibmm-2.62.0.tar.xz glibmm-2.62.0
+#  cd glibmm-2.62.0
+##    apply_patch file://${top_dir}/glibmm-2.62.0-mutex.patch
+#    generic_configure_make_install "GLIB_COMPILE_SCHEMAS=/usr/bin/glib-compile-schemas --disable-silent-rules"
+#  cd ..
+#  download_and_unpack_file https://ftp.gnome.org/pub/GNOME/sources/glibmm/2.61/glibmm-2.61.1.tar.xz glibmm-2.61.1
+#  cd glibmm-2.61.1
+##    apply_patch file://${top_dir}/glibmm-2.61.1-mutex.patch
+#    generic_configure_make_install "GLIB_COMPILE_SCHEMAS=/usr/bin/glib-gcompile-schemas --disable-silent-rules"
+#  cd ..
+#  download_and_unpack_file https://ftp.gnome.org/pub/GNOME/sources/glibmm/2.59/glibmm-2.59.1.tar.xz glibmm-2.59.1
+#  cd glibmm-2.59.1
+##    apply_patch file://${top_dir}/glibmm-2.59.1-mutex.patch
+#    generic_configure_make_install "GLIB_COMPILE_SCHEMAS=/usr/bin/glib-compile-schemas --disable-silent-rules"
+#  cd ..
+	download_and_unpack_file https://download.gnome.org/sources/glibmm/2.66/glibmm-2.66.4.tar.xz glibmm-2.66.4
+	cd glibmm-2.66.4
+		# glibmm_binding test won't build because of a linking error
+		sed '/glibmm_binding/d' -i tests/meson.build
+		generic_meson_ninja_install "--buildtype=release --wrap-mode=nodownload --default-library=both --auto-features=enabled -Dmaintainer-mode=false -Dbuild-documentation=false -Dbuild-examples=true"
+	cd ..
 }
 
 build_libxml++ () {
@@ -7195,7 +7211,7 @@ build_ffmpeg() {
 	local configuration_options="--disable-static --enable-shared --enable-runtime-cpudetect --enable-gray --disable-w32threads"
 	local component_options="--enable-filter=frei0r --enable-decoder=aac" # fdk_aac gets much decoding wrong
 	local library_options="--enable-libsvtav1 --enable-avisynth --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdc1394 --enable-libfdk-aac --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-gnutls --enable-libgsm --enable-libilbc --enable-libklvanc --enable-liblensfun --enable-libmodplug --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopencv --enable-libopenmpt --enable-libopus --enable-librabbitmq --enable-librist --enable-librubberband --enable-librtmp --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libtesseract --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxavs2 --enable-libxvid --enable-libxml2 --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 --enable-decklink --enable-libmysofa --enable-opencl --enable-opengl --enable-vulkan"
-	local hardware_options="--enable-cuda-nvcc --enable-libmfx"
+	local hardware_options="--enable-libmfx"
 	local toolchain_options="--arch=x86_64 --cross-prefix=$cross_prefix --enable-cross-compile --target-os=mingw32 --extra-version=Compiled_by_John_Warburton --enable-pic --nvccflags=-I/usr/local/cuda-11.4/targets/x86_64-linux/include"
 	local developer_options="--disable-debug --enable-stripping"
 	cd ffmpeg_git
@@ -7211,8 +7227,8 @@ build_ffmpeg() {
 #		apply_patch file://${top_dir}/ffmpeg-bs2b.patch
 #		apply_patch file://${top_dir}/ffmpeg-freetype.patch
 #		apply_patch file://${top_dir}/ffmpeg-preprocessor.patch
-		apply_patch file://${top_dir}/ffmpeg-nvidia.patch
-		apply_patch file://${top_dir}/ffmpeg-channel_layout.patch
+#		apply_patch file://${top_dir}/ffmpeg-nvidia.patch
+#		apply_patch file://${top_dir}/ffmpeg-channel_layout.patch
 		do_configure "${standard_options} ${licensing_options} ${configuration_options} ${component_options} ${library_options} ${hardware_options} ${toolchain_options} ${developer_options}" 
 #  rm -f */*.a */*.dll *.exe # just in case some dependency library has changed, force it to re-link even if the ffmpeg source hasn't changed...
 #  rm already_ran_make*
@@ -7398,8 +7414,8 @@ build_dependencies() {
   build_googletest
   build_glib
   #build_mmcommon
-  #build_libsigc++
-  #build_glibmm
+  build_libsigc++
+  build_glibmm
   #build_libxml++
   #build_libcxml
   #build_dbus
@@ -7454,7 +7470,7 @@ build_dependencies() {
   build_lv2
   build_sratom
   build_lilv
-  #build_pixman
+  build_pixman
   build_libssh
   #build_pthread_stubs
   #build_drm
@@ -7466,14 +7482,14 @@ build_dependencies() {
   build_shaderc
   build_vulkan
   build_angle
-  #build_cairo
-  #build_cairomm
-#  build_pango
-#  build_pangomm
-  build_icu
-  build_harfbuzz
+  build_cairo
+  build_cairomm
   #build_pango
   #build_pangomm
+  build_icu
+  build_harfbuzz
+  build_pango
+  build_pangomm
   build_iculehb
   build_icu_with_iculehb
   #build_libcroco
