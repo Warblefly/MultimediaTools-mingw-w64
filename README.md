@@ -37,9 +37,30 @@ apt update
 apt upgrade
 ```
 
-3. Install the pre-requisites. On Debian running under Windows, you can do this.
+3. Install the pre-requisites. On Debian 11 running under WSL2, you can do this.
+
+First, you'll want a more up-to-date version of meson that the distribution provides.
+Edit /etc/apt/sources.list and install
 ```
-apt install gcc-10 g++-10 make autoconf curl wget texinfo libgmp-dev bison flex xz-utils libz-dev python3 autopoint libtool libtool-bin cmake bzip2 gettext pkg-config libtasn1-bin meson gengetopt subversion nasm yasm python3-distutils libglib2.0-bin libglib2.0-dev intltool libxml2-utils autoconf-archive gperf sqlite3 unzip gyp python2 gtk-update-icon-cache gtk-doc-tools zip libspeexdsp-dev libsamplerate0-dev software-properties-common swig docbook-xsl xsltproc rake wx-common lua5.3 nsis sshpass rsync python3-mako mm-common
+deb http://deb.debian.org/debian bullseye-backports main contrib non-free
+deb-src http://deb.debian.org/debian bullseye-backports main contrib non-free
+```
+
+Now, install some packages using the usual package manager.
+
+```
+sudo apt install git g++ make cmake texinfo libgmp-dev flex bison m4 libmpfr-dev libz-dev wget curl autoconf autopoint libtool bzip2 meson pkg-config gettext subversion nasm yasm libtool-bin python3-setuptools intltool autoconf-archive gperf unzip python2 gyp libglib2.0-dev mm-common python3-bs4 python3-requests zip python3-mako dockbook-xsl rake wx-common nsis sshpass rsync
+```
+
+Fix meson
+
+```
+sudo apt -t bullseye-backports install meson
+```
+
+Make sure everything can see your Python 3
+```
+sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.9 1
 ```
 
 Then, ensure your gcc is the one we have just installed -- if you need to. A clean Debian install doesn't need this.
@@ -48,43 +69,18 @@ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 10
 sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-10 10
 ```
 
-Then, link /usr/bin/python3 to /usr/bin/python
-
-Then, switch your Java development kit to an earlier version. You used to need this to compile libbluray but its code is so old, and I don't need to play Blu-Ray discs other than to duplicate their contents, that I no longer do this.
-```
-apt-key adv --keyserver keyserver.ubuntu.com --recv-keys C2518248EEA14886  
-apt update
-apt upgrade 
-add-apt-repository -y ppa:webupd8team/java 
-apt update
-apt upgrade
-apt-get install oracle-java8-installer  
-```
-
-Install autotools in the 2.69 version, not the 2.71 version that comes with Debian Sid. Use dpkg and the --force-depends option to allow this.
-Install intltools, without dependencies (you'll need to use dpkg for this: dpkg --install --force-depends intltool_0.51.0-6_all.deb).
-
-Then, install version 11 of the NVidia cuda toolkit. This is behind the version distributed with Debian sid, so must be installed like this:
-```
-sudo apt install nvidia-cuda-toolkit
-#sudo ln -s /usr/local/cuda-11.3/bin/nvcc /usr/bin/nvcc
-#sudo ln -s /usr/local/cuda-11.3/nvvm/bin/cicc /usr/bin/cicc
-#sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 10
-```
-
-4. Link an executable, thus: ln -s /usr/bin/luac5.3 /usr/bin/luac [NO LONGER REQUIRED]
 5. Clone my package from git (see the address at the top of this page).
 6. cd into the top directory of the git tree.
 7. Read the top of ./build_shared.sh, and edit the location to which scp should copy your binary archive.
 8. Execute ./build_shared.sh, and give it the password for your scp when prompted. Note: you'll need to ssh into the machines where you're copying these files before this upload will work.
-9. Wait for a long, long time. On an eight-core i7 at 4.5GHz with 16GB RAM and solid state drives, the compile takes six hours.
+9. Wait for a long, long time. On an eight-core i7 at 4.5GHz with 16GB RAM and solid state drives, the compile takes four hours.
 10. The archive you can copy and unpack has been placed in the root of your build tree and has been sent by scp to the webserver of your choice. Note that the scp copy will only succeed if you have already used ssh to login to the remote server under the username you're using.
 11. To recompile only the packages that have been updated, simply run the script again. You may need manually to clear out mpv, aom, vim and vim_console
 
 
 
 # Tools Included
-With these scripts, you can compile binaries, ready to run on 64-bit Windows. Many libraries are included. Here are some of the executables that link to these libraries. THIS LIST IS OUT OF DATE.
+With these scripts, you can compile binaries, ready to run on 64-bit Windows. Many libraries are included. Here are some of the executables that link to these libraries. THIS LIST IS SERIOUSLY OUT OF DATE.
 
 * libfdk_aac
   * aac-enc — simple AAC encoder including HE-AACv2 and two low-delay versions of the codec
