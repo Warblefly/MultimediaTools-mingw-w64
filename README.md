@@ -39,7 +39,7 @@ apt upgrade
 
 3. Install the pre-requisites. On Debian 11 running under WSL2, you can do this.
 
-First, you'll want a more up-to-date version of meson that the distribution provides.
+First, you'll want a more up-to-date version of meson that the distribution provides. (Latest Debian 11 doesn't need this.)
 Edit /etc/apt/sources.list and install
 ```
 deb http://deb.debian.org/debian bullseye-backports main contrib non-free
@@ -49,7 +49,7 @@ deb-src http://deb.debian.org/debian bullseye-backports main contrib non-free
 Now, install some packages using the usual package manager.
 
 ```
-sudo apt install git g++ make cmake texinfo libgmp-dev flex bison m4 libmpfr-dev libz-dev wget curl autoconf autopoint libtool bzip2 meson pkg-config gettext subversion nasm yasm libtool-bin python3-setuptools intltool autoconf-archive gperf unzip python2 gyp libglib2.0-dev mm-common python3-bs4 python3-requests zip python3-mako dockbook-xsl rake wx-common nsis sshpass rsync
+sudo apt install git g++ make cmake texinfo libgmp-dev flex bison m4 libmpfr-dev libz-dev wget curl autoconf autopoint libtool bzip2 meson pkg-config gettext subversion nasm yasm libtool-bin python3-setuptools intltool autoconf-archive gperf unzip python2 gyp libglib2.0-dev mm-common python3-bs4 python3-requests zip python3-mako docbook-xsl rake wx-common nsis sshpass rsync
 ```
 
 Fix meson
