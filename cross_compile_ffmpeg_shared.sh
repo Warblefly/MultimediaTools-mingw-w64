@@ -754,6 +754,15 @@ do_cleanup() {
   find . !  \( -name 'already_*' -o -name 'unpacked.successfully' -o -name '*patch.done' \) -type f -exec rm -rf {} +
 }
 
+build_libsvthevc() {
+	do_git_checkout https://github.com/OpenVisualCloud/SVT-HEVC.git SVT-HEVC
+		cd SVT-HEVC
+		do_cmake 
+		do_make
+		do_make_install
+	cd ..
+}
+
 build_libx265() {
 if [ ! -f libx265.built ]; then
   do_git_checkout https://bitbucket.org/multicoreware/x265_git.git x265 c8905a745633543a1a0df6044a09386057a95be2
@@ -6068,7 +6077,8 @@ build_mp4box() { # like build_gpac
   # sed -i "s/has_dvb4linux=\"yes\"/has_dvb4linux=\"no\"/g" configure
   # sed -i "s/`uname -s`/MINGW32/g" configure
   # XXX do I want to disable more things here?
-    apply_patch file://${top_dir}/mp4box-case.patch
+#    apply_patch file://${top_dir}/mp4box-case.patch
+    apply_patch file://${top_dir}/mp4box_gpac-case.patch
     sed -i.bak 's#bin/gcc/MP4Box #bin/gcc/MP4Box.exe #' Makefile
     sed -i.bak 's#bin/gcc/MP42TS #bin/gcc/MP42TS.exe #' Makefile
     sed -i.bak 's#bin/gcc/MP4Client #bin/gcc/MP4Client.exe #' Makefile
@@ -7210,7 +7220,7 @@ build_ffmpeg() {
 	local licensing_options="--enable-nonfree --enable-version3 --enable-gpl"
 	local configuration_options="--disable-static --enable-shared --enable-runtime-cpudetect --enable-gray --disable-w32threads"
 	local component_options="--enable-filter=frei0r --enable-decoder=aac" # fdk_aac gets much decoding wrong
-	local library_options="--enable-libsvtav1 --enable-avisynth --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdc1394 --enable-libfdk-aac --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-gnutls --enable-libgsm --enable-libilbc --enable-libklvanc --enable-liblensfun --enable-libmodplug --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopencv --enable-libopenmpt --enable-libopus --enable-librabbitmq --enable-librist --enable-librubberband --enable-librtmp --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libtesseract --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxavs2 --enable-libxvid --enable-libxml2 --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 --enable-decklink --enable-libmysofa --enable-opencl --enable-opengl --enable-vulkan"
+	local library_options="--enable-libsvtav1 --enable-libsvthevc --enable-avisynth --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdc1394 --enable-libfdk-aac --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-gnutls --enable-libgsm --enable-libilbc --enable-libklvanc --enable-liblensfun --enable-libmodplug --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopencv --enable-libopenmpt --enable-libopus --enable-librabbitmq --enable-librist --enable-librubberband --enable-librtmp --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libtesseract --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxavs2 --enable-libxvid --enable-libxml2 --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 --enable-decklink --enable-libmysofa --enable-opencl --enable-opengl --enable-vulkan"
 	local hardware_options="--enable-libmfx"
 	local toolchain_options="--arch=x86_64 --cross-prefix=$cross_prefix --enable-cross-compile --target-os=mingw32 --extra-version=Compiled_by_John_Warburton --enable-pic --nvccflags=-I/usr/local/cuda-11.4/targets/x86_64-linux/include"
 	local developer_options="--disable-debug --enable-stripping"
@@ -7229,6 +7239,8 @@ build_ffmpeg() {
 #		apply_patch file://${top_dir}/ffmpeg-preprocessor.patch
 #		apply_patch file://${top_dir}/ffmpeg-nvidia.patch
 #		apply_patch file://${top_dir}/ffmpeg-channel_layout.patch
+		# patch for HEVC plugin
+		apply_patch_p1 file://{$top_dir}/ffmpeg-libsvt-hevc-wrapper.patch
 		do_configure "${standard_options} ${licensing_options} ${configuration_options} ${component_options} ${library_options} ${hardware_options} ${toolchain_options} ${developer_options}" 
 #  rm -f */*.a */*.dll *.exe # just in case some dependency library has changed, force it to re-link even if the ffmpeg source hasn't changed...
 #  rm already_ran_make*
@@ -7374,6 +7386,7 @@ build_dependencies() {
 		# of libx264 it tracks is way behind the current version. Instead, we must
 		# be happy with the command-line x262 program, and pipe data to it.
   build_libx265
+  build_libsvthevc
 #  build_turingcodec # Needs work on thread interface. Can't mingw compile yet
   build_asdcplib
   build_lame

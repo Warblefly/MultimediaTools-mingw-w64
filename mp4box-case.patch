@@ -9,14 +9,3 @@
  static DWORD getParentPID(DWORD pid)
  {
  	DWORD ppid = 0;
---- applications/mp4client/Makefile.orig	2020-06-22 09:10:55.090000000 +0100
-+++ applications/mp4client/Makefile	2020-06-22 09:11:35.560000000 +0100
-@@ -40,7 +40,7 @@
- LINKFLAGS+=$(shell pkg-config ../../gpac.pc --libs --static | sed 's/-lgpac //'  )
- LINKFLAGS+=$(GPAC_SH_FLAGS) $(EXTRALIBS)
- else
--LINKFLAGS+=-lgpac
-+LINKFLAGS+=-lgpac -lpsapi
- ifeq ($(CONFIG_DARWIN),yes)
- #LINKFLAGS+= -Wl,-rpath,'@loader_path'
- else
