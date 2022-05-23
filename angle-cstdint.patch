@@ -1,0 +1,30 @@
+--- include/GLSLANG/ShaderLang.h.orig	2022-05-22 13:18:35.278449200 +0100
++++ include/GLSLANG/ShaderLang.h	2022-05-22 13:18:47.938449200 +0100
+@@ -14,6 +14,7 @@
+ #include <map>
+ #include <string>
+ #include <vector>
++#include <cstdint>
+ 
+ //
+ // This is the platform independent interface between an OGL driver
+--- include/GLSLANG/ShaderVars.h.orig	2022-05-22 13:21:22.478449200 +0100
++++ include/GLSLANG/ShaderVars.h	2022-05-22 13:21:30.078449200 +0100
+@@ -14,6 +14,7 @@
+ #include <array>
+ #include <string>
+ #include <vector>
++#include <cstdint>
+ 
+ // This type is defined here to simplify ANGLE's integration with glslang for SPIRv.
+ using ShCompileOptions = uint64_t;
+--- src/compiler/translator/ImmutableString.h.orig	2022-05-22 13:24:35.688449200 +0100
++++ src/compiler/translator/ImmutableString.h	2022-05-22 13:24:47.678449200 +0100
+@@ -11,6 +11,7 @@
+ #define COMPILER_TRANSLATOR_IMMUTABLESTRING_H_
+ 
+ #include <string>
++#include <cstdint>
+ 
+ #include "common/string_utils.h"
+ #include "compiler/translator/Common.h"

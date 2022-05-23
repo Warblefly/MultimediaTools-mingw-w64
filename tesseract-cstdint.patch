@@ -1,0 +1,10 @@
+--- src/ccutil/params.h.orig	2022-05-22 22:17:23.658449200 +0100
++++ src/ccutil/params.h	2022-05-22 22:17:39.068449200 +0100
+@@ -22,6 +22,7 @@
+ #include <tesseract/export.h> // for TESS_API
+ 
+ #include <cstdio>
++#include <cstdint>
+ #include <cstring>
+ #include <string>
+ #include <vector>

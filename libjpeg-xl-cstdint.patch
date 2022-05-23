@@ -1,0 +1,10 @@
+--- tools/codec_config.h.orig	2022-05-22 12:13:27.148449200 +0100
++++ tools/codec_config.h	2022-05-22 12:13:37.278449200 +0100
+@@ -7,6 +7,7 @@
+ #define TOOLS_CODEC_CONFIG_H_
+ 
+ #include <string>
++#include <cstdint>
+ 
+ namespace jpegxl {
+ namespace tools {

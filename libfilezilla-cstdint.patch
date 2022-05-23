@@ -1,0 +1,90 @@
+--- lib/libfilezilla/buffer.hpp.orig	2022-05-22 11:14:35.858449200 +0100
++++ lib/libfilezilla/buffer.hpp	2022-05-22 11:15:01.748449200 +0100
+@@ -5,6 +5,7 @@
+ 
+ #include <vector>
+ #include <type_traits>
++#include <cstdint>
+ 
+ /** \file
+ * \brief Declares fz::buffer
+--- lib/libfilezilla/encryption.hpp.orig	2022-05-22 11:30:32.278449200 +0100
++++ lib/libfilezilla/encryption.hpp	2022-05-22 11:30:47.248449200 +0100
+@@ -14,6 +14,7 @@
+ 
+ #include <vector>
+ #include <string>
++#include <cstdint>
+ 
+ namespace fz {
+ 
+--- lib/libfilezilla/encode.hpp.orig	2022-05-22 11:31:46.988449200 +0100
++++ lib/libfilezilla/encode.hpp	2022-05-22 11:31:56.528449200 +0100
+@@ -5,6 +5,7 @@
+ 
+ #include <string>
+ #include <vector>
++#include <cstdint>
+ 
+ /** \file
+  * \brief Functions to encode/decode strings
+--- lib/libfilezilla/hash.hpp.orig	2022-05-22 11:32:18.478449200 +0100
++++ lib/libfilezilla/hash.hpp	2022-05-22 11:32:28.378449200 +0100
+@@ -9,6 +9,7 @@
+ 
+ #include <vector>
+ #include <string>
++#include <cstdint>
+ 
+ namespace fz {
+ 
+--- lib/libfilezilla/nonowning_buffer.hpp.orig	2022-05-22 11:46:35.488449200 +0100
++++ lib/libfilezilla/nonowning_buffer.hpp	2022-05-22 11:46:44.298449200 +0100
+@@ -2,6 +2,7 @@
+ #define LIBFILEZILLA_NONOWNING_BUFFER_HEADER
+ 
+ #include "libfilezilla.hpp"
++#include <cstdint>
+ 
+ /** \file
+ * \brief Declares fz::nonowning_buffer
+--- lib/libfilezilla/signature.hpp.orig	2022-05-22 11:48:03.018449200 +0100
++++ lib/libfilezilla/signature.hpp	2022-05-22 11:48:10.178449200 +0100
+@@ -11,6 +11,7 @@
+ 
+ #include <vector>
+ #include <string>
++#include <cstdint>
+ 
+ namespace fz {
+ 
+--- lib/libfilezilla/thread.hpp.orig	2022-05-22 11:49:46.108449200 +0100
++++ lib/libfilezilla/thread.hpp	2022-05-22 11:49:56.908449200 +0100
+@@ -4,6 +4,7 @@
+ #include "libfilezilla.hpp"
+ 
+ #include <functional>
++#include <cstdint>
+ 
+ #if !defined(FZ_WINDOWS) || !(defined(__MINGW32__) || defined(__MINGW64__))
+ #include <thread>
+--- lib/libfilezilla/translate.hpp.orig	2022-05-22 11:51:20.038449200 +0100
++++ lib/libfilezilla/translate.hpp	2022-05-22 11:51:29.108449200 +0100
+@@ -4,6 +4,7 @@
+ #include "libfilezilla.hpp"
+ 
+ #include <string>
++#include <cstdint>
+ 
+ /** \file
+  * \brief Functions to translate strings
+--- lib/libfilezilla/glue/registry.hpp.orig	2022-05-22 11:53:06.068449200 +0100
++++ lib/libfilezilla/glue/registry.hpp	2022-05-22 11:53:14.458449200 +0100
+@@ -11,6 +11,7 @@
+ 
+ #include <optional>
+ #include <string>
++#include <cstdint>
+ 
+ #include "windows.h"
+ 

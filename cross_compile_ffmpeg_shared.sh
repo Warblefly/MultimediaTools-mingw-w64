@@ -2603,6 +2603,8 @@ do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfile
     cd libfilezilla
         #apply_patch file://${top_dir}/libfilezilla-typo.patch
 #	apply_patch file://${top_dir}/libfilezilla-limits.patch
+	export PKG_CONFIG_PATH=${mingw_w64_x86_64_prefix}/lib/pkgconfig
+	apply_patch file://${top_dir}/libfilezilla-cstdint.patch
         export CC=x86_64-w64-mingw32-gcc
         export CXX=x86_64-w64-mingw32-g++
         export WINDRES=x86_64-w64-mingw32-windres
@@ -3526,6 +3528,7 @@ build_tesseract() {
   cd tesseract-5.1.0
 #    apply_patch file://${top_dir}/tesseract-thread.patch
 #    apply_patch file://${top_dir}/tesseract-libgomp.patch
+	apply_patch file://${top_dir}/tesseract-cstdint.patch
 #    export LIBLEPT_HEADERSDIR="${mingw_w64_x86_64_prefix}/include/leptonica"
 #    export LIBS="-larchive -ltiff -ljpeg -lpng -lwebp -lz" # -lboost_thread-mt-x64" # -lboost_thread_win32 -lboost_chrono"
 #    old_cxxflags="${CXXFLAGS}"
@@ -6302,6 +6305,7 @@ build_angle() {
 	apply_patch_p1 https://raw.githubusercontent.com/gk7huki/mingw-w64-angleproject/master/0004-use-import-library-and-def-file.patch
 	apply_patch_p1 https://raw.githubusercontent.com/gk7huki/mingw-w64-angleproject/master/0005-fix-python2-references.patch
 	apply_patch file://${top_dir}/angle-limits.patch
+	apply_patch file://${top_dir}/angle-cstdint.patch
         mkdir -pv build-x86_64
 	  export CC=x86_64-w64-mingw32-gcc
           export CXX=x86_64-w64-mingw32-g++
@@ -6785,6 +6789,7 @@ build_jpegxl() {
 	do_git_checkout https://gitlab.com/wg1/jpeg-xl.git jpeg-xl
 	cd jpeg-xl
 		git submodule update --init --recursive
+		apply_patch file://${top_dir}/libjpeg-xl-cstdint.patch
 		mkdir -pv build
 		cd build
 			do_cmake .. "-DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_SYSTEM_PROCESSOR=AMD64"
