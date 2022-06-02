@@ -194,6 +194,7 @@ cd gcc
 #	cat ${top_dir}/gcc-autoconf.patch | patch -p0
 #	curl https://src.fedoraproject.org/rpms/mingw-gcc/raw/rawhide/f/mingw-gcc-config.patch | patch -p1
 #	curl https://src.fedoraproject.org/rpms/mingw-gcc/raw/rawhide/f/0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch | patch -p1
+	curl "https://gcc.gnu.org/bugzilla/attachment.cgi?id=53052" | patch -p0
 	pushd libiberty
 		autoconf -f
 	popd

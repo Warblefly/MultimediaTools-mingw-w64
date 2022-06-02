@@ -3860,7 +3860,7 @@ build_gstreamer() {
 	download_and_unpack_file https://gstreamer.freedesktop.org/src/gst-plugins-bad/gst-plugins-bad-1.19.90.tar.xz gst-plugins-bad-1.19.90
 	cd gst-plugins-bad-1.19.90
 		apply_patch file://${top_dir}/gst-plugins-bad-opencv.patch
-		generic_meson_ninja_install "-Dexamples=disabled -Dc_args=-fcommon"
+		generic_meson_ninja_install "-Dexamples=disabled -Dc_args=-fcommon -Dopencv=disabled"
 	cd ..
 }
 
@@ -4130,8 +4130,8 @@ build_mediainfo() {
 }
 
 build_libtool() {
-  generic_download_and_install http://ftpmirror.gnu.org/libtool/libtool-2.4.6.tar.gz libtool-2.4.6
-  cd libtool-2.4.6
+  generic_download_and_install https://mirrors.ocf.berkeley.edu/gnu/libtool/libtool-2.4.7.tar.xz libtool-2.4.7
+  cd libtool-2.4.7
 
   cd ..
 }
@@ -4196,7 +4196,8 @@ build_exiv2() {
 }
 
 build_bmx() {
-  do_git_checkout https://notabug.org/RiCON/bmx.git bmxlib-bmx # 723e48
+    do_git_checkout https://git.code.sf.net/p/bmxlib/bmx bmxlib-bmx
+  # do_git_checkout https://notabug.org/RiCON/bmx.git bmxlib-bmx # 723e48
   cd bmxlib-bmx
     sed -i.bak 's/) -version-info/) -no-undefined -version-info/' src/Makefile.am
 #    apply_patch file://${top_dir}/bmxlib-bmx-apps-writers-Makefile-am.patch
@@ -5170,7 +5171,7 @@ build_flac() {
     # microbench target hasn't been tested on many platforms yet
     sed -i.bak 's/microbench//' Makefile.am
     # These docs don't build on Debian
-    apply_patch file://${top_dir}/flac-no-doc.patch
+#    apply_patch file://${top_dir}/flac-no-doc.patch
     # Distributions subsituting doocbook2man need this
 #    sed -i.bak 's/docbook-to-man/docbook2man/' man/Makefile.am
     if [[ ! -f "configure" ]]; then
@@ -5239,7 +5240,7 @@ build_mjpegtools() {
 build_file() {
   # Also contains libmagic
   do_git_checkout https://github.com/file/file.git file_native #3dc9066f0b59513951626d8596ea67e23a0fd42e #13ba1a3639f7a40f3bffbabf2737cbdde314faf4
-  do_git_checkout https://github.com/file/file.git file #3dc9066f0b59513951626d8596ea67e23a0fd42e #13ba1a3639f7a40f3bffbabf2737cbdde314faf4
+  do_git_checkout https://github.com/file/file.git file  850e148d088922878f1e5f6b2e3a9c01f75d21f3 #3dc9066f0b59513951626d8596ea67e23a0fd42e #13ba1a3639f7a40f3bffbabf2737cbdde314faf4
   # We use the git version of file and libmagic, which is updated more
   # often than distributions track. File requires its own binary to compile
   # its list of magic numbers. Therefore, because we are cross-compiling,
@@ -5255,6 +5256,7 @@ build_file() {
   cd file
     apply_patch file://${top_dir}/file-win32.patch
 #    apply_patch file://${top_dir}/magic_psl.patch
+#    apply_patch file://${top_dir}/file-ctype.patch
 #    export cross_compiling=yes
     generic_configure_make_install "--enable-fsect-man5"
 #    unset cross_compiling
@@ -7225,7 +7227,7 @@ build_ffmpeg() {
 	local licensing_options="--enable-nonfree --enable-version3 --enable-gpl"
 	local configuration_options="--disable-static --enable-shared --enable-runtime-cpudetect --enable-gray --disable-w32threads"
 	local component_options="--enable-filter=frei0r --enable-decoder=aac" # fdk_aac gets much decoding wrong
-	local library_options="--enable-libsvtav1 --enable-libsvthevc --enable-avisynth --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdc1394 --enable-libfdk-aac --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-gnutls --enable-libgsm --enable-libilbc --enable-libklvanc --enable-liblensfun --enable-libmodplug --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopencv --enable-libopenmpt --enable-libopus --enable-librabbitmq --enable-librist --enable-librubberband --enable-librtmp --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libtesseract --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxavs2 --enable-libxvid --enable-libxml2 --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 --enable-decklink --enable-libmysofa --enable-opencl --enable-opengl --enable-vulkan"
+	local library_options="--enable-libsvtav1 --enable-libsvthevc --enable-avisynth --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdc1394 --enable-libfdk-aac --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-gnutls --enable-libgsm --enable-libilbc --enable-libklvanc --enable-liblensfun --enable-libmodplug --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopencv --enable-libopenmpt --enable-libopus --enable-librabbitmq --enable-librist --enable-librubberband --enable-librtmp --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libtesseract --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxavs2 --enable-libxvid --enable-libxml2 --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 --enable-decklink --enable-libmysofa --enable-opengl --enable-vulkan --enable-opencl"
 	local hardware_options="--enable-libmfx"
 	local toolchain_options="--arch=x86_64 --cross-prefix=$cross_prefix --enable-cross-compile --target-os=mingw32 --extra-version=Compiled_by_John_Warburton --enable-pic --nvccflags=-I/usr/local/cuda-11.4/targets/x86_64-linux/include"
 	local developer_options="--disable-debug --enable-stripping"
