@@ -3341,15 +3341,17 @@ build_libsub() {
 }
 
 build_intel_quicksync_mfx() { # qsv
-  do_git_checkout https://github.com/lu-zero/mfx_dispatch.git mfx_dispatch_git 61807e192749af236df520625ee284e221a20ef2
-  cd mfx_dispatch_git
-    sed -i.bak 's/-version-info/-no-undefined -version-info/' Makefile.am
+#  do_git_checkout https://github.com/lu-zero/mfx_dispatch.git mfx_dispatch_git # 61807e192749af236df520625ee284e221a20ef2
+	download_and_unpack_file https://github.com/lu-zero/mfx_dispatch/archive/refs/tags/1.35.1.tar.gz mfx_dispatch-1.35.1 
+cd mfx_dispatch-1.35.1
+#    sed -i.bak 's/-version-info/-no-undefined -version-info/' Makefile.am
 #    sed -i.bak 's/-DMINGW_HAS_SECURE_API=1//' Makefile.am
-    if [[ ! -f "configure" ]]; then
-      autoreconf -fiv || exit 1
-    fi
-    generic_configure_make_install
-
+#    if [[ ! -f "configure" ]]; then
+#      autoreconf -fiv || exit 1
+#    fi
+    export lt_cv_deplibs_check_method='pass_all'
+    generic_configure_make_install "--disable-static --enable-shared"
+    unset lt_cv_deplibs_check_method
   cd ..
 }
 
@@ -7247,7 +7249,7 @@ build_ffmpeg() {
 #		apply_patch file://${top_dir}/ffmpeg-nvidia.patch
 #		apply_patch file://${top_dir}/ffmpeg-channel_layout.patch
 		# patch for HEVC plugin
-#		apply_patch_p1 file://{$top_dir}/ffmpeg-libsvt-hevc-wrapper.patch
+		apply_patch_p1 file://{$top_dir}/ffmpeg-libsvt-hevc-wrapper.patch
 		do_configure "${standard_options} ${licensing_options} ${configuration_options} ${component_options} ${library_options} ${hardware_options} ${toolchain_options} ${developer_options}" 
 #  rm -f */*.a */*.dll *.exe # just in case some dependency library has changed, force it to re-link even if the ffmpeg source hasn't changed...
 #  rm already_ran_make*
