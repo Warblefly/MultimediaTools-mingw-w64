@@ -2699,8 +2699,9 @@ build_orc() {
 #		  rm configure Makefile.in
 #		  generic_configure_make_install
 #	  cd ..
-	download_and_unpack_file https://github.com/GStreamer/orc/archive/0.4.30.tar.gz orc-0.4.30
-	cd orc-0.4.30
+	export PKG_CONFIG_PATH=${mingw_w64_x86_64_prefix}/lib/pkgconfig
+	download_and_unpack_file https://github.com/GStreamer/orc/archive/0.4.32.tar.gz orc-0.4.32
+	cd orc-0.4.32
 	apply_patch file://${top_dir}/orc-cc.patch
 		generic_meson_ninja_install "-Dorc-test=disabled"
 	cd ..
@@ -2802,6 +2803,7 @@ build_libbluray() {
 build_libschroedinger() {
   download_and_unpack_file http://download.videolan.org/contrib/schroedinger-1.0.11.tar.gz schroedinger-1.0.11
   cd schroedinger-1.0.11
+    export PKG_CONFIG_PATH=${mingw_w64_x86_64_prefix}/lib/pkgconfig
     generic_configure "CFLAGS=-fcommon"
     sed -i.bak 's/testsuite//' Makefile
     do_make_install
