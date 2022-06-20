@@ -154,7 +154,7 @@ echo "Mingw-w64 headers are installed."
 
 echo "Cloning GCC..."
 
-git clone --depth 1 -b master --single-branch https://github.com/gcc-mirror/gcc.git gcc || echo "Seems we have GCC."
+git clone --depth 1 --single-branch -b releases/gcc-12 https://github.com/gcc-mirror/gcc.git gcc || echo "Seems we have GCC."
 #git clone https://github.com/gcc-mirror/gcc.git gcc
 #cd gcc
 #	git checkout 81b2b5e4c1b3377035203c3cb1acaf33655937b2 || echo "Seems we have GCC." 
@@ -194,7 +194,7 @@ cd gcc
 #	cat ${top_dir}/gcc-autoconf.patch | patch -p0
 #	curl https://src.fedoraproject.org/rpms/mingw-gcc/raw/rawhide/f/mingw-gcc-config.patch | patch -p1
 #	curl https://src.fedoraproject.org/rpms/mingw-gcc/raw/rawhide/f/0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch | patch -p1
-	curl "https://gcc.gnu.org/bugzilla/attachment.cgi?id=53052" | patch -p0
+#	curl "https://gcc.gnu.org/bugzilla/attachment.cgi?id=53052" | patch -p0
 	pushd libiberty
 		autoconf -f
 	popd

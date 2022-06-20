@@ -2599,30 +2599,33 @@ build_unittest() {
 }
 
 build_libfilezilla() {
-do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfilezilla 
-    cd libfilezilla
+#do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfilezilla 
+#    cd libfilezilla
         #apply_patch file://${top_dir}/libfilezilla-typo.patch
 #	apply_patch file://${top_dir}/libfilezilla-limits.patch
 	export PKG_CONFIG_PATH=${mingw_w64_x86_64_prefix}/lib/pkgconfig
-	apply_patch file://${top_dir}/libfilezilla-cstdint.patch
+	#apply_patch file://${top_dir}/libfilezilla-cstdint.patch
         export CC=x86_64-w64-mingw32-gcc
         export CXX=x86_64-w64-mingw32-g++
         export WINDRES=x86_64-w64-mingw32-windres
 #        export orig_cpu_count=$cpu_count
 #        export cpu_count=1
-        generic_configure_make_install "CXXFLAGS=-fpermissive --enable-shared --disable-static"
-#        generic_download_and_install https://download.filezilla-project.org/libfilezilla/libfilezilla-0.19.3.tar.bz2 libfilezilla-0.19.3 "--disable-shared --enable-static"
-        unset CC
-        unset CXX
-        unset WINDRES
+#        generic_configure_make_install "CXXFLAGS=-fpermissive --enable-shared --disable-static"
+	download_and_unpack_file https://download.filezilla-project.org/libfilezilla/libfilezilla-0.37.2.tar.bz2 libfilezilla-0.37.2
+	cd libfilezilla-0.37.2
+		apply_patch file://${top_dir}/libfilezilla-cstdint.patch
+	        generic_configure_make_install "--enable-shared --disable-static"
+    		unset CC
+		unset CXX
+	        unset WINDRES
 #        export cpu_count=$orig_cpu_count
-    cd ..
+        cd ..
 }
 
 build_filezilla() {
-  do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla  #10093 #9844 #9530 #9450 # 9262 # 9056
-#  download_and_unpack_file "https://dl3.cdn.filezilla-project.org/client/FileZilla_3.46.3_src.tar.bz2?h=oLc72s8yghgbX19g_lnNNw&x=1580289968" filezilla-3.46.3
-  cd filezilla
+#  do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla  #10093 #9844 #9530 #9450 # 9262 # 9056
+  download_and_unpack_file "https://download.filezilla-project.org/client/FileZilla_3.60.1_src.tar.bz2" filezilla-3.60.1
+  cd filezilla-3.60.1
     export CC=x86_64-w64-mingw32-gcc
     export CXX=x86_64-w64-mingw32-g++
     export WINDRES=x86_64-w64-mingw32-windres
@@ -4390,7 +4393,7 @@ build_boost() {
 #      ./b2 --prefix=${mingw_w64_x86_64_prefix} -j 2 --ignore-site-config --user-config=user-config.jam address-model=64 architecture=x86 binary-format=pe link=shared --runtime-link=shared --target-os=windows threadapi=win32 threading=multi toolset=gcc-mingw --layout=tagged --disable-icu cxxflags='-std=c++11' --with-system --with-filesystem --with-regex --with-date_time install || exit 1
 #      ./b2 -a -d+2 --debug-configuration --prefix=${mingw_w64_x86_64_prefix} variant=release target-os=windows toolset=gcc-mingw address-model=64 link=shared runtime-link=shared threading=multi threadapi=win32 architecture=x86 binary-format=pe --with-system --with-filesystem --with-regex --with-date_time --with-thread --with-test --user-config=user-config.jam install || exit 1
 #      ./b2 -a -d+2 --debug-configuration --prefix=${mingw_w64_x86_64_prefix} variant=debug target-os=windows toolset=gcc-mingw address-model=64 link=shared runtime-link=shared threading=multi threadapi=win32 architecture=x86 binary-format=pe boost.locale.winapi=on boost.locale.std=on boost.locale.icu=on boost.locale.iconv=on boost.locale.posix=off --with-locale --user-config=user-config.jam install || exit 1
-      ./b2 -a -j ${cpu_count}  --prefix=${mingw_w64_x86_64_prefix} variant=release target-os=windows toolset=gcc-mingw abi=ms address-model=64 link=shared,static runtime-link=shared threading=multi threadapi=win32 architecture=x86 binary-format=pe --without-python --without-serialization --layout=tagged --user-config=user-config.jam install || exit 1 # boost.locale.winapi=on boost.locale.std=on boost.locale.icu=on boost.locale.iconv=on boost.locale.posix=off --user-config=user-config.jam install || exit 1
+      ./b2 -a -j ${cpu_count}  --prefix=${mingw_w64_x86_64_prefix} variant=release target-os=windows toolset=gcc-mingw abi=ms address-model=64 link=shared,static runtime-link=shared threading=multi threadapi=win32 architecture=x86 binary-format=pe --with-container --with-system --with-thread --layout=tagged --user-config=user-config.jam install || exit 1 # boost.locale.winapi=on boost.locale.std=on boost.locale.icu=on boost.locale.iconv=on boost.locale.posix=off --user-config=user-config.jam install || exit 1
       touch -- "$touch_name"
     else
       echo "Already built and installed Boost libraries"
@@ -5244,7 +5247,7 @@ build_mjpegtools() {
 build_file() {
   # Also contains libmagic
   do_git_checkout https://github.com/file/file.git file_native #3dc9066f0b59513951626d8596ea67e23a0fd42e #13ba1a3639f7a40f3bffbabf2737cbdde314faf4
-  do_git_checkout https://github.com/file/file.git file  850e148d088922878f1e5f6b2e3a9c01f75d21f3 #3dc9066f0b59513951626d8596ea67e23a0fd42e #13ba1a3639f7a40f3bffbabf2737cbdde314faf4
+  do_git_checkout https://github.com/file/file.git file  # 850e148d088922878f1e5f6b2e3a9c01f75d21f3 #3dc9066f0b59513951626d8596ea67e23a0fd42e #13ba1a3639f7a40f3bffbabf2737cbdde314faf4
   # We use the git version of file and libmagic, which is updated more
   # often than distributions track. File requires its own binary to compile
   # its list of magic numbers. Therefore, because we are cross-compiling,
@@ -7347,14 +7350,14 @@ build_dependencies() {
 #  build_libcelt
   #build_fmt
 #  build_icu
-  build_boost # needed for mkv tools
+  build_boost # needed for mkv tools, cairo
   build_libspeexdsp # Speex now split into two libraries
   build_libspeex # needs libogg for exe's
   build_libvorbis # needs libogg
   build_libtheora # needs libvorbis, libogg
   build_orc
   build_libschroedinger # needs orc
-  #build_libebur128
+  build_libebur128
   build_regex # needed by ncurses and cddb among others
   build_termcap
   build_ncurses
@@ -7474,7 +7477,7 @@ build_dependencies() {
   build_curl_early
   #build_libproj
   #build_libnova
-  build_poppler
+#  build_poppler
   build_SWFTools
   build_ASIOSDK
   build_eigen
@@ -7508,6 +7511,7 @@ build_dependencies() {
   build_angle
   build_cairo
   build_cairomm
+  build_poppler
   #build_pango
   #build_pangomm
   build_icu
