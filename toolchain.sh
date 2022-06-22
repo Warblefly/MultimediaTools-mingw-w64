@@ -154,11 +154,11 @@ echo "Mingw-w64 headers are installed."
 
 echo "Cloning GCC..."
 
-git clone --depth 1 --single-branch -b releases/gcc-12 https://github.com/gcc-mirror/gcc.git gcc || echo "Seems we have GCC."
+git clone https://github.com/gcc-mirror/gcc.git gcc || echo "Seems we have GCC."
 #git clone https://github.com/gcc-mirror/gcc.git gcc
-#cd gcc
-#	git checkout 81b2b5e4c1b3377035203c3cb1acaf33655937b2 || echo "Seems we have GCC." 
-#cd ..
+cd gcc
+	git checkout e6d369bbdb4eb5f03eec233ef9905013a735fd71 || echo "Correct commit of GCC." 
+cd ..
 
 #git clone --depth 1 git://gcc.gnu.org/git/gcc.git gcc-dir.tmp
 #git --git-dir=gcc-dir.tmp/.git fetch --depth 1 origin 3fc88aa16f1bf661db4518d6d62869f081981981
@@ -338,7 +338,7 @@ cd gcc-build
 cd ..
 echo "All tools built and installed."
 echo "Clean-up..."
-#rm -rf binutils-2.34 binutils-build gcc gcc-build mingw-crt-build mingw-headers-build mingw-w64 mingw-winpthreads-build
+rm -rfv binutils binutils-build gcc gcc-build mingw-crt-build mingw-headers-build mingw-w64 mingw-winpthreads-build mingw-widl-build
 echo "Cleaned-up."
 
 # Need to get the "depot_tools" for building ANGLE
