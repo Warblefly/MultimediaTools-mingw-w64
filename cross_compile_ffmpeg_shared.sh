@@ -3565,6 +3565,10 @@ build_tesseract() {
   cd ..
 }
 
+build_ghostscript() {
+	generic_download_and_install https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs9561/ghostscript-9.56.1.tar.gz ghostscript-9.56.1 "--without-tesseract"
+}
+
 build_freetype() {
   download_and_unpack_file https://download.savannah.gnu.org/releases/freetype/freetype-2.10.4.tar.xz freetype-2.10.4
   cd freetype-2.10.4
@@ -7546,6 +7550,7 @@ build_dependencies() {
   build_1394camera
   build_libdc1394
   build_libmpeg2
+  build_ghostscript
   build_vim
   #build_ilmbase
 #  build_hdf
