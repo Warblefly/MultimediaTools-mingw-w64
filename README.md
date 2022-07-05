@@ -25,7 +25,7 @@ The installer sets certain environment variables for some facilities to work pro
 
 You may need to run fc-cache.exe as an Administrator, to help fontconfig put a cache of your Windows fonts into a suitable place. I'd make the installer do it for you, but I haven't worked out how to do this yet.
 
-You might also want to play with the defaults for the mpv player, in %APPDATA%\Roaming\mpv (mpv.conf). It's a highly configurable player, and you may want to adjust it manually for best performance in your environment. An example file is included in this distribution in the share directory for mpv. Copy it to where you need it.
+You might also want to play with the defaults for the mpv player, in %APPDATA%\Roaming\mpv (mpv.conf). It's a highly configurable player, and you will probably want to adjust it manually for best performance in your environment. An example file is included in this distribution in the share directory for mpv. Copy it to where you need it.
 
 
 # How To Compile
