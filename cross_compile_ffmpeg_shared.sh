@@ -2992,8 +2992,8 @@ build_p11kit() {
 #  cd p11-kit-0.23.2
 }
 
-build_libidn2() {
-  generic_download_and_install https://ftp.gnu.org/gnu/libidn/libidn2-2.3.1.tar.gz libidn2-2.3.1
+build_libidn() {
+  generic_download_and_install https://ftp.gnu.org/gnu/libidn/libidn-1.41.tar.gz libidn-1.41
 # do_git_checkout https://github.com/libidn/libidn2.git libidn2 # 301a43b5ac41f0fbea41d70444c0942ae93624cd
 #  cd libidn2
 #    generic_configure_make_install "--disable-doc"
@@ -3565,8 +3565,19 @@ build_tesseract() {
   cd ..
 }
 
+build_libidn2() {
+	generic_download_and_install https://ftp.gnu.org/gnu/libidn/libidn2-2.3.2.tar.gz libidn2-2.3.2
+}
+
+build_libpaper() {
+	do_git_checkout https://github.com/naota/libpaper.git libpaper
+	cd libpaper
+		generic_configure_make_install
+	cd ..
+}
+
 build_ghostscript() {
-	generic_download_and_install https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs9561/ghostscript-9.56.1.tar.gz ghostscript-9.56.1 "--without-tesseract"
+	generic_download_and_install https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs9561/ghostscript-9.56.1.tar.gz ghostscript-9.56.1 "--without-tesseract --enable-fontconfig --enable-freetype --enable-openjpeg --with-jbig2dec --with-libidn --with-libpaper --with-drivers=ALL"
 }
 
 build_freetype() {
@@ -6662,7 +6673,7 @@ build_rtaudio() {
   cd ..
 }
 
-build_libidn() {
+build_libidn2() {
   do_git_checkout https://gitlab.com/libidn/libidn2.git libidn2
   cd libidn2
     generic_configure_make_install "--disable-doc"
@@ -7550,6 +7561,8 @@ build_dependencies() {
   build_1394camera
   build_libdc1394
   build_libmpeg2
+  build_libidn
+  build_libpaper
   build_ghostscript
   build_vim
   #build_ilmbase
