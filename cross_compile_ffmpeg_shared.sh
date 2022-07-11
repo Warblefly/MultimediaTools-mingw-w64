@@ -1410,7 +1410,7 @@ build_libsoxr() {
 }
 
 build_googletest() {
-  do_git_checkout https://github.com/google/googletest.git googletest main
+  do_git_checkout https://github.com/google/googletest.git googletest 4219e7254cb8c473f57f6065bd13d1520d7b708f # main
   cd googletest
     do_cmake "-DBUILD_SHARED_LIBS=ON"
     do_make_install
