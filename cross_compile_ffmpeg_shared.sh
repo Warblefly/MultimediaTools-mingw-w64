@@ -2599,7 +2599,7 @@ build_unittest() {
 }
 
 build_libfilezilla() {
-#do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfilezilla 
+do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfilezilla 
 #    cd libfilezilla
         #apply_patch file://${top_dir}/libfilezilla-typo.patch
 #	apply_patch file://${top_dir}/libfilezilla-limits.patch
@@ -2611,8 +2611,9 @@ build_libfilezilla() {
 #        export orig_cpu_count=$cpu_count
 #        export cpu_count=1
 #        generic_configure_make_install "CXXFLAGS=-fpermissive --enable-shared --disable-static"
-	download_and_unpack_file https://download.filezilla-project.org/libfilezilla/libfilezilla-0.37.2.tar.bz2 libfilezilla-0.37.2
-	cd libfilezilla-0.37.2
+#	download_and_unpack_file https://download.filezilla-project.org/libfilezilla/libfilezilla-0.37.2.tar.bz2 libfilezilla-0.37.2
+#	cd libfilezilla-0.37.2
+	cd libfilezilla
 		apply_patch file://${top_dir}/libfilezilla-cstdint.patch
 	        generic_configure_make_install "--enable-shared --disable-static"
     		unset CC
@@ -2623,9 +2624,10 @@ build_libfilezilla() {
 }
 
 build_filezilla() {
-#  do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla  #10093 #9844 #9530 #9450 # 9262 # 9056
-  download_and_unpack_file "https://download.filezilla-project.org/client/FileZilla_3.60.1_src.tar.bz2" filezilla-3.60.1
-  cd filezilla-3.60.1
+  do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla  #10093 #9844 #9530 #9450 # 9262 # 9056
+#  download_and_unpack_file "https://download.filezilla-project.org/client/FileZilla_3.60.1_src.tar.bz2" filezilla-3.60.1
+#  cd filezilla-3.60.1
+  cd filezilla
     export CC=x86_64-w64-mingw32-gcc
     export CXX=x86_64-w64-mingw32-g++
     export WINDRES=x86_64-w64-mingw32-windres
