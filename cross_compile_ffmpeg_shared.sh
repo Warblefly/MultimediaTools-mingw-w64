@@ -5643,6 +5643,7 @@ build_libplacebo() {
   #do_git_checkout https://code.videolan.org/videolan/libplacebo.git libplacebo #3294a29ee0fa103a0558a37123344cee573324e8
   do_git_checkout https://github.com/haasn/libplacebo.git libplacebo # e79ea1902ea7c797f5cd2ff2de937a789408c136 # 08b45ede97262d73778f1bee40ac845702e240d4 # 5198e1564c5f2900b7b1f98561b6323d27bd78bb
   cd libplacebo
+    git submodule update --init
     #apply_patch file://${top_dir}/libplacebo-win32.patch
     generic_meson_ninja_install "-Ddemos=false -Dvulkan-registry=${mingw_w64_x86_64_prefix}/share/vulkan/registry/vk.xml"
   cd ..
@@ -6533,7 +6534,7 @@ build_aom() {
 }
 
 build_svtav1() {
-	do_git_checkout https://github.com/OpenVisualCloud/SVT-AV1.git SVT-AV1
+	do_git_checkout https://gitlab.com/AOMediaCodec/SVT-AV1.git SVT-AV1
 	cd SVT-AV1
 		cd Build
 		do_cmake .. "-DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_PROCESSOR=AMD64"
