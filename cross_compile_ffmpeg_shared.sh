@@ -1631,7 +1631,7 @@ build_libspatialaudio() {
 }
 
 build_libmysofa() {
-  do_git_checkout https://github.com/hoene/libmysofa.git libmysofa #"Branch_v0.4(Windows)"
+  do_git_checkout https://github.com/hoene/libmysofa.git libmysofa main #"Branch_v0.4(Windows)"
   cd libmysofa
 #    apply_patch file://${top_dir}/libmysofa-zlib.patch
     cd src/tests
@@ -2713,7 +2713,7 @@ build_orc() {
 }
 
 build_libxml2() {
-  do_git_checkout https://gitlab.gnome.org/GNOME/libxml2.git libxml2
+  do_git_checkout https://gitlab.gnome.org/GNOME/libxml2.git libxml2 ce8f3d11957f44bc9bf901a3d7809cd5919caa7a
 #  download_and_unpack_file https://github.com/GNOME/libxml2/archive/v2.9.9-rc2.tar.gz libxml2-2.9.9-rc2
   cd libxml2 # -2.9.9-rc2
     # Remove libxml2 autogen because it sets variables that interfere with our cross-compile
@@ -7273,7 +7273,7 @@ build_ffmpeg() {
 #		apply_patch file://${top_dir}/ffmpeg-channel_layout.patch
 		# patch for HEVC plugin
 #		apply_patch_p1 file://{$top_dir}/ffmpeg-libsvt-hevc-wrapper.patch
-		apply_patch_p1 file://${top_dir}/FFmpeg-devel-avfilter-add-3D-scope-multimedia-filter.diff
+#		apply_patch_p1 file://${top_dir}/FFmpeg-devel-avfilter-add-3D-scope-multimedia-filter.diff
 		do_configure "${standard_options} ${licensing_options} ${configuration_options} ${component_options} ${library_options} ${hardware_options} ${toolchain_options} ${developer_options}" 
 #  rm -f */*.a */*.dll *.exe # just in case some dependency library has changed, force it to re-link even if the ffmpeg source hasn't changed...
 #  rm already_ran_make*
