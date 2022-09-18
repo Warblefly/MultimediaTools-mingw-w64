@@ -934,14 +934,14 @@ build_qt6() {
 
 
 build_qt() {
-	export QT_VERSION="5.15.2"
+	export QT_VERSION="5.15.5"
 	export QT_BASE="5.15"
 	export QT_SOURCE="qt-source"
 	export QT_BUILD="qt-build"
 	export MAKEFLAGS="-j8"
 	if [ ! -f qt.built ]; then
 #		download_and_unpack_file https://download.qt.io/archive/qt/${QT_BASE}/${QT_VERSION}/single/qt-everywhere-src-${QT_VERSION}.tar.xz "qt-everywhere-src-${QT_VERSION}"
-	        download_and_unpack_file https://download.qt.io/archive/qt/5.15/5.15.2/single/qt-everywhere-src-5.15.2.tar.xz qt-everywhere-src-5.15.2
+	        download_and_unpack_file https://download.qt.io/official_releases/qt/5.15/5.15.5/single/qt-everywhere-opensource-src-5.15.5.tar.xz qt-everywhere-src-5.15.5
 		cd "qt-everywhere-src-${QT_VERSION}"
 		apply_patch file://${top_dir}/qt5-no-qmltests.patch
 			cd qtbase
@@ -970,7 +970,7 @@ build_qt() {
 				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtdeclarative/raw/rawhide/f/0001-Build-QML-dev-tools-as-shared-library.patch
 				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtdeclarative/raw/rawhide/f/0002-Ensure-static-plugins-are-exported.patch
 				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtdeclarative/raw/rawhide/f/0003-Prevent-exporting-QML-parser-symbols-on-static-build.patch
-				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtdeclarative/raw/rawhide/f/0004-add-missing-include-gcc11.patch
+#				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtdeclarative/raw/rawhide/f/0004-add-missing-include-gcc11.patch
 				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtdeclarative/raw/rawhide/f/0005-Disable-d3d12-requiring-fxc.exe.patch
 			cd ..
 			cd qttools
@@ -4420,7 +4420,7 @@ build_boost() {
 }
 
 build_mkvtoolnix() {
-  do_git_checkout https://gitlab.com/mbunkus/mkvtoolnix mkvtoolnix release-58.0.0 # 81cfb605dbf6f602fe370ddd4d7e53f4b0b94dc7 # main #  ab4caebe3df291ff65a66ca6bd4e4c47c5fbe6b4 # main #16772170030715717341c3d5460d3d1fecf501a4
+  do_git_checkout https://gitlab.com/mbunkus/mkvtoolnix mkvtoolnix main # release-58.0.0 # 81cfb605dbf6f602fe370ddd4d7e53f4b0b94dc7 # main #  ab4caebe3df291ff65a66ca6bd4e4c47c5fbe6b4 # main #16772170030715717341c3d5460d3d1fecf501a4
 #    download_and_unpack_file https://mkvtoolnix.download/sources/mkvtoolnix-43.0.0.tar.xz mkvtoolnix-43.0.0
   cd mkvtoolnix # -43.0.0
     # Two libraries needed for mkvtoolnix
@@ -4450,7 +4450,7 @@ build_mkvtoolnix() {
 #    apply_patch file://${top_dir}/mkvtoolnix-version.patch
 #    apply_patch file://${top_dir}/mkvtoolnix-tests.patch
     export LIBS="-lole32"
-    generic_configure "--with-boost=${mingw_w64_x86_64_prefix} --with-boost-system=boost_system-mt-x64 --with-boost-filesystem=boost_filesystem-mt-x64 --with-boost-date-time=boost_date_time-mt-x64 --with-boost-regex=boost_regex-mt-x64 --disable-gui --disable-qt5 --disable-qt6 --enable-optimization=yes --enable-debug=no"
+    generic_configure "--with-boost=${mingw_w64_x86_64_prefix} --with-boost-system=boost_system-mt-x64 --with-boost-filesystem=boost_filesystem-mt-x64 --with-boost-date-time=boost_date_time-mt-x64 --with-boost-regex=boost_regex-mt-x64 --enable-gui --enable-optimization=yes --enable-debug=no"
     # Now we must prevent inclusion of sys_windows.cpp because our build uses shared libraries,
     # and this piece of code unfortunately tries to pull in a static version of the Windows Qt
     # platform library libqwindows.a
@@ -6257,15 +6257,15 @@ build_vulkan() {
 
     #download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Loader/archive/sdk-1.1.73.0.tar.gz Vulkan-Loader-sdk-1.1.73.0
     #download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Headers/archive/sdk-1.1.92.0.tar.gz Vulkan-Headers-sdk-1.1.92.0
-    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Headers/archive/v1.3.211.tar.gz Vulkan-Headers-1.3.211
+    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Headers/archive/v1.3.227.tar.gz Vulkan-Headers-1.3.227
     #cd Vulkan-Loader-sdk-1.1.73.0
-    cd Vulkan-Headers-1.3.211
+    cd Vulkan-Headers-1.3.227
         do_cmake
         do_make
         do_make_install
     cd ..
-    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Loader/archive/v1.3.211.tar.gz Vulkan-Loader-1.3.211
-    cd Vulkan-Loader-1.3.211
+    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Loader/archive/v1.3.227.tar.gz Vulkan-Loader-1.3.227
+    cd Vulkan-Loader-1.3.227
         #apply_patch_p1 file://${top_dir}/001-build-fix.patch
         #apply_patch_p1 file://${top_dir}/002-proper-def-files-for-32bit.patch
         #apply_patch_p1 file://${top_dir}/003-generate-pkgconfig-files.patch
@@ -6275,7 +6275,7 @@ build_vulkan() {
 #	apply_patch_p1 https://github.com/KhronosGroup/Vulkan-Loader/commit/8c0ee92.patch
         apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vulkan-loader/002-proper-def-files-for-32bit.patch
 #        apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vulkan-loader/003-generate-pkgconfig-files.patch
-        apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vulkan-loader/004-disable-suffix-in-static-lib.patch
+#        apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vulkan-loader/004-disable-suffix-in-static-lib.patch
 	apply_patch file://${top_dir}/Vulkan-Loader-pc-for-qt-fix.patch
         #echo "#define SPIRV_TOOLS_COMMIT_ID \"8d8a71278bf9e83dd0fb30d5474386d30870b74d\"" > spirv_tools_commit_id.h
         #cp -fv spirv_tools_commit_id.h loader/
@@ -7590,7 +7590,7 @@ build_dependencies() {
   build_aom
   build_svtav1
   #build_asdcplib-cth
-  #build_cmark
+  build_cmark
   build_opusfile
   build_libopusenc
 #  build_medialibrary
@@ -7680,8 +7680,8 @@ build_apps() {
   build_youtube-dl
   build_mjpegtools
   build_unittest
-# build_qt5
-  #build_mkvtoolnix
+  build_qt
+  build_mkvtoolnix
 #  build_openssh
 #  build_rsync
   build_dvdbackup

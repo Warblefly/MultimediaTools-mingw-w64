@@ -554,6 +554,9 @@ SectionEnd
 Section "uninstall"
 ;SetCompress off
 RMDir /r "$INSTDIR\bin"
+RMDir /r "$INSTDIR\etc"
+RMDir /r "$INSTDIR\qml"
+RMDir /r "$INSTDIR\tags"
 RMDir /r "$INSTDIR\lib"
 RMDir /r "$INSTDIR\plugins"
 RMDir /r "$INSTDIR\share"
