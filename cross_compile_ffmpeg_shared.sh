@@ -5189,7 +5189,7 @@ build_ffms2() {
 }
 
 build_flac() {
-  do_git_checkout https://github.com/xiph/flac.git flac  # b821ac2
+  do_git_checkout https://github.com/xiph/flac.git flac 1c0eea679ae4351c77c912988d0a24d90809965a
 #  cpu_count=1
   cd flac
     # microbench target hasn't been tested on many platforms yet
@@ -5201,7 +5201,7 @@ build_flac() {
     if [[ ! -f "configure" ]]; then
       ./autogen.sh
     fi
-    generic_configure_make_install "--disable-doxygen-docs --disable-silent-rules"
+    generic_configure_make_install "--disable-doxygen-docs --disable-silent-rules --disable-xmms-plugin"
 
 #    cpu_count=$original_cpu_count
   cd ..
@@ -6108,7 +6108,7 @@ build_mp4box() { # like build_gpac
   # sed -i "s/`uname -s`/MINGW32/g" configure
   # XXX do I want to disable more things here?
 #    apply_patch file://${top_dir}/mp4box-case.patch
-    apply_patch file://${top_dir}/mp4box_gpac-case.patch
+#    apply_patch file://${top_dir}/mp4box_gpac-case.patch
     sed -i.bak 's#bin/gcc/MP4Box #bin/gcc/MP4Box.exe #' Makefile
     sed -i.bak 's#bin/gcc/MP42TS #bin/gcc/MP42TS.exe #' Makefile
     sed -i.bak 's#bin/gcc/MP4Client #bin/gcc/MP4Client.exe #' Makefile
