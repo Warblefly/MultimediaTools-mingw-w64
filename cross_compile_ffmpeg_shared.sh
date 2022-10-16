@@ -3079,8 +3079,8 @@ build_bzlib2() {
 }
 
 build_zlib() {
-  download_and_unpack_file http://zlib.net/zlib-1.2.12.tar.gz zlib-1.2.12
-  cd zlib-1.2.12
+  download_and_unpack_file http://zlib.net/zlib-1.2.13.tar.gz zlib-1.2.13
+  cd zlib-1.2.13
     export mingw_w64_x86_64_prefix=${mingw_w64_x86_64_prefix}
     echo "PKG_CONFIG_PATH at this point is ${PKG_CONFIG_PATH}"
     apply_patch file://${top_dir}/zlib-Makefile-gcc.patch
