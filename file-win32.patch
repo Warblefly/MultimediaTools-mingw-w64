@@ -68,14 +68,3 @@
  }
  
  protected int
---- src/file.c.orig	2022-07-07 14:44:04.952377700 +0100
-+++ src/file.c	2022-07-07 14:44:26.712377700 +0100
-@@ -600,7 +600,7 @@
- 	for (i = 0; i < n; i++) {
- 		unsigned char c = CAST(unsigned char, inname[i]);
- 		if (isprint(c)) {
--			putc(c);
-+			putc(c, stdout);
- 			continue;
- 		}
- 		file_octal(c);

@@ -3004,8 +3004,8 @@ build_libidn() {
 }
 
 build_xerces() {
-	download_and_unpack_file http://mirrors.ukfast.co.uk/sites/ftp.apache.org//xerces/c/3/sources/xerces-c-3.2.3.tar.xz xerces-c-3.2.3
-	cd xerces-c-3.2.3
+	download_and_unpack_file http://mirrors.ukfast.co.uk/sites/ftp.apache.org//xerces/c/3/sources/xerces-c-3.2.4.tar.xz xerces-c-3.2.4
+	cd xerces-c-3.2.4
 		do_cmake && ${top_dir}/correct_headers.sh
 		do_make
 		do_make_install
