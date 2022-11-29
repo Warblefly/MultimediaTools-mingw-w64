@@ -1,0 +1,11 @@
+--- Makefile.am.orig	2022-11-29 15:28:44.666082573 +0000
++++ Makefile.am	2022-11-29 15:29:13.696082954 +0000
+@@ -22,7 +22,7 @@
+ synaesthesia_DEPENDENCIES = synaesthesia.ico
+ 
+ .rc.o:
+-	$(WINDRES) -o $@ $<
++	windres -o $@ $<
+ 
+ syn-res.o: synaesthesia.ico
+ 

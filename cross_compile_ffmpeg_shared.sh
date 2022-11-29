@@ -3764,7 +3764,7 @@ build_OpenCL() {
 }
 
 build_vim() {
-  do_git_checkout https://github.com/vim/vim.git vim # 3e0107ea16349b354e0e9712e95b09ef019e99e5
+  do_git_checkout https://github.com/vim/vim.git vim 37199894317db555723e5ec99f88cbbb2a2a9670 # 3e0107ea16349b354e0e9712e95b09ef019e99e5
   cd vim
 #  	apply_patch file://${top_dir}/vim_uuid.patch
   cd ..
@@ -3782,7 +3782,7 @@ build_vim() {
       mkdir -pv ${mingw_w64_x86_64_prefix}/share/vim && cp -Rv ../runtime/* ${mingw_w64_x86_64_prefix}/share/vim
   cd ../..
 
-  do_git_checkout https://github.com/vim/vim.git vim_console # 3e0107ea16349b354e0e9712e95b09ef019e99e5
+  do_git_checkout https://github.com/vim/vim.git vim_console 37199894317db555723e5ec99f88cbbb2a2a9670 # 3e0107ea16349b354e0e9712e95b09ef019e99e5
   cd vim_console/src
     sed -i.bak 's/FEATURES=BIG/FEATURES=HUGE/' Make_cyg_ming.mak
     sed -i.bak 's/ARCH=i686/ARCH=x86-64/' Make_cyg_ming.mak
@@ -6569,10 +6569,12 @@ build_libdash() {
 }
 
 build_synaesthesia() {
-  do_git_checkout https://github.com/dreamlayers/synaesthesia.git synaesthesia
+  do_git_checkout https://github.com/dreamlayers/synaesthesia.git synaesthesia # f8e028b5c02297c36879bab99441583a4aea4e8c
   cd synaesthesia
-    apply_patch file://${top_dir}/synaesthesia-case.patch
+#    apply_patch file://${top_dir}/synaesthesia-case.patch
     apply_patch file://${top_dir}/synaesthesia-missing-icon.patch
+#    apply_patch file://${top_dir}/synaesthesia-configure.ac.patch
+#    apply_patch file://${top_dir}/synaesthesia-Makefile.am.patch
     export LIBS="-lmingw32 -lSDL2main"
     generic_configure_make_install "CXXFLAGS=-fpermissive --with-sdl2=yes"
 
