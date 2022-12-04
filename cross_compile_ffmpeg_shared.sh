@@ -1841,7 +1841,7 @@ build_libvpx() {
     download_and_unpack_file http://webm.googlecode.com/files/libvpx-v1.3.0.tar.bz2 libvpx-v1.3.0
     cd libvpx-v1.3.0
   else
-    do_git_checkout https://chromium.googlesource.com/webm/libvpx "libvpx_git" # "nextgenv2"
+    do_git_checkout https://chromium.googlesource.com/webm/libvpx "libvpx_git" main # "nextgenv2"
     cd libvpx_git
     apply_patch file://${top_dir}/libvpx-vp8-common-threading-h-mingw.patch
   fi
@@ -4025,7 +4025,7 @@ build_glew() {
 }
 
 build_libwebp() {
-  do_git_checkout https://chromium.googlesource.com/webm/libwebp libwebp
+  do_git_checkout https://chromium.googlesource.com/webm/libwebp libwebp main
   cd libwebp
     generic_configure_make_install "LIBS=-lSDL2main --enable-libwebpmux --enable-libwebpdemux --enable-libwebpdecoder --enable-libwebpextras --enable-experimental --disable-sdl"
 #    # I don't understand why, but mux.h, required for GraphicMagick, isn't installed
