@@ -934,14 +934,14 @@ build_qt6() {
 
 
 build_qt() {
-	export QT_VERSION="5.15.6"
+	export QT_VERSION="5.15.7"
 	export QT_BASE="5.15"
 	export QT_SOURCE="qt-source"
 	export QT_BUILD="qt-build"
 	export MAKEFLAGS="-j8"
 	if [ ! -f qt.built ]; then
 #		download_and_unpack_file https://download.qt.io/archive/qt/${QT_BASE}/${QT_VERSION}/single/qt-everywhere-src-${QT_VERSION}.tar.xz "qt-everywhere-src-${QT_VERSION}"
-	        download_and_unpack_file https://download.qt.io/official_releases/qt/5.15/5.15.6/single/qt-everywhere-opensource-src-5.15.6.tar.xz qt-everywhere-src-5.15.6
+	        download_and_unpack_file https://download.qt.io/official_releases/qt/5.15/5.15.7/single/qt-everywhere-opensource-src-5.15.7.tar.xz qt-everywhere-src-5.15.7
 		cd "qt-everywhere-src-${QT_VERSION}"
 		apply_patch file://${top_dir}/qt5-no-qmltests.patch
 			cd qtbase
