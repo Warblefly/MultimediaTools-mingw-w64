@@ -2681,7 +2681,7 @@ build_libass() {
 }
 
 build_gmp() {
-  download_and_unpack_file https://gmplib.org/download/gmp/gmp-6.2.1.tar.bz2 gmp-6.2.1
+  download_and_unpack_file http://gmplib.org/download/gmp/gmp-6.2.1.tar.bz2 gmp-6.2.1
   cd gmp-6.2.1
 #    export CC_FOR_BUILD=/usr/bin/gcc
 #    export CPP_FOR_BUILD=usr/bin/cpp
