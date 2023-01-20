@@ -4381,8 +4381,8 @@ build_fmt() {
 }
 
 build_boost() {
-  download_and_unpack_file "https://ftp.osuosl.org/pub/blfs/conglomeration/boost/boost_1_79_0.tar.bz2" boost_1_79_0
-  cd boost_1_79_0
+  download_and_unpack_file "https://ftp.osuosl.org/pub/blfs/conglomeration/boost/boost_1_81_0.tar.bz2" boost_1_81_0
+  cd boost_1_81_0
   #  cd libs/serialization
   #    apply_patch file://${top_dir}/boost-codecvt.patch
   #  cd ../..
@@ -4410,7 +4410,7 @@ build_boost() {
 #      ./b2 --prefix=${mingw_w64_x86_64_prefix} -j 2 --ignore-site-config --user-config=user-config.jam address-model=64 architecture=x86 binary-format=pe link=shared --runtime-link=shared --target-os=windows threadapi=win32 threading=multi toolset=gcc-mingw --layout=tagged --disable-icu cxxflags='-std=c++11' --with-system --with-filesystem --with-regex --with-date_time install || exit 1
 #      ./b2 -a -d+2 --debug-configuration --prefix=${mingw_w64_x86_64_prefix} variant=release target-os=windows toolset=gcc-mingw address-model=64 link=shared runtime-link=shared threading=multi threadapi=win32 architecture=x86 binary-format=pe --with-system --with-filesystem --with-regex --with-date_time --with-thread --with-test --user-config=user-config.jam install || exit 1
 #      ./b2 -a -d+2 --debug-configuration --prefix=${mingw_w64_x86_64_prefix} variant=debug target-os=windows toolset=gcc-mingw address-model=64 link=shared runtime-link=shared threading=multi threadapi=win32 architecture=x86 binary-format=pe boost.locale.winapi=on boost.locale.std=on boost.locale.icu=on boost.locale.iconv=on boost.locale.posix=off --with-locale --user-config=user-config.jam install || exit 1
-      ./b2 -a -j ${cpu_count}  --prefix=${mingw_w64_x86_64_prefix} variant=release target-os=windows toolset=gcc-mingw abi=ms address-model=64 link=shared,static runtime-link=shared threading=multi threadapi=win32 architecture=x86 binary-format=pe --with-container --with-system --with-thread --layout=tagged --user-config=user-config.jam install || exit 1 # boost.locale.winapi=on boost.locale.std=on boost.locale.icu=on boost.locale.iconv=on boost.locale.posix=off --user-config=user-config.jam install || exit 1
+      ./b2 -a -j ${cpu_count}  --prefix=${mingw_w64_x86_64_prefix} variant=release target-os=windows toolset=gcc-mingw abi=ms address-model=64 link=shared,static runtime-link=shared threading=multi threadapi=win32 architecture=x86 binary-format=pe --with-container --with-system --with-thread --with-filesystem --layout=tagged --user-config=user-config.jam install || exit 1 # boost.locale.winapi=on boost.locale.std=on boost.locale.icu=on boost.locale.iconv=on boost.locale.posix=off --user-config=user-config.jam install || exit 1
       touch -- "$touch_name"
     else
       echo "Already built and installed Boost libraries"
@@ -4722,7 +4722,7 @@ build_libchromaprint() {
 build_libarchive() {
     #download_and_unpack_file https://libarchive.org/downloads/libarchive-3.3.3.tar.gz libarchive-3.3.3
     #cd libarchive-3.3.3
-    do_git_checkout https://github.com/libarchive/libarchive.git libarchive
+    do_git_checkout https://github.com/libarchive/libarchive.git libarchive 0348e24bab24cc46642d29e3ceab64df22553298
     cd libarchive
         apply_patch file://${top_dir}/libarchive.patch
         generic_configure_make_install
