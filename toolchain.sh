@@ -26,7 +26,7 @@ export PATH="$working_directory/bin:/usr/local/bin:/usr/bin:/bin"
 echo "Getting binutils..."
 #	wget http://ftp.gnu.org/gnu/binutils/binutils-2.36.1.tar.bz2 || exit 1
 #        tar xvvf binutils-2.36.1.tar.bz2 && ln -sv binutils-2.36.1 binutils
-	git clone --depth 1 --single-branch -b binutils-2_38 https://github.com/bminor/binutils-gdb.git binutils || echo "Seems we have binutils."
+	git clone --depth 1 --single-branch -b binutils-2_40-branch https://github.com/bminor/binutils-gdb.git binutils || echo "Seems we have binutils."
 #	git clone --depth 1 --single-branch -b binutils-2_36-branch git://sourceware.org/git/binutils-gdb.git binutils || echo "Seems we have binutils."
 echo "Binutils has arrived."
 
@@ -175,10 +175,10 @@ cd gcc
 	if [[ ! -f gcc_accessories_source ]]; then
 		wget --no-check-certificate https://gmplib.org/download/gmp/gmp-6.2.1.tar.lz || exit 1
 		tar xvvf gmp-6.2.1.tar.lz && ln -sv gmp-6.2.1 gmp
-		wget https://ftp.gnu.org/gnu/mpfr/mpfr-4.1.0.tar.xz || exit 1
-		tar xvvf mpfr-4.1.0.tar.xz && ln -sv mpfr-4.1.0 mpfr
-		wget https://ftp.gnu.org/gnu/mpc/mpc-1.2.1.tar.gz || exit 1
-		tar xvvf mpc-1.2.1.tar.gz && ln -sv mpc-1.2.1 mpc
+		wget https://ftp.gnu.org/gnu/mpfr/mpfr-4.2.0.tar.xz || exit 1
+		tar xvvf mpfr-4.2.0.tar.xz && ln -sv mpfr-4.2.0 mpfr
+		wget https://ftp.gnu.org/gnu/mpc/mpc-1.3.1.tar.gz || exit 1
+		tar xvvf mpc-1.3.1.tar.gz && ln -sv mpc-1.3.1 mpc
 		wget https://libisl.sourceforge.io/isl-0.24.tar.xz || exit 1
 		tar xvvf isl-0.24.tar.xz && ln -sv isl-0.24 isl
 		touch gcc_accessories_source
