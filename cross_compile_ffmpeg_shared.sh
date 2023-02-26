@@ -5263,8 +5263,8 @@ build_mjpegtools() {
 
 build_file() {
   # Also contains libmagic
-  do_git_checkout https://github.com/file/file.git file_native c019f3c109cdf6606be265b8039f002d81d996bb #3dc9066f0b59513951626d8596ea67e23a0fd42e #13ba1a3639f7a40f3bffbabf2737cbdde314faf4
-  do_git_checkout https://github.com/file/file.git file c019f3c109cdf6606be265b8039f002d81d996bb # 850e148d088922878f1e5f6b2e3a9c01f75d21f3 #3dc9066f0b59513951626d8596ea67e23a0fd42e #13ba1a3639f7a40f3bffbabf2737cbdde314faf4
+  do_git_checkout https://github.com/file/file.git file_native # c019f3c109cdf6606be265b8039f002d81d996bb #3dc9066f0b59513951626d8596ea67e23a0fd42e #13ba1a3639f7a40f3bffbabf2737cbdde314faf4
+  do_git_checkout https://github.com/file/file.git file # c019f3c109cdf6606be265b8039f002d81d996bb # 850e148d088922878f1e5f6b2e3a9c01f75d21f3 #3dc9066f0b59513951626d8596ea67e23a0fd42e #13ba1a3639f7a40f3bffbabf2737cbdde314faf4
   # We use the git version of file and libmagic, which is updated more
   # often than distributions track. File requires its own binary to compile
   # its list of magic numbers. Therefore, because we are cross-compiling,
