@@ -1440,10 +1440,10 @@ build_mlt() {
 #    apply_patch file://${top_dir}/mlt-CMakeLists.patch
 #    apply_patch file://${top_dir}/mlt-opencv.patch
 #    apply_patch file://${top_dir}/mlt-ffmpeg.patch
-    apply_patch_p1 file://${top_dir}/tracker-opencv-mlt-reverse.patch
+#    apply_patch_p1 file://${top_dir}/tracker-opencv-mlt-reverse.patch
     mkdir mlt_build
     cd mlt_build
-	    do_cmake .. "-DMOD_OPENCV=ON -DWINDOWS_DEPLOY=OFF -DMOD_GDK=OFF -DMOD_AVFORMAT=OFF"
+	    do_cmake .. "-DMOD_OPENCV=OFF -DWINDOWS_DEPLOY=OFF -DMOD_GDK=OFF -DMOD_AVFORMAT=OFF"
 	    do_make
     
 	    cp -v src/framework/libmlt.def . 
