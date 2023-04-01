@@ -1437,7 +1437,7 @@ build_mlt() {
 #    do_configure "--prefix=${mingw_w64_x86_64_prefix} --enable-gpl --enable-gpl3 --disable-gtk2 --target-os=mingw --target-arch=x86_64 --libdir=${mingw_w64_x86_64_prefix}/bin/lib --datadir=${mingw_w64_x86_64_prefix}/bin/share --mandir=${mingw_w64_x86_64_prefix}/share/man --avformat-swscale --avformat-ldextra=${avformat_ldextra}"
 #    generic_configure_make_install "PKGCONFIG_PREFIX=${mingw_w64_x86_64_prefix}/lib/pkgconfig LIBS=-lole32 --disable-sdl --enable-opencv --enable-gpl --enable-gpl3 --target-os=mingw --target-arch=x86_64 --prefix=${mingw_w64_x86_64_prefix} --libdir=${mingw_w64_x86_64_prefix}/bin/lib --datadir=${mingw_w64_x86_64_prefix}/bin/share --mandir=${mingw_w64_x86_64_prefix}/share/man --disable-opengl"
 #    apply_patch file://${top_dir}/mlt-rtaudio.patch
-#    apply_patch file://${top_dir}/mlt-CMakeLists.patch
+    apply_patch file://${top_dir}/mlt-CMakeLists.patch
 #    apply_patch file://${top_dir}/mlt-opencv.patch
 #    apply_patch file://${top_dir}/mlt-ffmpeg.patch
 #    apply_patch_p1 file://${top_dir}/tracker-opencv-mlt-reverse.patch
@@ -1915,7 +1915,7 @@ build_libcdio-paranoia() {
 }
 
 build_libx262() {
-  do_git_checkout http://git.videolan.org/git/x262.git x262
+  do_git_checkout https://git.videolan.org/git/x262.git x262
   cd x262
     generic_configure "--host=$host_target --enable-static --disable-shared --cross-prefix=$cross_prefix --prefix=$mingw_w64_x86_64_prefix --disable-avs --disable-swscale --disable-lavf --disable-ffms --disable-gpac --disable-win32thread"
     do_make
@@ -1989,8 +1989,9 @@ build_libflite() {
 }
 
 build_libgsm() {
-  download_and_unpack_file https://ftp.radix.pro/sources/packages/m/gsm/gsm-1.0.13.tar.gz gsm-1.0-pl13
-  cd gsm-1.0-pl13
+  download_and_unpack_file https://src.fedoraproject.org/lookaside/extras/gsm/gsm-1.0.16.tar.gz/94b03ba7b9cf7da7caa8456c219a8673/gsm-1.0.16.tar.gz gsm-1.0-pl16
+#  download_and_unpack_file https://ftp.radix.pro/sources/packages/m/gsm/gsm-1.0.13.tar.gz gsm-1.0-pl13
+  cd gsm-1.0-pl16
   apply_patch file://${top_dir}/libgsm.patch # for openssl to work with it, I think?
   # not do_make here since this actually fails [in error]
   make CC=${cross_prefix}gcc AR=${cross_prefix}ar RANLIB=${cross_prefix}ranlib INSTALL_ROOT=${mingw_w64_x86_64_prefix}
@@ -2624,7 +2625,7 @@ do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfile
 }
 
 build_filezilla() {
-  do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla  #10093 #9844 #9530 #9450 # 9262 # 9056
+  do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla #10897  #10093 #9844 #9530 #9450 # 9262 # 9056
 #  download_and_unpack_file "https://download.filezilla-project.org/client/FileZilla_3.60.1_src.tar.bz2" filezilla-3.60.1
 #  cd filezilla-3.60.1
   cd filezilla
@@ -5490,13 +5491,13 @@ build_aubio() {
 	apply_patch file://${top_dir}/aubio_mingw.patch
         mkdir aubio_build
         cd aubio_build
-            wget https://gitlab.com/ita1024/waf/-/archive/waf-2.0.21/waf-waf-2.0.21.tar.bz2
-    	    tar xvvf waf-waf-2.0.21.tar.bz2
-            cd waf-waf-2.0.21
+            wget https://waf.io/waf-2.0.25.tar.bz2
+	    tar xvvf waf-2.0.25.tar.bz2
+            cd waf-2.0.25
                 NOCLIMB=1 python waf-light --tools=c_emscripten
             cd ..
         cd ..
-    cp -v aubio_build/waf-waf-2.0.21/waf .
+    cp -v aubio_build/waf-waf-2.0.25/waf .
     rm -rvf aubio_build
     do_configure "configure AR=x86_64-w64-mingw32-ar PKGCONFIG=x86_64-w64-mingw32-pkg-config WINRC=x86_64-w64-mingw32-windres CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ -v -pp --prefix=${mingw_w64_x86_64_prefix} --enable-double --disable-fftw3f --enable-fftw3 --with-target-platform=win64 --disable-jack --disable-tests --notests --disable-examples --disable-avcodec" "./waf"
     ./waf build || exit 1
@@ -7109,10 +7110,10 @@ build_libopenvino() {
 }
 
 build_liblensfun() {
-	do_git_checkout https://github.com/lensfun/lensfun.git lensfun
+	do_git_checkout https://github.com/lensfun/lensfun.git lensfun  40cf31ae8c1b855ad4189395d5aba02e2a2d641a
 	cd lensfun
 		do_cmake "-DBUILD_LENSTOOL=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_DATAROOTDIR=${mingw_w64_x86_64_prefix}/share/"
-		do_make
+		do_make 
 		do_make_install
 	cd ..
 }
