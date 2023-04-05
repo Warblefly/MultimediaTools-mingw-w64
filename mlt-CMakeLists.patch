@@ -9,3 +9,14 @@
    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_FLAGS} -Wno-class-memaccess -Wno-array-compare -Wno-unused-result -Wno-maybe-uninitialized")
    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${GCC_FLAGS} -Wno-discarded-qualifiers")
  endif ()
+--- CMakeLists.txt.orig	2023-04-03 13:48:12.375971722 +0100
++++ CMakeLists.txt	2023-04-03 13:48:32.095971924 +0100
+@@ -147,7 +147,7 @@
+ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+   # Treat warnings as errors with some exceptions
+   set(GCC_FLAGS "-Wall -Werror -Wno-deprecated-declarations -Wno-format-overflow")
+-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_FLAGS} -Wno-class-memaccess -Wno-array-compare -Wno-unused-result -Wno-maybe-uninitialized")
++  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_FLAGS} -Wno-class-memaccess -Wno-array-compare -Wno-unused-result -Wno-maybe-uninitialized")
+   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${GCC_FLAGS} -Wno-discarded-qualifiers")
+ endif ()
+ 

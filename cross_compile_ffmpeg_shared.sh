@@ -3482,8 +3482,8 @@ build_librubberband() {
 }
 
 build_iconv() {
-  download_and_unpack_file http://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.15.tar.gz libiconv-1.15
-  cd libiconv-1.15
+  download_and_unpack_file http://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.17.tar.gz libiconv-1.17
+  cd libiconv-1.17
     # Apply patch to fix non-exported inline function in gcc-5.2.0
     #apply_patch file://${top_dir}/libiconv-1.14-iconv-fix-inline.patch
     # We also need an empty langinfo.h to compile this
@@ -3812,7 +3812,7 @@ build_mpv() {
     unset CC
     unset LD
     #env
-    apply_patch file://${top_dir}/mpv-ksaudio.patch
+#    apply_patch file://${top_dir}/mpv-ksaudio.patch
     do_configure "configure -v -pp --prefix=${mingw_w64_x86_64_prefix} --enable-dvdnav --enable-cdda --disable-x11 --disable-debug-build --enable-sdl2 --enable-libmpv-shared --disable-libmpv-static" "./waf"
     # In this cross-compile for Windows, we keep the Python script up-to-date and therefore
     # must call it directly by its full name, because mpv can only explore for executables
@@ -5693,13 +5693,13 @@ build_locked_sstream() {
 build_libebml() {
 #  do_git_checkout https://github.com/evpobr/libebml.git libebml cmake-export-symbols
 #  download_and_unpack_file https://dl.matroska.org/downloads/libebml/libebml-1.3.6.tar.xz libebml-1.3.6
-#  cd libebml-1.3.6
+#  cd libebml-1.3.61
 #    do_cmake_static "-DCMAKE_CXX_FLAGS=-fpermissive"
 #    do_make
 #    do_make_install
 #  cd ..
-	download_and_unpack_file https://github.com/Matroska-Org/libebml/archive/release-1.3.10.tar.gz libebml-release-1.3.10
-	cd libebml-release-1.3.10
+	download_and_unpack_file https://github.com/Matroska-Org/libebml/archive/release-1.4.4.tar.gz libebml-release-1.4.4
+	cd libebml-release-1.4.4
 		do_cmake
 		do_make
 		do_make_install
@@ -5709,8 +5709,8 @@ build_libebml() {
 build_libmatroska() {
         #do_git_checkout https://github.com/Matroska-Org/libmatroska.git libmatroska
 
-	download_and_unpack_file https://github.com/Matroska-Org/libmatroska/archive/release-1.5.2.tar.gz libmatroska-release-1.5.2
-	cd libmatroska-release-1.5.2
+	download_and_unpack_file https://github.com/Matroska-Org/libmatroska/archive/release-1.7.1.tar.gz libmatroska-release-1.7.1
+	cd libmatroska-release-1.7.1
 		do_cmake && ${top_dir}/correct_headers.sh
 #		echo "Environment is: "
 #		env
