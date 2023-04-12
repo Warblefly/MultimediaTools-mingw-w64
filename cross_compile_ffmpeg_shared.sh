@@ -934,14 +934,14 @@ build_qt6() {
 
 
 build_qt() {
-	export QT_VERSION="5.15.7"
+	export QT_VERSION="5.15.9"
 	export QT_BASE="5.15"
 	export QT_SOURCE="qt-source"
 	export QT_BUILD="qt-build"
 	export MAKEFLAGS="-j8"
 	if [ ! -f qt.built ]; then
 #		download_and_unpack_file https://download.qt.io/archive/qt/${QT_BASE}/${QT_VERSION}/single/qt-everywhere-src-${QT_VERSION}.tar.xz "qt-everywhere-src-${QT_VERSION}"
-	        download_and_unpack_file https://download.qt.io/official_releases/qt/5.15/5.15.7/single/qt-everywhere-opensource-src-5.15.7.tar.xz qt-everywhere-src-5.15.7
+	        download_and_unpack_file https://download.qt.io/official_releases/qt/5.15/5.15.9/single/qt-everywhere-opensource-src-5.15.9.tar.xz qt-everywhere-src-5.15.9
 		cd "qt-everywhere-src-${QT_VERSION}"
 		apply_patch file://${top_dir}/qt5-no-qmltests.patch
 			cd qtbase
@@ -952,7 +952,7 @@ build_qt() {
 #				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtbase/raw/rawhide/f/qt5-qtbase-build-tools-rpath.patch
 				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtbase/raw/rawhide/f/qt5-qtbase-importlib-ext.patch
 				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtbase/raw/rawhide/f/qt5-qtbase-cmake-macros.patch
-				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtbase/raw/rawhide/f/qt5-qtbase-python3.patch
+#				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtbase/raw/rawhide/f/qt5-qtbase-python3.patch
 				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtbase/raw/rawhide/f/qt5-qtbase-pkgconfig.patch
 				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtbase/raw/rawhide/f/qt5-qtbase-iconv.patch
 				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qtbase/raw/rawhide/f/qt5-qtbase-zlib-cross.patch
@@ -1443,7 +1443,7 @@ build_mlt() {
 #    apply_patch_p1 file://${top_dir}/tracker-opencv-mlt-reverse.patch
     mkdir mlt_build
     cd mlt_build
-	    do_cmake .. "-DMOD_OPENCV=OFF -DWINDOWS_DEPLOY=OFF -DMOD_GDK=OFF -DMOD_AVFORMAT=OFF"
+    do_cmake .. "-DMOD_OPENCV=OFF -DWINDOWS_DEPLOY=OFF -DMOD_GDK=OFF -DMOD_AVFORMAT=OFF -DMOD_RTAUDIO=OFF"
 	    do_make
     
 	    cp -v src/framework/libmlt.def . 
@@ -1703,17 +1703,17 @@ build_opendcp() {
 }
 
 build_dcpomatic() {
-  do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic v2.16.8 #805d4a48fa6e4d8e28fd582a2ae6ba78b8343144 main # v2.15.x # fc1441eeaa3c0805c37809685ea7a3f5ca173666 # v2.15.x #97193e96c637ca92eeaf6e72ee38aa628308973b # v2.15.x #402fa9a3577975e9cf9728c815da1b17796fe325 # v2.15.x #9cff6ec974a4d0270091fe5c753483b0d53ecd46
-#  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic new-ffmpeg-take2 #edbccd8d04a33f9e8d03677d8ebc671f40b0f822 #v2.15.x # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
+#  do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic main # v2.16.52 #805d4a48fa6e4d8e28fd582a2ae6ba78b8343144 main # v2.15.x # fc1441eeaa3c0805c37809685ea7a3f5ca173666 # v2.15.x #97193e96c637ca92eeaf6e72ee38aa628308973b # v2.15.x #402fa9a3577975e9cf9728c815da1b17796fe325 # v2.15.x #9cff6ec974a4d0270091fe5c753483b0d53ecd46
+  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic v2.16.53 # new-ffmpeg-take2 #edbccd8d04a33f9e8d03677d8ebc671f40b0f822 #v2.15.x # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
 #  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.123" dcpomatic-2.15.123
   cd dcpomatic
     apply_patch file://${top_dir}/dcpomatic-wscript.patch
 #    apply_patch file://${top_dir}/dcpomatic-audio_ring_buffers.h.patch
 #    apply_patch file://${top_dir}/dcpomatic-ffmpeg.patch
-    apply_patch file://${top_dir}/dcpomatic-boost.patch
+#    apply_patch file://${top_dir}/dcpomatic-boost.patch
     apply_patch file://${top_dir}/dcpomatic-gl.patch
 #    apply_patch file://${top_dir}/dcpomatic-src-wx-wscript.patch
-    apply_patch file://${top_dir}/dcpomatic-unicode.patch
+#    apply_patch file://${top_dir}/dcpomatic-unicode.patch
 #    apply_patch file://${top_dir}/dcpomatic-rc.patch
 #    apply_patch file://${top_dir}/dcpomatic-channels.patch
 #    apply_patch file://${top_dir}/dcpomatic-display.patch
@@ -1732,7 +1732,7 @@ build_dcpomatic() {
     export CFLAGS="-Wno-format" # -DBOOST_ASIO_DISABLE_STD_FUTURE=1"
     export CXXFLAGS="-Wno-format"
     env
-    do_configure "configure WINRC=x86_64-w64-mingw32-windres CXX=x86_64-w64-mingw32-g++ -v -pp --prefix=${mingw_w64_x86_64_prefix} --target-windows-64 --check-cxx-compiler=gxx --disable-tests" "./waf"
+    do_configure "configure WINRC=x86_64-w64-mingw32-windres CXX=x86_64-w64-mingw32-g++ -v -pp --prefix=${mingw_w64_x86_64_prefix} --target-windows-64 --check-cxx-compiler=gxx --disable-tests --wx-config=${mingw_w64_x86_64_prefix}/bin/wx-config" "./waf"
     ./waf build -v || exit 1
     ./waf install || exit 1
     # Now put the graphics in the correct place
@@ -2643,7 +2643,7 @@ build_filezilla() {
 #    apply_patch file://${top_dir}/filezilla-wxWidgets.patch
 #    apply_patch file://${top_dir}/filezilla-limits.patch
 #    apply_patch file://${top_dir}/filezilla-wx31.patch
-    generic_configure_make_install "CFLAGS=-fcommon  --disable-dependency-tracking --with-pugixml=builtin"
+    generic_configure_make_install "CFLAGS=-fcommon  --disable-dependency-tracking --with-pugixml=builtin --with-wx-config=${mingw_w64_x86_64_prefix}/lib/wx/config/x86_64-w64-mingw32-msw-unicode-3.0"
 #    unset CFLAGS
 #   generic_download_and_install https://download.filezilla-project.org/client/FileZilla_3.44.2_src.tar.bz2 filezilla-3.44.2
     #unset CFLAGS
@@ -2754,9 +2754,9 @@ build_libxslt() {
 }
 
 build_libxmlsec() {
-#  download_and_unpack_file http://www.aleksey.com/xmlsec/download/xmlsec1-1.2.25.tar.gz xmlsec1-1.2.25
-  do_git_checkout https://github.com/lsh123/xmlsec.git xmlsec
-  cd xmlsec
+  download_and_unpack_file http://www.aleksey.com/xmlsec/download/xmlsec1-1.2.37.tar.gz xmlsec1-1.2.37
+#  do_git_checkout https://github.com/lsh123/xmlsec.git xmlsec
+  cd xmlsec1-1.2.37
 #    apply_patch file://${top_dir}/xmlsec1-x509.patch
     export GCRYPT_LIBS=-lgcrypt
     export LIBS=-lgcrypt
@@ -2764,7 +2764,7 @@ build_libxmlsec() {
     #env
     rm autogen.sh
 #    generic_configure_make_install "LIBS=-lgcrypt --disable-silent-rules GCRYPT_LIBS=-lgcrypt --with-gcrypt=${mingw_w64_x86_64_prefix} --disable-silent-rules --enable-docs=no"
-    generic_configure_make_install "LIBS=-lcrypt32 CFLAGS=-DGPGRT_ENABLE_ES_MACROS --disable-unicode --disable-silent-rules --enable-docs=no --disable-mscng"
+    generic_configure_make_install "LIBS=-lgcrypt CFLAGS=-DGPGRT_ENABLE_ES_MACROS --disable-unicode --disable-silent-rules --enable-docs=no --disable-mscng"
 
 
     unset LIBS
@@ -3239,7 +3239,7 @@ build_libssh() {
 build_asdcplib-cth() {
    # Use brance cth because this is the version the writer works on, and has modified
 #do_git_checkout git://git.carlh.net/git/asdcplib-cth.git asdcplib-cth cth
-#  do_git_checkout git://git.carlh.net/git/asdcplib-cth.git asdcplib-carl carl
+#  do_git_checkout git://git.carlh.net/git/asdcplib.git asdcplib-carl debug
   do_git_checkout https://github.com/cth103/asdcplib.git asdcplib-carl carl
 #  download_and_unpack_file https://github.com/cth103/asdcplib/archive/carl.zip asdcplib-carl
 #  download_and_unpack_file https://www.carlh.net/downloads/libasdcp-cth/libasdcp-cth-0.1.5.tar.bz2 libasdcp-cth-0.1.5
@@ -3279,10 +3279,21 @@ build_asdcplib-cth() {
   cd ..
 }
 
+#build_leqm_nrt() {
+#	do_git_checkout https://github.com/cth103/leqm-nrt.git leqm-nrt carl
+#	cd leqm-nrt
+#		export CXX=x86_64-w64-mingw32-g++
+#		do_configure "configure -v -pp --prefix=${mingw_w64_x86_64_prefix} --check-cxx-compiler=gxx" "./waf"
+#		./waf build || exit 1
+#		./waf install || exit 1
+#		unset CXX
+#	cd ..
+#}
+
 build_libdcp() {
   # Branches are slightly askew. 1.0 is where development takes place
-  do_git_checkout https://github.com/cth103/libdcp.git libdcp 04e215a7688239cb47fc86e8396756c685f338a1 #v1.8.13 #d39880eef211a296fa8ef4712cdef5945d08527c c6665c157bdb6903661d21c571c7d112b54ad8fd # d989a83517fd77aa241c1423ac00cfed62d567fe # f3058b2f1b48ec613bda5781fe97e83a0dca83a9
-#  do_git_checkout git://git.carlh.net/git/libdcp.git libdcp #b75d977a38f039fd68ed5d4055ae70b4bf631603 # v1.6.x # 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
+#  do_git_checkout https://github.com/cth103/libdcp.git libdcp main # v1.8.66 #04e215a7688239cb47fc86e8396756c685f338a1 #v1.8.13 #d39880eef211a296fa8ef4712cdef5945d08527c c6665c157bdb6903661d21c571c7d112b54ad8fd # d989a83517fd77aa241c1423ac00cfed62d567fe # f3058b2f1b48ec613bda5781fe97e83a0dca83a9
+  do_git_checkout git://git.carlh.net/git/libdcp.git libdcp v1.8.66 #b75d977a38f039fd68ed5d4055ae70b4bf631603 # v1.6.x # 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
 #  download_and_unpack_file https://carlh.net/downloads/libdcp/libdcp-1.6.17.tar.bz2 libdcp-1.6.17
   cd libdcp
     # M_PI is required. This is a quick way of defining it
@@ -3297,10 +3308,12 @@ build_libdcp() {
 #    apply_patch file://${top_dir}/libdcp-shared_ptr.patch
 #    apply_patch_p1 "http://main.carlh.net/gitweb/?p=libdcp.git;a=patch;h=730ba2273b136ad5a3bfc1a185d69e6cc50a65af"
     export CXX=x86_64-w64-mingw32-g++
+    export CXXFLAGS=-fpermissive
     do_configure "configure -v -pp --prefix=${mingw_w64_x86_64_prefix} --target-windows-64 --check-cxx-compiler=gxx --enable-debug --disable-tests" "./waf" # --disable-gcov
     ./waf build || exit 1
     ./waf install || exit 1
     unset CXX
+    unset CXXFLAGS
         # The installation puts the pkgconfig file and the DLL import file in the wrong place
     cp -v build/libdcp-1.0.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig
     #sed -i.bak 's/1\.4\.4devel/1.4.4/' ${mingw_w64_x86_64_prefix}/lib/pkgconfig/libdcp-1.0.pc
@@ -3316,10 +3329,10 @@ build_libdcp() {
 }
 
 build_libsub() {
-#  do_git_checkout git://git.carlh.net/git/libsub.git libsub 1.0
+  do_git_checkout git://git.carlh.net/git/libsub.git libsub v1.6.44
 #  do_git_checkout https://git.carlh.net/git/libsub.git libsub
 #  download_and_unpack_file http://carlh.net/downloads/libsub/libsub-1.4.24.tar.bz2 libsub-1.4.24
-  do_git_checkout https://github.com/cth103/libsub.git libsub
+#  do_git_checkout https://github.com/cth103/libsub.git libsub v1.6.x
   cd libsub
     # include <iostream> is missing
 #    apply_patch file://${top_dir}/libdcp-reader.h.patch
@@ -3337,7 +3350,7 @@ build_libsub() {
     export CXX=x86_64-w64-mingw32-g++
     # I thought this was actually the default, but no?
     export CXXFLAGS="-std=c++11 -fpermissive"
-    do_configure "configure -v -pp --prefix=${mingw_w64_x86_64_prefix} --target-windows --check-cxx-compiler=gxx --disable-tests" "./waf"
+    do_configure "configure -v -pp --prefix=${mingw_w64_x86_64_prefix} --target-windows-64 --check-cxx-compiler=gxx --disable-tests" "./waf"
     ./waf build || exit 1
     ./waf install || exit 1
     unset CXX
@@ -3516,7 +3529,7 @@ build_libgpg-error() {
 
 build_libgcrypt() {
 #  generic_download_and_install ftp://ftp.gnupg.org/gcrypt/libgcrypt/libgcrypt-1.8.1.tar.gz libgcrypt-1.8.1 "GPG_ERROR_CONFIG=${mingw_w64_x86_64_prefix}/bin/gpg-error-config"
-  do_git_checkout git://git.gnupg.org/libgcrypt.git libgcrypt libgcrypt-1.9.4 #cdaeb86f067b94d9dff4235ade20dde6479d9bb8 # 86e5e06a97ae13b8bbf6923ecc76e02b9c429b46
+  do_git_checkout git://git.gnupg.org/libgcrypt.git libgcrypt libgcrypt-1.10.2 #cdaeb86f067b94d9dff4235ade20dde6479d9bb8 # 86e5e06a97ae13b8bbf6923ecc76e02b9c429b46
   cd libgcrypt
   export holding_path="${PATH}"
   export PATH="/usr/local/bin:/usr/bin:/bin:${top_dir}/sandbox/x86_64-w64-mingw32/bin"
@@ -3924,20 +3937,23 @@ build_wx() {
 #    cp -v ${mingw_w64_x86_64_prefix}/lib/wx*dll ${mingw_w64_x86_64_prefix}/bin
 #  cd ..
   generic_download_and_install https://github.com/wxWidgets/wxWidgets/releases/download/v3.0.5.1/wxWidgets-3.0.5.1.tar.bz2 wxWidgets-3.0.5.1 "CFLAGS=-Wno-narrowing CXXFLAGS=-Wno-narrowing --with-msw --enable-monolithic --disable-debug --disable-debug_flag --enable-unicode --enable-optimize --with-libpng --with-libjpeg --with-libtiff --with-opengl --disable-option-checking --enable-compat28 --enable-compat30"
+
+  # Programs need to see this in their native paths
+  cp -v ${mingw_w64_x86_64_prefix}/bin/wx-config ${mingw_w64_x86_64_prefix}/../bin/wx-config
 #  cp -v ${mingw_w64_x86_64_prefix}/lib/wx*dll ${mingw_w64_x86_64_prefix}/bin
   #do_git_checkout https://github.com/wxWidgets/wxWidgets.git wxWidgetsLATEST
-#  download_and_unpack_file https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxWidgets-3.1.1.tar.bz2 wxWidgets-3.1.1
-#  cd wxWidgets-3.1.1
+  download_and_unpack_file https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.5/wxWidgets-3.1.5.tar.bz2 wxWidgets-3.1.5
+  cd wxWidgets-3.1.5
 #  cd wxWidgetsLATEST
-#    generic_configure_make_install "--disable-option-checking --with-gtk=2" # "--with-libpng=sys --with-libjpeg=sys --disable-mslu --enable-unicode --with-regex=builtin --disable-precomp-headers --with-libtiff=sys --with-regex=yes --with-zlib=yes --enable-webview --enable-mediactrl --disable-option-checking --with-gtk=2 --enable-monolithic"
+    generic_configure_make_install "--disable-option-checking --with-msw --enable-monolithic --disable-debug_flag --with-libpng=sys --with-libjpeg=sys --with-libtiff=sys --with-libiconv" # "--with-libpng=sys --with-libjpeg=sys --disable-mslu --enable-unicode --with-regex=builtin --disable-precomp-headers --with-libtiff=sys --with-regex=yes --with-zlib=yes --enable-webview --enable-mediactrl --disable-option-checking --with-gtk=2 --enable-monolithic"
     # wx-config needs to be visible to this script when compiling
-#    cp -v ${mingw_w64_x86_64_prefix}/bin/wx-config ${mingw_w64_x86_64_prefix}/../bin/wx-config
+    cp -v ${mingw_w64_x86_64_prefix}/bin/wx-config ${mingw_w64_x86_64_prefix}/../bin/wx-config
     # wxWidgets doesn't include the DLL run-time libraries in the right place.
-#    cd ${mingw_w64_x86_64_prefix}/lib
-#      for filename in ./libwx*dll.a; do cp -v "./$filename" "./$(echo $filename | sed -e 's/-x86_64-w64-mingw32//g')";  done
-#    cd -
-#    cp -v ${mingw_w64_x86_64_prefix}/lib/wx*dll ${mingw_w64_x86_64_prefix}/bin
-#  cd ..
+    cd ${mingw_w64_x86_64_prefix}/lib
+      for filename in ./libwx*dll.a; do cp -v "./$filename" "./$(echo $filename | sed -e 's/-x86_64-w64-mingw32//g')";  done
+    cd -
+    cp -v ${mingw_w64_x86_64_prefix}/lib/wx*dll ${mingw_w64_x86_64_prefix}/bin
+  cd ..
 }
 
 build_libsndfile() {
@@ -4411,7 +4427,7 @@ build_boost() {
 #      ./b2 --prefix=${mingw_w64_x86_64_prefix} -j 2 --ignore-site-config --user-config=user-config.jam address-model=64 architecture=x86 binary-format=pe link=shared --runtime-link=shared --target-os=windows threadapi=win32 threading=multi toolset=gcc-mingw --layout=tagged --disable-icu cxxflags='-std=c++11' --with-system --with-filesystem --with-regex --with-date_time install || exit 1
 #      ./b2 -a -d+2 --debug-configuration --prefix=${mingw_w64_x86_64_prefix} variant=release target-os=windows toolset=gcc-mingw address-model=64 link=shared runtime-link=shared threading=multi threadapi=win32 architecture=x86 binary-format=pe --with-system --with-filesystem --with-regex --with-date_time --with-thread --with-test --user-config=user-config.jam install || exit 1
 #      ./b2 -a -d+2 --debug-configuration --prefix=${mingw_w64_x86_64_prefix} variant=debug target-os=windows toolset=gcc-mingw address-model=64 link=shared runtime-link=shared threading=multi threadapi=win32 architecture=x86 binary-format=pe boost.locale.winapi=on boost.locale.std=on boost.locale.icu=on boost.locale.iconv=on boost.locale.posix=off --with-locale --user-config=user-config.jam install || exit 1
-      ./b2 -a -j ${cpu_count}  --prefix=${mingw_w64_x86_64_prefix} variant=release target-os=windows toolset=gcc-mingw abi=ms address-model=64 link=shared,static runtime-link=shared threading=multi threadapi=win32 architecture=x86 binary-format=pe --with-container --with-system --with-thread --with-filesystem --layout=tagged --user-config=user-config.jam install || exit 1 # boost.locale.winapi=on boost.locale.std=on boost.locale.icu=on boost.locale.iconv=on boost.locale.posix=off --user-config=user-config.jam install || exit 1
+      ./b2 -a -j ${cpu_count}  --prefix=${mingw_w64_x86_64_prefix} variant=release target-os=windows toolset=gcc-mingw abi=ms address-model=64 link=shared,static runtime-link=shared threading=multi threadapi=win32 architecture=x86 binary-format=pe --with-container --with-system --with-thread --with-filesystem --with-test --with-date_time --with-locale --with-regex --layout=tagged --user-config=user-config.jam install || exit 1 # boost.locale.winapi=on boost.locale.std=on boost.locale.icu=on boost.locale.iconv=on boost.locale.posix=off --user-config=user-config.jam install || exit 1
       touch -- "$touch_name"
     else
       echo "Already built and installed Boost libraries"
@@ -4450,6 +4466,7 @@ build_mkvtoolnix() {
     #rm -vf src/info/sys_windows.cpp
 #    apply_patch file://${top_dir}/mkvtoolnix-version.patch
 #    apply_patch file://${top_dir}/mkvtoolnix-tests.patch
+    apply_patch file://${top_dir}/mkvtoolnix-Windows11.patch
     export LIBS="-lole32"
     generic_configure "--with-boost=${mingw_w64_x86_64_prefix} --with-boost-system=boost_system-mt-x64 --with-boost-filesystem=boost_filesystem-mt-x64 --with-boost-date-time=boost_date_time-mt-x64 --with-boost-regex=boost_regex-mt-x64 --enable-gui --enable-optimization=yes --enable-debug=no"
     # Now we must prevent inclusion of sys_windows.cpp because our build uses shared libraries,
@@ -5835,7 +5852,16 @@ build_libxml++ () {
 #  cd ..
 #  generic_download_and_install https://git.gnome.org/browse/libxml++/snapshot/libxml++-3.0.1.tar.xz libxml++-3.0.1
 #  export ACLOCAL_PATH=${orig_aclocalpath}
-  generic_download_and_install http://ftp.gnome.org/pub/GNOME/sources/libxml++/2.42/libxml++-2.42.1.tar.xz libxml++-2.42.1 "--disable-documentation"
+  generic_download_and_install http://ftp.gnome.org/pub/GNOME/sources/libxml++/2.42/libxml++-2.42.2.tar.xz libxml++-2.42.2 "--disable-documentation"
+
+#  download_and_unpack_file https://download.gnome.org/sources/libxml++/2.8/libxml++-2.8.1.tar.bz2 libxml++-2.8.1 
+
+#  cd libxml++-2.8.1
+#    apply_patch file://${top_dir}/libxml++-2.8.1-auto_ptr.patch
+#    apply_patch file://${top_dir}/libxml++-2.8.1-bool.patch
+#    apply_patch file://${top_dir}/libxml++-2.8.1-examples.patch
+#    generic_configure_make_install "--disable-documentation"
+#  cd ..
 }
 
 build_libexif() {
@@ -6669,7 +6695,7 @@ build_iculehb() {
 }
 
 build_rtaudio() {
-  do_git_checkout https://github.com/thestk/rtaudio.git rtaudio d8f189b660bdb5a05bdb7a69ff81b6a4d71d39bf
+  do_git_checkout git://git.carlh.net/git/rtaudio.git rtaudio carl # d8f189b660bdb5a05bdb7a69ff81b6a4d71d39bf
   cd rtaudio
     do_cmake "-DCMAKE_VERBOSE_MAKEFILE=ON -DRTAUDIO_API_WASAPI=ON -DRTAUDIO_API_ALSA=OFF -DRTAUDIO_API_PULSE=OFF -DRTAUDIO_API_JACK=OFF -DRTAUDIO_API_CORE=OFF"
     do_make "V=1"
@@ -7394,7 +7420,7 @@ build_dependencies() {
   #build_libxslt
   build_libgpg-error # Needed by libgcrypt
   build_libgcrypt # Needed by libxmlsec
-  #build_libxmlsec
+  build_libxmlsec
   #build_libaacs
   build_libbdplus
   build_lcms2 # Openjpeg2 and others require this
@@ -7402,7 +7428,7 @@ build_dependencies() {
   build_libbluray # needs libxml2, freetype [FFmpeg, VLC use this, at least]
   build_libopenjpeg
   build_libopenjpeg2
-  #build_libopenjpeg2carl2
+  build_libopenjpeg2carl2
   build_libjpeg_turbo # mplayer can use this, VLC qt might need it? [replaces libjpeg],
                       # Place after other jpeg libraries so headers are over-written
   build_libdvdcss
@@ -7465,15 +7491,15 @@ build_dependencies() {
   #build_mmcommon
   build_libsigc++
   build_glibmm
-  #build_libxml++
-  #build_libcxml
+  build_libxml++
+  build_libcxml
   #build_dbus
   build_zstd
   build_libarchive
   build_jasper # JPEG2000 codec for GraphicsMagick among others
-  #build_atk
+  build_atk
   #build_atkmm
-  #build_gdk_pixbuf
+  build_gdk_pixbuf
   build_mimedb
   build_vamp-sdk
   build_libsamplerate # for librubberband
@@ -7582,8 +7608,8 @@ build_dependencies() {
 #  build_librsvg
 #  build_gobject_introspection
   build_libepoxy
-  #build_rtaudio
-#  build_gtk2
+  build_rtaudio
+  build_gtk2
 #  build_gtk
 #  build_gtkmm
   build_graphicsmagicksnapshot
@@ -7592,7 +7618,7 @@ build_dependencies() {
   #build_lash
   build_aom
   build_svtav1
-  #build_asdcplib-cth
+  build_asdcplib-cth
   build_cmark
   build_opusfile
   build_libopusenc
@@ -7644,7 +7670,7 @@ build_apps() {
 #  if [[ $build_mp4box = "y" ]]; then
 #    build_mp4box
 #  fi
-#  build_ocaml
+# build_ocaml
   build_exiv2
 #  build_wgrib2
 #  build_cdrecord # NOTE: just now, cdrecord doesn't work on 64-bit mingw. It scans the emulated SCSI bus but no more.
@@ -7711,9 +7737,10 @@ build_apps() {
   #fi
   build_cuetools
   build_xerces
+  build_leqm_nrt
 #  build_graphicsmagick
-  #build_libdcp # Now needs graphicsmagick
-  #build_libsub
+  build_libdcp # Now needs graphicsmagick
+  build_libsub
 #  build_pavucontrol
   build_gstreamer
   build_mkvtoolnix
@@ -7733,7 +7760,7 @@ build_apps() {
 #  build_jackmix
   #build_flacon
   build_get_iplayer
-  #build_dcpomatic
+  build_dcpomatic
 #  build_loudness-scanner Broken by FFmpeg API changes. Sorry.
   build_synaesthesia
   #build_kodi

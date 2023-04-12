@@ -1,44 +1,13 @@
---- wscript.orig	2021-09-26 19:50:41.124601700 +0100
-+++ wscript	2021-09-26 19:50:53.824601700 +0100
-@@ -150,7 +150,6 @@
-     if conf.env.TARGET_WINDOWS:
-         conf.env.append_value('CXXFLAGS', '-DDCPOMATIC_WINDOWS')
-         conf.env.append_value('CXXFLAGS', '-DWIN32_LEAN_AND_MEAN')
--        conf.env.append_value('CXXFLAGS', '-DBOOST_USE_WINDOWS_H')
-         conf.env.append_value('CXXFLAGS', '-DBOOST_THREAD_PROVIDES_GENERIC_SHARED_MUTEX_ON_WIN')
-         conf.env.append_value('CXXFLAGS', '-mfpmath=sse')
-         conf.env.append_value('CXXFLAGS', '-Wcast-align')
---- src/lib/zipper.h.orig	2021-10-10 19:41:02.235278800 +0100
-+++ src/lib/zipper.h	2021-10-10 19:41:23.315278800 +0100
-@@ -21,6 +21,7 @@
- 
- #include <boost/filesystem.hpp>
- #include <vector>
-+#include <memory>
- 
- 
- class Zipper
---- src/lib/case_insensitive_sorter.cc.orig	2021-10-10 19:53:53.265278800 +0100
-+++ src/lib/case_insensitive_sorter.cc	2021-10-10 19:54:21.385278800 +0100
-@@ -31,7 +31,7 @@
- {
- 	auto x = a.string();
- 	auto y = b.string();
--	transform (x.begin(), x.end(), x.begin(), ::tolower);
--	transform (y.begin(), y.end(), y.begin(), ::tolower);
-+	std::transform (x.begin(), x.end(), x.begin(), ::tolower);
-+	std::transform (y.begin(), y.end(), y.begin(), ::tolower);
- 	return x < y;
- }
---- src/lib/case_insensitive_sorter.cc.orig	2021-10-10 20:02:40.175278800 +0100
-+++ src/lib/case_insensitive_sorter.cc	2021-10-10 20:02:58.525278800 +0100
-@@ -31,7 +31,7 @@
- {
- 	auto x = a.string();
- 	auto y = b.string();
--	std::transform (x.begin(), x.end(), x.begin(), ::tolower);
--	std::transform (y.begin(), y.end(), y.begin(), ::tolower);
-+	transform (x.begin(), x.end(), x.begin(), ::tolower);
-+	transform (y.begin(), y.end(), y.begin(), ::tolower);
- 	return x < y;
- }
+--- wscript.orig	2023-04-11 14:11:07.917207514 +0100
++++ wscript	2023-04-11 14:11:36.367207347 +0100
+@@ -153,8 +153,8 @@
+         conf.check(lib='dsound', uselib_store='DSOUND', msg="Checking for library dsound")
+         conf.check(lib='winmm', uselib_store='WINMM', msg="Checking for library winmm")
+         conf.check(lib='ksuser', uselib_store='KSUSER', msg="Checking for library ksuser")
+-        boost_lib_suffix = '-mt'
+-        boost_thread = 'boost_thread_win32-mt'
++        boost_lib_suffix = '-mt-x64'
++        boost_thread = 'boost_thread-mt-x64'
+         conf.check_cxx(fragment="""
+                                #include <boost/locale.hpp>\n
+                                int main() { std::locale::global (boost::locale::generator().generate ("")); }\n

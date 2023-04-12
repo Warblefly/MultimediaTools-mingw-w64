@@ -1,0 +1,40 @@
+--- src/mkvtoolnix-gui/app.cpp.orig	2023-04-10 20:28:12.397297323 +0100
++++ src/mkvtoolnix-gui/app.cpp	2023-04-10 20:30:01.837297581 +0100
+@@ -574,9 +574,9 @@
+ #if defined(SYS_WINDOWS)
+ void
+ App::setupColorMode() {
+-  if (isWindows11OrLater())
+-    return;
+-
++//  if (isWindows11OrLater())
++//    return;
++//
+   QSettings regKey{Q("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize"), QSettings::NativeFormat};
+ 
+   auto useLightTheme = regKey.value(Q("AppsUseLightTheme"));
+@@ -610,15 +610,15 @@
+   setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white; }");
+ }
+ 
+-bool
+-App::isWindows11OrLater() {
+-  static std::optional<bool> s_isWindows11OrLater;
+-
+-  if (!s_isWindows11OrLater)
+-    s_isWindows11OrLater = QOperatingSystemVersion::current() >= QOperatingSystemVersion::Windows11;
+-
+-  return *s_isWindows11OrLater;
+-}
++//bool
++//App::isWindows11OrLater() {
++//  static std::optional<bool> s_isWindows11OrLater;
++//
++//  if (!s_isWindows11OrLater)
++//    s_isWindows11OrLater = QOperatingSystemVersion::current() >= QOperatingSystemVersion::Windows11;
++//
++//  return *s_isWindows11OrLater;
++//}
+ #endif  // SYS_WINDOWS
+ 
+ void

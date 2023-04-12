@@ -18,15 +18,6 @@
                         lib=['icuio', 'icui18n', 'icudata', 'icuuc'],
                         uselib_store='ICU')
  
-@@ -381,7 +381,7 @@
-                                 int main() { ext4_mount("ext4_fs", "/mp/", false); }\n
-                                 """,
-                                 msg='Checking for lwext4 library',
--                                libpath='/usr/local/lib',
-+                                #libpath='/usr/local/lib',
-                                 lib=['lwext4', 'blockdev'],
-                                 uselib_store='LWEXT4')
- 
 @@ -503,7 +503,7 @@
  			    int main() { boost::thread t; }\n
  			    """,

@@ -1,0 +1,42 @@
+--- libxml++/parsers/textreader.h.orig	2023-04-10 21:18:32.917298522 +0100
++++ libxml++/parsers/textreader.h	2023-04-10 21:18:45.407298045 +0100
+@@ -175,7 +175,7 @@
+     struct PropertyReader;
+     friend struct PropertyReader;
+ 
+-    std::auto_ptr<PropertyReader> propertyreader;
++    std::unique_ptr<PropertyReader> propertyreader;
+     void check_for_exceptions() const;
+ 
+     _xmlTextReader* impl_;
+--- libxml++/parsers/textreader.h.orig	2023-04-10 21:22:11.877297175 +0100
++++ libxml++/parsers/textreader.h	2023-04-10 21:23:01.797297273 +0100
+@@ -7,6 +7,8 @@
+ #ifndef __LIBXMLPP_XMLREADER_H
+ #define __LIBXMLPP_XMLREADER_H
+ 
++#include <memory>
++
+ #include <libxml++/noncopyable.h>
+ #include <libxml++/nodes/node.h>
+ 
+--- libxml++/parsers/parser.cc.orig	2023-04-10 21:24:43.037297276 +0100
++++ libxml++/parsers/parser.cc	2023-04-10 21:25:21.267297204 +0100
+@@ -9,7 +9,7 @@
+ #include <libxml/parser.h>
+ 
+ #include <cstdarg> //For va_list.
+-
++#include <memory> //for unique_ptr
+ namespace xmlpp {
+ 
+ Parser::Parser()
+@@ -194,7 +194,7 @@
+   
+   if(exception_)
+   {
+-    std::auto_ptr<exception> tmp ( exception_ );
++    std::unique_ptr<exception> tmp ( exception_ );
+     exception_ = 0;
+     tmp->Raise();
+   }
