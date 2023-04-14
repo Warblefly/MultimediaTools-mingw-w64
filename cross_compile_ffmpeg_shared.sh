@@ -3322,6 +3322,7 @@ build_libdcp() {
     mkdir -vp ${mingw_w64_x86_64_prefix}/tags
     cp -vR tags/* ${mingw_w64_x86_64_prefix}/tags/
     cp -v graphics/splash.png ${mingw_w64_x86_64_prefix}/splash.png
+    cp -v ratings ${mingw_w64_x86_64_prefix}/ratings
     cd ${mingw_w64_x86_64_prefix}/include
       ln -s libdcp-1.0/dcp libdcp
     cd -

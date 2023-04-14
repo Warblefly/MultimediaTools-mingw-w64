@@ -466,6 +466,10 @@ File /nonfatal /r "./bin/*config"
 File /nonfatal /r "./bin/*.config"
 File /nonfatal /r "./bin/*.png"
 
+setOutPath "$INSTDIR"
+File /nonfatal "ratings"
+File /nonfatal "splash.png"
+
 setOutPath "$INSTDIR\bin\platforms"
 File /nonfatal /r "./bin/platforms/*.dll"
 
