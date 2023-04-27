@@ -4534,8 +4534,9 @@ build_fdkaac-commandline() {
 
 build_poppler() {
 #  do_git_checkout git://git.freedesktop.org/git/poppler/poppler poppler poppler-0.67.0
-  do_git_checkout https://github.com/freedesktop/poppler.git poppler-0.84.0
-  cd poppler-0.84.0
+#  do_git_checkout https://github.com/freedesktop/poppler.git poppler-0.84.0
+  download_and_unpack_file https://poppler.freedesktop.org/poppler-23.04.0.tar.xz poppler-23.04.0
+  cd poppler-23.04.0
 #    apply_patch file://${top_dir}/poppler-threads.patch
     sed -i.bak 's!string\.h!sec_api/string_s.h!' test/perf-test.cc
     #sed -i.bak 's/noinst_PROGRAMS += perf-test/noinst_PROGRAMS += /' test/Makefile.am
