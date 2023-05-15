@@ -1774,8 +1774,8 @@ build_libxavs2() {
 }
 
 build_libpng() {
-  download_and_unpack_file http://prdownloads.sourceforge.net/libpng/libpng-1.6.37.tar.xz?download libpng-1.6.37
-  cd libpng-1.6.37
+  download_and_unpack_file https://download.sourceforge.net/libpng/libpng-1.6.39.tar.xz libpng-1.6.39
+  cd libpng-1.6.39
     do_cmake "-DPNG_STATIC=OFF"
     do_make
     do_make_install
@@ -2511,6 +2511,7 @@ build_libspeex() {
 }
 
 build_libspeexdsp() {
+  export ACLOCAL_PATH=/usr/share/aclocal:/usr/local/share/aclocal
   do_git_checkout https://github.com/xiph/speexdsp.git speexdsp
   cd speexdsp
     generic_configure_make_install
@@ -6577,11 +6578,12 @@ build_libdash() {
   do_git_checkout https://github.com/bitmovin/libdash.git libdash
   cd libdash
     apply_patch file://${top_dir}/libdash-case-fix.patch
+    apply_patch file://${top_dir}/libdash-link.patch
     cd libdash
-      do_cmake "-DCMAKE_CXX_FLAGS=-D_WIN32_WINNT=0x0A00"
+      do_cmake "-DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_CXX_FLAGS=-D_WIN32_WINNT=0x0A00"
       # Winsock is missed out. I don't know why.
-      sed -i.bak 's/ -lxml2 -lkernel32/ -lxml2 -lws2_32 -lkernel32/' libdash_networkpart_test/CMakeFiles/libdash_networkpart_test.dir/linklibs.rsp
-      do_make
+      sed -i.bak 's/ -lxml2 -lkernel32/ -lxml2 -lwsock32 -lws2_32 -lkernel32/' libdash_networkpart_test/CMakeFiles/libdash_networkpart_test.dir/linklibs.rsp
+      do_make "V=1"
       # We need to install manually
       cp -vf bin/libdash.dll ${mingw_w64_x86_64_prefix}/bin/libdash.dll
       cp -vf bin/libdash.dll.a ${mingw_w64_x86_64_prefix}/lib/libdash.dll.a
@@ -7558,7 +7560,7 @@ build_dependencies() {
   build_glslang
   build_shaderc
   build_vulkan
-  build_angle
+#  build_angle
   build_cairo
   build_cairomm
   build_poppler

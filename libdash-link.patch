@@ -1,0 +1,9 @@
+--- libdash/libdash_networkpart_test/CMakeLists.txt.orig	2023-05-14 21:32:16.084512995 +0100
++++ libdash/libdash_networkpart_test/CMakeLists.txt	2023-05-14 21:32:45.814512881 +0100
+@@ -4,4 +4,4 @@
+ file(GLOB_RECURSE networkpart_source *.cpp)
+ 
+ add_executable(libdash_networkpart_test ${networkpart_source})
+-target_link_libraries(libdash_networkpart_test dash)
+\ No newline at end of file
++target_link_libraries(libdash_networkpart_test dash wsock32 ws2_32)

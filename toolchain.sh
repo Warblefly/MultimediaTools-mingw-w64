@@ -154,7 +154,7 @@ echo "Mingw-w64 headers are installed."
 
 echo "Cloning GCC..."
 
-git clone --depth 1 --branch releases/gcc-12 https://github.com/gcc-mirror/gcc.git gcc || echo "Seems we have GCC."
+git clone --depth 1 --branch releases/gcc-13 https://github.com/gcc-mirror/gcc.git gcc || echo "Seems we have GCC."
 #git clone https://github.com/gcc-mirror/gcc.git gcc
 #cd gcc
 #	git checkout e6d369bbdb4eb5f03eec233ef9905013a735fd71 || echo "Correct commit of GCC." 
@@ -179,8 +179,8 @@ cd gcc
 		tar xvvf mpfr-4.2.0.tar.xz && ln -sv mpfr-4.2.0 mpfr
 		wget https://ftp.gnu.org/gnu/mpc/mpc-1.3.1.tar.gz || exit 1
 		tar xvvf mpc-1.3.1.tar.gz && ln -sv mpc-1.3.1 mpc
-		wget https://libisl.sourceforge.io/isl-0.24.tar.xz || exit 1
-		tar xvvf isl-0.24.tar.xz && ln -sv isl-0.24 isl
+		wget https://libisl.sourceforge.io/isl-0.26.tar.xz || exit 1
+		tar xvvf isl-0.26.tar.xz && ln -sv isl-0.26 isl
 		touch gcc_accessories_source
 	else
 		echo "Accessories already downloaded and linked."
@@ -188,10 +188,12 @@ cd gcc
 	echo "Accessories arrived."
 cd ..
 
+# We need to change mpc to allow GNU autoconf 2.71. 
+# It currently forces requirement for 2.69
 # Apply patch. Not sure how long this will be required
 
 cd gcc
-#	cat ${top_dir}/gcc-autoconf.patch | patch -p0
+	cat ${top_dir}/gcc-autoconf.patch | patch -p0
 #	curl https://src.fedoraproject.org/rpms/mingw-gcc/raw/rawhide/f/mingw-gcc-config.patch | patch -p1
 #	curl https://src.fedoraproject.org/rpms/mingw-gcc/raw/rawhide/f/0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch | patch -p1
 #	curl "https://gcc.gnu.org/bugzilla/attachment.cgi?id=53052" | patch -p0
@@ -201,7 +203,7 @@ cd gcc
 	pushd intl
 		autoconf -f
 	popd
-#	cat ${top_dir}/gcc-ice.patch | patch -p0 || exit 1
+#	cat ${top_dir}/gcc-ice.patch | patch -p0 || exit 1:
 cd ..
 
 mkdir -pv gcc-build
