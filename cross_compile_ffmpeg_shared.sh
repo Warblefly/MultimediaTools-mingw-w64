@@ -1631,7 +1631,7 @@ build_libspatialaudio() {
 }
 
 build_libmysofa() {
-  do_git_checkout https://github.com/hoene/libmysofa.git libmysofa main #"Branch_v0.4(Windows)"
+  do_git_checkout https://github.com/hoene/libmysofa.git libmysofa bed445ba48ad9faf0e758b54af3f6075949d27fe # main #"Branch_v0.4(Windows)"
   cd libmysofa
 #    apply_patch file://${top_dir}/libmysofa-zlib.patch
     cd src/tests
