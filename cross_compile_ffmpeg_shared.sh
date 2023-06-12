@@ -5665,7 +5665,7 @@ build_libplacebo() {
   do_git_checkout https://github.com/haasn/libplacebo.git libplacebo # e79ea1902ea7c797f5cd2ff2de937a789408c136 # 08b45ede97262d73778f1bee40ac845702e240d4 # 5198e1564c5f2900b7b1f98561b6323d27bd78bb
   cd libplacebo
     git submodule update --init
-    #apply_patch file://${top_dir}/libplacebo-win32.patch
+    apply_patch file://${top_dir}/libplacebo-win32.patch
     generic_meson_ninja_install "-Ddemos=false -Dvulkan-registry=${mingw_w64_x86_64_prefix}/share/vulkan/registry/vk.xml"
   cd ..
 }
@@ -6287,15 +6287,15 @@ build_vulkan() {
 
     #download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Loader/archive/sdk-1.1.73.0.tar.gz Vulkan-Loader-sdk-1.1.73.0
     #download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Headers/archive/sdk-1.1.92.0.tar.gz Vulkan-Headers-sdk-1.1.92.0
-    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Headers/archive/v1.3.227.tar.gz Vulkan-Headers-1.3.227
+    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Headers/archive/v1.3.251.tar.gz Vulkan-Headers-1.3.251
     #cd Vulkan-Loader-sdk-1.1.73.0
-    cd Vulkan-Headers-1.3.227
+    cd Vulkan-Headers-1.3.251
         do_cmake
         do_make
         do_make_install
     cd ..
-    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Loader/archive/v1.3.227.tar.gz Vulkan-Loader-1.3.227
-    cd Vulkan-Loader-1.3.227
+    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Loader/archive/v1.3.251.tar.gz Vulkan-Loader-1.3.251
+    cd Vulkan-Loader-1.3.251
         #apply_patch_p1 file://${top_dir}/001-build-fix.patch
         #apply_patch_p1 file://${top_dir}/002-proper-def-files-for-32bit.patch
         #apply_patch_p1 file://${top_dir}/003-generate-pkgconfig-files.patch
@@ -6303,10 +6303,11 @@ build_vulkan() {
         #apply_patch_p1 file://${top_dir}/005-mingw-dll-name.patch
         #apply_patch file://${top_dir}/006-commit.patch
 #	apply_patch_p1 https://github.com/KhronosGroup/Vulkan-Loader/commit/8c0ee92.patch
-        apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vulkan-loader/002-proper-def-files-for-32bit.patch
+#        apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vulkan-loader/002-proper-def-files-for-32bit.patch
 #        apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vulkan-loader/003-generate-pkgconfig-files.patch
 #        apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vulkan-loader/004-disable-suffix-in-static-lib.patch
-	apply_patch file://${top_dir}/Vulkan-Loader-pc-for-qt-fix.patch
+	apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vulkan-loader/0001-disable-masm.patch
+#	apply_patch file://${top_dir}/Vulkan-Loader-pc-for-qt-fix.patch
         #echo "#define SPIRV_TOOLS_COMMIT_ID \"8d8a71278bf9e83dd0fb30d5474386d30870b74d\"" > spirv_tools_commit_id.h
         #cp -fv spirv_tools_commit_id.h loader/
         # Missing defines are already added to MinGW by our scripts earlier in the build process.
