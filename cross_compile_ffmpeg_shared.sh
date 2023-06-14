@@ -913,22 +913,25 @@ build_drm() {
 
 
 build_qt6() {
-	download_and_unpack_file https://download.qt.io/official_releases/qt/6.2/6.2.1/single/qt-everywhere-src-6.2.1.tar.xz qt-everywhere-src-6.2.1
-	cd qt-everywhere-src-6.2.1
+	download_and_unpack_file https://download.qt.io/official_releases/qt/6.5/6.5.1/single/qt-everywhere-src-6.5.1.tar.xz qt-everywhere-src-6.5.1
+	cd qt-everywhere-src-6.5.1
 		cd qtbase
-			apply_patch_p1 file://${top_dir}/qtbase-import-lib-suffix.patch
-			apply_patch_p1 file://${top_dir}/qtbase-cmake-prefix-path.patch
-			apply_patch_p1 file://${top_dir}/qtbase-include-toolchain.patch
-			apply_patch_p1 file://${top_dir}/qtbase-python3.patch
-			apply_patch_p1 file://${top_dir}/qtbase-readlink.patch
+			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/rawhide/f/qtbase-import-lib-suffix.patch
+			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/rawhide/f/qtbase-include-toolchain.patch
+			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/rawhide/f/qtbase-mingw.patch
+			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/rawhide/f/qtbase-qmakeconf.patch
+			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/rawhide/f/qtbase-readlink.patch
 		cd ..
-		export MAKEFLAGS="-j8"
-		export PKG_CONFIG=${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config
-		export PKG_CONFIG_LIBDIR=${mingw_w64_x86_64_prefix}/lib/pkgconfig
-		export PKG_CONFIG_SYSROOT_DIR=${mingw_w64_x86_64_prefix}
-		do_cmake "-G Ninja -B build-x86_64-w64-mingw32 -DCMAKE_BUILD_TYPE=Release -DFEATURE_pkg_config=ON -DQT_FEATURE_egl=OFF -DQT_FEATURE_fontconfig=ON -DQT_FEATURE_icu=ON -DQT_FEATURE_openssl_linked=ON -DQT_FEATURE_system_harfbuzz=ON -DQT_FEATURE_system_sqlite=ON -DQT_HOST_PATH=/usr -DQt6HostInfo_DIR=/usr/lib/x86_64-linux-gnu/cmake/Qt6HostInfo"
+	mkdir qt6-build
+		cd qt6-build		
+			export MAKEFLAGS="-j8"
+			export PKG_CONFIG=${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config
+			export PKG_CONFIG_LIBDIR=${mingw_w64_x86_64_prefix}/lib/pkgconfig
+			export PKG_CONFIG_SYSROOT_DIR=${mingw_w64_x86_64_prefix}
+			do_cmake "-G Ninja -B build-x86_64-w64-mingw32 -DCMAKE_BUILD_TYPE=Release -DFEATURE_pkg_config=ON -DQT_FEATURE_egl=OFF -DQT_FEATURE_fontconfig=ON -DQT_FEATURE_icu=ON -DQT_FEATURE_openssl_linked=ON -DQT_FEATURE_system_harfbuzz=ON -DQT_FEATURE_system_sqlite=ON -DQT_HOST_PATH=/usr/local/Qt-6.5.1 -DQT_NO_PACKAGE_VERSION_INCOMPATIBLE_WARNING=FALSE"
 #		cmake --build build-x86_64-w64-mingw32
-		do_ninja_and_ninja_install
+			do_ninja_and_ninja_install
+		cd ..
 	cd ..
 }
 
@@ -4469,6 +4472,7 @@ build_mkvtoolnix() {
 #    apply_patch file://${top_dir}/mkvtoolnix-version.patch
 #    apply_patch file://${top_dir}/mkvtoolnix-tests.patch
     apply_patch file://${top_dir}/mkvtoolnix-Windows11.patch
+    apply_patch file://${top_dir}/mkvtoolnix-qt5-backport.patch
     export LIBS="-lole32"
     generic_configure "--with-boost=${mingw_w64_x86_64_prefix} --with-boost-system=boost_system-mt-x64 --with-boost-filesystem=boost_filesystem-mt-x64 --with-boost-date-time=boost_date_time-mt-x64 --with-boost-regex=boost_regex-mt-x64 --enable-gui --enable-optimization=yes --enable-debug=no"
     # Now we must prevent inclusion of sys_windows.cpp because our build uses shared libraries,

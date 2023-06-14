@@ -1,0 +1,11 @@
+--- src/mkvtoolnix-gui/util/installation_checker.cpp.orig	2023-06-14 20:58:59.967434124 +0100
++++ src/mkvtoolnix-gui/util/installation_checker.cpp	2023-06-14 21:00:47.007433745 +0100
+@@ -72,7 +72,7 @@
+     auto dir = App::applicationDirPath();
+     QFile tempFile{Q("%1/writeTest").arg(dir)};
+ 
+-    if (!tempFile.open(QIODeviceBase::WriteOnly))
++    if (!tempFile.open(QIODevice::WriteOnly))
+       m_problems << Problem{ ProblemType::PortableDirectoryNotWritable, dir };
+     else {
+       tempFile.close();
