@@ -937,14 +937,14 @@ build_qt6() {
 
 
 build_qt() {
-	export QT_VERSION="5.15.9"
+	export QT_VERSION="5.15.10"
 	export QT_BASE="5.15"
 	export QT_SOURCE="qt-source"
 	export QT_BUILD="qt-build"
 	export MAKEFLAGS="-j8"
 	if [ ! -f qt.built ]; then
 #		download_and_unpack_file https://download.qt.io/archive/qt/${QT_BASE}/${QT_VERSION}/single/qt-everywhere-src-${QT_VERSION}.tar.xz "qt-everywhere-src-${QT_VERSION}"
-	        download_and_unpack_file https://download.qt.io/official_releases/qt/5.15/5.15.9/single/qt-everywhere-opensource-src-5.15.9.tar.xz qt-everywhere-src-5.15.9
+	        download_and_unpack_file https://download.qt.io/official_releases/qt/5.15/5.15.10/single/qt-everywhere-opensource-src-5.15.10.tar.xz qt-everywhere-src-5.15.10
 		cd "qt-everywhere-src-${QT_VERSION}"
 		apply_patch file://${top_dir}/qt5-no-qmltests.patch
 			cd qtbase
@@ -3127,8 +3127,8 @@ build_libxvid() {
 }
 
 build_fontconfig() {
-  download_and_unpack_file https://download.nus.edu.sg/mirror/slackware/slackware-current/source/x/fontconfig/fontconfig-2.13.92.tar.xz fontconfig-2.13.92
-  cd fontconfig-2.13.92
+  download_and_unpack_file https://www.freedesktop.org/software/fontconfig/release/fontconfig-2.14.2.tar.xz fontconfig-2.14.2
+  cd fontconfig-2.14.2
     export LDFLAGS="-lintl -liconv"
     apply_patch file://${top_dir}/fontconfig-cross.patch
     rm configure && rm Makefile.in
@@ -4473,6 +4473,7 @@ build_mkvtoolnix() {
 #    apply_patch file://${top_dir}/mkvtoolnix-tests.patch
     apply_patch file://${top_dir}/mkvtoolnix-Windows11.patch
     apply_patch file://${top_dir}/mkvtoolnix-qt5-backport.patch
+    apply_patch file://${top_dir}/mkvtoolnix-clocale.patch
     export LIBS="-lole32"
     generic_configure "--with-boost=${mingw_w64_x86_64_prefix} --with-boost-system=boost_system-mt-x64 --with-boost-filesystem=boost_filesystem-mt-x64 --with-boost-date-time=boost_date_time-mt-x64 --with-boost-regex=boost_regex-mt-x64 --enable-gui --enable-optimization=yes --enable-debug=no"
     # Now we must prevent inclusion of sys_windows.cpp because our build uses shared libraries,
