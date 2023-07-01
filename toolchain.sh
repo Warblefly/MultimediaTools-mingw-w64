@@ -92,7 +92,7 @@ echo "Making the mingw link..."
 ln -sv $host $working_directory/mingw
 
 echo "Cloning the mingw-w64 headers, crt and libraries..."
-git clone git://git.code.sf.net/p/mingw-w64/mingw-w64 mingw-w64 || echo "Seems we have mingw-w64."
+git clone -b v11.x git://git.code.sf.net/p/mingw-w64/mingw-w64 mingw-w64 || echo "Seems we have mingw-w64."
 echo "mingw-w64 has arrived."
 
 # This is a checkout before some tcpip headers break Pulseaudio etc.

@@ -3783,7 +3783,7 @@ build_OpenCL() {
 }
 
 build_vim() {
-  do_git_checkout https://github.com/vim/vim.git vim 37199894317db555723e5ec99f88cbbb2a2a9670 # 3e0107ea16349b354e0e9712e95b09ef019e99e5
+  do_git_checkout https://github.com/vim/vim.git vim # 37199894317db555723e5ec99f88cbbb2a2a9670 # 3e0107ea16349b354e0e9712e95b09ef019e99e5
   cd vim
 #  	apply_patch file://${top_dir}/vim_uuid.patch
   cd ..
@@ -3801,7 +3801,7 @@ build_vim() {
       mkdir -pv ${mingw_w64_x86_64_prefix}/share/vim && cp -Rv ../runtime/* ${mingw_w64_x86_64_prefix}/share/vim
   cd ../..
 
-  do_git_checkout https://github.com/vim/vim.git vim_console 37199894317db555723e5ec99f88cbbb2a2a9670 # 3e0107ea16349b354e0e9712e95b09ef019e99e5
+  do_git_checkout https://github.com/vim/vim.git vim_console # 37199894317db555723e5ec99f88cbbb2a2a9670 # 3e0107ea16349b354e0e9712e95b09ef019e99e5
   cd vim_console/src
     sed -i.bak 's/FEATURES=BIG/FEATURES=HUGE/' Make_cyg_ming.mak
     sed -i.bak 's/ARCH=i686/ARCH=x86-64/' Make_cyg_ming.mak
@@ -4995,6 +4995,7 @@ build_sox() {
     autoreconf -fiv
 
   fi
+  apply_patch file://${top_dir}/sox-pipe-rewind.patch
   generic_configure_make_install # "--with-oss=no"
 
   cd ..
@@ -6630,11 +6631,11 @@ build_pugixml() {
 }
 
 build_harfbuzz() {
-  download_and_unpack_file https://github.com/harfbuzz/harfbuzz/archive/refs/tags/4.2.0.tar.gz harfbuzz-4.2.0
+  download_and_unpack_file https://github.com/harfbuzz/harfbuzz/archive/refs/tags/7.3.0.tar.gz harfbuzz-7.3.0
 #  download_and_unpack_file https://github.com/harfbuzz/harfbuzz/releases/download/2.7.2/harfbuzz-2.7.2.tar.xz harfbuzz-2.7.2
 #  download_and_unpack_file https://www.freedesktop.org/software/harfbuzz/release/harfbuzz-1.7.6.tar.bz2 harfbuzz-1.7.6
 #  do_git_checkout https://github.com/behdad/harfbuzz.git harfbuzz
-  cd harfbuzz-4.2.0
+  cd harfbuzz-7.3.0
     generic_meson_ninja_install
 #    generic_configure_make_install
 
@@ -7291,7 +7292,7 @@ build_ffmpeg() {
 	local licensing_options="--enable-nonfree --enable-version3 --enable-gpl"
 	local configuration_options="--disable-static --enable-shared --enable-runtime-cpudetect --enable-gray --disable-w32threads"
 	local component_options="--enable-filter=frei0r --enable-decoder=aac" # fdk_aac gets much decoding wrong
-	local library_options="--enable-libsvtav1 --enable-avisynth --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdc1394 --enable-libfdk-aac --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-gnutls --enable-libgsm --enable-libilbc --enable-libklvanc --enable-liblensfun --enable-libmodplug --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopencv --enable-libopenmpt --enable-libopus --enable-librabbitmq --enable-librist --enable-librubberband --enable-librtmp --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libtesseract --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxavs2 --enable-libxvid --enable-libxml2 --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 --enable-decklink --enable-libmysofa --enable-opengl --enable-vulkan --enable-opencl"
+	local library_options="--enable-libsvtav1 --enable-avisynth --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdc1394 --enable-libfdk-aac --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-gnutls --enable-libgsm --enable-libilbc --enable-libklvanc --enable-liblensfun --enable-libmodplug --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopencv --enable-libopenmpt --enable-libopus --enable-librabbitmq --enable-librist --enable-librubberband --enable-librtmp --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libtesseract --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxavs2 --enable-libxvid --enable-libxml2 --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 --enable-decklink --enable-libmysofa --enable-opengl --enable-vulkan --enable-opencl --enable-libharfbuzz"
 	local hardware_options="--enable-libmfx"
 	local toolchain_options="--arch=x86_64 --cross-prefix=$cross_prefix --enable-cross-compile --target-os=mingw32 --extra-version=Compiled_by_John_Warburton --enable-pic --nvccflags=-I/usr/local/cuda-11.4/targets/x86_64-linux/include --extra-cflags=-fpermissive"
 	local developer_options="--disable-debug --enable-stripping"

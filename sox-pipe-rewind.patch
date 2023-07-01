@@ -1,0 +1,30 @@
+--- src/formats.c.orig	2023-06-30 13:11:55.404730654 +0100
++++ src/formats.c	2023-06-30 13:13:11.184730880 +0100
+@@ -461,26 +461,8 @@
+  * Works by resetting the FILE buffer pointer */
+ static void UNUSED rewind_pipe(FILE * fp)
+ {
+-/* _FSTDIO is for Torek stdio (i.e. most BSD-derived libc's)
+- * In theory, we no longer need to check _NEWLIB_VERSION or __APPLE__ */
+-#if defined _FSTDIO || defined _NEWLIB_VERSION || defined __APPLE__
+-  fp->_p -= PIPE_AUTO_DETECT_SIZE;
+-  fp->_r += PIPE_AUTO_DETECT_SIZE;
+-#elif defined __GLIBC__
+-  fp->_IO_read_ptr = fp->_IO_read_base;
+-#elif defined _MSC_VER && _MSC_VER >= 1900
+-  #define NO_REWIND_PIPE
+-#elif defined _MSC_VER || defined _WIN32 || defined _WIN64 || \
+-      defined _ISO_STDIO_ISO_H || defined __sgi
+-  fp->_ptr = fp->_base;
+-#else
+-  /* To fix this #error, either simply remove the #error line and live without
+-   * file-type detection with pipes, or add support for your compiler in the
+-   * lines above.  Test with cat monkey.wav | ./sox --info - */
+-  #error FIX NEEDED HERE
+-  #define NO_REWIND_PIPE
++#define NO_REWIND_PIPE
+   (void)fp;
+-#endif
+ }
+ 
+ static sox_format_t * open_read(
