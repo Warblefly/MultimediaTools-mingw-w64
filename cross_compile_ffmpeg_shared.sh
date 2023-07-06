@@ -7193,7 +7193,7 @@ build_rabbitmq() {
 }
 
 build_rist() {
-	do_git_checkout https://code.videolan.org/rist/librist.git librist #8f139809 
+	do_git_checkout https://code.videolan.org/rist/librist.git librist c917e970 #8f139809 
 	cd librist
 #		apply_patch file://${top_dir}/librist-thread.patch
 		generic_meson_ninja_install
