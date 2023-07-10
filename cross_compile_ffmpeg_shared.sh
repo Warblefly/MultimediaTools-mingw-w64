@@ -2758,7 +2758,7 @@ build_libxslt() {
 }
 
 build_libxmlsec() {
-  download_and_unpack_file http://www.aleksey.com/xmlsec/download/xmlsec1-1.2.37.tar.gz xmlsec1-1.2.37
+  download_and_unpack_file https://www.aleksey.com/xmlsec/download/older-releases/xmlsec1-1.2.37.tar.gz xmlsec1-1.2.37
 #  do_git_checkout https://github.com/lsh123/xmlsec.git xmlsec
   cd xmlsec1-1.2.37
 #    apply_patch file://${top_dir}/xmlsec1-x509.patch
@@ -2768,8 +2768,8 @@ build_libxmlsec() {
     #env
     rm autogen.sh
 #    generic_configure_make_install "LIBS=-lgcrypt --disable-silent-rules GCRYPT_LIBS=-lgcrypt --with-gcrypt=${mingw_w64_x86_64_prefix} --disable-silent-rules --enable-docs=no"
-    generic_configure_make_install "LIBS=-lgcrypt CFLAGS=-DGPGRT_ENABLE_ES_MACROS --disable-unicode --disable-silent-rules --enable-docs=no --disable-mscng"
-
+#    generic_configure_make_install "LIBS=-lgcrypt CFLAGS=-DGPGRT_ENABLE_ES_MACROS --disable-unicode --disable-silent-rules --enable-docs=no --disable-mscng"
+	generic_configure_make_install "LIBS=-lgcrypt --enable-docs=no"
 
     unset LIBS
     unset GCRYPT_LIBS
@@ -3152,8 +3152,8 @@ build_libaacplus() {
 }
 
 build_openssl11() {
-	download_and_unpack_file https://www.openssl.org/source/openssl-1.1.1f.tar.gz openssl-1.1.1f
-	cd openssl-1.1.1f
+	download_and_unpack_file https://www.openssl.org/source/openssl-1.1.1u.tar.gz openssl-1.1.1u
+	cd openssl-1.1.1u
 		export CC="${cross_prefix}gcc"
 		export AR="${cross_prefix}ar"
 		export RANLIB="${cross_prefix}ranlib"
