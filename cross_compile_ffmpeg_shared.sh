@@ -4805,9 +4805,9 @@ build_libmms() {
 
 build_curl() {
 #  generic_download_and_install http://curl.haxx.se/download/curl-7.51.0.tar.bz2 curl-7.51.0 "--enable-ipv6 --with-librtmp --with-ca-fallback"
-  do_git_checkout https://github.com/curl/curl.git curl e7f9c904ca20a91a0c87f9ca5812c9ac0307125d # 9655474548b3cefdb2b1d4504c82b44cc01a1861
+  do_git_checkout https://github.com/curl/curl.git curl # e7f9c904ca20a91a0c87f9ca5812c9ac0307125d # 9655474548b3cefdb2b1d4504c82b44cc01a1861
   cd curl
-    apply_patch file://${top_dir}/curl.patch
+#    apply_patch file://${top_dir}/curl.patch
     generic_configure_make_install "--enable-ipv6 --with-librtmp --with-ca-fallback --with-gnutls"
 
   cd ..
@@ -4815,9 +4815,9 @@ build_curl() {
 
 build_curl_early() {
 #  generic_download_and_install http://curl.haxx.se/download/curl-7.51.0.tar.bz2 curl-7.51.0 "--enable-ipv6 --with-librtmp --with-ca-fallback"
-  do_git_checkout https://github.com/curl/curl.git curl_early e7f9c904ca20a91a0c87f9ca5812c9ac0307125d
+  do_git_checkout https://github.com/curl/curl.git curl_early #e7f9c904ca20a91a0c87f9ca5812c9ac0307125d
   cd curl_early
-    apply_patch file://${top_dir}/curl.patch
+#   apply_patch file://${top_dir}/curl.patch
     generic_configure_make_install "--enable-ipv6 --with-ca-fallback --with-gnutls"
 
   cd ..
@@ -5216,7 +5216,7 @@ build_ffms2() {
 }
 
 build_flac() {
-  do_git_checkout https://github.com/xiph/flac.git flac 1c0eea679ae4351c77c912988d0a24d90809965a
+  do_git_checkout https://github.com/xiph/flac.git flac #1c0eea679ae4351c77c912988d0a24d90809965a
 #  cpu_count=1
   cd flac
     # microbench target hasn't been tested on many platforms yet
