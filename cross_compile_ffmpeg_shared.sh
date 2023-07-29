@@ -2619,7 +2619,8 @@ do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfile
 #	download_and_unpack_file https://download.filezilla-project.org/libfilezilla/libfilezilla-0.37.2.tar.bz2 libfilezilla-0.37.2
 #	cd libfilezilla-0.37.2
 	cd libfilezilla
-		apply_patch file://${top_dir}/libfilezilla-cstdint.patch
+	#	apply_patch file://${top_dir}/libfilezilla-cstdint.patch
+		apply_patch file://${top_dir}/libfilezilla-error.patch
 	        generic_configure_make_install "--enable-shared --disable-static"
     		unset CC
 		unset CXX
@@ -5418,7 +5419,7 @@ build_codec2() {
   unset LD
   unset LDFLAGS
   #do_git_checkout https://github.com/svn2github/Codec2-dev.git codec2-dev
-  do_git_checkout https://github.com/drowe67/codec2.git codec2-dev
+  do_git_checkout https://github.com/drowe67/codec2.git codec2-dev main
   mkdir build-codec-2-mingw
   cd codec2-dev
 #	apply_patch file://${top_dir}/codec2-src-CMakeFiles.txt.patch
