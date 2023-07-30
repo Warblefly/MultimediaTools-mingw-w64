@@ -377,7 +377,7 @@ do_meson() {
         rm -f already_* # reset
         echo "Using meson: $english_name ($PWD) as $ PATH=$PATH ${configure_env} $configure_name $configure_options"
         #env
-        ${configure_env} "$configure_name" $configure_options || exit 1
+        ${configure_env} "$configure_name" setup $configure_options || exit 1
         touch -- "$touch_name"
         make clean # just in case
     else
@@ -2620,7 +2620,7 @@ do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfile
 #	cd libfilezilla-0.37.2
 	cd libfilezilla
 	#	apply_patch file://${top_dir}/libfilezilla-cstdint.patch
-		apply_patch file://${top_dir}/libfilezilla-error.patch
+#		apply_patch file://${top_dir}/libfilezilla-error.patch
 	        generic_configure_make_install "--enable-shared --disable-static"
     		unset CC
 		unset CXX
@@ -3824,15 +3824,16 @@ build_mpv() {
     export PATH=${mingw_w64_x86_64_prefix}/../bin:/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin
     export PKG_CONFIG_PATH="${mingw_w64_x86_64_prefix}/lib/pkgconfig"
     export PKG_CONFIG_LIBDIR="${mingw_w64_x86_64_prefix}/lib/pkgconfig"
-    ./bootstrap.py
-    export DEST_OS=win32
-    export TARGET=x86_64-w64-mingw32
+#    ./bootstrap.py
+#    export DEST_OS=win32
+i    export TARGET=x86_64-w64-mingw32
     unset AR
     unset CC
     unset LD
     #env
 #    apply_patch file://${top_dir}/mpv-ksaudio.patch
-    do_configure "configure -v -pp --prefix=${mingw_w64_x86_64_prefix} --enable-dvdnav --enable-cdda --disable-x11 --disable-debug-build --enable-sdl2 --enable-libmpv-shared --disable-libmpv-static" "./waf"
+    generic_meson_ninja_install "-Ddvdnav=enabled"
+#    do_configure "configure -v -pp --prefix=${mingw_w64_x86_64_prefix} --enable-dvdnav --enable-cdda --disable-x11 --disable-debug-build --enable-sdl2 --enable-libmpv-shared --disable-libmpv-static" "./waf"
     # In this cross-compile for Windows, we keep the Python script up-to-date and therefore
     # must call it directly by its full name, because mpv can only explore for executables
     # with the .exe suffix.
@@ -3840,8 +3841,8 @@ build_mpv() {
     #sed -i.bak 's/mp.find_config_file("youtube-dl" .. exesuf)/mp.find_config_file("youtube-dl.py")/' player/lua/ytdl_hook.lua
     #sed -i.bak 's/  ytdl.path, "--no-warnings"/  "python.exe", ytdl.path, "--no-warnings"/' player/lua/ytdl_hook.lua
     #apply_patch file://${top_dir}/mpv-ytdl.patch
-    ./waf build || exit 1
-    ./waf install || exit 1
+ #   ./waf build || exit 1
+ #   ./waf install || exit 1
     mkdir -pv ${mingw_w64_x86_64_prefix}/share/mpv
 #    cp -vf ${top_dir}/mpv.conf ${mingw_w64_x86_64_prefix}/share/mpv/mpv.conf
     unset DEST_OS
@@ -5291,8 +5292,8 @@ build_mjpegtools() {
 
 build_file() {
   # Also contains libmagic
-  do_git_checkout https://github.com/file/file.git file_native # c019f3c109cdf6606be265b8039f002d81d996bb #3dc9066f0b59513951626d8596ea67e23a0fd42e #13ba1a3639f7a40f3bffbabf2737cbdde314faf4
-  do_git_checkout https://github.com/file/file.git file # c019f3c109cdf6606be265b8039f002d81d996bb # 850e148d088922878f1e5f6b2e3a9c01f75d21f3 #3dc9066f0b59513951626d8596ea67e23a0fd42e #13ba1a3639f7a40f3bffbabf2737cbdde314faf4
+  do_git_checkout https://github.com/file/file.git file_native 218fdf813fd5ccecbb8887a1b62509cd1c6dd3a1 # c019f3c109cdf6606be265b8039f002d81d996bb #3dc9066f0b59513951626d8596ea67e23a0fd42e #13ba1a3639f7a40f3bffbabf2737cbdde314faf4
+  do_git_checkout https://github.com/file/file.git file 218fdf813fd5ccecbb8887a1b62509cd1c6dd3a1 # c019f3c109cdf6606be265b8039f002d81d996bb # 850e148d088922878f1e5f6b2e3a9c01f75d21f3 #3dc9066f0b59513951626d8596ea67e23a0fd42e #13ba1a3639f7a40f3bffbabf2737cbdde314faf4
   # We use the git version of file and libmagic, which is updated more
   # often than distributions track. File requires its own binary to compile
   # its list of magic numbers. Therefore, because we are cross-compiling,
