@@ -3085,8 +3085,8 @@ build_bzlib2() {
 }
 
 build_zlib() {
-  download_and_unpack_file http://zlib.net/zlib-1.2.13.tar.gz zlib-1.2.13
-  cd zlib-1.2.13
+  download_and_unpack_file https://www.zlib.net/zlib-1.3.tar.xz zlib-1.3
+  cd zlib-1.3
     export mingw_w64_x86_64_prefix=${mingw_w64_x86_64_prefix}
     echo "PKG_CONFIG_PATH at this point is ${PKG_CONFIG_PATH}"
     apply_patch file://${top_dir}/zlib-Makefile-gcc.patch
@@ -6295,15 +6295,15 @@ build_vulkan() {
 
     #download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Loader/archive/sdk-1.1.73.0.tar.gz Vulkan-Loader-sdk-1.1.73.0
     #download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Headers/archive/sdk-1.1.92.0.tar.gz Vulkan-Headers-sdk-1.1.92.0
-    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Headers/archive/v1.3.251.tar.gz Vulkan-Headers-1.3.251
+    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Headers/archive/v1.3.261.tar.gz Vulkan-Headers-1.3.261
     #cd Vulkan-Loader-sdk-1.1.73.0
-    cd Vulkan-Headers-1.3.251
+    cd Vulkan-Headers-1.3.261
         do_cmake
         do_make
         do_make_install
     cd ..
-    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Loader/archive/v1.3.251.tar.gz Vulkan-Loader-1.3.251
-    cd Vulkan-Loader-1.3.251
+    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Loader/archive/v1.3.261.tar.gz Vulkan-Loader-1.3.261
+    cd Vulkan-Loader-1.3.261
         #apply_patch_p1 file://${top_dir}/001-build-fix.patch
         #apply_patch_p1 file://${top_dir}/002-proper-def-files-for-32bit.patch
         #apply_patch_p1 file://${top_dir}/003-generate-pkgconfig-files.patch
