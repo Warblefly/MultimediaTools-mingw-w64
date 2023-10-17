@@ -5114,6 +5114,7 @@ build_cairomm() {
 build_taglib() {
   do_git_checkout https://github.com/taglib/taglib.git taglib
   cd taglib
+    git submodule update --init
     do_cmake "-DBUILD_EXAMPLES=ON -DBUILD_SHARED_LIBS=ON"
     do_make
     do_make_install
