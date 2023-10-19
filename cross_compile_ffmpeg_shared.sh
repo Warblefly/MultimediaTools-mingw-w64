@@ -7303,7 +7303,7 @@ build_ffmpeg() {
 	local configuration_options="--disable-static --enable-shared --enable-runtime-cpudetect --enable-gray --disable-w32threads"
 	local component_options="--enable-filter=frei0r --enable-decoder=aac" # fdk_aac gets much decoding wrong
 	local library_options="--enable-libsvtav1 --enable-avisynth --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdc1394 --enable-libfdk-aac --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-gnutls --enable-libgsm --enable-libilbc --enable-libklvanc --enable-liblensfun --enable-libmodplug --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopencv --enable-libopenmpt --enable-libopus --enable-librabbitmq --enable-librist --enable-librubberband --enable-librtmp --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libtesseract --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxavs2 --enable-libxvid --enable-libxml2 --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 --enable-decklink --enable-libmysofa --enable-opengl --enable-vulkan --enable-opencl --enable-libharfbuzz --enable-libdav1d"
-	local hardware_options="--enable-libmfx"
+	local hardware_options="--disable-libmfx --enable-libvpl"
 	local toolchain_options="--arch=x86_64 --cross-prefix=$cross_prefix --enable-cross-compile --target-os=mingw32 --extra-version=Compiled_by_John_Warburton --enable-pic --nvccflags=-I/usr/local/cuda-11.4/targets/x86_64-linux/include --extra-cflags=-fpermissive"
 	local developer_options="--disable-debug --enable-stripping"
 	cd ffmpeg_git
@@ -7338,9 +7338,22 @@ build_ffmpeg() {
 	cd ..
 }
 
+build_oneVPL() {
+	download_and_unpack_file https://github.com/oneapi-src/oneVPL/archive/refs/tags/v2023.3.1.tar.gz oneVPL-2023.3.1
+	cd oneVPL-2023.3.1
+		apply_patch file://${top_dir}/vpl-pkgconfig.patch
+		apply_patch file://${top_dir}/vpl-install.patch
+		apply_patch file://${top_dir}/vpl-cmake.patch
+
+		do_cmake . "-DBUILD_TOOLS=OFF -DINSTALL_EXAMPLE_CODE=OFF"
+		do_make "V=1"
+		do_make_install
+	cd ..
+}	
+
 build_dvdstyler() {
   generic_download_and_install http://sourceforge.net/projects/dvdstyler/files/dvdstyler-devel/3.0b1/DVDStyler-3.0b1.tar.bz2 DVDStyler-3.0b1 "DVDAUTHOR_PATH=${mingw_w64_x86_64_prefix}/bin/dvdauthor.exe FFMPEG_PATH=${mingw_w64_x86_64_prefix}/bin/ffmpeg.exe --with-wx-config=${mingw_w64_x86_64_prefix}/bin/wx-config"
-  cd DVDStyker-3.0b1
+  cd DVDStyler-3.0b1
 
   cd ..
 }
@@ -7537,6 +7550,7 @@ build_dependencies() {
   #build_libuuid
   build_libass # needs freetype, needs fribidi, needs fontconfig
   build_intel_quicksync_mfx
+  build_oneVPL
   build_freeglut
   build_glew
 #  build_libopenjpeg

@@ -26,7 +26,7 @@ export PATH="$working_directory/bin:/usr/local/bin:/usr/bin:/bin"
 echo "Getting binutils..."
 #	wget http://ftp.gnu.org/gnu/binutils/binutils-2.36.1.tar.bz2 || exit 1
 #        tar xvvf binutils-2.36.1.tar.bz2 && ln -sv binutils-2.36.1 binutils
-	git clone --depth 1 --single-branch -b binutils-2_40-branch https://github.com/bminor/binutils-gdb.git binutils || echo "Seems we have binutils."
+	git clone --single-branch -b binutils-2_41-branch https://github.com/bminor/binutils-gdb.git binutils || echo "Seems we have binutils."
 #	git clone --depth 1 --single-branch -b binutils-2_36-branch git://sourceware.org/git/binutils-gdb.git binutils || echo "Seems we have binutils."
 echo "Binutils has arrived."
 
@@ -92,7 +92,8 @@ echo "Making the mingw link..."
 ln -sv $host $working_directory/mingw
 
 echo "Cloning the mingw-w64 headers, crt and libraries..."
-git clone -b v11.x git://git.code.sf.net/p/mingw-w64/mingw-w64 mingw-w64 || echo "Seems we have mingw-w64."
+git clone --branch v11.x git://git.code.sf.net/p/mingw-w64/mingw-w64 mingw-w64 || echo "Seems we have mingw-w64."
+# add clone -b v11.x for stable version
 echo "mingw-w64 has arrived."
 
 # This is a checkout before some tcpip headers break Pulseaudio etc.
@@ -154,7 +155,7 @@ echo "Mingw-w64 headers are installed."
 
 echo "Cloning GCC..."
 
-git clone --depth 1 --branch releases/gcc-13 https://github.com/gcc-mirror/gcc.git gcc || echo "Seems we have GCC."
+git clone --branch releases/gcc-13 https://github.com/gcc-mirror/gcc.git gcc || echo "Seems we have GCC."
 #git clone https://github.com/gcc-mirror/gcc.git gcc
 #cd gcc
 #	git checkout e6d369bbdb4eb5f03eec233ef9905013a735fd71 || echo "Correct commit of GCC." 
@@ -193,7 +194,7 @@ cd ..
 # Apply patch. Not sure how long this will be required
 
 cd gcc
-	cat ${top_dir}/gcc-autoconf.patch | patch -p0
+#	cat ${top_dir}/gcc-autoconf.patch | patch -p0
 #	curl https://src.fedoraproject.org/rpms/mingw-gcc/raw/rawhide/f/mingw-gcc-config.patch | patch -p1
 #	curl https://src.fedoraproject.org/rpms/mingw-gcc/raw/rawhide/f/0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch | patch -p1
 #	curl "https://gcc.gnu.org/bugzilla/attachment.cgi?id=53052" | patch -p0
