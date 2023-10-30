@@ -7763,8 +7763,9 @@ build_apps() {
   build_libopenshotaudio
   #build_libopenshot
 #  build_pulseaudio
-  build_mpv
   build_libplacebo
+  build_mpv
+#  build_libplacebo
   # opendcp unmaintained for sixteen months, uses outdated asdcp library
   #build_opendcp # Difficult at the moment. Development tree doesn't compile under its own procedures
   # build_opencv # We place it here because opencv has an interface to FFmpeg
