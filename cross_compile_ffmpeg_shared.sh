@@ -7302,7 +7302,7 @@ build_ffmpeg() {
 	local licensing_options="--enable-nonfree --enable-version3 --enable-gpl"
 	local configuration_options="--disable-static --enable-shared --enable-runtime-cpudetect --enable-gray --disable-w32threads"
 	local component_options="--enable-filter=frei0r --enable-decoder=aac" # fdk_aac gets much decoding wrong
-	local library_options="--enable-libsvtav1 --enable-avisynth --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdc1394 --enable-libfdk-aac --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-gnutls --enable-libgsm --enable-libilbc --enable-libklvanc --enable-liblensfun --enable-libmodplug --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopencv --enable-libopenmpt --enable-libopus --enable-librabbitmq --enable-librist --enable-librubberband --enable-librtmp --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libtesseract --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxavs2 --enable-libxvid --enable-libxml2 --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 --enable-decklink --enable-libmysofa --enable-opengl --enable-vulkan --enable-opencl --enable-libharfbuzz --enable-libdav1d"
+	local library_options="--enable-libsvtav1 --enable-avisynth --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdc1394 --enable-libfdk-aac --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-gnutls --enable-libgsm --enable-libilbc --enable-libklvanc --enable-liblensfun --enable-libmodplug --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopencv --enable-libopenmpt --enable-libopus --enable-librabbitmq --enable-librist --enable-librubberband --enable-librtmp --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libtesseract --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxavs2 --enable-libxvid --enable-libxml2 --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 --enable-decklink --enable-libmysofa --enable-opengl --enable-vulkan --enable-opencl --enable-libharfbuzz --enable-libdav1d --enable-libplacebo"
 	local hardware_options="--disable-libmfx --enable-libvpl"
 	local toolchain_options="--arch=x86_64 --cross-prefix=$cross_prefix --enable-cross-compile --target-os=mingw32 --extra-version=Compiled_by_John_Warburton --enable-pic --nvccflags=-I/usr/local/cuda-11.4/targets/x86_64-linux/include --extra-cflags=-fpermissive"
 	local developer_options="--disable-debug --enable-stripping"
@@ -7752,7 +7752,8 @@ build_apps() {
   build_dvdbackup
   build_codec2
   build_ffmpegnv
-#  build_pulseaudio
+#  build_pulseaudio 
+  build_libplacebo
   build_ffmpeg
   #build_pamix
   #build_meterbridge
@@ -7763,7 +7764,7 @@ build_apps() {
   build_libopenshotaudio
   #build_libopenshot
 #  build_pulseaudio
-  build_libplacebo
+#  build_libplacebo
   build_mpv
 #  build_libplacebo
   # opendcp unmaintained for sixteen months, uses outdated asdcp library
