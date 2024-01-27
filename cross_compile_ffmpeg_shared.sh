@@ -913,23 +913,47 @@ build_drm() {
 
 
 build_qt6() {
-	download_and_unpack_file https://download.qt.io/official_releases/qt/6.5/6.5.1/single/qt-everywhere-src-6.5.1.tar.xz qt-everywhere-src-6.5.1
-	cd qt-everywhere-src-6.5.1
-		cd qtbase
+	download_and_unpack_file https://download.qt.io/official_releases/qt/6.6/6.6.1/submodules/qtbase-everywhere-src-6.6.1.tar.xz qtbase-everywhere-src-6.6.1
+	cd qtbase-everywhere-src-6.6.1
+#		cd qtbase
 			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/rawhide/f/qtbase-import-lib-suffix.patch
 			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/rawhide/f/qtbase-include-toolchain.patch
 			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/rawhide/f/qtbase-mingw.patch
 			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/rawhide/f/qtbase-qmakeconf.patch
 			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/rawhide/f/qtbase-readlink.patch
-		cd ..
-	mkdir qt6-build
-		cd qt6-build		
+#		cd ..
+	mkdir build
+		cd build		
 			export MAKEFLAGS="-j8"
 			export PKG_CONFIG=${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config
 			export PKG_CONFIG_LIBDIR=${mingw_w64_x86_64_prefix}/lib/pkgconfig
 			export PKG_CONFIG_SYSROOT_DIR=${mingw_w64_x86_64_prefix}
-			do_cmake "-G Ninja -B build-x86_64-w64-mingw32 -DCMAKE_BUILD_TYPE=Release -DFEATURE_pkg_config=ON -DQT_FEATURE_egl=OFF -DQT_FEATURE_fontconfig=ON -DQT_FEATURE_icu=ON -DQT_FEATURE_openssl_linked=ON -DQT_FEATURE_system_harfbuzz=ON -DQT_FEATURE_system_sqlite=ON -DQT_HOST_PATH=/usr/local/Qt-6.5.1 -DQT_NO_PACKAGE_VERSION_INCOMPATIBLE_WARNING=FALSE"
+			do_cmake ".. -G Ninja -B build -DQT_QMAKE_TARGET_MKSPEC=win32-g++ -DQT_BUILD_EXAMPLES=FALSE -DQT_BUILD_TESTS=FALSE -DQT_QMAKE_DEVICE_OPTIONS=CROSS_COMPILE=x86_64-w64-mingw32- -DCMAKE_BUILD_TYPE=Release -DFEATURE_pkg_config=ON -DQT_FEATURE_egl=OFF -DQT_FEATURE_fontconfig=ON -DQT_FEATURE_icu=ON -DQT_FEATURE_openssl_linked=ON -DQT_FEATURE_system_harfbuzz=OFF -DQT_FEATURE_system_sqlite=OFF -DQT_HOST_PATH=/usr/ -DQt6HostInfo_DIR=/usr/lib/x86_64-linux-gnu/cmake/Qt6HostInfo/ -DQt6CoreTools_DIR=/usr/lib/qt6/libexec/ -DQT_NO_PACKAGE_VERSION_CHECK=TRUE" # -DQT_NO_PACKAGE_VERSION_INCOMPATIBLE_WARNING=FALSE
 #		cmake --build build-x86_64-w64-mingw32
+			do_ninja_and_ninja_install
+		cd ..
+	cd ..
+	download_and_unpack_file https://download.qt.io/official_releases/qt/6.6/6.6.1/submodules/qtsvg-everywhere-src-6.6.1.tar.xz qtsvg-everywhere-src-6.6.1
+	cd qtsvg-everywhere-src-6.6.1
+		mkdir build
+		cd build
+			do_cmake ".. -G Ninja -B build -DQT_QMAKE_TARGET_MKSPEC=win32-g++ -DQT_BUILD_EXAMPLES=FALSE -DQT_BUILD_TESTS=FALSE -DQT_QMAKE_DEVICE_OPTIONS=CROSS_COMPILE=x86_64-w64-mingw32"
+			do_ninja_and_ninja_install
+		cd ..
+	cd ..
+	download_and_unpack_file https://download.qt.io/official_releases/qt/6.6/6.6.1/submodules/qtshadertools-everywhere-src-6.6.1.tar.xz qtshadertools-everywhere-src-6.6.1
+	cd qtshadertools-everywhere-src-6.6.1
+		mkdir build
+		cd build
+			do_cmake ".. -G Ninja -B build -DQT_QMAKE_TARGET_MKSPEC=win32-g++ -DQT_BUILD_EXAMPLES=FALSE -DQT_BUILD_TESTS=FALSE -DQT_QMAKE_DEVICE_OPTIONS=CROSS_COMPILE=x86_64-w64-mingw32"
+			do_ninja_and_ninja_install
+		cd ..
+	cd ..
+	download_and_unpack_file https://download.qt.io/official_releases/qt/6.6/6.6.1/submodules/qtmultimedia-everywhere-src-6.6.1.tar.xz qtmultimedia-everywhere-src-6.6.1
+	cd qtmultimedia-everywhere-src-6.6.1
+		mkdir build
+		cd build
+			do_cmake ".. -G Ninja -B build -DQT_FEATURE_gstreamer=OFF -DQT_QMAKE_TARGET_MKSPEC=win32-g++ -DQT_BUILD_EXAMPLES=FALSE -DQT_BUILD_TESTS=FALSE -DQT_QMAKE_DEVICE_OPTIONS=CROSS_COMPILE=x86_64-w64-mingw32 -DQt6ShaderTools_DIR=${mings_w64_x86_64_prefix}/lib/cmake/Qt6ShaderTools/"
 			do_ninja_and_ninja_install
 		cd ..
 	cd ..
@@ -1707,7 +1731,7 @@ build_opendcp() {
 
 build_dcpomatic() {
 #  do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic main # v2.16.52 #805d4a48fa6e4d8e28fd582a2ae6ba78b8343144 main # v2.15.x # fc1441eeaa3c0805c37809685ea7a3f5ca173666 # v2.15.x #97193e96c637ca92eeaf6e72ee38aa628308973b # v2.15.x #402fa9a3577975e9cf9728c815da1b17796fe325 # v2.15.x #9cff6ec974a4d0270091fe5c753483b0d53ecd46
-  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic v2.16.55 # new-ffmpeg-take2 #edbccd8d04a33f9e8d03677d8ebc671f40b0f822 #v2.15.x # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
+  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic v2.16.72 # new-ffmpeg-take2 #edbccd8d04a33f9e8d03677d8ebc671f40b0f822 #v2.15.x # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
 #  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.123" dcpomatic-2.15.123
   cd dcpomatic
     apply_patch file://${top_dir}/dcpomatic-wscript.patch
@@ -1717,7 +1741,7 @@ build_dcpomatic() {
     apply_patch file://${top_dir}/dcpomatic-gl.patch
 #    apply_patch file://${top_dir}/dcpomatic-src-wx-wscript.patch
 #    apply_patch file://${top_dir}/dcpomatic-unicode.patch
-#    apply_patch file://${top_dir}/dcpomatic-rc.patch
+    apply_patch file://${top_dir}/dcpomatic-rc.patch
 #    apply_patch file://${top_dir}/dcpomatic-channels.patch
 #    apply_patch file://${top_dir}/dcpomatic-display.patch
 ##    apply_patch file://${top_dir}/dcpomatic-j2k.patch
@@ -2328,7 +2352,7 @@ build_libpopt() {
 
 
 build_termcap() {
-  download_and_unpack_file ftp://ftp.gnu.org/gnu/termcap/termcap-1.3.1.tar.gz termcap-1.3.1
+  download_and_unpack_file https://ftp.gnu.org/gnu/termcap/termcap-1.3.1.tar.gz termcap-1.3.1
   cd termcap-1.3.1
     rm configure
     generic_configure "--host=x86_64-w64-mingw32 --target=x86_64-w64-mingw32 --enable-install-termcap"
@@ -2548,7 +2572,11 @@ build_libtheora() {
 }
 
 build_sqlite() {
-    generic_download_and_install https://sqlite.org/2019/sqlite-autoconf-3280000.tar.gz sqlite-autoconf-3280000 #  https://www.sqlite.org/snapshot/sqlite-snapshot-201811291200.tar.gz sqlite-snapshot-201811291200
+	download_and_unpack_file https://sqlite.org/2023/sqlite-autoconf-3440200.tar.gz sqlite-autoconf-3440200 #  https://www.sqlite.org/snapshot/sqlite-snapshot-201811291200.tar.gz sqlite-snapshot-201811291200
+	cd sqlite-autoconf-3440200
+		export SQLITE_ENABLE_COLUMN_METADATA=1
+		generic_configure_make_install
+	cd ..
 }
 
 build_medialibrary() {
@@ -2648,7 +2676,7 @@ build_filezilla() {
 #    apply_patch file://${top_dir}/filezilla-wxWidgets.patch
 #    apply_patch file://${top_dir}/filezilla-limits.patch
 #    apply_patch file://${top_dir}/filezilla-wx31.patch
-    generic_configure_make_install "CFLAGS=-fcommon  --disable-dependency-tracking --with-pugixml=builtin --with-wx-config=${mingw_w64_x86_64_prefix}/lib/wx/config/x86_64-w64-mingw32-msw-unicode-3.0"
+    generic_configure_make_install "CFLAGS=-fcommon  --disable-dependency-tracking --with-pugixml=builtin --with-wx-config=${mingw_w64_x86_64_prefix}/lib/wx/config/x86_64-w64-mingw32-msw-unicode-3.2"
 #    unset CFLAGS
 #   generic_download_and_install https://download.filezilla-project.org/client/FileZilla_3.44.2_src.tar.bz2 filezilla-3.44.2
     #unset CFLAGS
@@ -3010,8 +3038,8 @@ build_libidn() {
 }
 
 build_xerces() {
-	download_and_unpack_file http://mirrors.ukfast.co.uk/sites/ftp.apache.org//xerces/c/3/sources/xerces-c-3.2.4.tar.xz xerces-c-3.2.4
-	cd xerces-c-3.2.4
+	download_and_unpack_file http://mirrors.ukfast.co.uk/sites/ftp.apache.org//xerces/c/3/sources/xerces-c-3.2.5.tar.xz xerces-c-3.2.5
+	cd xerces-c-3.2.5
 		do_cmake && ${top_dir}/correct_headers.sh
 		do_make
 		do_make_install
@@ -3085,8 +3113,8 @@ build_bzlib2() {
 }
 
 build_zlib() {
-  download_and_unpack_file https://www.zlib.net/zlib-1.3.tar.xz zlib-1.3
-  cd zlib-1.3
+  download_and_unpack_file https://www.zlib.net/zlib-1.3.1.tar.xz zlib-1.3.1
+  cd zlib-1.3.1
     export mingw_w64_x86_64_prefix=${mingw_w64_x86_64_prefix}
     echo "PKG_CONFIG_PATH at this point is ${PKG_CONFIG_PATH}"
     apply_patch file://${top_dir}/zlib-Makefile-gcc.patch
@@ -3298,7 +3326,7 @@ build_asdcplib-cth() {
 build_libdcp() {
   # Branches are slightly askew. 1.0 is where development takes place
 #  do_git_checkout https://github.com/cth103/libdcp.git libdcp main # v1.8.66 #04e215a7688239cb47fc86e8396756c685f338a1 #v1.8.13 #d39880eef211a296fa8ef4712cdef5945d08527c c6665c157bdb6903661d21c571c7d112b54ad8fd # d989a83517fd77aa241c1423ac00cfed62d567fe # f3058b2f1b48ec613bda5781fe97e83a0dca83a9
-  do_git_checkout git://git.carlh.net/git/libdcp.git libdcp v1.8.67 #b75d977a38f039fd68ed5d4055ae70b4bf631603 # v1.6.x # 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
+  do_git_checkout git://git.carlh.net/git/libdcp.git libdcp v1.8.94 #b75d977a38f039fd68ed5d4055ae70b4bf631603 # v1.6.x # 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
 #  download_and_unpack_file https://carlh.net/downloads/libdcp/libdcp-1.6.17.tar.bz2 libdcp-1.6.17
   cd libdcp
     # M_PI is required. This is a quick way of defining it
@@ -3335,7 +3363,7 @@ build_libdcp() {
 }
 
 build_libsub() {
-  do_git_checkout git://git.carlh.net/git/libsub.git libsub v1.6.44
+  do_git_checkout git://git.carlh.net/git/libsub.git libsub v1.6.46
 #  do_git_checkout https://git.carlh.net/git/libsub.git libsub
 #  download_and_unpack_file http://carlh.net/downloads/libsub/libsub-1.4.24.tar.bz2 libsub-1.4.24
 #  do_git_checkout https://github.com/cth103/libsub.git libsub v1.6.x
@@ -3949,8 +3977,8 @@ build_wx() {
   cp -v ${mingw_w64_x86_64_prefix}/bin/wx-config ${mingw_w64_x86_64_prefix}/../bin/wx-config
 #  cp -v ${mingw_w64_x86_64_prefix}/lib/wx*dll ${mingw_w64_x86_64_prefix}/bin
   #do_git_checkout https://github.com/wxWidgets/wxWidgets.git wxWidgetsLATEST
-  download_and_unpack_file https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.5/wxWidgets-3.1.5.tar.bz2 wxWidgets-3.1.5
-  cd wxWidgets-3.1.5
+  download_and_unpack_file https://github.com/wxWidgets/wxWidgets/releases/download/v3.2.4/wxWidgets-3.2.4.tar.bz2 wxWidgets-3.2.4
+  cd wxWidgets-3.2.4
 #  cd wxWidgetsLATEST
     generic_configure_make_install "--disable-option-checking --with-msw --enable-monolithic --disable-debug_flag --with-libpng=sys --with-libjpeg=sys --with-libtiff=sys --with-libiconv" # "--with-libpng=sys --with-libjpeg=sys --disable-mslu --enable-unicode --with-regex=builtin --disable-precomp-headers --with-libtiff=sys --with-regex=yes --with-zlib=yes --enable-webview --enable-mediactrl --disable-option-checking --with-gtk=2 --enable-monolithic"
     # wx-config needs to be visible to this script when compiling
@@ -4464,20 +4492,24 @@ build_mkvtoolnix() {
     old_LD=${LD}
     old_AR=${AR}
     old_CXX=${CXX}
-    export CC=x86_64-w64-mingw32-gcc
-    export LD=x86_64-w64-mingw32-ld
-    export AR=x86_64-w64-mingw32-ar
-    export CXX=x86_64-w64-mingw32-g++
+#    export CC=x86_64-w64-mingw32-gcc
+#    export LD=x86_64-w64-mingw32-ld
+#    export AR=x86_64-w64-mingw32-ar
+#    export CXX=x86_64-w64-mingw32-g++
+#    export qtbin=/usr/bin
     #apply_patch file://${top_dir}/mkvtoolnix-qt5-2.patch
     #apply_patch file://${top_dir}/mkvtoolnix-stack.patch
     #rm -vf src/info/sys_windows.cpp
 #    apply_patch file://${top_dir}/mkvtoolnix-version.patch
 #    apply_patch file://${top_dir}/mkvtoolnix-tests.patch
-    apply_patch file://${top_dir}/mkvtoolnix-Windows11.patch
-    apply_patch file://${top_dir}/mkvtoolnix-qt5-backport.patch
-    apply_patch file://${top_dir}/mkvtoolnix-clocale.patch
-    export LIBS="-lole32"
-    generic_configure "--with-boost=${mingw_w64_x86_64_prefix} --with-boost-system=boost_system-mt-x64 --with-boost-filesystem=boost_filesystem-mt-x64 --with-boost-date-time=boost_date_time-mt-x64 --with-boost-regex=boost_regex-mt-x64 --enable-gui --enable-optimization=yes --enable-debug=no"
+#    apply_patch file://${top_dir}/mkvtoolnix-Windows11.patch
+#    apply_patch file://${top_dir}/mkvtoolnix-qt5-backport.patch
+#    apply_patch file://${top_dir}/mkvtoolnix-clocale.patch
+#    export LIBS="-lole32"
+    export QMAKE_XSPECT=win32-g++
+    export host=x86_64-w64-mingw32
+    export qtbin=${mingw_w64_x86_64_prefix}
+    generic_configure "--host=x86_64-w64-mingw32 --with-qmake6=${mingw_w64_x86_64_prefix}/bin/qmake6 --with-boost=${mingw_w64_x86_64_prefix} --with-boost-system=boost_system-mt-x64 --with-boost-filesystem=boost_filesystem-mt-x64 --with-boost-date-time=boost_date_time-mt-x64 --with-boost-regex=boost_regex-mt-x64 --enable-gui --enable-optimization=yes --enable-debug=no --enable-qt6=yes"
     # Now we must prevent inclusion of sys_windows.cpp because our build uses shared libraries,
     # and this piece of code unfortunately tries to pull in a static version of the Windows Qt
     # platform library libqwindows.a
@@ -5517,7 +5549,7 @@ build_aubio() {
     do_git_checkout https://git.aubio.org/aubio/aubio aubio #d94afb37f953f5d7cad9881dac42bff1e3b66f9c
     cd aubio
     	apply_patch file://${top_dir}/aubio_notests.patch
-	apply_patch file://${top_dir}/aubio_mingw.patch
+#	apply_patch file://${top_dir}/aubio_mingw.patch
         mkdir aubio_build
         cd aubio_build
             wget https://waf.io/waf-2.0.25.tar.bz2
@@ -6641,11 +6673,11 @@ build_pugixml() {
 }
 
 build_harfbuzz() {
-  download_and_unpack_file https://github.com/harfbuzz/harfbuzz/archive/refs/tags/7.3.0.tar.gz harfbuzz-7.3.0
+  download_and_unpack_file https://github.com/harfbuzz/harfbuzz/archive/refs/tags/8.3.0.tar.gz harfbuzz-8.3.0 # Was 7.3.0
 #  download_and_unpack_file https://github.com/harfbuzz/harfbuzz/releases/download/2.7.2/harfbuzz-2.7.2.tar.xz harfbuzz-2.7.2
 #  download_and_unpack_file https://www.freedesktop.org/software/harfbuzz/release/harfbuzz-1.7.6.tar.bz2 harfbuzz-1.7.6
 #  do_git_checkout https://github.com/behdad/harfbuzz.git harfbuzz
-  cd harfbuzz-7.3.0
+  cd harfbuzz-8.3.0
     generic_meson_ninja_install
 #    generic_configure_make_install
 
@@ -6695,6 +6727,13 @@ build_meterbridge() {
 		apply_patch file://${top_dir}/meterbridge-set_rgba.patch
 		
 		generic_configure_make_install "CFLAGS=-I${mingw_w64_x86_64_prefix}/include/SDL2"
+	cd ..
+}
+
+build_libpsl() {
+	do_git_checkout https://github.com/rockdaboot/libpsl.git libpsl
+	cd libpsl
+		generic_configure_make_install
 	cd ..
 }
 
@@ -7339,8 +7378,8 @@ build_ffmpeg() {
 }
 
 build_oneVPL() {
-	download_and_unpack_file https://github.com/oneapi-src/oneVPL/archive/refs/tags/v2023.3.1.tar.gz oneVPL-2023.3.1
-	cd oneVPL-2023.3.1
+	download_and_unpack_file https://github.com/intel/libvpl/archive/refs/tags/v2023.3.1.tar.gz libvpl-2023.3.1
+	cd libvpl-2023.3.1
 		apply_patch file://${top_dir}/vpl-pkgconfig.patch
 		apply_patch file://${top_dir}/vpl-install.patch
 		apply_patch file://${top_dir}/vpl-cmake.patch
@@ -7556,6 +7595,7 @@ build_dependencies() {
 #  build_libopenjpeg
 #  build_libopenjpeg2
   build_libwebp
+  build_libpsl
   #build_filewalk
   build_curl_early
   #build_libproj
@@ -7715,7 +7755,7 @@ build_apps() {
   build_fdkaac-commandline
 #  build_cdrecord
   #build_qt
-  #build_qt6
+ # build_qt6
   #build_kf5_config
   #build_kf5_coreaddons
   #build_kf5_itemmodels
@@ -7745,8 +7785,8 @@ build_apps() {
   build_youtube-dl
   build_mjpegtools
   build_unittest
-  build_qt
-  build_mkvtoolnix
+  build_qt6
+#  build_mkvtoolnix
 #  build_openssh
 #  build_rsync
   build_dvdbackup
@@ -7781,7 +7821,7 @@ build_apps() {
   build_libsub
 #  build_pavucontrol
   build_gstreamer
-  build_mkvtoolnix
+  #build_mkvtoolnix
   build_wx
   build_filezilla
 #  build_wxsvg
@@ -7911,6 +7951,7 @@ cd ${cur_dir}/x86_64-w64-mingw32/x86_64-w64-mingw32/include
   ln -s setupapi.h SetupAPI.h
   ln -s mfidl.h Mfidl.h
   ln -s uiviewsettingsinterop.h UIViewSettingsInterop.h
+  ln -s d3d11.h D3d11.h
   # OpenGL loader of some description needed for DJV
   cp -v ${cur_dir}/glad.h .
 cd -
