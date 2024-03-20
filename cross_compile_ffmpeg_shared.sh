@@ -1731,7 +1731,7 @@ build_opendcp() {
 
 build_dcpomatic() {
 #  do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic main # v2.16.52 #805d4a48fa6e4d8e28fd582a2ae6ba78b8343144 main # v2.15.x # fc1441eeaa3c0805c37809685ea7a3f5ca173666 # v2.15.x #97193e96c637ca92eeaf6e72ee38aa628308973b # v2.15.x #402fa9a3577975e9cf9728c815da1b17796fe325 # v2.15.x #9cff6ec974a4d0270091fe5c753483b0d53ecd46
-  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic v2.16.72 # new-ffmpeg-take2 #edbccd8d04a33f9e8d03677d8ebc671f40b0f822 #v2.15.x # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
+  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic v2.17.12 # new-ffmpeg-take2 #edbccd8d04a33f9e8d03677d8ebc671f40b0f822 #v2.15.x # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
 #  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.123" dcpomatic-2.15.123
   cd dcpomatic
     apply_patch file://${top_dir}/dcpomatic-wscript.patch
@@ -2038,7 +2038,7 @@ build_libcelt() {
 
 build_libopus() {
 #  download_and_unpack_file http://downloads.xiph.org/releases/opus/opus-1.2-alpha.tar.gz opus-1.2-alpha
-  do_git_checkout https://github.com/xiph/opus.git opus
+  do_git_checkout https://github.com/xiph/opus.git opus main
   cd opus
 #  cd opus-1.2-alpha
 #     apply_patch file://${top_dir}/opus-nostatic.patch # one test doesn't work with a shared library
@@ -3012,7 +3012,7 @@ build_autogen() {
 
 build_liba52() {
   export CFLAGS=-std=gnu89
-  generic_download_and_install http://liba52.sourceforge.net/files/a52dec-snapshot.tar.gz a52dec-0.7.5-cvs
+  generic_download_and_install https://comstyle.com/source/a52dec-snapshot.tar.gz a52dec-0.7.5-cvs
   cd a52dec-0.7.5-cvs
 
   cd ..
@@ -3271,12 +3271,14 @@ build_libssh() {
 
 build_asdcplib-cth() {
    # Use brance cth because this is the version the writer works on, and has modified
-#do_git_checkout git://git.carlh.net/git/asdcplib-cth.git asdcplib-cth cth
-#  do_git_checkout git://git.carlh.net/git/asdcplib.git asdcplib-carl debug
+#do_git_checkout git://git.carlh.net/git/asdcplib-cth.git asdcplib-cth dcpomatic-2.13.0
+#  do_git_checkout git://git.carlh.net/git/asdcplib.git asdcplib dcpomatic-2.13.0 # debug
   do_git_checkout https://github.com/cth103/asdcplib.git asdcplib-carl carl
 #  download_and_unpack_file https://github.com/cth103/asdcplib/archive/carl.zip asdcplib-carl
 #  download_and_unpack_file https://www.carlh.net/downloads/libasdcp-cth/libasdcp-cth-0.1.5.tar.bz2 libasdcp-cth-0.1.5
   cd asdcplib-carl
+#    cd asdcplib-cth
+#    cd asdcplib
     export PKG_CONFIG_PATH=${mingw_w64_x86_64_prefix}/lib/pkgconfig
     export CXXFLAGS="-DKM_WIN32"
     export CFLAGS="-DKM_WIN32"
@@ -3326,7 +3328,7 @@ build_asdcplib-cth() {
 build_libdcp() {
   # Branches are slightly askew. 1.0 is where development takes place
 #  do_git_checkout https://github.com/cth103/libdcp.git libdcp main # v1.8.66 #04e215a7688239cb47fc86e8396756c685f338a1 #v1.8.13 #d39880eef211a296fa8ef4712cdef5945d08527c c6665c157bdb6903661d21c571c7d112b54ad8fd # d989a83517fd77aa241c1423ac00cfed62d567fe # f3058b2f1b48ec613bda5781fe97e83a0dca83a9
-  do_git_checkout git://git.carlh.net/git/libdcp.git libdcp v1.8.94 #b75d977a38f039fd68ed5d4055ae70b4bf631603 # v1.6.x # 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
+  do_git_checkout git://git.carlh.net/git/libdcp.git libdcp v1.9.1 #b75d977a38f039fd68ed5d4055ae70b4bf631603 # v1.6.x # 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
 #  download_and_unpack_file https://carlh.net/downloads/libdcp/libdcp-1.6.17.tar.bz2 libdcp-1.6.17
   cd libdcp
     # M_PI is required. This is a quick way of defining it
@@ -3363,7 +3365,7 @@ build_libdcp() {
 }
 
 build_libsub() {
-  do_git_checkout git://git.carlh.net/git/libsub.git libsub v1.6.46
+  do_git_checkout git://git.carlh.net/git/libsub.git libsub v1.6.47
 #  do_git_checkout https://git.carlh.net/git/libsub.git libsub
 #  download_and_unpack_file http://carlh.net/downloads/libsub/libsub-1.4.24.tar.bz2 libsub-1.4.24
 #  do_git_checkout https://github.com/cth103/libsub.git libsub v1.6.x
@@ -3450,6 +3452,7 @@ build_libexpat() {
   do_git_checkout https://github.com/libexpat/libexpat.git libexpat
  # generic_download_and_install http://downloads.sourceforge.net/project/expat/expat/2.2.5/expat-2.2.5.tar.bz2 expat-2.2.5
   cd libexpat/expat
+    ./buildconf.sh
     generic_configure_make_install "--without-docbook"
   cd ../..
 }
@@ -3482,7 +3485,7 @@ build_libsamplerate() {
 
 build_vamp-sdk() {
   export cpu_count=1
-  do_git_checkout  https://github.com/c4dm/vamp-plugin-sdk.git vamp-plugin-sdk
+  do_git_checkout  https://github.com/c4dm/vamp-plugin-sdk.git vamp-plugin-sdk 7df85ec
   # download_and_unpack_file https://code.soundsoftware.ac.uk/attachments/download/2206/vamp-plugin-sdk-2.7.1.tar.gz vamp-plugin-sdk-2.7.1
   cd vamp-plugin-sdk
     # Tell the build system to use the mingw-w64 versions of binary utilities
@@ -7838,7 +7841,7 @@ build_apps() {
 #  build_jackmix
   #build_flacon
   build_get_iplayer
-  build_dcpomatic
+  #build_dcpomatic
 #  build_loudness-scanner Broken by FFmpeg API changes. Sorry.
   build_synaesthesia
   #build_kodi
