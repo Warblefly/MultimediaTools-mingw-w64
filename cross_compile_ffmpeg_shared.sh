@@ -5941,7 +5941,7 @@ build_uchardet() {
 }
 
 build_zstd() {
-    do_git_checkout https://github.com/facebook/zstd.git zstd #6b7a1d6127a0306731d4f98a0da2b9e91c078242
+    do_git_checkout https://github.com/facebook/zstd.git zstd dev #6b7a1d6127a0306731d4f98a0da2b9e91c078242
     cd zstd/build/cmake
         do_cmake
         do_make
@@ -6331,15 +6331,15 @@ build_vulkan() {
 
     #download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Loader/archive/sdk-1.1.73.0.tar.gz Vulkan-Loader-sdk-1.1.73.0
     #download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Headers/archive/sdk-1.1.92.0.tar.gz Vulkan-Headers-sdk-1.1.92.0
-    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Headers/archive/v1.3.268.tar.gz Vulkan-Headers-1.3.268
+    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Headers/archive/v1.3.281.tar.gz Vulkan-Headers-1.3.281
     #cd Vulkan-Loader-sdk-1.1.73.0
-    cd Vulkan-Headers-1.3.268
+    cd Vulkan-Headers-1.3.281
         do_cmake
         do_make
         do_make_install
     cd ..
-    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Loader/archive/v1.3.268.tar.gz Vulkan-Loader-1.3.268
-    cd Vulkan-Loader-1.3.268
+    download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Loader/archive/v1.3.281.tar.gz Vulkan-Loader-1.3.281
+    cd Vulkan-Loader-1.3.281
         #apply_patch_p1 file://${top_dir}/001-build-fix.patch
         #apply_patch_p1 file://${top_dir}/002-proper-def-files-for-32bit.patch
         #apply_patch_p1 file://${top_dir}/003-generate-pkgconfig-files.patch
@@ -6658,7 +6658,7 @@ build_synaesthesia() {
     apply_patch file://${top_dir}/synaesthesia-missing-icon.patch
 #    apply_patch file://${top_dir}/synaesthesia-configure.ac.patch
 #    apply_patch file://${top_dir}/synaesthesia-Makefile.am.patch
-    export LIBS="-lmingw32 -lSDL2main"
+#    export LIBS="-lmingw32 -lSDL2main"
     generic_configure_make_install "CXXFLAGS=-fpermissive --with-sdl2=yes"
 
     unset LIBS
