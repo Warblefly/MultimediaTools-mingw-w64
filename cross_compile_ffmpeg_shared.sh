@@ -222,7 +222,42 @@ install_cross_compiler() {
 
 # helper methods for downloading and building projects that can take generic input
 
+
 do_svn_checkout() {
+  local repo_url="$1"
+  local to_dir="$2"
+  if [[ -z $to_dir ]]; then
+    to_dir=$(basename "$repo_url" | sed s/\.svn/_svn/) 
+  fi
+  local desired_revision="$3"
+
+  if [ ! -d "$to_dir" ]; then
+    echo "Checking out (via svn checkout) $to_dir from $repo_url"
+    rm -rf "$to_dir.tmp" # just in case it was interrupted previously...
+    svn checkout "$repo_url" "$to_dir.tmp" || { 
+        echo "svn checkout failed!" 
+        exit 1 
+    }
+    # Prevent incomplete checkouts
+    mv "$to_dir.tmp" "$to_dir"
+    echo "done svn checkout to $to_dir"
+  fi
+
+  cd "$to_dir"
+
+  # Handle desired revision
+  if [[ -n $desired_revision ]]; then
+    echo "Updating to revision $desired_revision"
+    svn update -r "$desired_revision" || {
+        echo "svn update to revision failed!"
+        exit 1
+    }
+  fi
+
+  cd ..
+}
+
+NO_do_svn_checkout() {
   repo_url="$1"
   to_dir="$2"
   desired_revision="$3"
@@ -256,50 +291,65 @@ update_to_desired_git_branch_or_revision() {
   fi
 }
 
+
 do_git_checkout() {
   local repo_url="$1"
   local to_dir="$2"
   if [[ -z $to_dir ]]; then
-    to_dir=$(basename $repo_url | sed s/\.git/_git/) # http://y/abc.git -> abc_git
+    to_dir=$(basename "$repo_url" | sed s/\.git/_git/)
   fi
   local desired_branch="$3"
-  if [ ! -d $to_dir ]; then
+
+  if [ ! -d "$to_dir" ]; then
     echo "Downloading (via git clone) $to_dir from $repo_url"
-    rm -rf $to_dir.tmp # just in case it was interrupted previously...
-    git clone $repo_url $to_dir.tmp || exit 1
+    rm -rf "$to_dir.tmp" # just in case it was interrupted previously...
+    git clone "$repo_url" "$to_dir.tmp" || {
+        echo "git clone failed!"
+        exit 1
+    }
     # prevent partial checkouts by renaming it only after success
-    mv $to_dir.tmp $to_dir
+    mv "$to_dir.tmp" "$to_dir"
     echo "done git cloning to $to_dir"
-    cd $to_dir
+    cd "$to_dir"
   else
-    cd $to_dir
+    cd "$to_dir"
     if [[ $git_get_latest = "y" ]]; then
       git fetch # want this for later...
     else
-      echo "not doing git get latest pull for latest code $to_dir" # too slow'ish...
+      echo "not doing git get latest pull for latest code $to_dir"
     fi
   fi
 
-  # reset will be useless if they didn't git_get_latest but pretty fast so who cares...plus what if they changed branches? :)
   old_git_version=`git rev-parse HEAD`
   if [[ -z $desired_branch ]]; then
-    desired_branch="origin/master"
+    # Check for master first, then main as fallback
+    if git show-ref --verify --quiet "refs/heads/master"; then
+      desired_branch="master"
+    elif git show-ref --verify --quiet "refs/heads/main"; then
+      desired_branch="main"
+      echo "Branch 'master' not found, using 'main' instead."
+    else
+      echo "No default branch found (master or main)"
+      exit 1
+    fi
   fi
-  echo "doing git checkout $desired_branch" 
-  git checkout "$desired_branch" || (git_hard_reset && git checkout "$desired_branch") || (git reset --hard "$desired_branch") || exit 1 # can't just use merge -f because might "think" patch files already applied when their changes have been lost, etc...
-  # vmaf on 16.04 needed that weird reset --hard? huh?
-  if git show-ref --verify --quiet "refs/remotes/origin/$desired_branch"; then # $desired_branch is actually a branch, not a tag or commit
-    git merge "origin/$desired_branch" || exit 1 # get incoming changes to a branch
+  echo "doing git checkout $desired_branch"
+  git checkout "$desired_branch" || (git_hard_reset && git checkout "$desired_branch") || (git reset --hard "$desired_branch") || exit 1 
+
+  if git show-ref --verify --quiet "refs/remotes/origin/$desired_branch"; then 
+    git merge "origin/$desired_branch" || exit 1 
   fi
+
   new_git_version=`git rev-parse HEAD`
   if [[ "$old_git_version" != "$new_git_version" ]]; then
     echo "got upstream changes, forcing re-configure. Doing git clean -f"
-    git_hard_reset
+    git_hard_reset 
   else
     echo "fetched no code changes, not forcing reconfigure for that..."
   fi
-  cd ..
+  cd .. 
 }
+
 
 git_hard_reset() {
 	git reset --hard # delete results of any patches
@@ -913,14 +963,14 @@ build_drm() {
 
 
 build_qt6() {
-	download_and_unpack_file https://download.qt.io/official_releases/qt/6.6/6.6.1/submodules/qtbase-everywhere-src-6.6.1.tar.xz qtbase-everywhere-src-6.6.1
-	cd qtbase-everywhere-src-6.6.1
+	download_and_unpack_file https://download.qt.io/official_releases/qt/6.6/6.6.2/submodules/qtbase-everywhere-src-6.6.2.tar.xz qtbase-everywhere-src-6.6.2
+	cd qtbase-everywhere-src-6.6.2
 #		cd qtbase
-			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/rawhide/f/qtbase-import-lib-suffix.patch
-			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/rawhide/f/qtbase-include-toolchain.patch
-			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/rawhide/f/qtbase-mingw.patch
-			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/rawhide/f/qtbase-qmakeconf.patch
-			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/rawhide/f/qtbase-readlink.patch
+			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f40/f/qtbase-import-lib-suffix.patch
+			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f40/f/qtbase-include-toolchain.patch
+			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f40/f/qtbase-mingw.patch
+			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f40/f/qtbase-qmakeconf.patch
+			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f40/f/qtbase-readlink.patch
 #		cd ..
 	mkdir build
 		cd build		
@@ -933,27 +983,27 @@ build_qt6() {
 			do_ninja_and_ninja_install
 		cd ..
 	cd ..
-	download_and_unpack_file https://download.qt.io/official_releases/qt/6.6/6.6.1/submodules/qtsvg-everywhere-src-6.6.1.tar.xz qtsvg-everywhere-src-6.6.1
-	cd qtsvg-everywhere-src-6.6.1
+	download_and_unpack_file https://download.qt.io/official_releases/qt/6.6/6.6.2/submodules/qtsvg-everywhere-src-6.6.2.tar.xz qtsvg-everywhere-src-6.6.2
+	cd qtsvg-everywhere-src-6.6.2
 		mkdir build
 		cd build
-			do_cmake ".. -G Ninja -B build -DQT_QMAKE_TARGET_MKSPEC=win32-g++ -DQT_BUILD_EXAMPLES=FALSE -DQT_BUILD_TESTS=FALSE -DQT_QMAKE_DEVICE_OPTIONS=CROSS_COMPILE=x86_64-w64-mingw32"
+			do_cmake ".. -G Ninja -B build -DQT_QMAKE_TARGET_MKSPEC=win32-g++ -DQT_NO_PACKAGE_VERSION_CHECK=TRUE -DQT_BUILD_EXAMPLES=FALSE -DQT_BUILD_TESTS=FALSE -DQT_QMAKE_DEVICE_OPTIONS=CROSS_COMPILE=x86_64-w64-mingw32"
 			do_ninja_and_ninja_install
 		cd ..
 	cd ..
-	download_and_unpack_file https://download.qt.io/official_releases/qt/6.6/6.6.1/submodules/qtshadertools-everywhere-src-6.6.1.tar.xz qtshadertools-everywhere-src-6.6.1
-	cd qtshadertools-everywhere-src-6.6.1
+	download_and_unpack_file https://download.qt.io/official_releases/qt/6.6/6.6.2/submodules/qtshadertools-everywhere-src-6.6.2.tar.xz qtshadertools-everywhere-src-6.6.2
+	cd qtshadertools-everywhere-src-6.6.2
 		mkdir build
 		cd build
-			do_cmake ".. -G Ninja -B build -DQT_QMAKE_TARGET_MKSPEC=win32-g++ -DQT_BUILD_EXAMPLES=FALSE -DQT_BUILD_TESTS=FALSE -DQT_QMAKE_DEVICE_OPTIONS=CROSS_COMPILE=x86_64-w64-mingw32"
+			do_cmake ".. -G Ninja -B build -DQT_QMAKE_TARGET_MKSPEC=win32-g++ -DQT_NO_PACKAGE_VERSION_CHECK=TRUE -DQT_BUILD_EXAMPLES=FALSE -DQT_BUILD_TESTS=FALSE -DQT_QMAKE_DEVICE_OPTIONS=CROSS_COMPILE=x86_64-w64-mingw32"
 			do_ninja_and_ninja_install
 		cd ..
 	cd ..
-	download_and_unpack_file https://download.qt.io/official_releases/qt/6.6/6.6.1/submodules/qtmultimedia-everywhere-src-6.6.1.tar.xz qtmultimedia-everywhere-src-6.6.1
-	cd qtmultimedia-everywhere-src-6.6.1
+	download_and_unpack_file https://download.qt.io/official_releases/qt/6.6/6.6.2/submodules/qtmultimedia-everywhere-src-6.6.2.tar.xz qtmultimedia-everywhere-src-6.6.2
+	cd qtmultimedia-everywhere-src-6.6.2
 		mkdir build
 		cd build
-			do_cmake ".. -G Ninja -B build -DQT_FEATURE_gstreamer=OFF -DQT_QMAKE_TARGET_MKSPEC=win32-g++ -DQT_BUILD_EXAMPLES=FALSE -DQT_BUILD_TESTS=FALSE -DQT_QMAKE_DEVICE_OPTIONS=CROSS_COMPILE=x86_64-w64-mingw32 -DQt6ShaderTools_DIR=${mings_w64_x86_64_prefix}/lib/cmake/Qt6ShaderTools/"
+			do_cmake ".. -G Ninja -B build -DQT_FEATURE_gstreamer=OFF -DQT_QMAKE_TARGET_MKSPEC=win32-g++ -DQT_NO_PACKAGE_VERSION_CHECK=TRUE -DQT_BUILD_EXAMPLES=FALSE -DQT_BUILD_TESTS=FALSE -DQT_QMAKE_DEVICE_OPTIONS=CROSS_COMPILE=x86_64-w64-mingw32 -DQt6ShaderTools_DIR=${mings_w64_x86_64_prefix}/lib/cmake/Qt6ShaderTools/"
 			do_ninja_and_ninja_install
 		cd ..
 	cd ..
@@ -1144,7 +1194,7 @@ build_kf5_coreaddons() {
 }
 
 build_libaec() {
-	do_git_checkout https://github.com/erget/libaec.git libaec
+	do_git_checkout https://github.com/erget/libaec.git libaec cmake-install-instructions
 	cd libaec
 		do_cmake
 		do_make
@@ -2038,7 +2088,7 @@ build_libcelt() {
 
 build_libopus() {
 #  download_and_unpack_file http://downloads.xiph.org/releases/opus/opus-1.2-alpha.tar.gz opus-1.2-alpha
-  do_git_checkout https://github.com/xiph/opus.git opus main
+  do_git_checkout https://github.com/xiph/opus.git opus 
   cd opus
 #  cd opus-1.2-alpha
 #     apply_patch file://${top_dir}/opus-nostatic.patch # one test doesn't work with a shared library
@@ -2592,7 +2642,7 @@ build_medialibrary() {
 }
 
 build_libopenshotaudio() {
-	do_git_checkout https://github.com/OpenShot/libopenshot-audio.git libopenshot-audio
+	do_git_checkout https://github.com/OpenShot/libopenshot-audio.git libopenshot-audio develop
 	cd libopenshot-audio
 		apply_patch file://${top_dir}/libopenshot-audio.patch
 		#apply_patch file://${top_dir}/libopenshot.patch
@@ -4113,12 +4163,12 @@ build_libmpeg2() {
 
 build_lame() {
   # generic_download_and_install http://sourceforge.net/projects/lame/files/lame/3.99/lame-3.99.5.tar.gz/download lame-3.99.5
-  do_git_checkout https://github.com/rbrito/lame.git lame
+  do_svn_checkout https://svn.code.sf.net/p/lame/svn/trunk/lame lame r6525
   cd lame
   # For some reason, the definition of DBL_EPSILON has vanished
   grep -lr DBL_EPSILON libmp3lame | xargs sed -i "s|xmin, DBL_EPSILON|xmin, rh2|g"
   apply_patch file://${top_dir}/lame-obsolete-code.patch
-  generic_configure_make_install "--enable-dynamic-frontends --enable-nasm --disable-rpath"
+  generic_configure_make_install "--enable-dynamic-frontends --enable-nasm --disable-rpath --disable-decoder"
 
   cd ..
 }
