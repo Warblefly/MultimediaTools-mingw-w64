@@ -1,47 +1,11 @@
 --- wscript.orig	2021-03-29 15:00:28.750000000 +0100
 +++ wscript	2021-03-29 15:01:28.370000000 +0100
-@@ -177,7 +177,7 @@
-                                int main() { std::locale::global (boost::locale::generator().generate ("")); }\n
-                                """,
-                                msg='Checking for boost locale library',
--                               libpath='/usr/local/lib',
-+                               #libpath='/usr/local/lib',
-                                lib=['boost_locale%s' % boost_lib_suffix, 'boost_system%s' % boost_lib_suffix],
-                                uselib_store='BOOST_LOCALE')
- 
 @@ -231,7 +231,7 @@
                         mandatory=True,
                         msg='Checking for libicu',
                         okmsg='yes',
--                       libpath=['/usr/local/lib', '/usr/lib', '/usr/lib/x86_64-linux-gnu'],
+-                       libpath=['/usr/lib', '/usr/lib/x86_64-linux-gnu'],
 +                       #libpath=['/usr/local/lib', '/usr/lib', '/usr/lib/x86_64-linux-gnu'],
                         lib=['icuio', 'icui18n', 'icudata', 'icuuc'],
                         uselib_store='ICU')
- 
-@@ -503,7 +503,7 @@
- 			    int main() { boost::thread t; }\n
- 			    """,
-                        msg='Checking for boost threading library',
--                       libpath='/usr/local/lib',
-+                       #libpath='/usr/local/lib',
-                        lib=[boost_thread, 'boost_system%s' % boost_lib_suffix],
-                        uselib_store='BOOST_THREAD')
- 
-@@ -512,7 +512,7 @@
-     			    int main() { boost::filesystem::copy_file ("a", "b"); }\n
- 			    """,
-                        msg='Checking for boost filesystem library',
--                       libpath='/usr/local/lib',
-+                       #libpath='/usr/local/lib',
-                        lib=['boost_filesystem%s' % boost_lib_suffix, 'boost_system%s' % boost_lib_suffix],
-                        uselib_store='BOOST_FILESYSTEM')
- 
-@@ -521,7 +521,7 @@
-     			    int main() { boost::gregorian::day_clock::local_day(); }\n
- 			    """,
-                        msg='Checking for boost datetime library',
--                       libpath='/usr/local/lib',
-+                       #libpath='/usr/local/lib',
-                        lib=['boost_date_time%s' % boost_lib_suffix, 'boost_system%s' % boost_lib_suffix],
-                        uselib_store='BOOST_DATETIME')
  

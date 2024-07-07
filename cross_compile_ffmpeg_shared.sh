@@ -966,11 +966,11 @@ build_qt6() {
 	download_and_unpack_file https://download.qt.io/official_releases/qt/6.6/6.6.2/submodules/qtbase-everywhere-src-6.6.2.tar.xz qtbase-everywhere-src-6.6.2
 	cd qtbase-everywhere-src-6.6.2
 #		cd qtbase
-			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f40/f/qtbase-import-lib-suffix.patch
-			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f40/f/qtbase-include-toolchain.patch
-			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f40/f/qtbase-mingw.patch
-			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f40/f/qtbase-qmakeconf.patch
-			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f40/f/qtbase-readlink.patch
+			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f39/f/qtbase-import-lib-suffix.patch
+			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f39/f/qtbase-include-toolchain.patch
+			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f39/f/qtbase-mingw.patch
+			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f39/f/qtbase-qmakeconf.patch
+			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f39/f/qtbase-readlink.patch
 #		cd ..
 	mkdir build
 		cd build		
@@ -1520,7 +1520,7 @@ build_mlt() {
 #    apply_patch_p1 file://${top_dir}/tracker-opencv-mlt-reverse.patch
     mkdir mlt_build
     cd mlt_build
-    do_cmake .. "-DMOD_OPENCV=OFF -DWINDOWS_DEPLOY=OFF -DMOD_GDK=OFF -DMOD_AVFORMAT=OFF -DMOD_RTAUDIO=OFF"
+    do_cmake .. "-DMOD_OPENCV=OFF -DWINDOWS_DEPLOY=OFF -DMOD_GDK=OFF -DMOD_AVFORMAT=OFF -DMOD_RTAUDIO=OFF -DUSE_LV2=OFF"
 	    do_make
     
 	    cp -v src/framework/libmlt.def . 
@@ -1699,7 +1699,7 @@ build_libspatialaudio() {
   cd libspatialaudio
     apply_patch file://${top_dir}/libspatialaudio-install.patch
     do_cmake "-DCMAKE_SHARED_LINKER_FLAGS=-lz -DCMAKE_VERBOSE_MAKEFILE=ON"
-    apply_patch file://${top_dir}/libspatialaudio-pc.patch
+#    apply_patch file://${top_dir}/libspatialaudio-pc.patch
     do_make_install "V=1"
     # The dll doesn't get copied. I don't understand why.
     cp -v libspatialaudio.dll ${mingw_w64_x86_64_prefix}/bin/
@@ -1781,7 +1781,7 @@ build_opendcp() {
 
 build_dcpomatic() {
 #  do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic main # v2.16.52 #805d4a48fa6e4d8e28fd582a2ae6ba78b8343144 main # v2.15.x # fc1441eeaa3c0805c37809685ea7a3f5ca173666 # v2.15.x #97193e96c637ca92eeaf6e72ee38aa628308973b # v2.15.x #402fa9a3577975e9cf9728c815da1b17796fe325 # v2.15.x #9cff6ec974a4d0270091fe5c753483b0d53ecd46
-  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic v2.17.12 # new-ffmpeg-take2 #edbccd8d04a33f9e8d03677d8ebc671f40b0f822 #v2.15.x # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
+  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic v2.17.18 # new-ffmpeg-take2 #edbccd8d04a33f9e8d03677d8ebc671f40b0f822 #v2.15.x # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
 #  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.123" dcpomatic-2.15.123
   cd dcpomatic
     apply_patch file://${top_dir}/dcpomatic-wscript.patch
@@ -1791,8 +1791,9 @@ build_dcpomatic() {
     apply_patch file://${top_dir}/dcpomatic-gl.patch
 #    apply_patch file://${top_dir}/dcpomatic-src-wx-wscript.patch
 #    apply_patch file://${top_dir}/dcpomatic-unicode.patch
-    apply_patch file://${top_dir}/dcpomatic-rc.patch
+#    apply_patch file://${top_dir}/dcpomatic-rc.patch
 #    apply_patch file://${top_dir}/dcpomatic-channels.patch
+    apply_patch file://${top_dir}/dcpomatic-cstdint.patch
 #    apply_patch file://${top_dir}/dcpomatic-display.patch
 ##    apply_patch file://${top_dir}/dcpomatic-j2k.patch
 ##    apply_patch file://${top_dir}/dcpomatic-test-wscript.patch
@@ -1981,7 +1982,7 @@ build_libilbc() {
 }
 
 build_libcdio-paranoia() {
-  do_git_checkout https://github.com/rocky/libcdio-paranoia.git libcdio-paranoia
+  do_git_checkout https://github.com/rocky/libcdio-paranoia.git libcdio-paranoia 4d5e7e01fe2acc51bdf52ea902ebba2c40ef4ce4
   cd libcdio-paranoia
   if [[ ! -f "configure" ]]; then
     autoreconf -fiv || exit 1 # failure here, OS X means "you need libtoolize" perhaps? http://betterlogic.com/roger/2014/12/ilbc-cross-compile-os-x-mac-woe/
@@ -2093,7 +2094,7 @@ build_libopus() {
 #  cd opus-1.2-alpha
 #     apply_patch file://${top_dir}/opus-nostatic.patch # one test doesn't work with a shared library
 #    apply_patch file://${top_dir}/opus11.patch # allow it to work with shared builds
-    generic_configure_make_install "--enable-custom-modes --enable-asm --enable-ambisonics --enable-update-draft"
+    generic_configure_make_install "--enable-custom-modes --enable-asm --enable-ambisonics --enable-update-draft --enable-dred --enable-deep-plc --enable-osce-training-data --enable-osce"
 
   cd ..
 }
@@ -3254,7 +3255,7 @@ build_openssl11() {
 }
 
 build_openssl() {
-  download_and_unpack_file https://ftp.openssl.org/source/old/1.0.2/openssl-1.0.2u.tar.gz openssl-1.0.2u
+  download_and_unpack_file https://www.openssl.org/source/old/1.0.2/openssl-1.0.2u.tar.gz openssl-1.0.2u
 #  download_and_unpack_file https://www.openssl.org/source/openssl-1.1.0f.tar.gz openssl-1.1.0f
   # When the manpages are written, they need somewhere to go otherwise there is an error.
   mkdir -pv ${mingw_w64_x86_64_prefix}/include/openssl
@@ -3322,18 +3323,18 @@ build_libssh() {
 build_asdcplib-cth() {
    # Use brance cth because this is the version the writer works on, and has modified
 #do_git_checkout git://git.carlh.net/git/asdcplib-cth.git asdcplib-cth dcpomatic-2.13.0
-#  do_git_checkout git://git.carlh.net/git/asdcplib.git asdcplib dcpomatic-2.13.0 # debug
-  do_git_checkout https://github.com/cth103/asdcplib.git asdcplib-carl carl
+  do_git_checkout git://git.carlh.net/git/asdcplib.git asdcplib v1.0.1 # dcpomatic-2.13.0 # debug
+#  do_git_checkout https://github.com/cth103/asdcplib.git asdcplib-carl carl
 #  download_and_unpack_file https://github.com/cth103/asdcplib/archive/carl.zip asdcplib-carl
 #  download_and_unpack_file https://www.carlh.net/downloads/libasdcp-cth/libasdcp-cth-0.1.5.tar.bz2 libasdcp-cth-0.1.5
-  cd asdcplib-carl
+#  cd asdcplib-carl
 #    cd asdcplib-cth
-#    cd asdcplib
+    cd asdcplib
     export PKG_CONFIG_PATH=${mingw_w64_x86_64_prefix}/lib/pkgconfig
     export CXXFLAGS="-DKM_WIN32"
     export CFLAGS="-DKM_WIN32"
     export LIBS="-lws2_32 -lcrypto -lssl -lgdi32 -lboost_filesystem-mt-x64 -lboost_system-mt-x64"
-    apply_patch file://${top_dir}/asdcplib-cth-wscript.patch
+#    apply_patch file://${top_dir}/asdcplib-cth-wscript.patch
 #    apply_patch file://${top_dir}/asdcplib-cth-snprintf.patch
     # Don't look for boost libraries ending in -mt -- all our libraries are multithreaded anyway
     #sed -i.bak "s/boost_lib_suffix = '-mt'/boost_lib_suffix = ''/" wscript
@@ -3349,9 +3350,12 @@ build_asdcplib-cth() {
     ./waf build || exit 1
     ./waf install || exit 1
         # The installation puts the pkgconfig file and the import DLL in the wrong place
-    cp -v build/libasdcp-carl.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig || exit 1
-    cp -v build/src/asdcp-carl.dll.a ${mingw_w64_x86_64_prefix}/lib || exit 1
-    cp -v build/src/kumu-carl.dll.a ${mingw_w64_x86_64_prefix}/lib || exit 1
+#    cp -v build/libasdcp-carl.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig || exit 1
+    cp -v build/src/asdcp-dcpomatic.dll.a ${mingw_w64_x86_64_prefix}/lib || exit 1
+    cp -v build/src/kumu-dcpomatic.dll.a ${mingw_w64_x86_64_prefix}/lib || exit 1
+#    cp -v build/src/asdcp-carl.dll.a ${mingw_w64_x86_64_prefix}/lib || exit 1
+#    cp -v build/src/kumu-carl.dll.a ${mingw_w64_x86_64_prefix}/lib || exit 1
+    cp -v build/libasdcp-dcpomatic.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig || exit 1
     cd ${mingw_w64_x86_64_prefix}/include
 #    	ln -sv libasdcp-cth libasdcp-carl
     cd -
@@ -3378,7 +3382,7 @@ build_asdcplib-cth() {
 build_libdcp() {
   # Branches are slightly askew. 1.0 is where development takes place
 #  do_git_checkout https://github.com/cth103/libdcp.git libdcp main # v1.8.66 #04e215a7688239cb47fc86e8396756c685f338a1 #v1.8.13 #d39880eef211a296fa8ef4712cdef5945d08527c c6665c157bdb6903661d21c571c7d112b54ad8fd # d989a83517fd77aa241c1423ac00cfed62d567fe # f3058b2f1b48ec613bda5781fe97e83a0dca83a9
-  do_git_checkout git://git.carlh.net/git/libdcp.git libdcp v1.9.1 #b75d977a38f039fd68ed5d4055ae70b4bf631603 # v1.6.x # 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
+  do_git_checkout git://git.carlh.net/git/libdcp.git libdcp v1.9.10 #b75d977a38f039fd68ed5d4055ae70b4bf631603 # v1.6.x # 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
 #  download_and_unpack_file https://carlh.net/downloads/libdcp/libdcp-1.6.17.tar.bz2 libdcp-1.6.17
   cd libdcp
     # M_PI is required. This is a quick way of defining it
@@ -3415,7 +3419,7 @@ build_libdcp() {
 }
 
 build_libsub() {
-  do_git_checkout git://git.carlh.net/git/libsub.git libsub v1.6.47
+  do_git_checkout git://git.carlh.net/git/libsub.git libsub v1.6.49
 #  do_git_checkout https://git.carlh.net/git/libsub.git libsub
 #  download_and_unpack_file http://carlh.net/downloads/libsub/libsub-1.4.24.tar.bz2 libsub-1.4.24
 #  do_git_checkout https://github.com/cth103/libsub.git libsub v1.6.x
@@ -3684,8 +3688,8 @@ build_ghostscript() {
 }
 
 build_freetype() {
-  download_and_unpack_file https://download.savannah.gnu.org/releases/freetype/freetype-2.10.4.tar.xz freetype-2.10.4
-  cd freetype-2.10.4
+  download_and_unpack_file https://sources.buildroot.net/freetype/freetype-2.13.2.tar.xz freetype-2.13.2
+  cd freetype-2.13.2
   # Need to make a directory for the build library
   mkdir -pv lib
   generic_configure "--with-png=yes --host=x86_64-w64-mingw32 --build=x86_64-redhat-linux"
@@ -4227,6 +4231,9 @@ build_mediainfo() {
                 generic_configure "--prefix=$mingw_w64_x86_64_prefix --host=x86_64-w64-mingw32 --enable-debug"
 		sed -i.bak 's/ -DSIZE_T_IS_LONG//g' Makefile
 		do_make_install
+
+		# This is from the MSYS2 tree
+#		apply_patch
 
 		cd ../../../../MediaInfoLib/Project/GNU/Library
 		do_configure "--host=x86_64-w64-mingw32 --prefix=$mingw_w64_x86_64_prefix --with-libcurl --with-libmms --enable-debug" # LDFLAGS=-static-libgcc
@@ -4895,7 +4902,9 @@ build_curl() {
   do_git_checkout https://github.com/curl/curl.git curl # e7f9c904ca20a91a0c87f9ca5812c9ac0307125d # 9655474548b3cefdb2b1d4504c82b44cc01a1861
   cd curl
 #    apply_patch file://${top_dir}/curl.patch
-    generic_configure_make_install "--enable-ipv6 --with-librtmp --with-ca-fallback --with-gnutls"
+    do_cmake
+    do_make_install
+#    generic_configure_make_install "--enable-ipv6 --with-librtmp --with-ca-fallback --with-gnutls"
 
   cd ..
 }
@@ -6293,9 +6302,10 @@ build_mimedb() {
   export cpu_count=1
   # The installer barfs if this directory doesn't exist.
 #  mkdir -v -p ${mingw_w64_x86_64_prefix}/share/mime/packages
-  generic_download_and_install http://freedesktop.org/~hadess/shared-mime-info-1.9.tar.xz shared-mime-info-1.9 "--disable-update-mimedb"
-  cd shared-mime-info-1.9
-
+#  generic_download_and_install http://freedesktop.org/~hadess/shared-mime-info-1.9.tar.xz shared-mime-info-1.9 "--disable-update-mimedb"
+  download_and_unpack_file https://gitlab.freedesktop.org/xdg/shared-mime-info/-/archive/2.4/shared-mime-info-2.4.tar.bz2 shared-mime-info-2.4 
+  cd shared-mime-info-2.4
+  	generic_meson_ninja_install
   cd ..
   export cpu_count=$orig_cpu_count
 }
@@ -6643,7 +6653,7 @@ build_aom() {
 #    do_configure "--target=x86_64-win64-gcc --prefix=${mingw_w64_x86_64_prefix} --enable-webm-io --enable-pic --enable-multithread --enable-runtime-cpu-detect --enable-postproc --enable-av1 --enable-lowbitdepth --disable-unit-tests"
     mkdir -pv ../aom_build
     cd ../aom_build
-    do_cmake ../aom/. "-DAOM_TARGET_CPU=x86_64 -DCONFIG_FILEOPTIONS=1 -DCONFIG_LOWBITDEPTH=0 -DCONFIG_HIGHBITDEPTH=1 -DHAVE_PTHREAD=1 -DCMAKE_TOOLCHAIN_FILE=../aom/build/cmake/toolchains/x86_64-mingw-gcc.cmake"
+    do_cmake ../aom/. "-DENABLE_TESTS=0 -DAOM_TARGET_CPU=x86_64 -DCONFIG_FILEOPTIONS=1 -DCONFIG_LOWBITDEPTH=0 -DCONFIG_HIGHBITDEPTH=1 -DHAVE_PTHREAD=1 -DCMAKE_TOOLCHAIN_FILE=../aom/build/cmake/toolchains/x86_64-mingw-gcc.cmake"
       do_make
       do_make_install
     cd ../aom

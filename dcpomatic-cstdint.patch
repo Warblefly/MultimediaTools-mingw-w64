@@ -1,0 +1,11 @@
+--- src/lib/sqlite_statement.h.orig	2024-06-15 00:32:29.377382084 +0100
++++ src/lib/sqlite_statement.h	2024-06-15 00:33:11.677380817 +0100
+@@ -18,7 +18,7 @@
+ 
+ */
+ 
+-
++#include <cstdint>
+ #include <sqlite3.h>
+ #include <functional>
+ #include <string>
