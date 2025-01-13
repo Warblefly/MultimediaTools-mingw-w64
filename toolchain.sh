@@ -181,7 +181,7 @@ cd gcc
 		wget https://ftp.gnu.org/gnu/mpc/mpc-1.3.1.tar.gz || exit 1
 		tar xvvf mpc-1.3.1.tar.gz && ln -sv mpc-1.3.1 mpc
 		wget https://libisl.sourceforge.io/isl-0.26.tar.xz || exit 1
-		tar xvvf isl-0.26.tar.xz && ln -sv isl-0.26 isl
+		tar xvvf isl-0.27.tar.xz && ln -sv isl-0.27 isl
 		touch gcc_accessories_source
 	else
 		echo "Accessories already downloaded and linked."

@@ -3867,6 +3867,7 @@ build_OpenCL() {
     cp bin/*dll ${mingw_w64_x86_64_prefix}/bin/
     cp bin/*exe ${mingw_w64_x86_64_prefix}/bin/
     cp libOpenCL.dll.a ${mingw_w64_x86_64_prefix}/lib/
+    cp libOpenCL.dll ${mingw_w64_x86_64_prefix}/bin/
   cd ..
 }
 
@@ -7400,6 +7401,16 @@ build_uavs3d() {
 	cd ..
 }
 
+build_libjxl() {
+	do_git_checkout https://github.com/libjxl/libjxl.git libjxl v0.11.1
+	cd libjxl
+		do_cmake . "-DBUILD_TESTING=OFF -DJPEGXL_ENABLE_BENCHMARK=OFF -DPROVISION_DEPENDENCIES=ON"
+		do_make
+		do_make_install
+	cd ..
+}
+
+
 build_librsvg() {
 	download_and_unpack_file https://github.com/GNOME/librsvg/archive/refs/tags/2.50.3.tar.gz librsvg-2.50.3
 	cd librsvg-2.50.3
@@ -7416,7 +7427,7 @@ build_ffmpeg() {
 	local licensing_options="--enable-nonfree --enable-version3 --enable-gpl"
 	local configuration_options="--disable-static --enable-shared --enable-runtime-cpudetect --enable-gray --disable-w32threads"
 	local component_options="--enable-filter=frei0r --enable-decoder=aac" # fdk_aac gets much decoding wrong
-	local library_options="--enable-libsvtav1 --enable-avisynth --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdc1394 --enable-libfdk-aac --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-gnutls --enable-libgsm --enable-libilbc --enable-libklvanc --enable-liblensfun --enable-libmodplug --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopencv --enable-libopenmpt --enable-libopus --enable-librabbitmq --enable-librist --enable-librubberband --enable-librtmp --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libtesseract --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxavs2 --enable-libxvid --enable-libxml2 --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 --enable-decklink --enable-libmysofa --enable-opengl --enable-vulkan --enable-opencl --enable-libharfbuzz --enable-libdav1d --enable-libplacebo"
+	local library_options="--enable-libsvtav1 --enable-avisynth --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdc1394 --enable-libfdk-aac --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-gnutls --enable-libgsm --enable-libilbc --enable-libjxl --enable-libklvanc --enable-liblensfun --enable-libmodplug --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopencv --enable-libopenmpt --enable-libopus --enable-librabbitmq --enable-librist --enable-librubberband --enable-librtmp --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libtesseract --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxavs2 --enable-libxvid --enable-libxml2 --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 --enable-decklink --enable-libmysofa --enable-opengl --enable-vulkan --enable-opencl --enable-libharfbuzz --enable-libdav1d --enable-libplacebo"
 	local hardware_options="--disable-libmfx --enable-libvpl"
 	local toolchain_options="--arch=x86_64 --cross-prefix=$cross_prefix --enable-cross-compile --target-os=mingw32 --extra-version=Compiled_by_John_Warburton --enable-pic --nvccflags=-I/usr/local/cuda-11.4/targets/x86_64-linux/include --extra-cflags=-fpermissive"
 	local developer_options="--disable-debug --enable-stripping"
@@ -7600,6 +7611,7 @@ build_dependencies() {
 #  build_turingcodec # Needs work on thread interface. Can't mingw compile yet
   build_asdcplib
   build_lame
+  build_libjxl
   build_vidstab
   build_mpg123
   build_libcaca
