@@ -429,7 +429,7 @@ do_meson() {
         #env
         ${configure_env} "$configure_name" setup $configure_options || exit 1
         touch -- "$touch_name"
-        make clean # just in case
+#        make clean # just in case
     else
         echo "Already used meson $(basename $cur_dir2)"
     fi
@@ -681,6 +681,12 @@ generic_meson() {
     local extra_configure_options="$1"
     mkdir -pv build
     do_meson "--prefix=${mingw_w64_x86_64_prefix} --libdir=${mingw_w64_x86_64_prefix}/lib --buildtype release --strip --default-library shared --cross-file ${top_dir}/meson-cross.mingw.txt ${extra_configure_options} . build"
+}
+
+generic_meson_setup() {
+	local extra_configure_options="$1"
+	mkdir -pv build
+	do_meson "--prefix=${mingw_w64_x86_64_prefix} --libdir=${mingw_w64_x86_64_prefix}/lib --buildtype release --strip --default-library shared --cross-file ${top_dir}/meson-cross.mingw.txt ${extra_configure_options}"
 }
 
 generic_configure() {
@@ -2796,6 +2802,24 @@ build_orc() {
 	cd orc-0.4.32
 	apply_patch file://${top_dir}/orc-cc.patch
 		generic_meson_ninja_install "-Dorc-test=disabled"
+	cd ..
+}
+
+build_liblc3() {
+	do_git_checkout https://github.com/google/liblc3.git liblc3
+	cd liblc3
+		mkdir -pv build
+#		export CC=x86_64-w64-mingw32-gcc
+#		export LD=x86_64-w64-mingw32-ld
+#		export AS=x86_64-w64-mingw32-as
+#		generic_meson_ninja_install "--wrap-mode=nodownload --auto-features=enabled --buildtype=plain --default-library=shared -Db_lto=false"
+		generic_meson_setup build "--wrap-mode=nodownload --auto-features=enabled --buildtype=plain --default-library=shared -Db_lto=false"  || exit 1
+		echo "Current directory is:"
+		pwd
+		cd build
+			meson compile || exit 1
+			meson install || exit 1
+		cd ..
 	cd ..
 }
 
@@ -7427,7 +7451,7 @@ build_ffmpeg() {
 	local licensing_options="--enable-nonfree --enable-version3 --enable-gpl"
 	local configuration_options="--disable-static --enable-shared --enable-runtime-cpudetect --enable-gray --disable-w32threads"
 	local component_options="--enable-filter=frei0r --enable-decoder=aac" # fdk_aac gets much decoding wrong
-	local library_options="--enable-libsvtav1 --enable-avisynth --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdc1394 --enable-libfdk-aac --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-gnutls --enable-libgsm --enable-libilbc --enable-libjxl --enable-libklvanc --enable-liblensfun --enable-libmodplug --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopencv --enable-libopenmpt --enable-libopus --enable-librabbitmq --enable-librist --enable-librubberband --enable-librtmp --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libtesseract --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxavs2 --enable-libxvid --enable-libxml2 --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 --enable-decklink --enable-libmysofa --enable-opengl --enable-vulkan --enable-opencl --enable-libharfbuzz --enable-libdav1d --enable-libplacebo"
+	local library_options="--enable-libsvtav1 --enable-avisynth --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdc1394 --enable-libfdk-aac --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-gnutls --enable-libgsm --enable-libilbc --enable-libjxl --enable-libklvanc --enable-liblc3 --enable-liblensfun --enable-libmodplug --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopencv --enable-libopenmpt --enable-libopus --enable-librabbitmq --enable-librist --enable-librubberband --enable-librtmp --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libtesseract --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxavs2 --enable-libxvid --enable-libxml2 --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 --enable-decklink --enable-libmysofa --enable-opengl --enable-vulkan --enable-opencl --enable-libharfbuzz --enable-libdav1d --enable-libplacebo"
 	local hardware_options="--disable-libmfx --enable-libvpl"
 	local toolchain_options="--arch=x86_64 --cross-prefix=$cross_prefix --enable-cross-compile --target-os=mingw32 --extra-version=Compiled_by_John_Warburton --enable-pic --nvccflags=-I/usr/local/cuda-11.4/targets/x86_64-linux/include --extra-cflags=-fpermissive"
 	local developer_options="--disable-debug --enable-stripping"
@@ -7744,6 +7768,7 @@ build_dependencies() {
   build_lua
   build_ladspa # Not a real build: just copying the API header file into place
   build_librubberband # for mpv
+  build_liblc3
   build_zmq
   build_libtasn1
   #build_cppzmq
