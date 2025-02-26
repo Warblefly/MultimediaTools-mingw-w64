@@ -1,0 +1,10 @@
+--- src/fill_test.c.orig	2025-02-20 16:34:45.862404426 +0000
++++ src/fill_test.c	2025-02-20 16:35:02.482274873 +0000
+@@ -23,6 +23,7 @@
+ //#include "colorspace.h" // Common routines
+ #include <stdio.h>
+ #include <png.h>
++#include <string.h>
+ 
+ static void
+ write_png(char * filename, gavl_video_format_t * format, gavl_video_frame_t * frame)

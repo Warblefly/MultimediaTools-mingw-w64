@@ -1,0 +1,10 @@
+--- schroedinger/schroasync-win32.c.orig	2025-02-20 17:23:05.929597722 +0000
++++ schroedinger/schroasync-win32.c	2025-02-20 17:23:26.299434793 +0000
+@@ -11,6 +11,7 @@
+ #include <time.h>
+ 
+ #include <windows.h>
++#include <process.h>
+ 
+ #define COND_LIST_SIZE 10
+ #define STACK_SIZE 65536

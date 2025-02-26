@@ -9,12 +9,3 @@
  
  libzvbi_chains_la_SOURCES = \
  	chains.c \
-@@ -124,6 +124,8 @@
- 	proxy-client.c \
- 	proxy-msg.c
- 
-+libzvbi_chains_la_LDFLAGS = -no-undefined
-+
- if MAINTAINER_MODE
- 
- hammgen: hammgen.c

@@ -1,0 +1,11 @@
+--- wscript.orig	2025-02-10 16:22:29.859767254 +0000
++++ wscript	2025-02-10 16:22:43.699657873 +0000
+@@ -285,7 +285,7 @@
+     else:
+         boost_lib_suffix = ''
+ 
+-    libs="-L${libdir} -ldcp%s -lcxml -lboost_system%s" % (bld.env.API_VERSION, boost_lib_suffix)
++    libs="-L${libdir} -ldcp%s -lcxml -lfmt -lboost_system%s" % (bld.env.API_VERSION, boost_lib_suffix)
+     if bld.env.TARGET_LINUX:
+         libs += " -ldl"
+ 

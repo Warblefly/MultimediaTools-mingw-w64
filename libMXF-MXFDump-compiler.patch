@@ -1,0 +1,11 @@
+--- deps/libMXF/tools/MXFDump/MXFDump.cpp.orig	2025-01-08 16:30:55.116869504 +0000
++++ deps/libMXF/tools/MXFDump/MXFDump.cpp	2025-01-08 16:36:42.748733391 +0000
+@@ -53,6 +53,8 @@
+ #define MXF_OS_WINDOWS
+ #elif defined(__GNUC__) && defined(__i386__) && defined(_WIN32)
+ #define MXF_COMPILER_GCC_INTEL_WINDOWS
++#elif defined(__GNUC__) && defined(__x86_64__) && defined(_WIN32)
++#define MXF_COMPILER_GCC_INTEL_WINDOWS
+ #define MXF_OS_WINDOWS
+ #elif defined(__GNUC__) && defined(__i386__) && defined(__linux__)
+ #define MXF_COMPILER_GCC_INTEL_LINUX

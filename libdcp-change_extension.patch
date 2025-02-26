@@ -1,0 +1,11 @@
+--- src/filesystem.cc.orig	2025-02-26 18:50:02.135958222 +0000
++++ src/filesystem.cc	2025-02-26 18:52:34.294728162 +0000
+@@ -308,7 +308,7 @@
+ 	copy.replace_extension(new_extension);
+ 	return copy;
+ #else
+-	return boost::filesystem::change_extension(path, new_extension);
++	return boost::filesystem::path(path).replace_extension(new_extension).string();
+ #endif
+ }
+ 

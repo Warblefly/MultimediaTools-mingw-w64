@@ -1,42 +1,11 @@
---- meson.build.orig	2020-01-04 22:36:44.438279576 +0000
-+++ meson.build	2020-01-04 22:36:57.622146598 +0000
-@@ -372,7 +372,6 @@
+--- meson.build.orig	2025-02-21 10:46:21.856469172 +0000
++++ meson.build	2025-02-21 10:46:32.766381858 +0000
+@@ -571,7 +571,7 @@
+     '-Wno-variadic-macros',
      '-Werror=format=2',
-     '-Werror=implicit-function-declaration',
      '-Werror=init-self',
 -    '-Werror=missing-include-dirs',
-     '-Werror=missing-prototypes',
++#    '-Werror=missing-include-dirs',
      '-Werror=pointer-arith',
+     '-Werror=unused-result',
    ]
---- meson.build.orig	2020-05-10 21:12:23.168816352 +0100
-+++ meson.build	2020-05-10 21:12:47.956464034 +0100
-@@ -535,9 +535,10 @@
- endif
- 
- # Check that posix_memalign() is usable; must use header
--if cc.has_function('posix_memalign', prefix : '#include <stdlib.h>')
--  glib_conf.set('HAVE_POSIX_MEMALIGN', 1)
--endif
-+# No. GCC-10 picks this up as positive by mistake.
-+#if cc.has_function('posix_memalign', prefix : '#include <stdlib.h>')
-+#  glib_conf.set('HAVE_POSIX_MEMALIGN', 1)
-+#endif
- 
- # Check that posix_spawn() is usable; must use header
- if cc.has_function('posix_spawn', prefix : '#include <spawn.h>')
---- meson.build.orig	2020-05-10 21:15:16.418356173 +0100
-+++ meson.build	2020-05-10 21:15:46.177934060 +0100
-@@ -530,9 +530,10 @@
- endforeach
- 
- # Check that stpcpy() is usable; must use header
--if cc.has_function('stpcpy', prefix : '#include <string.h>')
--  glib_conf.set('HAVE_STPCPY', 1)
--endif
-+# No. GCC-10 picks this up as positive by mistake.
-+#if cc.has_function('stpcpy', prefix : '#include <string.h>')
-+#  glib_conf.set('HAVE_STPCPY', 1)
-+#endif
- 
- # Check that posix_memalign() is usable; must use header
- # No. GCC-10 picks this up as positive by mistake.

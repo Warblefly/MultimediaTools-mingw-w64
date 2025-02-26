@@ -1,0 +1,10 @@
+--- src/xercesc/util/regx/RangeToken.cpp.orig	2025-02-26 16:11:36.625060904 +0000
++++ src/xercesc/util/regx/RangeToken.cpp	2025-02-26 16:12:53.324398484 +0000
+@@ -27,6 +27,7 @@
+ #endif
+ 
+ #include <assert.h>
++#include <type_traits>
+ 
+ #include <xercesc/util/regx/RangeToken.hpp>
+ #include <xercesc/util/regx/TokenFactory.hpp>
