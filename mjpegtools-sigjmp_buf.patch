@@ -1,0 +1,18 @@
+--- utils/cpu_accel.c.orig	2025-02-27 14:38:42.907575580 +0000
++++ utils/cpu_accel.c	2025-02-27 14:39:40.417115498 +0000
+@@ -83,6 +83,7 @@
+    illegal instruction errors.
+ */
+ 
++#ifndef __MINGW32__
+ static sigjmp_buf sigill_recover;
+ 
+ static RETSIGTYPE sigillhandler(int sig )
+@@ -91,6 +92,7 @@
+ }
+ 
+ typedef RETSIGTYPE (*__sig_t)(int);
++#endif
+ 
+ static int testsseill()
+ {

@@ -1829,7 +1829,7 @@ build_dcpomatic() {
 }
 
 build_gcal() {
-  generic_download_and_install http://ftp.gnu.org/gnu/gcal/gcal-4.1.tar.xz gcal-4.1
+  generic_download_and_install http://ftp.gnu.org/gnu/gcal/gcal-4.1.tar.xz gcal-4.1 "CFLAGS=-Wno-error=incompatible-pointer-types"
   cd gcal-4.1
 
   cd ..
@@ -2108,12 +2108,13 @@ build_libopus() {
 build_libdvdread() {
   build_libdvdcss
 #  do_git_checkout https://code.videolan.org/videolan/libdvdread.git libdvdread
-  download_and_unpack_file https://download.videolan.org/pub/videolan/libdvdread/6.1.1/libdvdread-6.1.1.tar.bz2 libdvdread-6.1.1
-  cd libdvdread-6.1.1
+  download_and_unpack_file https://download.videolan.org/pub/videolan/libdvdread/6.1.3/libdvdread-6.1.3.tar.bz2 libdvdread-6.1.3
+  cd libdvdread-6.1.3
   # Need this to help libtool not object
   sed -i.bak 's/libdvdread_la_LDFLAGS = -version-info $(DVDREAD_LTVERSION)/libdvdread_la_LDFLAGS = -version-info $(DVDREAD_LTVERSION) -no-undefined/' Makefile.am
 #  apply_patch file://${top_dir}/libdvdread.patch
   rm -v aclocal.m4
+  autoreconf -vfi
   generic_configure "--with-libdvdcss CFLAGS=-DHAVE_DVDCSS_DVDCSS_H LDFLAGS=-ldvdcss" # vlc patch: "--enable-libdvdcss" # XXX ask how I'm *supposed* to do this to the dvdread peeps [svn?]
   #apply_patch https://raw.githubusercontent.com/rdp/ffmpeg-windows-build-helpers/master/patches/dvdread-win32.patch # has been reported to them...
   do_make_install
@@ -3671,8 +3672,8 @@ build_librubberband() {
 }
 
 build_iconv() {
-  download_and_unpack_file http://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.17.tar.gz libiconv-1.17
-  cd libiconv-1.17
+  download_and_unpack_file http://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.18.tar.gz libiconv-1.18
+  cd libiconv-1.18
     # Apply patch to fix non-exported inline function in gcc-5.2.0
     #apply_patch file://${top_dir}/libiconv-1.14-iconv-fix-inline.patch
     # We also need an empty langinfo.h to compile this
@@ -4007,7 +4008,7 @@ build_mpv() {
     unset LD
     #env
 #    apply_patch file://${top_dir}/mpv-ksaudio.patch
-    generic_meson_ninja_install "-Ddvdnav=enabled"
+    generic_meson_ninja_install "-Ddvdnav=enabled -Dcdda=disabled"
 #    do_configure "configure -v -pp --prefix=${mingw_w64_x86_64_prefix} --enable-dvdnav --enable-cdda --disable-x11 --disable-debug-build --enable-sdl2 --enable-libmpv-shared --disable-libmpv-static" "./waf"
     # In this cross-compile for Windows, we keep the Python script up-to-date and therefore
     # must call it directly by its full name, because mpv can only explore for executables
@@ -4563,6 +4564,9 @@ build_twolame() {
     apply_patch file://${top_dir}/0004-no-need-for-dllexport.mingw.patch
      #apply_patch file://${top_dir}/0005-silent.mingw.patch
      sed -i.bak 's/simplefrontend doc tests/simplefrontend tests/' Makefile.am
+     if [[ ! -f ./configure ]]; then
+	     autoreconf -vfi
+     fi
      generic_configure_make_install
 
    cd ..
@@ -5447,7 +5451,7 @@ build_flac() {
 #  cpu_count=1
   cd flac
     # microbench target hasn't been tested on many platforms yet
-    sed -i.bak 's/microbench//' Makefile.am
+#    sed -i.bak 's/microbench//' Makefile.am
     # These docs don't build on Debian
 #    apply_patch file://${top_dir}/flac-no-doc.patch
     # Distributions subsituting doocbook2man need this
@@ -5511,7 +5515,11 @@ build_mjpegtools() {
     apply_patch file://${top_dir}/lavtools-Makefile.am.patch
     rm -v lavtools/Makefile.in
     rm -v configure
-    generic_configure_make_install "LIBS=-lpthread --without-x --without-gtk SDL_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/SDL CFLAGS=-Wno-implicit-function-declaration"
+    export orig_cflags=$CFLAGS
+    export CFLAGS="-Wno-error=incompatible-pointer-types -Wno-implicit-function-declaration"
+#    apply_patch file://${top_dir}/mjpegtools-sigjmp_buf.patch
+    generic_configure_make_install "LIBS=-lpthread --without-x --without-gtk SDL_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/SDL"
+    export CFLAGS=$orig_cflags
   cd -
 }
 
@@ -5536,7 +5544,7 @@ build_file() {
 #    apply_patch file://${top_dir}/magic_psl.patch
 #    apply_patch file://${top_dir}/file-ctype.patch
 #    export cross_compiling=yes
-    generic_configure_make_install "--enable-fsect-man5"
+    generic_configure_make_install "CFLAGS=-Wno-error=incompatible-pointer-types --enable-fsect-man5"
 #    unset cross_compiling
   cd ..
 }
