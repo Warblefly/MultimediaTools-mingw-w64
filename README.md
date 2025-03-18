@@ -49,7 +49,7 @@ deb-src http://deb.debian.org/debian bullseye-backports main contrib non-free
 Now, install some packages using the usual package manager.
 
 ```
-sudo apt install git g++ make cmake texinfo libgmp-dev gtk-doc-tools flex bison m4 libmpfr-dev libz-dev wget curl autoconf autopoint libtool bzip2 meson pkg-config gettext subversion nasm yasm libtool-bin python3-setuptools intltool autoconf-archive gperf unzip python2 gyp libglib2.0-dev mm-common python3-bs4 python3-requests zip python3-mako docbook-xsl rake wx-common nsis sshpass rsync lzip pandoc zsh
+sudo apt install git g++ make cmake texinfo libgmp-dev gtk-doc-tools help2man libxml2-tools flex bison m4 libmpfr-dev libz-dev wget curl autoconf autopoint libtool bzip2 meson pkg-config gettext subversion nasm yasm libtool-bin python3-setuptools intltool autoconf-archive gperf unzip python2 gyp libglib2.0-dev mm-common python3-bs4 python3-requests zip python3-mako docbook-xsl rake wx-common nsis sshpass rsync lzip pandoc zsh
 ```
 
 Fix meson

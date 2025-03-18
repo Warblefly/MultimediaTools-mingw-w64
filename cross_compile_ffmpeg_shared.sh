@@ -1787,7 +1787,7 @@ build_opendcp() {
 
 build_dcpomatic() {
 #  do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic main # v2.16.52 #805d4a48fa6e4d8e28fd582a2ae6ba78b8343144 main # v2.15.x # fc1441eeaa3c0805c37809685ea7a3f5ca173666 # v2.15.x #97193e96c637ca92eeaf6e72ee38aa628308973b # v2.15.x #402fa9a3577975e9cf9728c815da1b17796fe325 # v2.15.x #9cff6ec974a4d0270091fe5c753483b0d53ecd46
-  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic v2.18.12 # new-ffmpeg-take2 #edbccd8d04a33f9e8d03677d8ebc671f40b0f822 #v2.15.x # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
+  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic v2.18.14 # new-ffmpeg-take2 #edbccd8d04a33f9e8d03677d8ebc671f40b0f822 #v2.15.x # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
 #  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.123" dcpomatic-2.15.123
   cd dcpomatic
     apply_patch file://${top_dir}/dcpomatic-wscript.patch
@@ -2879,21 +2879,25 @@ build_libxml2() {
 }
 
 build_libxslt() {
-  do_git_checkout https://github.com/GNOME/libxslt.git libxslt 
+#  do_git_checkout https://github.com/GNOME/libxslt.git libxslt 
 #  cd libxslt-1.1.28/libxslt
 #      apply_patch https://raw.githubusercontent.com/Warblefly/multimediaWin64/master/libxslt-security.c.patch
 #    cd ..
+    download_and_unpack_file https://download.gnome.org/sources/libxslt/1.1/libxslt-1.1.43.tar.xz libxslt-1.1.43
+    cd libxslt-1.1.43
+    apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libxslt/0003-fix-concurrent-directory-creation.all.patch
+
     export LIBS="-lxml2"
     export LDFLAGS="-L${mingw_w64_x86_64_prefix}/lib"
-  cd libxslt
+#    cd libxslt
 #  	do_cmake "-DLIBXSLT_WITH_PYTHON=OFF"
 #	do_make
 #	do_make_install
 #    export CFLAGS="-DLIBXML_STATIC -DLIBXSLT_STATIC -DLIBEXSLT_STATIC"
-    sed -i.bak 's/doc \\/ \\/' Makefile.am
+#    sed -i.bak 's/doc \\/ \\/' Makefile.am
     # The Makefile.am forgets that libtool can't build a shared plugin library without -no-undefined
-    sed -i.bak 's/xmlsoft_org_xslt_testplugin_la_LDFLAGS = -module -avoid-version -rpath $(plugindir)/xmlsoft_org_xslt_testplugin_la_LDFLAGS = -module -avoid-version -rpath $(plugindir) -no-undefined/' tests/plugins/Makefile.am
-    generic_configure_make_install "--disable-silent-rules --without-python --with-libxml-src=../libxml2"
+#    sed -i.bak 's/xmlsoft_org_xslt_testplugin_la_LDFLAGS = -module -avoid-version -rpath $(plugindir)/xmlsoft_org_xslt_testplugin_la_LDFLAGS = -module -avoid-version -rpath $(plugindir) -no-undefined/' tests/plugins/Makefile.am
+    generic_configure_make_install "--disable-silent-rules --without-python --with-crypto --with-plugins --with-xml-prefix=${mingw_w64_x86_64_prefix} --with-libxml-src=../libxml2"
 
 #    unset CFLAGS
 #    unset LIBS
@@ -2902,18 +2906,21 @@ build_libxslt() {
 }
 
 build_libxmlsec() {
-  download_and_unpack_file https://www.aleksey.com/xmlsec/download/older-releases/xmlsec1-1.2.37.tar.gz xmlsec1-1.2.37
+  download_and_unpack_file https://www.aleksey.com/xmlsec/download/xmlsec1-1.2.41.tar.gz xmlsec1-1.2.41
 #  do_git_checkout https://github.com/lsh123/xmlsec.git xmlsec
-  cd xmlsec1-1.2.37
+  cd xmlsec1-1.2.41
 #    apply_patch file://${top_dir}/xmlsec1-x509.patch
+#    apply_patch file://${top_dir}/xmlsec_include_openssl_last.patch
+    apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-xmlsec/01-include-openssl-last.patch
+    apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-xmlsec/02-make-new-wincrypt-functions-available.patch
     export GCRYPT_LIBS=-lgcrypt
-    export LIBS=-lgcrypt
+    export LIBS="-lgcrypt -lssl -lcrypto"
     CFLAGS_ORIG=${CFLAGS}
     #env
     rm autogen.sh
 #    generic_configure_make_install "LIBS=-lgcrypt --disable-silent-rules GCRYPT_LIBS=-lgcrypt --with-gcrypt=${mingw_w64_x86_64_prefix} --disable-silent-rules --enable-docs=no"
 #    generic_configure_make_install "LIBS=-lgcrypt CFLAGS=-DGPGRT_ENABLE_ES_MACROS --disable-unicode --disable-silent-rules --enable-docs=no --disable-mscng"
-	generic_configure_make_install "LIBS=-lgcrypt --enable-docs=no"
+	generic_configure_make_install "--enable-docs=no --disable-silent-rules --enable-mscrypto --enable-mscng"
 
     unset LIBS
     unset GCRYPT_LIBS
@@ -3091,12 +3098,12 @@ build_libunistring() {
   cd ..
 }
 
-build_libffi() {
-  generic_download_and_install ftp://sourceware.org/pub/libffi/libffi-3.2.1.tar.gz libffi-3.2.1
-  cd libffi-3.2.1
-
-  cd ..
-}
+#build_libffi() {
+ # download_and_unpack_file ftp://sourceware.org/pub/libffi/libffi-3.2.1.tar.gz libffi-3.2.1
+ # cd libffi-3.2.1
+#
+#  cd ..
+#}
 
 build_libatomic_ops() {
   generic_download_and_install http://www.ivmaisoft.com/_bin/atomic_ops/libatomic_ops-7.6.4.tar.gz libatomic_ops-7.6.4
@@ -3179,8 +3186,8 @@ build_fastfloat() {
 build_gnutls() {
 #  download_and_unpack_file https://www.gnupg.org/ftp/gcrypt/gnutls/v3.3/gnutls-3.3.27.tar.xz gnutls-3.3.27
    # do_git_checkout https://gitlab.com/gnutls/gnutls.git gnutls
-  download_and_unpack_file https://www.gnupg.org/ftp/gcrypt/gnutls/v3.8/gnutls-3.8.4.tar.xz gnutls-3.8.4
-  cd gnutls-3.8.4
+  download_and_unpack_file https://www.gnupg.org/ftp/gcrypt/gnutls/v3.8/gnutls-3.8.9.tar.xz gnutls-3.8.9
+  cd gnutls-3.8.9
 #    git submodule init
 #    git submodule update
 #    make autoreconf
@@ -3311,17 +3318,23 @@ build_libaacplus() {
 }
 
 build_openssl11() {
-	download_and_unpack_file https://www.openssl.org/source/openssl-1.1.1u.tar.gz openssl-1.1.1u
-	cd openssl-1.1.1u
+#	download_and_unpack_file https://www.openssl.org/source/openssl-1.1.1u.tar.gz openssl-1.1.1u
+#	cd openssl-1.1.1u
 		export CC="${cross_prefix}gcc"
 		export AR="${cross_prefix}ar"
 		export RANLIB="${cross_prefix}ranlib"
 		export WINDRES="${cross_prefix}windres"
-		do_configure "--prefix=$mingw_w64_x86_64_prefix zlib shared no-capieng mingw64" ./Configure
-		do_make # "build_libs"
-		do_make "install_sw"
+#		do_configure "--prefix=$mingw_w64_x86_64_prefix zlib shared no-capieng mingw64" ./Configure
+#		do_make # "build_libs"
+#		do_make "install_sw"
 #  cpu_count=$original_cpu_count
 		#unset cross
+#	cd ..
+	download_and_unpack_file https://github.com/openssl/openssl/releases/download/openssl-3.4.1/openssl-3.4.1.tar.gz openssl-3.4.1
+	cd openssl-3.4.1
+		do_configure "--prefix=${mingw_w64_x86_64_prefix} --libdir=lib zlib-dynamic shared enable-camellia enable-idea enable-mdc2 enable-rc5 enable-rfc3779 enable-capieng mingw64" ./Configure
+		do_make
+		do_make "install_sw"
 		unset CC
 		unset AR
 		unset RANLIB
@@ -3466,7 +3479,7 @@ build_asdcplib-cth() {
 build_libdcp() {
   # Branches are slightly askew. 1.0 is where development takes place
 #  do_git_checkout https://github.com/cth103/libdcp.git libdcp main # v1.8.66 #04e215a7688239cb47fc86e8396756c685f338a1 #v1.8.13 #d39880eef211a296fa8ef4712cdef5945d08527c c6665c157bdb6903661d21c571c7d112b54ad8fd # d989a83517fd77aa241c1423ac00cfed62d567fe # f3058b2f1b48ec613bda5781fe97e83a0dca83a9
-  do_git_checkout git://git.carlh.net/git/libdcp.git libdcp v1.10.12 #b75d977a38f039fd68ed5d4055ae70b4bf631603 # v1.6.x # 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
+  do_git_checkout git://git.carlh.net/git/libdcp.git libdcp v1.10.14 #b75d977a38f039fd68ed5d4055ae70b4bf631603 # v1.6.x # 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
 #  download_and_unpack_file https://carlh.net/downloads/libdcp/libdcp-1.6.17.tar.bz2 libdcp-1.6.17
   cd libdcp
     # M_PI is required. This is a quick way of defining it
@@ -3696,18 +3709,25 @@ build_iconvgettext() {
 build_libgpg-error() {
   # We remove one of the .po files due to a bug in Cygwin's iconv that causes it to loop when converting certain character encodings
 #  download_and_unpack_file ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-1.22.tar.bz2 libgpg-error-1.22
-  do_git_checkout git://git.gnupg.org/libgpg-error.git libgpg-error libgpg-error-1.42 # 12349de46d241cfbadbdf99773d6cabfcbc97578 # 78b679a778ddf37b8952f1808fd8c52cc8163f17
-  cd libgpg-error
+#  do_git_checkout git://git.gnupg.org/libgpg-error.git libgpg-error libgpg-error-1.42 # 12349de46d241cfbadbdf99773d6cabfcbc97578 # 78b679a778ddf37b8952f1808fd8c52cc8163f17
+  download_and_unpack_file https://gnupg.org/ftp/gcrypt/libgpg-error/libgpg-error-1.51.tar.bz2 libgpg-error-1.51
+  cd libgpg-error-1.51
+  apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libgpg-error/01-fix-broken-version.patch
+  apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libgpg-error/02-fix-symbollist-on.mingw.patch
+  apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libgpg-error/05-w32-gen.all.patch
+  apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libgpg-error/07-windows-build.patch
+  apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libgpg-error/10-gpg-error-static-linking.patch
 #    apply_patch file://${top_dir}/gpg-error-pid.patch
 #    rm po/ro.* # The Romanian translation causes Cygwin's iconv to loop. This is a Cygwin bug.
-    generic_configure_make_install "CC_FOR_BUILD=gcc --disable-doc --disable-tests" # "--prefix=${mingw_compiler_path/}" # This is so gpg-error-config can be seen by other programs
+    generic_configure_make_install "CC_FOR_BUILD=gcc --disable-doc --disable-tests --enable-install-gpg-error-config" # "--prefix=${mingw_compiler_path/}" # This is so gpg-error-config can be seen by other programs
   cd ..
 }
 
 build_libgcrypt() {
 #  generic_download_and_install ftp://ftp.gnupg.org/gcrypt/libgcrypt/libgcrypt-1.8.1.tar.gz libgcrypt-1.8.1 "GPG_ERROR_CONFIG=${mingw_w64_x86_64_prefix}/bin/gpg-error-config"
-  do_git_checkout git://git.gnupg.org/libgcrypt.git libgcrypt libgcrypt-1.10.2 #cdaeb86f067b94d9dff4235ade20dde6479d9bb8 # 86e5e06a97ae13b8bbf6923ecc76e02b9c429b46
-  cd libgcrypt
+#  do_git_checkout git://git.gnupg.org/libgcrypt.git libgcrypt libgcrypt-1.11.0 #cdaeb86f067b94d9dff4235ade20dde6479d9bb8 # 86e5e06a97ae13b8bbf6923ecc76e02b9c429b46i
+  download_and_unpack_file https://gnupg.org/ftp/gcrypt/libgcrypt/libgcrypt-1.11.0.tar.bz2 libgcrypt-1.11.0
+  cd libgcrypt-1.11.0
   export holding_path="${PATH}"
   export PATH="/usr/local/bin:/usr/bin:/bin:${top_dir}/sandbox/x86_64-w64-mingw32/bin"
     # apply_patch file://${top_dir}/libgcrypt-pkgconfig.patch
@@ -4359,10 +4379,22 @@ build_mediainfo() {
 }
 
 build_libtool() {
-  generic_download_and_install https://mirrors.ocf.berkeley.edu/gnu/libtool/libtool-2.4.7.tar.xz libtool-2.4.7
-  cd libtool-2.4.7
-
-  cd ..
+	download_and_unpack_file https://ftp.gnu.org/gnu/libtool/libtool-2.5.4.tar.xz  libtool-2.5.4
+	cd libtool-2.5.4
+  		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libtool/0001-cygwin-mingw-Create-UAC-manifest-files.patch
+		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libtool/0002-Fix-seems-to-be-moved.patch
+		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libtool/0003-Fix-STRICT_ANSI-vs-POSIX.patch
+		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libtool/0004-Allow-statically-linking-Flang-support-libraries-whe.patch
+		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libtool/0005-libtool-include-process.h.patch
+		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libtool/0006-Pass-various-flags-to-GCC.patch
+		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libtool/0007-msysize.patch
+		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libtool/0011-Pick-up-clang_rt-static-archives-compiler-internal-l.patch
+		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libtool/0013-Allow-statically-linking-compiler-support-libraries-.patch
+		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libtool/0014-Support-llvm-objdump-f-output.patch
+		generic_configure_make_install
+#		do_make
+#		do_make_install
+	cd ..
 }
 
 build_libiberty() {
@@ -5382,10 +5414,11 @@ build_openssh() {
 }
 
 build_libffi() {
-  generic_download_and_install ftp://sourceware.org/pub/libffi/libffi-3.2.1.tar.gz libffi-3.2.1
-  cd libffi-3.2.1
-
-  cd ..
+	download_and_unpack_file https://github.com/libffi/libffi/releases/download/v3.4.7/libffi-3.4.7.tar.gz libffi-3.4.7
+	cd libffi-3.4.7
+		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libffi/libffi-3.4.7-Revert-Fix-x86-ffi64-calls-with-6-gp-and-some-sse-re.patch
+		generic_configure_make_install "--disable-symvers"
+	cd ..
 }
 
 build_ilmbase() {
@@ -6386,7 +6419,7 @@ build_mplayer() {
 build_mp4box() { # like build_gpac
   # This script only builds the gpac_static lib plus MP4Box. Other tools inside
   # specify revision until this works: https://sourceforge.net/p/gpac/discussion/287546/thread/72cf332a/
-  do_git_checkout https://github.com/gpac/gpac.git mp4box_gpac
+  do_git_checkout https://github.com/gpac/gpac.git mp4box_gpac 8a735e678ede8b520a8b5829ca5588b0f9dd7bf2
   cd mp4box_gpac
 #    apply_patch file://${top_dir}/mp4box-dashcast.patch
   # are these tweaks needed? If so then complain to the mp4box people about it?
@@ -6455,9 +6488,10 @@ build_mimedb() {
   export cpu_count=1
   # The installer barfs if this directory doesn't exist.
 #  mkdir -v -p ${mingw_w64_x86_64_prefix}/share/mime/packages
-  generic_download_and_install http://freedesktop.org/~hadess/shared-mime-info-1.9.tar.xz shared-mime-info-1.9 "--disable-update-mimedb"
-  cd shared-mime-info-1.9
-
+#  generic_download_and_install http://freedesktop.org/~hadess/shared-mime-info-1.9.tar.xz shared-mime-info-1.9 "--disable-update-mimedb"
+  download_and_unpack_file https://mirror.freedif.org/pub/blfs/conglomeration/shared-mime-info/shared-mime-info-2.4.tar.gz shared-mime-info-2.4
+  cd shared-mime-info-2.4
+  	generic_meson_ninja_install
   cd ..
   export cpu_count=$orig_cpu_count
 }
@@ -7675,7 +7709,7 @@ build_dependencies() {
   #build_pcre # for glib and others
   build_pcre2
   build_libnettle # needs gmp
-  build_openssl
+#  build_openssl
   build_openssl11
   #build_libexpat
   #build_unbound
@@ -7725,7 +7759,7 @@ build_dependencies() {
   build_freetype # uses bz2/zlib seemingly
   build_libexpat
   build_libxml2
-  #build_libxslt
+  build_libxslt
   build_libgpg-error # Needed by libgcrypt
   build_libgcrypt # Needed by libxmlsec
   build_libxmlsec
@@ -7795,6 +7829,7 @@ build_dependencies() {
   build_libsndfile
   # build_libnvenc
   #build_live555
+  build_libffi
   build_googletest
   build_glib
   #build_mmcommon
@@ -8079,7 +8114,7 @@ build_apps() {
 #  build_jackmix
   #build_flacon
   build_get_iplayer
-#  build_dcpomatic AWAIT CODE FIX TO COPE WITH UPDATED BOOST
+#  build_dcpomatic # AWAIT CODE FIX TO COPE WITH UPDATED BOOST
 #  build_loudness-scanner Broken by FFmpeg API changes. Sorry.
   build_synaesthesia
   #build_kodi
