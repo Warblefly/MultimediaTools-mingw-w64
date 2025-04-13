@@ -969,14 +969,14 @@ build_drm() {
 
 
 build_qt6() {
-	download_and_unpack_file https://download.qt.io/archive/qt/6.6/6.6.2/submodules/qtbase-everywhere-src-6.6.2.tar.xz qtbase-everywhere-src-6.6.2
-	cd qtbase-everywhere-src-6.6.2
+	download_and_unpack_file https://download.qt.io/archive/qt/6.8/6.8.2/submodules/qtbase-everywhere-src-6.8.2.tar.xz qtbase-everywhere-src-6.8.2
+	cd qtbase-everywhere-src-6.8.2
 #		cd qtbase
-			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f39/f/qtbase-import-lib-suffix.patch
-			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f39/f/qtbase-include-toolchain.patch
-			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f39/f/qtbase-mingw.patch
-			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f39/f/qtbase-qmakeconf.patch
-			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f39/f/qtbase-readlink.patch
+			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f42/f/qtbase-import-lib-suffix.patch
+			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f42/f/qtbase-include-toolchain.patch
+			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f42/f/qtbase-mingw.patch
+			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f42/f/qtbase-qmakeconf.patch
+			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f42/f/qtbase-readlink.patch
 #		cd ..
 	mkdir build
 		cd build		
@@ -989,30 +989,38 @@ build_qt6() {
 			do_ninja_and_ninja_install
 		cd ..
 	cd ..
-	download_and_unpack_file https://download.qt.io/archive/qt/6.6/6.6.2/submodules/qtsvg-everywhere-src-6.6.2.tar.xz qtsvg-everywhere-src-6.6.2
-	cd qtsvg-everywhere-src-6.6.2
+	download_and_unpack_file https://download.qt.io/archive/qt/6.8/6.8.2/submodules/qtsvg-everywhere-src-6.8.2.tar.xz qtsvg-everywhere-src-6.8.2
+	cd qtsvg-everywhere-src-6.8.2
 		mkdir build
 		cd build
 			do_cmake ".. -G Ninja -B build -DQT_QMAKE_TARGET_MKSPEC=win32-g++ -DQT_NO_PACKAGE_VERSION_CHECK=TRUE -DQT_BUILD_EXAMPLES=FALSE -DQT_BUILD_TESTS=FALSE -DQT_QMAKE_DEVICE_OPTIONS=CROSS_COMPILE=x86_64-w64-mingw32"
 			do_ninja_and_ninja_install
 		cd ..
 	cd ..
-	download_and_unpack_file https://download.qt.io/archive/qt/6.6/6.6.2/submodules/qtshadertools-everywhere-src-6.6.2.tar.xz qtshadertools-everywhere-src-6.6.2
-	cd qtshadertools-everywhere-src-6.6.2
+	download_and_unpack_file https://download.qt.io/archive/qt/6.8/6.8.2/submodules/qtshadertools-everywhere-src-6.8.2.tar.xz qtshadertools-everywhere-src-6.8.2
+	cd qtshadertools-everywhere-src-6.8.2
 		mkdir build
 		cd build
 			do_cmake ".. -G Ninja -B build -DQT_QMAKE_TARGET_MKSPEC=win32-g++ -DQT_NO_PACKAGE_VERSION_CHECK=TRUE -DQT_BUILD_EXAMPLES=FALSE -DQT_BUILD_TESTS=FALSE -DQT_QMAKE_DEVICE_OPTIONS=CROSS_COMPILE=x86_64-w64-mingw32"
 			do_ninja_and_ninja_install
 		cd ..
 	cd ..
-	download_and_unpack_file https://download.qt.io/archive/qt/6.6/6.6.2/submodules/qtmultimedia-everywhere-src-6.6.2.tar.xz qtmultimedia-everywhere-src-6.6.2
-	cd qtmultimedia-everywhere-src-6.6.2
+	download_and_unpack_file https://download.qt.io/archive/qt/6.8/6.8.2/submodules/qtmultimedia-everywhere-src-6.8.2.tar.xz qtmultimedia-everywhere-src-6.8.2
+	cd qtmultimedia-everywhere-src-6.8.2
 		mkdir build
 		cd build
 			do_cmake ".. -G Ninja -B build -DQT_FEATURE_gstreamer=OFF -DQT_QMAKE_TARGET_MKSPEC=win32-g++ -DQT_NO_PACKAGE_VERSION_CHECK=TRUE -DQT_BUILD_EXAMPLES=FALSE -DQT_BUILD_TESTS=FALSE -DQT_QMAKE_DEVICE_OPTIONS=CROSS_COMPILE=x86_64-w64-mingw32 -DQt6ShaderTools_DIR=${mings_w64_x86_64_prefix}/lib/cmake/Qt6ShaderTools/"
 			do_ninja_and_ninja_install
 		cd ..
 	cd ..
+#	download_and_unpack_file https://download.qt.io/archive/qt/6.6/6.6.2/submodules/qttools-everywhere-src-6.6.2.tar.xz qttools-everywhere-src-6.6.2
+#	cd qttools-everywhere-src-6.6.2
+#	        mkdir build
+#		cd build
+#			do_cmake ".. -G Ninja -B build -DQT_QMAKE_TARGET_MKSPEC=win32-g++ -DQT_NO_PACKAGE_VERSION_CHECK=TRUE -DQT_BUILD_EXAMPLES=FALSE -DQT_BUILD_TESTS=FALSE -DQT_QMAKE_DEVICE_OPTIONS=CROSS_COMPILE=x86_64-w64-mingw32"
+#			do_ninja_and_ninja_install
+#		cd ..
+#	cd ..
 }
 
 
@@ -1787,7 +1795,7 @@ build_opendcp() {
 
 build_dcpomatic() {
 #  do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic main # v2.16.52 #805d4a48fa6e4d8e28fd582a2ae6ba78b8343144 main # v2.15.x # fc1441eeaa3c0805c37809685ea7a3f5ca173666 # v2.15.x #97193e96c637ca92eeaf6e72ee38aa628308973b # v2.15.x #402fa9a3577975e9cf9728c815da1b17796fe325 # v2.15.x #9cff6ec974a4d0270091fe5c753483b0d53ecd46
-  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic v2.18.14 # new-ffmpeg-take2 #edbccd8d04a33f9e8d03677d8ebc671f40b0f822 #v2.15.x # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
+  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic v2.18.16 # new-ffmpeg-take2 #edbccd8d04a33f9e8d03677d8ebc671f40b0f822 #v2.15.x # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
 #  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.123" dcpomatic-2.15.123
   cd dcpomatic
     apply_patch file://${top_dir}/dcpomatic-wscript.patch
@@ -2174,7 +2182,7 @@ build_gdb() {
 
 build_mpfr() {
 	export PKG_CONFIG_PATH=${mingw_w64_x86_64_prefix}/lib/pkgconfig
-	generic_download_and_install https://www.mpfr.org/mpfr-current/mpfr-4.2.1.tar.xz mpfr-4.2.1 "--with-gmp=${mingw_w64_x86_64_prefix}"
+	generic_download_and_install https://www.mpfr.org/mpfr-current/mpfr-4.2.2.tar.xz mpfr-4.2.2 "--with-gmp=${mingw_w64_x86_64_prefix}"
 }
 
 
@@ -3479,7 +3487,7 @@ build_asdcplib-cth() {
 build_libdcp() {
   # Branches are slightly askew. 1.0 is where development takes place
 #  do_git_checkout https://github.com/cth103/libdcp.git libdcp main # v1.8.66 #04e215a7688239cb47fc86e8396756c685f338a1 #v1.8.13 #d39880eef211a296fa8ef4712cdef5945d08527c c6665c157bdb6903661d21c571c7d112b54ad8fd # d989a83517fd77aa241c1423ac00cfed62d567fe # f3058b2f1b48ec613bda5781fe97e83a0dca83a9
-  do_git_checkout git://git.carlh.net/git/libdcp.git libdcp v1.10.14 #b75d977a38f039fd68ed5d4055ae70b4bf631603 # v1.6.x # 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
+  do_git_checkout git://git.carlh.net/git/libdcp.git libdcp v1.10.18 #b75d977a38f039fd68ed5d4055ae70b4bf631603 # v1.6.x # 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
 #  download_and_unpack_file https://carlh.net/downloads/libdcp/libdcp-1.6.17.tar.bz2 libdcp-1.6.17
   cd libdcp
     # M_PI is required. This is a quick way of defining it
@@ -4056,15 +4064,19 @@ build_faac() {
 }
 
 build_atomicparsley() {
-  do_git_checkout https://github.com/benfry/atomicparsley.git atomicparsley
-  export ac_cv_func_malloc_0_nonnull=yes
+  do_git_checkout https://github.com/lisanet/atomicparsley.git atomicparsley
+#  export ac_cv_func_malloc_0_nonnull=yes
   cd atomicparsley
-    rm configure
+#    rm configure
     apply_patch file://${top_dir}/atomicparsley-min.patch
+#     apply_patch file://${top_dir}/atomicparsley-getopt.patch
     generic_configure_make_install
+#     do_cmake
+#     do_make
+#     do_make_install
 
   cd ..
-  unset ac_cv_func_malloc_0_nonnull
+#  unset ac_cv_func_malloc_0_nonnull
 }
 
 build_gstreamer() {
@@ -4190,11 +4202,12 @@ build_libbs2b() {
 }
 
 build_libgame-music-emu() {
-  download_and_unpack_file https://src.fedoraproject.org/repo/pkgs/game-music-emu/game-music-emu-0.6.3.tar.xz/sha512/4b20c69ced696bb879c34bcb7ce0f5f276642458d4cebca8ede673eed7d50664e527626e2077f85a3411a26660f1b3f01e43cccd72945e1edb2994421efeb552/game-music-emu-0.6.3.tar.xz game-music-emu-0.6.3
-  cd game-music-emu-0.6.3
-    apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-libgme/game-music-emu_414e0d993548_22e5c689f33f.patch
-    apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-libgme/game-music-emu_86a449eec09d_013d4676c689.patch
-    apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-libgme/game-music-emu_b3d158a30492_414e0d993548.patch
+#  download_and_unpack_file https://src.fedoraproject.org/repo/pkgs/game-music-emu/game-music-emu-0.6.3.tar.xz/sha512/4b20c69ced696bb879c34bcb7ce0f5f276642458d4cebca8ede673eed7d50664e527626e2077f85a3411a26660f1b3f01e43cccd72945e1edb2994421efeb552/game-music-emu-0.6.3.tar.xz game-music-emu-0.6.3
+  do_git_checkout https://github.com/libgme/game-music-emu.git game-music-emu
+  cd game-music-emu
+#    apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-libgme/game-music-emu_414e0d993548_22e5c689f33f.patch
+#    apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-libgme/game-music-emu_86a449eec09d_013d4676c689.patch
+#    apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-libgme/game-music-emu_b3d158a30492_414e0d993548.patch
 
 #    apply_patch file://${top_dir}/game-music-emu.patch
     # sed -i.bak "s|SHARED|STATIC|" gme/CMakeLists.txt
@@ -4632,8 +4645,8 @@ build_fmt() {
 }
 
 build_boost() {
-  download_and_unpack_file "https://archives.boost.io/release/1.87.0/source/boost_1_87_0.tar.bz2" boost_1_87_0
-  cd boost_1_87_0
+  download_and_unpack_file "https://archives.boost.io/release/1.86.0/source/boost_1_86_0.tar.bz2" boost_1_86_0
+  cd boost_1_86_0
   #  cd libs/serialization
   #    apply_patch file://${top_dir}/boost-codecvt.patch
   #  cd ../..
@@ -4744,7 +4757,8 @@ build_gavl() {
 	apply_patch file://${top_dir}/gavl-dll.patch
 	apply_patch file://${top_dir}/gavl-missing-include.patch
 	export ac_cv_have_clock_monotonic=yes
-	rm -v ./configure	
+	rm -v ./configure
+	autoreconf -fvi
 	generic_configure_make_install "--without-doxygen --enable-shared=yes --with-cpuflags=none ac_cv_have_clock_monotonic=yes --without-doxygen"
 	unset ac_cv_have_clock_monotonic
 #        export PKG_CONFIG_PATH=${mingw_w64_x86_64_prefix}/lib/pkgconfig
@@ -5414,9 +5428,9 @@ build_openssh() {
 }
 
 build_libffi() {
-	download_and_unpack_file https://github.com/libffi/libffi/releases/download/v3.4.7/libffi-3.4.7.tar.gz libffi-3.4.7
-	cd libffi-3.4.7
-		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libffi/libffi-3.4.7-Revert-Fix-x86-ffi64-calls-with-6-gp-and-some-sse-re.patch
+	download_and_unpack_file https://github.com/libffi/libffi/releases/download/v3.4.8/libffi-3.4.8.tar.gz libffi-3.4.8
+	cd libffi-3.4.8
+#		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libffi/libffi-3.4.7-Revert-Fix-x86-ffi64-calls-with-6-gp-and-some-sse-re.patch
 		generic_configure_make_install "--disable-symvers"
 	cd ..
 }
@@ -5955,7 +5969,7 @@ build_libplacebo() {
   cd libplacebo
     git submodule update --init
     apply_patch file://${top_dir}/libplacebo-win32.patch
-    generic_meson_ninja_install "-Ddemos=false -Dvulkan-registry=${mingw_w64_x86_64_prefix}/share/vulkan/registry/vk.xml"
+    generic_meson_ninja_install "-Ddemos=false -Dd3d11=enabled -Dvulkan-registry=${mingw_w64_x86_64_prefix}/share/vulkan/registry/vk.xml"
   cd ..
 }
 
@@ -6177,8 +6191,8 @@ build_libzip() {
 
 build_uchardet() {
 #do_git_checkout git://anongit.freedesktop.org/uchardet/uchardet uchardet
-  download_and_unpack_file https://www.freedesktop.org/software/uchardet/releases/uchardet-0.0.6.tar.xz uchardet-0.0.6
-    cd uchardet-0.0.6
+  download_and_unpack_file https://www.freedesktop.org/software/uchardet/releases/uchardet-0.0.8.tar.xz uchardet-0.0.8
+    cd uchardet-0.0.8
         do_cmake "-DTARGET_ARCHITECTURE=x86"
         do_make
         do_make_install
@@ -6197,8 +6211,9 @@ build_zstd() {
 build_flacon() {
     do_git_checkout https://github.com/flacon/flacon.git flacon
         cd flacon
-	apply_patch file://${top_dir}/flacon.patch
-        do_cmake && ${top_dir}/correct_headers.sh
+#	apply_patch file://${top_dir}/flacon.patch
+        apply_patch file://${top_dir}/flacon-setenv.patch
+        do_cmake "-DCMAKE_C_FLAGS=-fpermissive -DCMAKE_CXX_FLAGS=-fpermissive -DCMAKE_PREFIX_PATH=${mingw_w64_x86_64_prefix}/lib/cmake -DQT_DEBUG_FIND_PACKAGE=ON -DQt6_DIR=${mingw_w64_x86_64_prefix}/lib/cmake/Qt6/" && ${top_dir}/correct_headers.sh
 	export old_ld_library_path=${LD_LIBRARY_PATH}
         export LD_LIBRARY_PATH=${mingw_w64_x86_64_prefix}/../lib/
         do_make
@@ -6419,7 +6434,7 @@ build_mplayer() {
 build_mp4box() { # like build_gpac
   # This script only builds the gpac_static lib plus MP4Box. Other tools inside
   # specify revision until this works: https://sourceforge.net/p/gpac/discussion/287546/thread/72cf332a/
-  do_git_checkout https://github.com/gpac/gpac.git mp4box_gpac 8a735e678ede8b520a8b5829ca5588b0f9dd7bf2
+  do_git_checkout https://github.com/gpac/gpac.git mp4box_gpac # 8a735e678ede8b520a8b5829ca5588b0f9dd7bf2
   cd mp4box_gpac
 #    apply_patch file://${top_dir}/mp4box-dashcast.patch
   # are these tweaks needed? If so then complain to the mp4box people about it?
@@ -6439,7 +6454,7 @@ build_mp4box() { # like build_gpac
 #  sed -i.bak 's/	$(MAKE) installdylib/#	$(MAKE) installdylib/' Makefile
 #  sed -i.bak 's/-DDIRECTSOUND_VERSION=0x0500/-DDIRECTSOUND_VERSION=0x0800/' src/Makefile
 #  generic_configure_make_install "--verbose --static-mp4box --enable-static-bin --target-os=MINGW32 --cross-prefix=x86_64-w64-mingw32- --prefix=${mingw_w64_x86_64_prefix} --static-mp4box --extra-libs=-lz --enable-all --enable-ffmpeg"
-    generic_configure_make_install "--enable-ipv6 --verbose --target-os=MINGW32 --cross-prefix=x86_64-w64-mingw32- --prefix=${mingw_w64_x86_64_prefix} --extra-libs=-lz --enable-all --use-ffmpeg=no --disable-pulseaudio"
+    generic_configure_make_install "--verbose --target-os=MINGW32 --cross-prefix=x86_64-w64-mingw32- --prefix=${mingw_w64_x86_64_prefix} --extra-libs=-lz --use-ffmpeg=no --disable-pulseaudio"
 
   # All the modules need moving into the main binary directory for GPAC's default configuration file to be correct.
     mv -fv ${mingw_w64_x86_64_prefix}/lib/gpac/* ${mingw_w64_x86_64_prefix}/bin
@@ -6572,6 +6587,17 @@ build_shaderc() {
     cd ..
 }
 
+build_spirvcross() {
+	download_and_unpack_file https://github.com/KhronosGroup/SPIRV-Cross/archive/vulkan-sdk-1.4.309.0/spirv-cross-1.4.309.0.tar.gz SPIRV-Cross-vulkan-sdk-1.4.309.0
+	cd SPIRV-Cross-vulkan-sdk-1.4.309.0
+		mkdir build
+		cd build
+			do_cmake .. "-DSPIRV_CROSS_SHARED=ON -DSPIRV_CROSS_ENABLE_TESTS=OFF"
+			do_make
+			do_make_install
+		cd ..
+	cd ..
+}
 
 build_vulkan() {
 
@@ -7733,7 +7759,7 @@ build_dependencies() {
   build_libflite # too big for the ffmpeg distro...
   build_sdlgit # needed for ffplay to be created
   build_sdl2
-  #build_uchardet
+  build_uchardet
   build_libopus
   build_libopencore
   build_libogg
@@ -7902,6 +7928,7 @@ build_dependencies() {
   build_spirvtools
   build_glslang
   build_shaderc
+  build_spirvcross
   build_vulkan
 #  build_angle
   build_cairo
@@ -8112,9 +8139,9 @@ build_apps() {
   #build_DJVnew # Requires FFmpeg libraries
 #  build_qjackctl
 #  build_jackmix
-  #build_flacon
+  build_flacon
   build_get_iplayer
-#  build_dcpomatic # AWAIT CODE FIX TO COPE WITH UPDATED BOOST
+  build_dcpomatic # AWAIT CODE FIX TO COPE WITH UPDATED BOOST
 #  build_loudness-scanner Broken by FFmpeg API changes. Sorry.
   build_synaesthesia
   #build_kodi

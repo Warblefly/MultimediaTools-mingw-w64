@@ -1,0 +1,45 @@
+--- rungui.cpp.orig	2025-04-13 11:51:40.247786365 +0100
++++ rungui.cpp	2025-04-13 11:53:06.266840608 +0100
+@@ -91,7 +91,11 @@
+     debugOn               = commandLineParser.debug();
+     defaultMessageHandler = qInstallMessageHandler(msgHandler);
+ 
++#ifdef _WIN32
++    _putenv_s("QT_LOGGING_RULES", "*.debug=true;qt.*.debug=false;kf.*.debug=false;");
++#else
+     setenv("QT_LOGGING_RULES", "*.debug=true;qt.*.debug=false;kf.*.debug=false;", 1);
++#endif
+     qSetMessagePattern("%{time yyyy.MM.dd hh:mm:ss.zzz t} [%{threadid}] %{type}: %{category}: %{message}");
+ 
+     qCDebug(LOG) << "Start flacon " << APP_VERSION;
+--- runconsole.cpp.orig	2025-04-13 11:53:22.176665977 +0100
++++ runconsole.cpp	2025-04-13 11:56:22.494682491 +0100
+@@ -49,20 +49,28 @@
+     mCommandLineParser.process(app);
+ 
+     if (mCommandLineParser.debug()) {
++#ifdef _WIN32
++	_putenv_s("QT_LOGGING_RULES", "*.debug=true;qt.*.debug=false;kf.*.debug=false;");
++#else
+         setenv("QT_LOGGING_RULES",
+                "*.debug=true;"
+                "qt.*.debug=false;"
+                "kf.*.debug=false;",
+                1);
++#endif
+         qSetMessagePattern("%{time yyyy.MM.dd hh:mm:ss.zzz t} [%{threadid}] %{type}: %{category}: %{message}");
+     }
+     else {
++#ifdef _WIN32
++        _putenv_s("QT_LOGGING_RULES", "*.debug=false;*.info=falst;default.debug=true;default.info=true;");
++#else
+         setenv("QT_LOGGING_RULES",
+                "*.debug=false;"
+                "*.info=false;"
+                "default.debug=true;"
+                "default.info=true;",
+                1);
++#endif
+         qSetMessagePattern("%{message}");
+     }
+ 
