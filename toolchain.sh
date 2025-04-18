@@ -176,11 +176,11 @@ cd gcc
 	if [[ ! -f gcc_accessories_source ]]; then
 		wget --no-check-certificate https://gmplib.org/download/gmp/gmp-6.3.0.tar.lz || exit 1
 		tar xvvf gmp-6.3.0.tar.lz && ln -sv gmp-6.3.0 gmp
-		wget https://ftp.gnu.org/gnu/mpfr/mpfr-4.2.0.tar.xz || exit 1
-		tar xvvf mpfr-4.2.1.tar.xz && ln -sv mpfr-4.2.1 mpfr
+		wget https://ftp.gnu.org/gnu/mpfr/mpfr-4.2.2.tar.xz || exit 1
+		tar xvvf mpfr-4.2.2.tar.xz && ln -sv mpfr-4.2.2 mpfr
 		wget https://ftp.gnu.org/gnu/mpc/mpc-1.3.1.tar.gz || exit 1
 		tar xvvf mpc-1.3.1.tar.gz && ln -sv mpc-1.3.1 mpc
-		wget https://libisl.sourceforge.io/isl-0.26.tar.xz || exit 1
+		wget https://libisl.sourceforge.io/isl-0.27.tar.xz || exit 1
 		tar xvvf isl-0.27.tar.xz && ln -sv isl-0.27 isl
 		touch gcc_accessories_source
 	else
@@ -198,12 +198,12 @@ cd gcc
 #	curl https://src.fedoraproject.org/rpms/mingw-gcc/raw/rawhide/f/mingw-gcc-config.patch | patch -p1
 #	curl https://src.fedoraproject.org/rpms/mingw-gcc/raw/rawhide/f/0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch | patch -p1
 #	curl "https://gcc.gnu.org/bugzilla/attachment.cgi?id=53052" | patch -p0
-	pushd libiberty
-		autoconf -f
-	popd
-	pushd intl
-		autoconf -f
-	popd
+#	pushd libiberty
+#		autoconf -f || exit 1
+#	popd
+#	pushd intl
+#		autoconf -f || exit 1
+#	popd
 #	cat ${top_dir}/gcc-ice.patch | patch -p0 || exit 1:
 cd ..
 

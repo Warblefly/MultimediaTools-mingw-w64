@@ -2820,19 +2820,30 @@ build_libass() {
 }
 
 build_gmp() {
-  download_and_unpack_file http://gmplib.org/download/gmp/gmp-6.2.1.tar.bz2 gmp-6.2.1
-  cd gmp-6.2.1
-#    export CC_FOR_BUILD=/usr/bin/gcc
-#    export CPP_FOR_BUILD=usr/bin/cpp
-    apply_patch file://${top_dir}/gmp-exeext.patch
-    rm configure
-    rm Makefile.in
-    rm config.in
-    generic_configure "ABI=$bits_target --enable-shared --disable-static"
+  download_and_unpack_file http://gmplib.org/download/gmp/gmp-6.3.0.tar.bz2 gmp-6.3.0
+  cd gmp-6.3.0
+#    export CC_FOR_BUILD=gcc
+#    export CPP_FOR_BUILD=cpp
+#    apply_patch file://${top_dir}/gmp-exeext.patchi
+    export old_ld_library_path=$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=`pwd`/.libs
+#    export CC=x86_64-w64-mingw32-gcc
+#    autoreconf -fiv
+    mkdir stash
+    export CFLAGS=-fpermissive
+    export CXXFLAGS=-fpermissive
+    cp config.{guess,sub} stash
+    apply_patch file://${top_dir}/gmp-dllimport.patch
+    autoreconf -fiv
+    cp -f stash/config.{guess,sub} .
+    generic_configure_make_install "--target=x86_64-w64-mingw32 ABI=64 --enable-mpbsd --enable-cxx --enable-fat --host=x86_64-w64-mingw32"
 #    unset CC_FOR_BUILD
 #    unset CPP_FOR_BUILD
-    do_make_install
-
+#    unset CC
+#    do_make_install
+    unset CFLAGS
+    unset CXXFLAGS
+    export LD_LIBRARY_PATH=${old_ld_library_path}
   cd ..
 }
 
