@@ -3994,25 +3994,38 @@ build_OpenCL() {
   cd ..
 }
 
+build_xpm() {
+  do_git_checkout https://github.com/koron/libXpm-win32.git libXpm_win32
+  cd libXpm_win32
+    cp /usr/share/aclocal/xorg-macros.m4 ${mingw_w64_x86_64_prefix}/share/aclocal/
+    cp /usr/share/pkgconfig/xorg-macros.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig/
+    apply_patch file:${top_dir}/libXpm-w64.patch
+    cd src
+    	do_make "-f Make_ming.mak"
+    cd ..
+  cd ..
+}
+
 build_vim() {
-#  do_git_checkout https://github.com/vim/vim.git vim # 37199894317db555723e5ec99f88cbbb2a2a9670 # 3e0107ea16349b354e0e9712e95b09ef019e99e5
+  do_git_checkout https://github.com/vim/vim.git vim # 37199894317db555723e5ec99f88cbbb2a2a9670 # 3e0107ea16349b354e0e9712e95b09ef019e99e5
 #  cd vim
-#  	apply_patch file://${top_dir}/vim_uuid.patch
+#	generic_configure_make_install "--enable-gui=gtk3 --with-vim-name=gvim --enable-multibye"
 #  cd ..
-#  cd vim/src
-#      export PKG_CONFIG_PATH=${mingw_w64_x86_64_prefix}/lib/pkgconfig
-#      sed -i.bak 's/FEATURES=BIG/FEATURES=HUGE/' Make_cyg_ming.mak
-#      sed -i.bak 's/ARCH=i686/ARCH=x86-64/' Make_cyg_ming.mak
-#      sed -i.bak 's/CROSS=no/CROSS=yes/' Make_cyg_ming.mak
-#      sed -i.bak 's/WINDRES := windres/WINDRES := $(CROSS_COMPILE)windres/' Make_cyg_ming.mak
-#      echo "Now we are going to build vim."
-#      WINVER=0x0A00 CROSS_COMPILE=${cross_prefix} do_make "-f Make_cyg_ming.mak" # gvim.exe
-#      echo "Vim is built, but not installed."
-#      cp -fv gvim.exe vimrun.exe xxd/xxd.exe GvimExt/gvimext.dll GvimExt/gvimext.res "${mingw_w64_x86_64_prefix}/bin"
-#      # Here come the runtime files, necessary for syntax highlighting, etc.
-#      # On the installation host, these files must be pointed to by VIMRUNTIME
-#      mkdir -pv ${mingw_w64_x86_64_prefix}/share/vim && cp -Rv ../runtime/* ${mingw_w64_x86_64_prefix}/share/vim
-#  cd ../..
+#  	apply_patch file://${top_dir}/vim_uuid.patch
+  cd vim/src
+      export PKG_CONFIG_PATH=${mingw_w64_x86_64_prefix}/lib/pkgconfig
+      sed -i.bak 's/FEATURES=BIG/FEATURES=HUGE/' Make_cyg_ming.mak
+      sed -i.bak 's/ARCH=i686/ARCH=x86-64/' Make_cyg_ming.mak
+      sed -i.bak 's/CROSS=no/CROSS=yes/' Make_cyg_ming.mak
+      sed -i.bak 's/WINDRES := windres/WINDRES := $(CROSS_COMPILE)windres/' Make_cyg_ming.mak
+      echo "Now we are going to build vim."
+      WINVER=0x0A00 CROSS_COMPILE=${cross_prefix} do_make "XPM=no -f Make_cyg_ming.mak" # gvim.exe
+      echo "Vim is built, but not installed."
+      cp -fv gvim.exe vimrun.exe xxd/xxd.exe GvimExt/gvimext.dll GvimExt/gvimext.res "${mingw_w64_x86_64_prefix}/bin"
+      # Here come the runtime files, necessary for syntax highlighting, etc.
+      # On the installation host, these files must be pointed to by VIMRUNTIME
+      mkdir -pv ${mingw_w64_x86_64_prefix}/share/vim && cp -Rv ../runtime/* ${mingw_w64_x86_64_prefix}/share/vim
+  cd ../..
 
   do_git_checkout https://github.com/vim/vim.git vim_console # 37199894317db555723e5ec99f88cbbb2a2a9670 # 3e0107ea16349b354e0e9712e95b09ef019e99e5
   cd vim_console/src
@@ -7984,6 +7997,7 @@ build_dependencies() {
   build_libidn
   build_libpaper
   build_ghostscript
+#  build_xpm
   build_vim
   #build_ilmbase
 #  build_hdf
