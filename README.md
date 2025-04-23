@@ -46,27 +46,11 @@ deb http://deb.debian.org/debian bullseye-backports main contrib non-free
 deb-src http://deb.debian.org/debian bullseye-backports main contrib non-free
 ```
 
-Now, install some packages using the usual package manager.
+4. Now, install some packages using the usual package manager.
 
 ```
-sudo apt install git g++ make cmake texinfo libgmp-dev gtk-doc-tools help2man libxml2-tools flex bison m4 libmpfr-dev libz-dev wget curl autoconf autopoint libtool bzip2 meson pkg-config gettext subversion nasm yasm libtool-bin python3-setuptools intltool autoconf-archive gperf unzip python2 gyp libglib2.0-dev mm-common python3-bs4 python3-requests zip python3-mako docbook-xsl rake wx-common nsis sshpass rsync lzip pandoc zsh qt6-dev-tools python-is-python3 xutils-dev libxpm-dev
-```
-
-Fix meson
-
-```
-sudo apt -t bullseye-backports install meson
-```
-
-Make sure everything can see your Python 3
-```
-sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.9 1
-```
-
-Then, ensure your gcc is the one we have just installed -- if you need to. A clean Debian install doesn't need this.
-```
-sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 10
-sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-10 10
+apt install git gcc-13 g++-13 make libgmp-dev libmpfr-dev texinfo bison flex wget lzip xz-utils zlib1g-dev curl automake cmake autopoint libtool unzip bzip2 meson pkg-config gettext subversion
+yasm nasm libtool-bin mm-common python-is-python3 libglib2.0-dev-bin libxml2-utils autoconf-archive gperf libglib2.0-dev gtk-doc-tools gtk-update-icon-cache python3-requests zip qt6-base-dev qt6-shadertools-dev qt6-tools-dev nsis
 ```
 
 5. Clone my package from git (see the address at the top of this page).
