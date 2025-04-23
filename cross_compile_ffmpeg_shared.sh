@@ -76,7 +76,7 @@ check_missing_packages () {
 
   if uname -a | grep -q -- "\-microsoft" ; then
     if cat /proc/sys/fs/binfmt_misc/WSLInterop | grep -q enabled ; then
-      echo "windows WSL detected: you must first disable 'binfmt' by running this 
+      echo "windows WSL detected: you must first disable 'binfmt' by running this
       sudo bash -c 'echo 0 > /proc/sys/fs/binfmt_misc/WSLInterop'
       then try again"
       exit 1
@@ -227,16 +227,16 @@ do_svn_checkout() {
   local repo_url="$1"
   local to_dir="$2"
   if [[ -z $to_dir ]]; then
-    to_dir=$(basename "$repo_url" | sed s/\.svn/_svn/) 
+    to_dir=$(basename "$repo_url" | sed s/\.svn/_svn/)
   fi
   local desired_revision="$3"
 
   if [ ! -d "$to_dir" ]; then
     echo "Checking out (via svn checkout) $to_dir from $repo_url"
     rm -rf "$to_dir.tmp" # just in case it was interrupted previously...
-    svn checkout "$repo_url" "$to_dir.tmp" || { 
-        echo "svn checkout failed!" 
-        exit 1 
+    svn checkout "$repo_url" "$to_dir.tmp" || {
+        echo "svn checkout failed!"
+        exit 1
     }
     # Prevent incomplete checkouts
     mv "$to_dir.tmp" "$to_dir"
@@ -334,20 +334,20 @@ do_git_checkout() {
     fi
   fi
   echo "doing git checkout $desired_branch"
-  git checkout "$desired_branch" || (git_hard_reset && git checkout "$desired_branch") || (git reset --hard "$desired_branch") || exit 1 
+  git checkout "$desired_branch" || (git_hard_reset && git checkout "$desired_branch") || (git reset --hard "$desired_branch") || exit 1
 
-  if git show-ref --verify --quiet "refs/remotes/origin/$desired_branch"; then 
-    git merge "origin/$desired_branch" || exit 1 
+  if git show-ref --verify --quiet "refs/remotes/origin/$desired_branch"; then
+    git merge "origin/$desired_branch" || exit 1
   fi
 
   new_git_version=`git rev-parse HEAD`
   if [[ "$old_git_version" != "$new_git_version" ]]; then
     echo "got upstream changes, forcing re-configure. Doing git clean -f"
-    git_hard_reset 
+    git_hard_reset
   else
     echo "fetched no code changes, not forcing reconfigure for that..."
   fi
-  cd .. 
+  cd ..
 }
 
 
@@ -813,7 +813,7 @@ do_cleanup() {
 build_libsvthevc() {
 	do_git_checkout https://github.com/OpenVisualCloud/SVT-HEVC.git SVT-HEVC
 		cd SVT-HEVC
-		do_cmake 
+		do_cmake
 		do_make
 		do_make_install
 	cd ..
@@ -972,14 +972,14 @@ build_qt6() {
 	download_and_unpack_file https://download.qt.io/archive/qt/6.8/6.8.2/submodules/qtbase-everywhere-src-6.8.2.tar.xz qtbase-everywhere-src-6.8.2
 	cd qtbase-everywhere-src-6.8.2
 #		cd qtbase
-			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f42/f/qtbase-import-lib-suffix.patch
-			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f42/f/qtbase-include-toolchain.patch
-			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f42/f/qtbase-mingw.patch
-			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f42/f/qtbase-qmakeconf.patch
-			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f42/f/qtbase-readlink.patch
+			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f41/f/qtbase-import-lib-suffix.patch
+			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f41/f/qtbase-include-toolchain.patch
+			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f41/f/qtbase-mingw.patch
+			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f41/f/qtbase-qmakeconf.patch
+			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f41/f/qtbase-readlink.patch
 #		cd ..
 	mkdir build
-		cd build		
+		cd build
 			export MAKEFLAGS="-j8"
 			export PKG_CONFIG=${mingw_w64_x86_64_prefix}/../bin/x86_64-w64-mingw32-pkg-config
 			export PKG_CONFIG_LIBDIR=${mingw_w64_x86_64_prefix}/lib/pkgconfig
@@ -1070,7 +1070,7 @@ build_qt() {
 				apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt5-qttools/raw/rawhide/f/qttools-gcc11.patch
 			cd ..
 			apply_patch file://${top_dir}/qt5-qtcore-case.patch
-		        apply_patch file://${top_dir}/qt-limits.patch	
+		        apply_patch file://${top_dir}/qt-limits.patch
 		cd ..
 
 		mkdir qt-build
@@ -1109,7 +1109,7 @@ build_qt() {
 }
 
 build_qt_old() {
-	#was 5.14.2 
+	#was 5.14.2
   echo "PATH now is $PATH"
   original_path="$PATH"
   export PATH="${top_dir}/sandbox/x86_64-w64-mingw32/bin:/bin:/usr/bin:/usr/local/bin"
@@ -1133,7 +1133,7 @@ build_qt_old() {
     apply_patch file://${top_dir}/qt5-qtcore-case.patch
     apply_patch file://${top_dir}/qt5-gcc11.patch
     cd qtbase/include
-    	ln -sv QtCore qtcore 
+    	ln -sv QtCore qtcore
     cd ../..
     # Change a type for updates in ANGLE project
     grep -rl "EGL_PLATFORM_ANGLE_DEVICE_TYPE_WARP_ANGLE" ./ | xargs sed -i.bak 's/EGL_PLATFORM_ANGLE_DEVICE_TYPE_WARP_ANGLE/EGL_PLATFORM_ANGLE_DEVICE_TYPE_D3D_WARP_ANGLE/g'
@@ -1220,11 +1220,12 @@ build_gctpc() {
 	download_and_unpack_file ftp://ftp.fau.de/macports/distfiles/gctpc/gctpc20.tar.Z gctpc
 	cd gctpc/source
 		apply_patch file://${top_dir}/gctpc-makefile.patch
+        orig_cpu_count=$cpu_count
 		export cpu_count=1
-		do_make 
+		do_make
 		cp geolib.a ${mingw_w64_x86_64_prefix}/lib/libgeo.a
 		cp proj.h ${mingw_w64_x86_64_prefix}/include/proj.h
-		export cpu_count=8
+		export cpu_count=${orig_cpu_count}
 	cd ../..
 }
 
@@ -1536,8 +1537,8 @@ build_mlt() {
     cd mlt_build
     do_cmake .. "-DMOD_OPENCV=OFF -DWINDOWS_DEPLOY=OFF -DMOD_GDK=OFF -DMOD_AVFORMAT=OFF -DMOD_RTAUDIO=OFF"
 	    do_make
-    
-	    cp -v src/framework/libmlt.def . 
+
+	    cp -v src/framework/libmlt.def .
 	    cp -v src/mlt++/libmlt++.def .
 
     	    do_make_install
@@ -1641,7 +1642,7 @@ build_DJVnew() {
 			do_make
 			do_make_install
 		cd ../..
-		do_cmake "-DDJV_THIRD_PARTY=FALSE -DCMAKE_VERBOSE_MAKEFILE=ON -Dglad_INCLUDE_DIR=${mingw_w64_x86_64_prefix}/include" && ${top_dir}/correct_headers.sh		
+		do_cmake "-DDJV_THIRD_PARTY=FALSE -DCMAKE_VERBOSE_MAKEFILE=ON -Dglad_INCLUDE_DIR=${mingw_w64_x86_64_prefix}/include" && ${top_dir}/correct_headers.sh
 		do_make "V=1"
 		do_make_install "V=1"
 		# The DLLs need to be installed, too
@@ -1824,7 +1825,7 @@ build_dcpomatic() {
     export CFLAGS="-Wno-format" # -DBOOST_ASIO_DISABLE_STD_FUTURE=1"
     export CXXFLAGS="-Wno-format"
     env
-    do_configure "configure WINRC=x86_64-w64-mingw32-windres CXX=x86_64-w64-mingw32-g++ -v -pp --prefix=${mingw_w64_x86_64_prefix} --target-windows-64 --check-cxx-compiler=gxx --disable-tests --wx-config=${mingw_w64_x86_64_prefix}/bin/wx-config" "./waf"
+    do_configure "configure WINRC=x86_64-w64-mingw32-windres CXX=x86_64-w64-mingw32-g++ -v -pp --prefix=${mingw_w64_x86_64_prefix} --target-windows-64 --check-cxx-compiler=gxx --disable-tests -j ${cpu_count} --wx-config=${mingw_w64_x86_64_prefix}/bin/wx-config" "./waf"
     ./waf build -v || exit 1
     ./waf install || exit 1
     # Now put the graphics in the correct place
@@ -1987,7 +1988,7 @@ build_libutvideo() {
 build_libilbc() {
   do_git_checkout https://github.com/TimothyGu/libilbc.git libilbc_git v2.0.2
   cd libilbc_git
-  
+
   if [[ ! -f "configure" ]]; then
     autoreconf -fiv || exit 1 # failure here, OS X means "you need libtoolize" perhaps? http://betterlogic.com/roger/2014/12/ilbc-cross-compile-os-x-mac-woe/
   fi
@@ -2067,7 +2068,7 @@ build_libflite() {
 	generic_configure
 	do_make
 #	do_make get_voices
-	cp -v ./build/x86_64-mingw32/lib/libflite.a . 
+	cp -v ./build/x86_64-mingw32/lib/libflite.a .
 	${cross_prefix}gcc -shared -o libflite.dll -Wl,--out-implib,libflite.dll.a -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive libflite.a -Wl,--no-whole-archive -lpthread -lwinmm || echo "Files cleaned already. No problem."
 	cp -v ./build/x86_64-mingw32/lib/*.a $mingw_w64_x86_64_prefix/lib
 	cp -v libflite.dll.a $mingw_w64_x86_64_prefix/lib
@@ -2103,7 +2104,7 @@ build_libcelt() {
 
 build_libopus() {
 #  download_and_unpack_file http://downloads.xiph.org/releases/opus/opus-1.2-alpha.tar.gz opus-1.2-alpha
-  do_git_checkout https://github.com/xiph/opus.git opus 
+  do_git_checkout https://github.com/xiph/opus.git opus
   cd opus
 #  cd opus-1.2-alpha
 #     apply_patch file://${top_dir}/opus-nostatic.patch # one test doesn't work with a shared library
@@ -2170,7 +2171,7 @@ build_gdb() {
 #   cd ..
 #  apply_patch file://${top_dir}/gdb-bcrypt.patch
     mkdir -p build
-    cd build 
+    cd build
       do_configure  "--host=x86_64-w64-mingw32 --prefix=$mingw_w64_x86_64_prefix --with-system-readline --enable-tui --enable-plugins --with-expat --with-lzma" "../configure"
       do_make "V=1 VERBOSE=1"
       do_make_install
@@ -2708,7 +2709,7 @@ build_libopenshotaudio() {
 			do_make_install
 		cd ..
 	cd ..
-}		
+}
 
 build_libopenshot() {
 	do_git_checkout https://github.com/OpenShot/libopenshot.git libopenshot
@@ -2718,8 +2719,8 @@ build_libopenshot() {
 		cd build
 			export old_ld_library_path=${LD_LIBRARY_PATH}
 			export LD_LIBRARY_PATH=${mingw_w64_x86_64_prefix}/../lib/
-			do_cmake ../ "-DCMAKE_CXX_FLAGS=-fcommon -DCMAKE_CXX_FLAGS=-fpermissive -DLIBOPENSHOT_AUDIO_INCLUDE_DIR=${mingw_w64_x86_64_prefix}/include/libopenshot-audio -DENABLE_TESTS=OFF -DUNITTEST++_INCLUDE_DIR=${mingw_w64_x86_64_prefix}/include/UnitTest++ -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_EXE_LINKER_FLAGS=-Wl,--allow-multiple-definition -DCMAKE_SHARED_LINKER_FLAGS=-Wl,--allow-multiple-definition" 
-			${top_dir}/correct_headers.sh 
+			do_cmake ../ "-DCMAKE_CXX_FLAGS=-fcommon -DCMAKE_CXX_FLAGS=-fpermissive -DLIBOPENSHOT_AUDIO_INCLUDE_DIR=${mingw_w64_x86_64_prefix}/include/libopenshot-audio -DENABLE_TESTS=OFF -DUNITTEST++_INCLUDE_DIR=${mingw_w64_x86_64_prefix}/include/UnitTest++ -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_EXE_LINKER_FLAGS=-Wl,--allow-multiple-definition -DCMAKE_SHARED_LINKER_FLAGS=-Wl,--allow-multiple-definition"
+			${top_dir}/correct_headers.sh
 			do_make "V=1"
 			do_make_install
 			export LD_LIBRARY_PATH=${old_ld_library_path}
@@ -2737,7 +2738,7 @@ build_unittest() {
 }
 
 build_libfilezilla() {
-do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfilezilla 
+do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfilezilla
 #    cd libfilezilla
         #apply_patch file://${top_dir}/libfilezilla-typo.patch
 #	apply_patch file://${top_dir}/libfilezilla-limits.patch
@@ -2820,7 +2821,7 @@ build_libass() {
 }
 
 build_gmp() {
-  download_and_unpack_file http://gmplib.org/download/gmp/gmp-6.3.0.tar.bz2 gmp-6.3.0
+  download_and_unpack_file https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz gmp-6.3.0
   cd gmp-6.3.0
 #    export CC_FOR_BUILD=gcc
 #    export CPP_FOR_BUILD=cpp
@@ -2898,7 +2899,7 @@ build_libxml2() {
 }
 
 build_libxslt() {
-#  do_git_checkout https://github.com/GNOME/libxslt.git libxslt 
+#  do_git_checkout https://github.com/GNOME/libxslt.git libxslt
 #  cd libxslt-1.1.28/libxslt
 #      apply_patch https://raw.githubusercontent.com/Warblefly/multimediaWin64/master/libxslt-security.c.patch
 #    cd ..
@@ -3165,7 +3166,7 @@ build_p11kit() {
 #  generic_download_and_install https://p11-glue.freedesktop.org/releases/p11-kit-0.23.2.tar.gz p11-kit-0.23.2
   do_git_checkout https://github.com/p11-glue/p11-kit.git p11-kit 34b568727ff98ebb36f45a3d63c07f165c58219b
   cd p11-kit
-    generic_meson_ninja_install "-Dnls=false" 
+    generic_meson_ninja_install "-Dnls=false"
   cd ..
 #  cd p11-kit-0.23.2
 }
@@ -3571,7 +3572,7 @@ build_libsub() {
 
 build_intel_quicksync_mfx() { # qsv
 #  do_git_checkout https://github.com/lu-zero/mfx_dispatch.git mfx_dispatch_git # 61807e192749af236df520625ee284e221a20ef2
-	download_and_unpack_file https://github.com/lu-zero/mfx_dispatch/archive/refs/tags/1.35.1.tar.gz mfx_dispatch-1.35.1 
+	download_and_unpack_file https://github.com/lu-zero/mfx_dispatch/archive/refs/tags/1.35.1.tar.gz mfx_dispatch-1.35.1
 cd mfx_dispatch-1.35.1
 #    sed -i.bak 's/-version-info/-no-undefined -version-info/' Makefile.am
 #    sed -i.bak 's/-DMINGW_HAS_SECURE_API=1//' Makefile.am
@@ -3837,7 +3838,7 @@ build_freetype() {
   cd ${mingw_w64_x86_64_prefix}/include
   ln -sfv freetype2/freetype freetype
   ln -sfv freetype2/ft2build.h ft2build.h
-  cd - 
+  cd -
 }
 
 #build_vo_aacenc() {
@@ -4104,7 +4105,7 @@ build_atomicparsley() {
 }
 
 build_gstreamer() {
-	
+
     #do_git_checkout https://github.com/GStreamer/gstreamer.git gstreamer # 6babf1f086cce9cc392e2dc8a6cdf252d9b4cc48
 	download_and_unpack_file https://gstreamer.freedesktop.org/src/gstreamer/gstreamer-1.19.90.tar.xz gstreamer-1.19.90
 	cd gstreamer-1.19.90
@@ -4193,7 +4194,7 @@ build_wx() {
       for filename in ./libwx*dll.a; do cp -v "./$filename" "./$(echo $filename | sed -e 's/-x86_64-w64-mingw32//g')";  done
     cd -
     cp -v ${mingw_w64_x86_64_prefix}/lib/wx*dll ${mingw_w64_x86_64_prefix}/bin
-    ln -s ${mingw_w64_x86_64_prefix}/include/wx-3.2 ${mingw_w64_x86_64_prefix}/include/wx-3.1 
+    ln -s ${mingw_w64_x86_64_prefix}/include/wx-3.2 ${mingw_w64_x86_64_prefix}/include/wx-3.1
   cd ..
 }
 
@@ -4522,7 +4523,7 @@ build_bmx_new() {
 		do_make_install
 	cd ..
 }
-	
+
 
 build_liburiparser() {
   do_git_checkout https://github.com/uriparser/uriparser.git uriparser
@@ -4773,7 +4774,7 @@ build_mkvtoolnix() {
 }
 
 build_gavl() {
-	download_and_unpack_file https://downloads.sourceforge.net/project/gmerlin/gavl/1.4.0/gavl-1.4.0.tar.gz gavl-1.4.0 
+	download_and_unpack_file https://downloads.sourceforge.net/project/gmerlin/gavl/1.4.0/gavl-1.4.0.tar.gz gavl-1.4.0
 # do_svn_checkout svn://svn.code.sf.net/p/gmerlin/code/trunk/gavl gavl 5729 # 5412
 	cd gavl-1.4.0
 	apply_patch file://${top_dir}/gavl-ac-try-run.patch
@@ -5228,7 +5229,7 @@ build_openmaxil() {
 	unzip -o OpenMAX_IL_1_1_2_Header.zip
 	rm OpenMAX_IL_1_1_2_Header.zip
 	cd -
-}	
+}
 
 
 build_lua() {
@@ -5305,7 +5306,7 @@ build_zmq() {
   do_git_checkout https://github.com/zeromq/libzmq libzmq cb73745250dce53aa6e059751a47940b7518a1c3 # 4e2b9e6e07d4622d094febf8c4f61f9f191fd9ae
   cd libzmq
 #    apply_patch file://${top_dir}/liibzmq.patch
-    generic_configure_make_install #"--with-poller=epoll" 
+    generic_configure_make_install #"--with-poller=epoll"
 
   cd ..
 }
@@ -5320,7 +5321,7 @@ build_cppzmq() {
 }
 
 build_wxsvg() {
-	download_and_unpack_file http://downloads.sourceforge.net/project/wxsvg/wxsvg/1.5.22/wxsvg-1.5.22.tar.bz2 wxsvg-1.5.22 
+	download_and_unpack_file http://downloads.sourceforge.net/project/wxsvg/wxsvg/1.5.22/wxsvg-1.5.22.tar.bz2 wxsvg-1.5.22
 	cd wxsvg-1.5.22
 		apply_patch file://${top_dir}/wxsvg-std.patch
 		generic_configure_make_install "CFLAGS=-fpermissive CXXFLAGS=-fpermissive --with-wx-config=${mingw_w64_x86_64_prefix}/bin/wx-config"
@@ -5377,7 +5378,7 @@ build_cairo() {
 }
 
 build_mmcommon() {
-  do_git_checkout https://github.com/GNOME/mm-common.git mm-common 
+  do_git_checkout https://github.com/GNOME/mm-common.git mm-common
   cd mm-common
 #    generic_configure_make_install "--enable-network"
 	generic_meson_ninja_install "-Duse-network=true"
@@ -5998,13 +5999,14 @@ build_libplacebo() {
 }
 
 build_gdk_pixbuf() {
-    download_and_unpack_file http://ftp.gnome.org/pub/GNOME/sources/gdk-pixbuf/2.39/gdk-pixbuf-2.39.2.tar.xz gdk-pixbuf-2.39.2 # "--with-libjasper --disable-glibtest --enable-always-build-tests=no --enable-relocations --with-included-loaders=yes --build=x86_64-unknown-linux-gnu"
+    download_and_unpack_file http://ftp.gnome.org/pub/GNOME/sources/gdk-pixbuf/2.42/gdk-pixbuf-2.42.12.tar.xz gdk-pixbuf-2.42.12 # "--with-libjasper --disable-glibtest --enable-always-build-tests=no --enable-relocations --with-included-loaders=yes --build=x86_64-unknown-linux-gnu"
 #  do_git_checkout https://git.gnome.org/browse/gdk-pixbuf gdk-pixbuf
-    cd gdk-pixbuf-2.39.2
+    cd gdk-pixbuf-2.42.12
+    export PKG_CONFIG_PATH=${mingw_w64_x86_64_prefix}/lib/pkgconfig
     # apply_patch file://${top_dir}/gdk-pixbuf.patch
     #  rm -v ./configure
     #  generic_configure_make_install "--with-libjasper --disable-glibtest --enable-relocations --with-included-loaders=yes --disable-installed-tests --disable-always-build-tests --build=x86_64-unknown-linux-gnu"
-    generic_meson_ninja_install "-Dgir=false -Dx11=false"
+    generic_meson_ninja_install "-Dtests=false -Dgtk_doc=false -Dman=false" # "-Dgir=false -Dx11=false"
   cd ..
 }
 
@@ -6023,7 +6025,7 @@ build_libsigc++() {
 
 #    export ACLOCAL_PATH=${orig_aclocalpath}
 #  cd ..
-  generic_download_and_install https://download.gnome.org/sources/libsigc++/2.10/libsigc++-2.10.8.tar.xz libsigc++-2.10.8
+  generic_download_and_install https://download.gnome.org/sources/libsigc++/2.10/libsigc++-2.10.8.tar.xz libsigc++-2.10.8 "--disable-documentation"
 # generic_download_and_install https://download.gnome.org/sources/libsigc++/2.99/libsigc++-2.99.8.tar.xz libsigc++-2.99.8
 }
 
@@ -6168,7 +6170,7 @@ build_libxml++ () {
 #  orig_aclocalpath=${ACLOCAL_PATH}
 #  export ACLOCAL_PATH="/usr/local/share/aclocal"
 #  download_and_unpack_file http://ftp.gnome.org/pub/GNOME/sources/libxml++/2.40/libxml++-2.40.1.tar.xz libxml++-2.40.1
-#  do_git_checkout https://gitlab.gnome.org/Archive/libxmlplusplus.git libxmlplusplus 
+#  do_git_checkout https://gitlab.gnome.org/Archive/libxmlplusplus.git libxmlplusplus
 #  cd libxmlplusplus
 #  cd libxml++-2.40.1
 #    rm -v configure
@@ -6184,7 +6186,7 @@ build_libxml++ () {
 #  export ACLOCAL_PATH=${orig_aclocalpath}
   generic_download_and_install http://ftp.gnome.org/pub/GNOME/sources/libxml++/2.42/libxml++-2.42.2.tar.xz libxml++-2.42.2 "--disable-documentation"
 
-#  download_and_unpack_file https://download.gnome.org/sources/libxml++/2.8/libxml++-2.8.1.tar.bz2 libxml++-2.8.1 
+#  download_and_unpack_file https://download.gnome.org/sources/libxml++/2.8/libxml++-2.8.1.tar.bz2 libxml++-2.8.1
 
 #  cd libxml++-2.8.1
 #    apply_patch file://${top_dir}/libxml++-2.8.1-auto_ptr.patch
@@ -6542,14 +6544,14 @@ build_qjackctl() {
 #  cd ..
 #  cd qjackctl/src
 #    apply_patch file://${top_dir}/qjackctl-configure.ac.patch
-#	do_cmake 
+#	do_cmake
     export old_ld_library_path=${LD_LIBRARY_PATH}
     export LD_LIBRARY_PATH=${mingw_w64_x86_64_prefix}/../lib/.
     generic_configure_make_install "JACK_LIBS=-ljack64 LIBS=-lportaudio CFLAGS=-D_GNU_SOURCE CXXFLAGS=-D_GNU_SOURCE --enable-xunique=no --disable-alsa-seq" # enable-jack-version=yes
     export LD_LIBRARY_PATH=${old_ld_library_path}
     # make install doesn't work
 #    	do_make_install
-	
+
     cp -vf src/release/qjackctl.exe ${mingw_w64_x86_64_prefix}/bin
   cd ..
 }
@@ -6567,7 +6569,7 @@ do_git_checkout https://github.com/KhronosGroup/SPIRV-Tools.git SPIRV-Tools d0a8
 }
 
 build_glslang() {
-    do_git_checkout https://github.com/KhronosGroup/glslang.git glslang 7d65f09b83112c1ec9e29313cb9913ed2b850aa0 #135e3e35ea87d07b51d977b73fde7bd637fcbe4a 
+    do_git_checkout https://github.com/KhronosGroup/glslang.git glslang 7d65f09b83112c1ec9e29313cb9913ed2b850aa0 #135e3e35ea87d07b51d977b73fde7bd637fcbe4a
     #download_and_unpack_file https://github.com/KhronosGroup/glslang/archive/6.2.2596.tar.gz glslang-6.2.2596
     cd glslang #-6.2.2596
         #apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-glslang/001-install-missing-dll.patch
@@ -6745,9 +6747,9 @@ includedir=${mingw_w64_x86_64_prefix}/include
 Name: egl
 Description: Angle project implementation of EGL
 Version: 2.1
-Requires: 
+Requires:
 Libs: -L${mingw_w64_x86_64_prefix}/lib -lEGL -lGLESv2
-Cflags:  
+Cflags:
 EOM
       cp -vf egl.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig
       touch already_built_angle
@@ -6980,7 +6982,7 @@ build_harfbuzz() {
     export cxxflags_orig=$CXXFLAGS
     export CXXFLAGS=-std=c++17
     generic_meson_ninja_install
-    export CXXFLAGS=$cxxflags_orig 
+    export CXXFLAGS=$cxxflags_orig
 #    generic_configure_make_install
 
   cd ..
@@ -6997,9 +6999,9 @@ build_pulseaudio() {
 #	apply_patch file://${top_dir}/pulseaudio-conf.patch
 #	apply_patch file://${top_dir}/pulseaudio-inet.patch
 #	apply_patch file://${top_dir}/pulseaudio-gaskin-1.patch
-#	apply_patch file://${top_dir}/pulseaudio-gaskin-2.patch 
-#	apply_patch file://${top_dir}/pulseaudio-gaskin-3.patch 
-#	apply_patch file://${top_dir}/pulseaudio-gaskin-4.patch 
+#	apply_patch file://${top_dir}/pulseaudio-gaskin-2.patch
+#	apply_patch file://${top_dir}/pulseaudio-gaskin-3.patch
+#	apply_patch file://${top_dir}/pulseaudio-gaskin-4.patch
 	apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-pulseaudio/0001-remove-assert-pid_t-mismatch.patch
 	apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-pulseaudio/0002-meson-check-version-script.patch
 	apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-pulseaudio/0003-Fix-pointer-to-integer-cast-warnings.patch
@@ -7027,7 +7029,7 @@ build_meterbridge() {
 	cd meterbridge-0.9.2
 		apply_patch file://${top_dir}/meterbridge-buf_rect.patch
 		apply_patch file://${top_dir}/meterbridge-set_rgba.patch
-		
+
 		generic_configure_make_install "CFLAGS=-I${mingw_w64_x86_64_prefix}/include/SDL2"
 	cd ..
 }
@@ -7307,7 +7309,7 @@ build_graphicsmagicksnapshot() {
 	  export cflags_orig=$CFLAGS
 	  export cppflags_orig=$CPPFLAGS
 	  export CFLAGS="-Wno-incompatible-pointer-types -I${mingw_w64_x86_64_prefix}"
-	  export CPPFLAGS="-Wno-incompatible-pointer-types -I${mingw_w64_x86_64_prefix}" 
+	  export CPPFLAGS="-Wno-incompatible-pointer-types -I${mingw_w64_x86_64_prefix}"
           do_configure "--with-magick-plus-plus --disable-static --enable-magick-compat --enable-shared --with-modules --host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-broken-coders --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib" "../configure"
           do_make_install || exit 1
           unset ac_cv_path_xml2_config
@@ -7417,7 +7419,7 @@ build_otio() {
 build_GLM() {
 	download_and_unpack_file https://github.com/g-truc/glm/archive/0.9.9.7.tar.gz glm-0.9.9.7
 	cd glm-0.9.9.7
-	cp -rv glm ${mingw_w64_x86_64_prefix}/include/	
+	cp -rv glm ${mingw_w64_x86_64_prefix}/include/
 	cd ..
 }
 
@@ -7507,7 +7509,7 @@ build_liblensfun() {
 	do_git_checkout https://github.com/lensfun/lensfun.git lensfun  40cf31ae8c1b855ad4189395d5aba02e2a2d641a
 	cd lensfun
 		do_cmake "-DCMAKE_C_FLAGS=-Wno-implicit-function-declaration -DBUILD_LENSTOOL=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_DATAROOTDIR=${mingw_w64_x86_64_prefix}/share/"
-		do_make 
+		do_make
 		do_make_install
 	cd ..
 }
@@ -7550,7 +7552,7 @@ build_rabbitmq() {
 }
 
 build_rist() {
-	do_git_checkout https://code.videolan.org/rist/librist.git librist c917e970 #8f139809 
+	do_git_checkout https://code.videolan.org/rist/librist.git librist c917e970 #8f139809
 	cd librist
 #		apply_patch file://${top_dir}/librist-thread.patch
 		generic_meson_ninja_install
@@ -7681,7 +7683,7 @@ build_ffmpeg() {
 		# patch for HEVC plugin
 #		apply_patch_p1 file://{$top_dir}/ffmpeg-libsvt-hevc-wrapper.patch
 #		apply_patch_p1 file://${top_dir}/FFmpeg-devel-avfilter-add-3D-scope-multimedia-filter.diff
-		do_configure "${standard_options} ${licensing_options} ${configuration_options} ${component_options} ${library_options} ${hardware_options} ${toolchain_options} ${developer_options}" 
+		do_configure "${standard_options} ${licensing_options} ${configuration_options} ${component_options} ${library_options} ${hardware_options} ${toolchain_options} ${developer_options}"
 #  rm -f */*.a */*.dll *.exe # just in case some dependency library has changed, force it to re-link even if the ffmpeg source hasn't changed...
 #  rm already_ran_make*
 		echo "doing ffmpeg make $(pwd)"
@@ -7707,7 +7709,7 @@ build_oneVPL() {
 		do_make "V=1"
 		do_make_install
 	cd ..
-}	
+}
 
 build_dvdstyler() {
   generic_download_and_install http://sourceforge.net/projects/dvdstyler/files/dvdstyler-devel/3.0b1/DVDStyler-3.0b1.tar.bz2 DVDStyler-3.0b1 "DVDAUTHOR_PATH=${mingw_w64_x86_64_prefix}/bin/dvdauthor.exe FFMPEG_PATH=${mingw_w64_x86_64_prefix}/bin/ffmpeg.exe --with-wx-config=${mingw_w64_x86_64_prefix}/bin/wx-config"
@@ -8120,7 +8122,7 @@ build_apps() {
   build_dvdbackup
   build_codec2
   build_ffmpegnv
-#  build_pulseaudio 
+#  build_pulseaudio
   build_libplacebo
   build_ffmpeg
   #build_pamix
@@ -8187,6 +8189,8 @@ if [ -z "$cpu_count" ]; then
   fi
 fi
 echo "Processors found: ${cpu_count}"
+cpu_count=$((cpu_count+8))
+echo "We shall use ${cpu_count} processes because we CAN."
 original_cpu_count=$cpu_count # save it away for some that revert it temporarily
 #gcc_cpu_count=1 # allow them to specify more than 1, but default to the one that's most compatible...
 gcc_cpu_count=$cpu_count

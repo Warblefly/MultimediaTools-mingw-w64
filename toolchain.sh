@@ -26,7 +26,7 @@ export PATH="$working_directory/bin:/usr/local/bin:/usr/bin:/bin"
 echo "Getting binutils..."
 #	wget http://ftp.gnu.org/gnu/binutils/binutils-2.36.1.tar.bz2 || exit 1
 #        tar xvvf binutils-2.36.1.tar.bz2 && ln -sv binutils-2.36.1 binutils
-	git clone --single-branch -b binutils-2_44-branch https://github.com/bminor/binutils-gdb.git binutils || echo "Seems we have binutils."
+	git clone --depth 1 --single-branch -b binutils-2_44-branch https://github.com/bminor/binutils-gdb.git binutils || echo "Seems we have binutils."
 #	git clone --depth 1 --single-branch -b binutils-2_36-branch git://sourceware.org/git/binutils-gdb.git binutils || echo "Seems we have binutils."
 echo "Binutils has arrived."
 
@@ -155,7 +155,7 @@ echo "Mingw-w64 headers are installed."
 
 echo "Cloning GCC..."
 
-git clone --branch releases/gcc-14 https://github.com/gcc-mirror/gcc.git gcc || echo "Seems we have GCC."
+git clone --depth 1 --single-branch -b releases/gcc-14 https://github.com/gcc-mirror/gcc.git gcc || echo "Seems we have GCC."
 #git clone https://github.com/gcc-mirror/gcc.git gcc
 #cd gcc
 #	git checkout e6d369bbdb4eb5f03eec233ef9905013a735fd71 || echo "Correct commit of GCC." 
