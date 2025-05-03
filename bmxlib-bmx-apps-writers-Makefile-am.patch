@@ -1,7 +1,0 @@
---- apps/writers/Makefile.am.orig	2016-04-14 17:30:26.265000000 +0000
-+++ apps/writers/Makefile.am	2016-04-14 17:31:22.353000000 +0000
-@@ -9,3 +9,4 @@
- 	TrackMapper.h
- 
- libwriters_la_CXXFLAGS = $(BMX_CFLAGS)
-+libwriters_la_LIBADD = $(BMX_LDADDLIBS)

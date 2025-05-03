@@ -1,9 +1,0 @@
---- loader/vulkan.pc.in.orig	2020-11-01 14:39:59.930000000 +0000
-+++ loader/vulkan.pc.in	2020-11-01 14:40:15.730000000 +0000
-@@ -8,5 +8,5 @@
- Version: @VK_API_VERSION@
- Libs: -L${libdir} -lvulkan
- Libs.private: @PRIVATE_LIBS@
--Cflags: -I${includedir}
-+Cflags: 
- 

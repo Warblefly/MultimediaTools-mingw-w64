@@ -1,0 +1,15 @@
+--- Project/CMake/libzen.pc.in.orig	2025-05-02 10:07:54.609730441 +0100
++++ Project/CMake/libzen.pc.in	2025-05-02 10:08:59.849118865 +0100
+@@ -1,9 +1,9 @@
+ prefix=@CMAKE_INSTALL_PREFIX@
+ exec_prefix=${prefix}
+-libdir=@LIB_INSTALL_DIR@
+-includedir=@INCLUDE_INSTALL_DIR@
++libdir=${prefix}/@LIB_INSTALL_DIR@
++includedir=${prefix}/@INCLUDE_INSTALL_DIR@
+ Unicode=@ZenLib_Unicode@
+-Libs_Static=@LIB_INSTALL_DIR@/libzen.a -lpthread
++Libs_Static=${prefix}/@LIB_INSTALL_DIR@/libzen.a -lpthread
+ 
+ Name: libzen
+ Version: @ZenLib_VERSION@

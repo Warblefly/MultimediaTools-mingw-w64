@@ -1,0 +1,68 @@
+--- Project/CMake/CMakeLists.txt.orig	2025-05-02 10:55:30.682886610 +0100
++++ Project/CMake/CMakeLists.txt	2025-05-02 10:56:42.606211997 +0100
+@@ -364,7 +364,6 @@
+   ${MediaInfoLib_SOURCES_PATH}/MediaInfo/ExternalCommandHelpers.cpp
+   ${MediaInfoLib_SOURCES_PATH}/MediaInfoDLL/MediaInfoJNI.cpp
+   ${MediaInfoLib_SOURCES_PATH}/MediaInfoDLL/MediaInfoDLL.cpp
+-  ${MediaInfoLib_SOURCES_PATH}/MediaInfoDLL/MediaInfoDLL.def
+   ${MediaInfoLib_SOURCES_PATH}/MediaInfoDLL/MediaInfoDLL.rc
+ )
+ 
+@@ -379,7 +378,7 @@
+ endif()
+ 
+ add_library(mediainfo ${MediaInfoLib_SRCS})
+-target_include_directories(mediainfo INTERFACE ${INCLUDE_INSTALL_DIR})
++target_include_directories(mediainfo INTERFACE $<INSTALL_INTERFACE>:${INCLUDE_INSTALL_DIR}>)
+ 
+ if(BUILD_ZLIB)
+   add_dependencies(mediainfo zlibstatic)
+--- Project/CMake/libmediainfo.pc.in.orig	2025-05-02 10:57:38.533686206 +0100
++++ Project/CMake/libmediainfo.pc.in	2025-05-02 10:59:48.560442459 +0100
+@@ -1,7 +1,7 @@
+ prefix=@CMAKE_INSTALL_PREFIX@
+ exec_prefix=${prefix}
+-libdir=@LIB_INSTALL_DIR@
+-includedir=@INCLUDE_INSTALL_DIR@
++libdir=${prefix}/@LIB_INSTALL_DIR@
++includedir=${prefix}/@INCLUDE_INSTALL_DIR@
+ Libs_Static=${libdir}/libmediainfo.a ${libdir}/libzen.a -lpthread -lz@CURL_LIB@
+ 
+ Name: libmediainfo
+--- Source/MediaInfoDLL/MediaInfoDLL.h.orig	2025-05-02 11:01:00.471747540 +0100
++++ Source/MediaInfoDLL/MediaInfoDLL.h	2025-05-02 11:02:02.887149447 +0100
+@@ -120,11 +120,11 @@
+ #if defined(_WIN32) || defined(WIN32)
+     #ifdef _UNICODE
+         #ifndef MEDIAINFODLL_NAME
+-            #define MEDIAINFODLL_NAME L"MediaInfo.dll"
++            #define MEDIAINFODLL_NAME L"libmediainfo-0.dll"
+         #endif //MEDIAINFODLL_NAME
+     #else //_UNICODE
+         #ifndef MEDIAINFODLL_NAME
+-            #define MEDIAINFODLL_NAME "MediaInfo.dll"
++            #define MEDIAINFODLL_NAME "libmediainfo-0.dll"
+         #endif //MEDIAINFODLL_NAME
+     #endif //_UNICODE
+ #elif defined(__APPLE__) && defined(__MACH__)
+--- Project/CMake/CMakeLists.txt.orig	2025-05-02 11:03:22.782382563 +0100
++++ Project/CMake/CMakeLists.txt	2025-05-02 11:04:07.845948220 +0100
+@@ -390,7 +390,7 @@
+   target_compile_definitions(mediainfo PRIVATE MEDIAINFO_LIBCURL_NO)
+ else()
+   include_directories(${CURL_INCLUDE_DIRS})
+-  target_link_libraries(mediainfo ${CURL_LIBRARIES})
++  target_link_libraries(mediainfo CURL::libcurl)
+   set(CURL_PC " libcurl")
+   set(CURL_LIB " -lcurl")
+ endif()
+--- Source/MediaInfo/Reader/Reader_libcurl.cpp.orig	2025-05-02 11:05:03.389415332 +0100
++++ Source/MediaInfo/Reader/Reader_libcurl.cpp	2025-05-02 11:05:38.801075052 +0100
+@@ -32,7 +32,6 @@
+     //Copy of cURL include files
+     #include "MediaInfo/Reader/Reader_libcurl_Include.h"
+ #else
+-    #define CURL_STATICLIB
+     #undef __TEXT
+     #include "curl/curl.h"
+ #endif

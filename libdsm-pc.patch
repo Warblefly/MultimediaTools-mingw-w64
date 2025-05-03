@@ -1,9 +1,0 @@
---- libdsm.pc.orig	2017-08-04 23:29:14.786059900 +0100
-+++ libdsm.pc	2017-08-04 23:29:29.198355400 +0100
-@@ -7,5 +7,5 @@
- Description: Minimalist and read-only smb client library
- Version: 0.2.7-6-g03e98f9
- Cflags: -I${includedir} -pthread
--Libs: -L${libdir} -ldsm
-+Libs: -L${libdir} -ldsm -lws2_32
- Libs.private: -liconv -ltasn1   -lws2_32

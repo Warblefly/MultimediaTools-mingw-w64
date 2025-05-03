@@ -63,7 +63,7 @@ cd binutils
 #	echo "Preparing intl..."
 #	pushd intl
 #		autoconf
-#	popd 
+#	popd
 #	echo "Intl prepared."
 cd ..
 
@@ -75,8 +75,8 @@ cd binutils-build
 		touch binutils_configure
 	fi
 	if [[ ! -f binutils_make ]]; then
-		make -j $cpu_count || exit 1
-		make install || exit 1 
+		make -j $((cpu_count+8)) || exit 1
+		make install || exit 1
 		touch binutils_make
 	fi
 cd ..
@@ -107,7 +107,7 @@ echo "mingw-w64 has arrived."
 
 cd mingw-w64/mingw-w64-headers
 	echo "patching shlguid.h..."
-	
+
 	if [[ ! -f mingw_patched ]]; then
 		cat $top_dir/shlguid.patch | patch -p0 --verbose || exit 1
 		touch mingw_patched
@@ -122,7 +122,7 @@ cd mingw-w64/mingw-w64-headers
 	else
 		echo "Already patched."
 	fi
-	
+
 #	if [[ ! -f mingw_propvarutil_patched ]]; then
 #		cat $top_dir/mingw-propvarutil.patch | patch -p0 --verbose || exit 1
 #		touch mingw-propvarutil_patched
@@ -147,7 +147,7 @@ cd mingw-headers-build
 		touch mingw_headers_configure
 	fi
 	if [[ ! -f mingw_headers_make ]]; then
-		make -j $cpu_count install
+		make -j $((cpu_count+8)) install
 		touch mingw_headers_make
 	fi
 cd ..
@@ -158,7 +158,7 @@ echo "Cloning GCC..."
 git clone --depth 1 --single-branch -b releases/gcc-14 https://github.com/gcc-mirror/gcc.git gcc || echo "Seems we have GCC."
 #git clone https://github.com/gcc-mirror/gcc.git gcc
 #cd gcc
-#	git checkout e6d369bbdb4eb5f03eec233ef9905013a735fd71 || echo "Correct commit of GCC." 
+#	git checkout e6d369bbdb4eb5f03eec233ef9905013a735fd71 || echo "Correct commit of GCC."
 #cd ..
 
 #git clone --depth 1 git://gcc.gnu.org/git/gcc.git gcc-dir.tmp
@@ -189,7 +189,7 @@ cd gcc
 	echo "Accessories arrived."
 cd ..
 
-# We need to change mpc to allow GNU autoconf 2.71. 
+# We need to change mpc to allow GNU autoconf 2.71.
 # It currently forces requirement for 2.69
 # Apply patch. Not sure how long this will be required
 
@@ -220,7 +220,7 @@ cd gcc-build
 
 	if [[ ! -f all_gcc_make ]]; then
 		echo "Making GCC, c compiler only..."
-		make -j $cpu_count all-gcc || exit 1
+		make -j $((cpu_count+8)) all-gcc || exit 1
 		touch all_gcc_make
 	else
 		echo "GCC, c compiler only, already made."
@@ -233,9 +233,9 @@ cd gcc-build
 	else
 		echo "GCC, c compiler only, already installed."
 	fi
-	
+
 	echo "GCC, c compiler complete and installed."
-		
+
 cd ..
 
 mkdir -pv mingw-crt-build
@@ -251,7 +251,7 @@ cd mingw-crt-build
 	echo "C runtime for Windows configured."
 
 	if [[ ! -f mingw-crt-make ]]; then
-		make -j $cpu_count || exit 1
+		make -j $((cpu_count+8)) || exit 1
 		touch mingw-crt-make
 	else
 		echo "C runtime for Windows already made."
@@ -269,7 +269,7 @@ cd ..
 
 mkdir -pv mingw-winpthreads-build
 cd mingw-winpthreads-build
-	
+
 	echo "Configuring winpthreads library..."
 	if [[ ! -f winpthreads_configured ]]; then
 		../mingw-w64/mingw-w64-libraries/winpthreads/configure --prefix=$working_directory/$host --host=$host --build=x86_64-linux-gnu
@@ -279,7 +279,7 @@ cd mingw-winpthreads-build
 	fi
 
 	if [[ ! -f winpthreads_make ]]; then
-		make -j $cpu_count || exit 1
+		make -j $((cpu_count+8)) || exit 1
 		touch winpthreads_make
 	else
 		echo "winpthreads already made."
@@ -296,7 +296,7 @@ cd ..
 
 mkdir -pv mingw-widl-build
 cd mingw-widl-build
-	
+
 	echo "Configuring widl tool..."
 	if [[ ! -f widl_configured ]]; then
 		../mingw-w64/mingw-w64-tools/widl/configure --prefix=$working_directory/$host --target=x86_64-w64-mingw32 # --host=x86_64-linux-gnu --build=x86_64-linux-gnu
@@ -306,7 +306,7 @@ cd mingw-widl-build
 	fi
 
 	if [[ ! -f widl_make ]]; then
-		make -j $cpu_count || exit 1
+		make -j $((cpu_count+8)) || exit 1
 		touch widl_make
 	else
 		echo "widl already made."
@@ -323,14 +323,14 @@ cd ..
 
 
 cd gcc-build
-	
+
 	if [[ ! -f gcc-make ]]; then
-		make -j $cpu_count || exit 1
+		make -j $((cpu_count+8)) || exit 1
 		touch gcc-make
 	else
 		echo "GCC full suite already made."
 	fi
-	
+
 	if [[ ! -f gcc-make-install ]]; then
 		make install || exit 1
 		touch gcc-make-install

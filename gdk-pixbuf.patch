@@ -1,8 +1,0 @@
---- Makefile.am.orig	2017-05-07 12:10:19.219114100 +0100
-+++ Makefile.am	2017-05-07 12:10:31.351267100 +0100
-@@ -1,4 +1,4 @@
--SUBDIRS = gdk-pixbuf po docs thumbnailer tests contrib win32
-+SUBDIRS = gdk-pixbuf po docs contrib win32
- 
- EXTRA_DIST = 			\
- 	config.h.win32 		\

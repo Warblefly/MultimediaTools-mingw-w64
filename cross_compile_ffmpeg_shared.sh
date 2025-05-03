@@ -593,7 +593,7 @@ apply_patch() {
    curl $url -O || exit 1
    echo "applying patch $patch_name"
    cat $patch_name
-   patch -p0 < "$patch_name" || exit 1
+   patch -p0 --ignore-whitespace < "$patch_name" || exit 1
    touch $patch_done_name || exit 1
    rm -v $patch_reverted_name
    rm already_ran* # if it's a new patch, reset everything too, in case it's really really really new
@@ -1191,7 +1191,7 @@ build_kf5_config() {
     download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kconfig-5.46.0.tar.xz kconfig-5.46.0
     cd kconfig-5.46.0
         do_cmake
-        ${top_dir}/correct_headers.sh
+        # ${top_dir}/correct_headers.sh
         do_make
         do_make_install
     cd ..
@@ -1201,7 +1201,7 @@ build_kf5_coreaddons() {
     download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kcoreaddons-5.46.0.tar.xz kcoreaddons-5.46.0
     cd kcoreaddons-5.46.0
         do_cmake
-        ${top_dir}/correct_headers.sh
+        # ${top_dir}/correct_headers.sh
         do_make
         do_make_install
     cd ..
@@ -1243,7 +1243,7 @@ build_kf5_itemmodels() {
      download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kitemmodels-5.46.0.tar.xz kitemmodels-5.46.0
      cd kitemmodels-5.46.0
          do_cmake
-         ${top_dir}/correct_headers.sh
+         # ${top_dir}/correct_headers.sh
          do_make
          do_make_install
      cd ..
@@ -1253,7 +1253,7 @@ build_kf5_itemviews() {
 	download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kitemviews-5.46.0.tar.xz kitemviews-5.46.0
         cd kitemviews-5.46.0
             do_cmake
-            ${top_dir}/correct_headers.sh
+            # ${top_dir}/correct_headers.sh
             do_make
             do_make_install
         cd ..
@@ -1263,7 +1263,7 @@ build_kf5_codecs() {
       download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kcodecs-5.46.0.tar.xz kcodecs-5.46.0
           cd kcodecs-5.46.0
               do_cmake
-              ${top_dir}/correct_headers.sh
+              # ${top_dir}/correct_headers.sh
               do_make
               do_make_install
           cd ..
@@ -1274,7 +1274,7 @@ build_kf5_guiaddons() {
        download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kguiaddons-5.46.0.tar.xz kguiaddons-5.46.0
            cd kguiaddons-5.46.0
                do_cmake
-               ${top_dir}/correct_headers.sh
+               # ${top_dir}/correct_headers.sh
                do_make
                do_make_install
            cd ..
@@ -1284,7 +1284,7 @@ build_kf5_i18n() {
       download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/ki18n-5.46.0.tar.xz ki18n-5.46.0
           cd ki18n-5.46.0
               do_cmake
-              ${top_dir}/correct_headers.sh
+              # ${top_dir}/correct_headers.sh
               do_make
               do_make_install
           cd ..
@@ -1294,7 +1294,7 @@ build_kf5_widgetsaddons() {
       download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kwidgetsaddons-5.46.0.tar.xz kwidgetsaddons-5.46.0
           cd kwidgetsaddons-5.46.0
               do_cmake
-              ${top_dir}/correct_headers.sh
+              # ${top_dir}/correct_headers.sh
               do_make
               do_make_install
           cd ..
@@ -1305,7 +1305,7 @@ build_kf5_configwidgets() {
          cd kconfigwidgets-5.46.0
              apply_patch file://${top_dir}/kconfigwidgets-cross.patch
              do_cmake
-             ${top_dir}/correct_headers.sh
+             # ${top_dir}/correct_headers.sh
              do_make
              do_make_install
          cd ..
@@ -1315,7 +1315,7 @@ build_kf5_auth() {
       download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kauth-5.46.0.tar.xz kauth-5.46.0
           cd kauth-5.46.0
               do_cmake
-              ${top_dir}/correct_headers.sh
+              # ${top_dir}/correct_headers.sh
               do_make
               do_make_install
           cd ..
@@ -1325,7 +1325,7 @@ build_kf5_archive() {
         download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/karchive-5.46.0.tar.xz karchive-5.46.0
             cd karchive-5.46.0
                 do_cmake
-                ${top_dir}/correct_headers.sh
+                # ${top_dir}/correct_headers.sh
                 do_make
                 do_make_install
             cd ..
@@ -1335,7 +1335,7 @@ build_kf5_iconthemes() {
        download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kiconthemes-5.46.0.tar.xz kiconthemes-5.46.0
            cd kiconthemes-5.46.0
                do_cmake
-               ${top_dir}/correct_headers.sh
+               # ${top_dir}/correct_headers.sh
                do_make
                do_make_install
            cd ..
@@ -1345,7 +1345,7 @@ build_kf5_completion() {
      download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kcompletion-5.46.0.tar.xz kcompletion-5.46.0
      cd kcompletion-5.46.0
          do_cmake
-         ${top_dir}/correct_headers.sh
+         # ${top_dir}/correct_headers.sh
          do_make
          do_make_install
      cd ..
@@ -1355,7 +1355,7 @@ build_kf5_windowsystem() {
       download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kwindowsystem-5.46.0.tar.xz kwindowsystem-5.46.0
       cd kwindowsystem-5.46.0
           do_cmake
-          ${top_dir}/correct_headers.sh
+          # ${top_dir}/correct_headers.sh
           do_make
           do_make_install
       cd ..
@@ -1365,7 +1365,7 @@ build_kf5_crash() {
       download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kcrash-5.46.0.tar.xz kcrash-5.46.0
       cd kcrash-5.46.0
           do_cmake
-          ${top_dir}/correct_headers.sh
+          # ${top_dir}/correct_headers.sh
           do_make
           do_make_install
       cd ..
@@ -1375,7 +1375,7 @@ build_kf5_dbusaddons() {
       download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kdbusaddons-5.46.0.tar.xz kdbusaddons-5.46.0
       cd kdbusaddons-5.46.0
           do_cmake
-          ${top_dir}/correct_headers.sh
+          # ${top_dir}/correct_headers.sh
           do_make
           do_make_install
       cd ..
@@ -1385,7 +1385,7 @@ build_kf5_service() {
       download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kservice-5.46.0.tar.xz kservice-5.46.0
       cd kservice-5.46.0
           do_cmake "-DBUILD_TESTING=OFF"
-          ${top_dir}/correct_headers.sh
+          # ${top_dir}/correct_headers.sh
           do_make
           do_make_install
       cd ..
@@ -1395,7 +1395,7 @@ build_kf5_sonnet() {
       download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/sonnet-5.46.0.tar.xz sonnet-5.46.0
       cd sonnet-5.46.0
           do_cmake
-          ${top_dir}/correct_headers.sh
+          # ${top_dir}/correct_headers.sh
           do_make
           do_make_install
       cd ..
@@ -1405,7 +1405,7 @@ build_kf5_textwidgets() {
      download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/ktextwidgets-5.46.0.tar.xz ktextwidgets-5.46.0
      cd ktextwidgets-5.46.0
          do_cmake
-         ${top_dir}/correct_headers.sh
+         # ${top_dir}/correct_headers.sh
          do_make
          do_make_install
      cd ..
@@ -1415,7 +1415,7 @@ build_kf5_attica() {
       download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/attica-5.46.0.tar.xz attica-5.46.0
       cd attica-5.46.0
           do_cmake
-          ${top_dir}/correct_headers.sh
+          # ${top_dir}/correct_headers.sh
           do_make
           do_make_install
       cd ..
@@ -1425,7 +1425,7 @@ build_kf5_globalaccel() {
        download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kglobalaccel-5.46.0.tar.xz kglobalaccel-5.46.0
        cd kglobalaccel-5.46.0
            do_cmake
-           ${top_dir}/correct_headers.sh
+           # ${top_dir}/correct_headers.sh
            do_make
            do_make_install
        cd ..
@@ -1436,7 +1436,7 @@ build_kf5_xmlgui() {
     cd kxmlgui-5.46.0
         #apply_patch file://${top_dir}/kxmlgui-header.patch
         do_cmake # "-DCMAKE_INCLUDE_PATH=${mingw_w64_x86_64_prefix}/include/QtCore/5.10.1 -DCMAKE_VERBOSE_MAKEFILE=1"
-        ${top_dir}/correct_headers.sh
+        # ${top_dir}/correct_headers.sh
         do_make "V=1"
         do_make_install
     cd ..
@@ -1446,7 +1446,7 @@ build_kf5_solid() {
      download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/solid-5.46.0.tar.xz solid-5.46.0
      cd solid-5.46.0
          do_cmake
-         ${top_dir}/correct_headers.sh
+         # ${top_dir}/correct_headers.sh
          do_make "V=1"
          do_make_install
      cd ..
@@ -1456,7 +1456,7 @@ build_kf5_threadweaver() {
       download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/threadweaver-5.46.0.tar.xz threadweaver-5.46.0
       cd threadweaver-5.46.0
           do_cmake
-          ${top_dir}/correct_headers.sh
+          # ${top_dir}/correct_headers.sh
           do_make "V=1"
           do_make_install
       cd ..
@@ -1587,7 +1587,7 @@ build_DJV() {
     # Remember that . and \ need escaping with \, which makes this hard to read
     sed -i.bak 's!\.\.\\\\.\.\\\\etc\\\\Windows\\\\djv_view.ico!../../etc/Windows/djv_view.ico!' bin/djv_view/win.rc
     do_cmake "-DBUILD_SHARED_LIBS=true -DCMAKE_VERBOSE_MAKEFILE=YES -DENABLE_STATIC_RUNTIME=0 -DCMAKE_PREFIX_PATH=${mingw_w64_x86_64_prefix} -DCMAKE_C_FLAGS=-D__STDC_CONSTANT_MACROS -DCMAKE_CXX_FLAGS=-D__STDC_CONSTANT_MACROS -DCMAKE_SUPPRESS_REGENERATION=TRUE"
-    ${top_dir}/correct_headers.sh
+#    ${top_dir}/correct_headers.sh
 #    orig_cpu_count=$cpu_count
 #    export cpu_count=1
     do_make "V=1"
@@ -1642,7 +1642,7 @@ build_DJVnew() {
 			do_make
 			do_make_install
 		cd ../..
-		do_cmake "-DDJV_THIRD_PARTY=FALSE -DCMAKE_VERBOSE_MAKEFILE=ON -Dglad_INCLUDE_DIR=${mingw_w64_x86_64_prefix}/include" && ${top_dir}/correct_headers.sh
+		do_cmake "-DDJV_THIRD_PARTY=FALSE -DCMAKE_VERBOSE_MAKEFILE=ON -Dglad_INCLUDE_DIR=${mingw_w64_x86_64_prefix}/include" # && ${top_dir}/correct_headers.sh
 		do_make "V=1"
 		do_make_install "V=1"
 		# The DLLs need to be installed, too
@@ -1680,7 +1680,7 @@ do_git_checkout http://github.com/opencv/opencv_contrib.git "opencv_contrib" 3.4
 #    apply_patch file://${top_dir}/opencv-address.patch
     mkdir -pv build
     cd build
-      do_cmake .. "-DOPENCV_EXTRA_MODULES_PATH=../../opencv_contrib/modules -DOPENCV_GENERATE_PKGCONFIG=ON -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DWITH_FFMPEG=ON -DOPENCV_GENERATE_PKGCONFIG=ON -DENABLE_PIC=TRUE -DOPENCV_ENABLE_NONFREE=ON -DOPENCV_FORCE_3RDPARTY_BUILD=OFF -DBUILD_ZLIB=OFF -DBUILD_TIFF=OFF -DBUILD_JASPER=OFF -DBUILD_JPEG=OFF -DWITH_GSTREAMER=OFF -DBUILD_PNG=OFF -DBUILD_OPENEXR=OFF -DBUILD_WEBP=OFF -DWITH_JASPER=ON -DWITH_JPEG=ON -DWITH_WEBP=ON -DWITH_OPENEXR=ON -DWITH_PNG=ON -DWITH_WIN32UI=ON -DWITH_PTHREADS_PF=ON -DWITH_TIFF=ON -DWITH_DSHOW=ON -DWITH_DIRECTX=ON -DWITH_IMGCODEC_HDR=ON -DWITH_CUDA=ON -DWITH_OPENMP=ON -DCMAKE_CXX_FLAGS=-Wno-error=address -DCMAKE_C_FLAGS=-Wno-error=address -DCMAKE_VERBOSE_MAKEFILE=ON " # ".. -DCMAKE_CXX_STANDARD=14 -DWITH_IPP=OFF -DWITH_EIGEN=ON -DWITH_VFW=ON -DWITH_DSHOW=ON -DOPENCV_ENABLE_NONFREE=ON -DWITH_GTK=ON -DWITH_WIN32UI=ON -DWITH_DIRECTX=ON -DBUILD_SHARED_LIBS=ON -DBUILD_opencv_apps=ON -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_JASPER=OFF -DBUILD_JPEG=OFF -DBUILD_OPENEXR=OFF -DBUILD_PNG=OFF -DBUILD_TIFF=OFF -DBUILD_ZLIB=OFF -DENABLE_SSE41=ON -DENABLE_SSE42=ON -DWITH_WEBP=OFF -DBUILD_EXAMPLES=ON -DINSTALL_C_EXAMPLES=ON -DWITH_OPENGL=ON -DINSTALL_PYTHON_EXAMPLES=ON -DCMAKE_CXX_FLAGS=-DMINGW_HAS_SECURE_API=1 -DCMAKE_C_FLAGS=-DMINGW_HAS_SECURE_API=1 -DOPENCV_LINKER_LIBS=boost_thread-mt-x64;boost_system-mt-x64 -DCMAKE_VERBOSE=ON -DINSTALL_TO_MANGLED_PATHS=OFF" && ${top_dir}/correct_headers.sh"
+      do_cmake .. "-DOPENCV_EXTRA_MODULES_PATH=../../opencv_contrib/modules -DOPENCV_GENERATE_PKGCONFIG=ON -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DWITH_FFMPEG=ON -DOPENCV_GENERATE_PKGCONFIG=ON -DENABLE_PIC=TRUE -DOPENCV_ENABLE_NONFREE=ON -DOPENCV_FORCE_3RDPARTY_BUILD=OFF -DBUILD_ZLIB=OFF -DBUILD_TIFF=OFF -DBUILD_JASPER=OFF -DBUILD_JPEG=OFF -DWITH_GSTREAMER=OFF -DBUILD_PNG=OFF -DBUILD_OPENEXR=OFF -DBUILD_WEBP=OFF -DWITH_JASPER=ON -DWITH_JPEG=ON -DWITH_WEBP=ON -DWITH_OPENEXR=ON -DWITH_PNG=ON -DWITH_WIN32UI=ON -DWITH_PTHREADS_PF=ON -DWITH_TIFF=ON -DWITH_DSHOW=ON -DWITH_DIRECTX=ON -DWITH_IMGCODEC_HDR=ON -DWITH_CUDA=ON -DWITH_OPENMP=ON -DCMAKE_CXX_FLAGS=-Wno-error=address -DCMAKE_C_FLAGS=-Wno-error=address -DCMAKE_VERBOSE_MAKEFILE=ON " # ".. -DCMAKE_CXX_STANDARD=14 -DWITH_IPP=OFF -DWITH_EIGEN=ON -DWITH_VFW=ON -DWITH_DSHOW=ON -DOPENCV_ENABLE_NONFREE=ON -DWITH_GTK=ON -DWITH_WIN32UI=ON -DWITH_DIRECTX=ON -DBUILD_SHARED_LIBS=ON -DBUILD_opencv_apps=ON -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_JASPER=OFF -DBUILD_JPEG=OFF -DBUILD_OPENEXR=OFF -DBUILD_PNG=OFF -DBUILD_TIFF=OFF -DBUILD_ZLIB=OFF -DENABLE_SSE41=ON -DENABLE_SSE42=ON -DWITH_WEBP=OFF -DBUILD_EXAMPLES=ON -DINSTALL_C_EXAMPLES=ON -DWITH_OPENGL=ON -DINSTALL_PYTHON_EXAMPLES=ON -DCMAKE_CXX_FLAGS=-DMINGW_HAS_SECURE_API=1 -DCMAKE_C_FLAGS=-DMINGW_HAS_SECURE_API=1 -DOPENCV_LINKER_LIBS=boost_thread-mt-x64;boost_system-mt-x64 -DCMAKE_VERBOSE=ON -DINSTALL_TO_MANGLED_PATHS=OFF" # && ${top_dir}/correct_headers.sh"
 #      sed -i.bak "s|DBL_EPSILON|2.2204460492503131E-16|g" modules/imgproc/include/opencv2/imgproc/types_c.h
       do_make_install
 #      cp -v ${mingw_w64_x86_64_prefix}/lib/libopencv_core320.dll.a ${mingw_w64_x86_64_prefix}/lib/libopencv_core.dll.a
@@ -2704,7 +2704,7 @@ build_libopenshotaudio() {
 		#apply_patch file://${top_dir}/libopenshot.patch
 		mkdir -p build
 		cd build
-			do_cmake ../ && ${top_dir}/correct_headers.sh
+			do_cmake ../ # && ${top_dir}/correct_headers.sh
 			do_make
 			do_make_install
 		cd ..
@@ -2720,7 +2720,7 @@ build_libopenshot() {
 			export old_ld_library_path=${LD_LIBRARY_PATH}
 			export LD_LIBRARY_PATH=${mingw_w64_x86_64_prefix}/../lib/
 			do_cmake ../ "-DCMAKE_CXX_FLAGS=-fcommon -DCMAKE_CXX_FLAGS=-fpermissive -DLIBOPENSHOT_AUDIO_INCLUDE_DIR=${mingw_w64_x86_64_prefix}/include/libopenshot-audio -DENABLE_TESTS=OFF -DUNITTEST++_INCLUDE_DIR=${mingw_w64_x86_64_prefix}/include/UnitTest++ -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_EXE_LINKER_FLAGS=-Wl,--allow-multiple-definition -DCMAKE_SHARED_LINKER_FLAGS=-Wl,--allow-multiple-definition"
-			${top_dir}/correct_headers.sh
+			# ${top_dir}/correct_headers.sh
 			do_make "V=1"
 			do_make_install
 			export LD_LIBRARY_PATH=${old_ld_library_path}
@@ -2823,8 +2823,9 @@ build_libass() {
 build_gmp() {
   download_and_unpack_file https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz gmp-6.3.0
   cd gmp-6.3.0
-#    export CC_FOR_BUILD=gcc
-#    export CPP_FOR_BUILD=cpp
+    export CC_FOR_BUILD=gcc
+    export CPP_FOR_BUILD=cpp
+    export CXX_FOR_BUILD=g++
 #    apply_patch file://${top_dir}/gmp-exeext.patchi
     export old_ld_library_path=$LD_LIBRARY_PATH
     export LD_LIBRARY_PATH=`pwd`/.libs
@@ -2835,6 +2836,7 @@ build_gmp() {
     export CXXFLAGS=-fpermissive
     cp config.{guess,sub} stash
     apply_patch file://${top_dir}/gmp-dllimport.patch
+#    autoupdate -v
     autoreconf -fiv
     cp -f stash/config.{guess,sub} .
     generic_configure_make_install "--target=x86_64-w64-mingw32 ABI=64 --enable-mpbsd --enable-cxx --enable-fat --host=x86_64-w64-mingw32"
@@ -3197,7 +3199,7 @@ build_xerces() {
 build_fastfloat() {
 	download_and_unpack_file https://github.com/fastfloat/fast_float/archive/refs/tags/v8.0.0.tar.gz fast_float-8.0.0
 	cd fast_float-8.0.0
-		do_cmake && ${top_dir}/correct_headers.sh
+		do_cmake # && ${top_dir}/correct_headers.sh
 		do_make
 		do_make_install
 	cd ..
@@ -3237,17 +3239,20 @@ build_bzlib2() {
   download_and_unpack_file ftp://sourceware.org/pub/bzip2/bzip2-1.0.8.tar.gz bzip2-1.0.8
   cd bzip2-1.0.8
     if [ ! -f bzip2.built ]; then
+        apply_patch file://${top_dir}/bzip2-cygming-1.0.6.src.all.patch
+        apply_patch file://${top_dir}/bzip2-buildsystem.all.patch
+        apply_patch file://${top_dir}/bzip2-1.0.6-progress.all.patch
   # These are MinGW autotools files
-      cp $top_dir/bzip2-1.0.6/* .
+#      cp $top_dir/bzip2-1.0.6/* .
       autoreconf -fvi
-      generic_configure "--disable-static --enable-shared"
+      generic_configure_make_install
       # The following patch is already included in bzip-2-cygming.patch
       # There is a backslash as a directory separator in a pre-processor call
 #      apply_patch file://$top_dir/bzip2_cross_compile.diff
 #      apply_patch file://${top_dir}/bzip-2-cygming.patch
 #      apply_patch file://${top_dir}/bzip2-1.0.6-progress.patch
-      do_make
-      do_make_install
+#      do_make
+#      do_make_install
       touch bzip2.built
 #    do_make "CC=$(echo $cross_prefix)gcc AR=$(echo $cross_prefix)ar PREFIX=$mingw_w64_x86_64_prefix RANLIB=$(echo $cross_prefix)ranlib libbz2.a bzip2 bzip2recover install"
 #  cd ..
@@ -3313,11 +3318,12 @@ build_libxvid() {
 }
 
 build_fontconfig() {
-  download_and_unpack_file https://www.freedesktop.org/software/fontconfig/release/fontconfig-2.14.2.tar.xz fontconfig-2.14.2
-  cd fontconfig-2.14.2
+  download_and_unpack_file https://www.freedesktop.org/software/fontconfig/release/fontconfig-2.16.0.tar.xz fontconfig-2.16.0
+  cd fontconfig-2.16.0
     export LDFLAGS="-lintl -liconv"
     apply_patch file://${top_dir}/fontconfig-cross.patch
     rm configure && rm Makefile.in
+    autoreconf -vfi
     generic_configure "--disable-docs --disable-silent-rules"
     do_make_install
     unset LDFLAGS
@@ -3636,8 +3642,8 @@ build_ladspa() {
 
 build_libfftw() {
 #  generic_download_and_install http://www.fftw.org/fftw-3.3.7.tar.gz fftw-3.3.7 "--with-our-malloc16 --with-windows-f77-mangling --enable-threads --with-combined-threads --enable-portable-binary --enable-sse2 --with-incoming-stack-boundary=2"
-  download_and_unpack_file http://www.fftw.org/fftw-3.3.8.tar.gz fftw-3.3.8
-  cd fftw-3.3.8
+  download_and_unpack_file http://www.fftw.org/fftw-3.3.10.tar.gz fftw-3.3.10
+  cd fftw-3.3.10
       apply_patch file://${top_dir}/fftw-thread.patch
       generic_configure_make_install "--with-our-malloc16 --with-windows-f77-mangling --enable-threads --with-combined-threads --enable-portable-binary --enable-sse2 --with-incoming-stack-boundary=2"
   cd ..
@@ -4047,7 +4053,7 @@ build_vim() {
 build_mpv() {
   do_git_checkout https://github.com/mpv-player/mpv.git mpv # 27c38eac1040cd781f39d977ce53adcd65ddcfb6 # 4c516a064a8246c9067eee32578a7a78feb371dc
   cd mpv
-    apply_patch file://${top_dir}/mpv-d3d11.patch
+#    apply_patch file://${top_dir}/mpv-d3d11.patch
 #    apply_patch file://${top_dir}/mpv-disable-rectangle.patch
     export oldpath="${PATH}"
     export PATH=${mingw_w64_x86_64_prefix}/../bin:/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin
@@ -4152,7 +4158,7 @@ build_traverso() {
     cd traverso
       # export PKG_CONFIG_DEBUG_SPEW=1
       apply_patch file://${top_dir}/traverso-fixes.patch
-      do_cmake "-DPKG_CONFIG_PATH=${mingw_w64_x86_64_prefix}/lib/pkgconfig -DWANT_JACK=ON -DWANT_WAVPACK=OFF -DWANT_PORTAUDIO=ON -DWANT_LV2=ON -DWANT_MP3_DECODE=OFF -DWANT_DEBUG=OFF -DCMAKE_C_FLAGS=-DQ_WS_WIN -DCMAKE_CXX_FLAGS=-DQ_WS_WIN" && ${top_dir}/correct_headers.sh
+      do_cmake "-DPKG_CONFIG_PATH=${mingw_w64_x86_64_prefix}/lib/pkgconfig -DWANT_JACK=ON -DWANT_WAVPACK=OFF -DWANT_PORTAUDIO=ON -DWANT_LV2=ON -DWANT_MP3_DECODE=OFF -DWANT_DEBUG=OFF -DCMAKE_C_FLAGS=-DQ_WS_WIN -DCMAKE_CXX_FLAGS=-DQ_WS_WIN" # && ${top_dir}/correct_headers.sh
       do_make
       do_make_install
       # unset PKG_CONFIG_DEBUG_SPEW
@@ -4215,7 +4221,8 @@ build_libbs2b() {
   export LIBS=-lsndfile
   export ac_cv_func_malloc_0_nonnull=yes
   export ac_cv_func_realloc_0_nonnull=yes
-  download_and_unpack_file file://${top_dir}/libbs2b-snapshot.tar.xz libbs2b
+  do_git_checkout https://github.com/alexmarsev/libbs2b.git libbs2b
+#  download_and_unpack_file file://${top_dir}/libbs2b-snapshot.tar.xz libbs2b
   cd libbs2b
     sed -i.bak 's/-lm -version-info/-lm -no-undefined -version-info/' src/Makefile.am
     generic_configure_make_install
@@ -4345,6 +4352,41 @@ build_libMXFpp() {
 }
 
 build_mediainfo() {
+    mkdir mediainfo
+    cd mediainfo
+        do_git_checkout https://github.com/MediaArea/ZenLib.git ZenLib
+        cd ZenLib
+          apply_patch file://${top_dir}/ZenLib-shared.patch
+          apply_patch file://${top_dir}/ZenLib-pkgconfig.patch
+          do_cmake "-DBUILD_SHARED_LIBS=ON" Project/CMake
+          do_make
+          do_make_install
+        cd ..
+        do_git_checkout https://github.com/MediaArea/MediaInfoLib.git MediaInfoLib
+        cd MediaInfoLib
+            apply_patch file://${top_dir}/libmediainfo-fix-win32-build.patch
+            do_cmake "-DBUILD_SHARED_LIBS=ON -DBUILD_ZLIB=OFF -DCMAKE_DLL_NAME_WITH_SOVERSION=ON" Project/CMake
+            do_make
+            do_make_install
+        cd ..
+        do_git_checkout https://github.com/MediaArea/MediaInfo.git MediaInfo
+        cd MediaInfo
+          apply_patch_p1 file://${top_dir}/001-missing-rc-mingw.patch
+          # Patch refers to outdated directory which we must link to
+          cd Project
+            ln -sv MSVC2022 MSVC2019
+          cd -
+          cd Project/GNU/CLI
+            generic_configure_make_install "CXXFLAGS=-D_UNICODE --with-dll"
+          cd -
+          cd Project/GNU/GUI
+            generic_configure_make_install "CXXFLAGS=-D_UNICODE --with-wxwidgets --with-wx-gui --with-dll"
+          cd -
+        cd ..
+    cd ..
+}
+
+build_mediainfo_old() {
 		echo "compile MediaInfo_CLI"
 		# rm -rf mediainfo
 		# Mediainfo unfortunately uses svn, which takes a LOT of downloading; unfortunately, there is no
@@ -4830,7 +4872,7 @@ build_poppler() {
     export CFLAGS="-DMINGW_HAS_SECURE_API"
     export CXXFLAGS=-fpermissive
     export PKG_CONFIG_PATH="${mingw_w64_x86_64_prefix}/lib/pkgconfig"
-    do_cmake "-DENABLE_XPDF_HEADERS=ON -DSPLASH_CMYK=ON -DBUILD_SHARED_LIBS=ON -DENABLE_ZLIB_UNCOMPRESS=ON -DENABLE_GLIB=OFF -DCMAKE_VERBOSE_MAKEFILE=ON -DENABLE_LIBOPENJPEG=unmaintained -DENABLE_QT5=OFF -DENABLE_QT6=OFF" && ${top_dir}/correct_headers.sh
+    do_cmake "-DENABLE_XPDF_HEADERS=ON -DSPLASH_CMYK=ON -DBUILD_SHARED_LIBS=ON -DENABLE_ZLIB_UNCOMPRESS=ON -DENABLE_GLIB=OFF -DCMAKE_VERBOSE_MAKEFILE=ON -DENABLE_LIBOPENJPEG=unmaintained -DENABLE_QT5=OFF -DENABLE_QT6=OFF" # && ${top_dir}/correct_headers.sh
     do_make_install
 
     export CFLAGS="${CFLAGS_ORIG}"
@@ -4903,7 +4945,7 @@ build_frei0r() {
     # These are ALWAYS compiled as DLLs... there is no static library model in frei0r
     # The facedetect filters don't work because there's something wrong in the way frei0r calls into opencv.
     # If you want to debug this, please add -DCMAKE_BUILD_TYPE=Debug, otherwise important parameters are optimized out
-    do_cmake "-DOpenCV_DIR=${OpenCV_DIR} -DOpenCV_INCLUDE_DIR=${OpenCV_INCLUDE_DIR} -DCMAKE_CXX_FLAGS=-std=c++14 -DCMAKE_VERBOSE_MAKEFILE=YES" && ${top_dir}/correct_headers.sh
+    do_cmake "-DOpenCV_DIR=${OpenCV_DIR} -DOpenCV_INCLUDE_DIR=${OpenCV_INCLUDE_DIR} -DCMAKE_CXX_FLAGS=-std=c++14 -DCMAKE_VERBOSE_MAKEFILE=YES" # && ${top_dir}/correct_headers.sh
     # do_cmake "-DCMAKE_CXX_FLAGS=-std=c++14 -DCMAKE_VERBOSE_MAKEFILE=YES"
     do_make_install #  "-j1"
 
@@ -5314,7 +5356,7 @@ build_zmq() {
 build_cppzmq() {
 	do_git_checkout https://github.com/zeromq/cppzmq.git cppzmq
 	cd cppzmq
-		do_cmake "-DCPPZMQ_BUILD_TESTS=OFF" && ${top_dir}/correct_headers.sh
+		do_cmake "-DCPPZMQ_BUILD_TESTS=OFF" # && ${top_dir}/correct_headers.sh
 		do_make
 		do_make_install
 	cd ..
@@ -5483,7 +5525,7 @@ download_and_unpack_file https://github.com/AcademySoftwareFoundation/openexr/ar
 #    generic_configure_make_install "--enable-shared --enable-large-stack"
 
 #    apply_patch file://${top_dir}/openexr.patch
-    do_cmake "-DPYILMBASE_ENABLE=OFF -DCMAKE_BUILD_TYPE=RELEASE -DOPENEXR_CXX_STANDARD=11 -DOPENEXR_BUILD_UTILS=OFF -DBUILD_TESTING=NO -DCMAKE_VERBOSE_MAKEFILE=ON" && ${top_dir}/correct_headers.sh # -DCMAKE_THREAD_LIBS_INIT=-lboost_thread-mt-x64
+    do_cmake "-DPYILMBASE_ENABLE=OFF -DCMAKE_BUILD_TYPE=RELEASE -DOPENEXR_CXX_STANDARD=11 -DOPENEXR_BUILD_UTILS=OFF -DBUILD_TESTING=NO -DCMAKE_VERBOSE_MAKEFILE=ON" # && ${top_dir}/correct_headers.sh # -DCMAKE_THREAD_LIBS_INIT=-lboost_thread-mt-x64
     do_make "V=1"
     do_make_install "V=1"
     # Some bizarre locations are used
@@ -6060,7 +6102,7 @@ build_libmatroska() {
 
 	download_and_unpack_file https://github.com/Matroska-Org/libmatroska/archive/release-1.7.1.tar.gz libmatroska-release-1.7.1
 	cd libmatroska-release-1.7.1
-		do_cmake && ${top_dir}/correct_headers.sh
+		do_cmake # && ${top_dir}/correct_headers.sh
 #		echo "Environment is: "
 #		env
 #		exit 1
@@ -6239,7 +6281,7 @@ build_flacon() {
         cd flacon
 #	apply_patch file://${top_dir}/flacon.patch
         apply_patch file://${top_dir}/flacon-setenv.patch
-        do_cmake "-DCMAKE_C_FLAGS=-fpermissive -DCMAKE_CXX_FLAGS=-fpermissive -DCMAKE_PREFIX_PATH=${mingw_w64_x86_64_prefix}/lib/cmake -DQT_DEBUG_FIND_PACKAGE=ON -DQt6_DIR=${mingw_w64_x86_64_prefix}/lib/cmake/Qt6/" && ${top_dir}/correct_headers.sh
+        do_cmake "-DCMAKE_C_FLAGS=-fpermissive -DCMAKE_CXX_FLAGS=-fpermissive -DCMAKE_PREFIX_PATH=${mingw_w64_x86_64_prefix}/lib/cmake -DQT_DEBUG_FIND_PACKAGE=ON -DQt6_DIR=${mingw_w64_x86_64_prefix}/lib/cmake/Qt6/" # && ${top_dir}/correct_headers.sh
 	export old_ld_library_path=${LD_LIBRARY_PATH}
         export LD_LIBRARY_PATH=${mingw_w64_x86_64_prefix}/../lib/
         do_make
