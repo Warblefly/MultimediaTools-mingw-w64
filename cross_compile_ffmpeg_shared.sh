@@ -6268,7 +6268,7 @@ build_uchardet() {
 }
 
 build_zstd() {
-    do_git_checkout https://github.com/facebook/zstd.git zstd dev #6b7a1d6127a0306731d4f98a0da2b9e91c078242
+    do_git_checkout https://github.com/facebook/zstd.git zstd 6af3842 #dev #6b7a1d6127a0306731d4f98a0da2b9e91c078242
     cd zstd/build/cmake
         do_cmake
         do_make
@@ -8210,7 +8210,7 @@ build_apps() {
 #  build_jackmix
   build_flacon
   build_get_iplayer
-  build_dcpomatic # AWAIT CODE FIX TO COPE WITH UPDATED BOOST
+#  build_dcpomatic # AWAIT CODE FIX TO COPE WITH UPDATED BOOST
 #  build_loudness-scanner Broken by FFmpeg API changes. Sorry.
   build_synaesthesia
   #build_kodi
