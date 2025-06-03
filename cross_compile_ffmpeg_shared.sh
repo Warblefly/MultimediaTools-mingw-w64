@@ -357,8 +357,8 @@ git_hard_reset() {
 }
 
 download_config_files() {
-   curl -o config.guess "http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD"
-   curl -o config.sub "http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD"
+   wget -O config.guess 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD'
+   wget -O config.sub 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD'
    chmod +x config.guess config.sub
 }
 
@@ -4883,7 +4883,7 @@ build_poppler() {
 
 build_SWFTools() {
   do_git_checkout https://github.com/matthiaskramm/swftools swftools 1f7b90bd283bdb60b80849779a805a4fb63175cb
-  cd swftools
+    cd swftools
     download_config_files # The version of config.guess is too old here.
     export DISABLEPDF2SWF=true
     rm configure # Force regeneration of configure script to alleviate mingw-w64 conflicts
@@ -7725,6 +7725,7 @@ build_ffmpeg() {
 		# patch for HEVC plugin
 #		apply_patch_p1 file://{$top_dir}/ffmpeg-libsvt-hevc-wrapper.patch
 #		apply_patch_p1 file://${top_dir}/FFmpeg-devel-avfilter-add-3D-scope-multimedia-filter.diff
+        ./tools/merge-all-source-plugins
 		do_configure "${standard_options} ${licensing_options} ${configuration_options} ${component_options} ${library_options} ${hardware_options} ${toolchain_options} ${developer_options}"
 #  rm -f */*.a */*.dll *.exe # just in case some dependency library has changed, force it to re-link even if the ffmpeg source hasn't changed...
 #  rm already_ran_make*
@@ -8210,7 +8211,7 @@ build_apps() {
 #  build_jackmix
   build_flacon
   build_get_iplayer
-#  build_dcpomatic # AWAIT CODE FIX TO COPE WITH UPDATED BOOST
+  build_dcpomatic # AWAIT CODE FIX TO COPE WITH UPDATED BOOST
 #  build_loudness-scanner Broken by FFmpeg API changes. Sorry.
   build_synaesthesia
   #build_kodi
