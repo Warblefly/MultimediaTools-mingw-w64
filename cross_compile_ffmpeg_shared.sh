@@ -1814,7 +1814,7 @@ build_dcpomatic() {
 ##    apply_patch file://${top_dir}/dcpomatic-test-wscript.patch
 ##    apply_patch file://${top_dir}/dcpomatic-libsub.patch
 ##    apply_patch file://${top_dir}/dcpomatic-LogColorspace.patch
-    apply_patch file://${top_dir}/dcpomatic-font-fix.patch
+#    apply_patch file://${top_dir}/dcpomatic-font-fix.patch
      # M_PI is missing in mingw-w64
     sed -i.bak 's/M_PI/3.14159265358979323846/g' src/lib/audio_filter.cc
      # The RC file looks for wxWidgets 3.0 rc, but it's 3.1 in our build
@@ -3464,7 +3464,7 @@ build_asdcplib-cth() {
     wget https://waf.io/waf-2.0.23
     mv -v ./waf-2.0.23 ./waf
     chmod +x ./waf
-    do_configure "configure -vvv -pp --prefix=${mingw_w64_x86_64_prefix} --libdir=${mingw_w64_x86_64_prefix}/lib --target-windows-64 --check-cxx-compiler=gxx" "./waf"
+    do_configure "configure -vvv -pp --prefix=${mingw_w64_x86_64_prefix} --libdir=${mingw_w64_x86_64_prefix}/lib --target-windows --check-cxx-compiler=gxx" "./waf"
     ./waf build || exit 1
     ./waf install || exit 1
         # The installation puts the pkgconfig file and the import DLL in the wrong place
@@ -5064,7 +5064,7 @@ build_libchromaprint() {
   do_git_checkout https://github.com/acoustid/chromaprint.git chromaprint # 29ace183de7fb4f83a44afb29b3d5c6a641fb917
   cd chromaprint
 #    apply_patch file://${top_dir}/chromaprint-vector.patch
-    do_cmake "-DWITH_FFTW3=ON -DFFT_LIB=fftw3 -DBUILD_EXAMPLES=OFF -DBUILD_SHARED_LIBS=ON -DWITH_AVFFT=OFF -DUSE_AVFFT=OFF"
+    do_cmake "-DWITH_FFTW3=ON -DFFT_LIB=fftw3 -DBUILD_EXAMPLES=OFF -DBUILD_SHARED_LIBS=ON -DBUILD_TESTS=OFF -DWITH_AVFFT=OFF -DUSE_AVFFT=OFF"
     do_make_install
 
   cd ..
