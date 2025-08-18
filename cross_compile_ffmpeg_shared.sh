@@ -969,14 +969,14 @@ build_drm() {
 
 
 build_qt6() {
-	download_and_unpack_file https://download.qt.io/archive/qt/6.8/6.8.2/submodules/qtbase-everywhere-src-6.8.2.tar.xz qtbase-everywhere-src-6.8.2
-	cd qtbase-everywhere-src-6.8.2
+	download_and_unpack_file https://download.qt.io/archive/qt/6.9/6.9.1/submodules/qtbase-everywhere-src-6.9.1.tar.xz qtbase-everywhere-src-6.9.1
+	cd qtbase-everywhere-src-6.9.1
 #		cd qtbase
-			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f41/f/qtbase-import-lib-suffix.patch
-			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f41/f/qtbase-include-toolchain.patch
-			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f41/f/qtbase-mingw.patch
-			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f41/f/qtbase-qmakeconf.patch
-			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f41/f/qtbase-readlink.patch
+			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f43/f/qtbase-import-lib-suffix.patch
+			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f43/f/qtbase-include-toolchain.patch
+			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f43/f/qtbase-mingw.patch
+			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f43/f/qtbase-qmakeconf.patch
+			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f43/f/qtbase-readlink.patch
 #		cd ..
 	mkdir build
 		cd build
@@ -989,30 +989,49 @@ build_qt6() {
 			do_ninja_and_ninja_install
 		cd ..
 	cd ..
-	download_and_unpack_file https://download.qt.io/archive/qt/6.8/6.8.2/submodules/qtsvg-everywhere-src-6.8.2.tar.xz qtsvg-everywhere-src-6.8.2
-	cd qtsvg-everywhere-src-6.8.2
+	download_and_unpack_file https://download.qt.io/archive/qt/6.9/6.9.1/submodules/qtsvg-everywhere-src-6.9.1.tar.xz qtsvg-everywhere-src-6.9.1
+	cd qtsvg-everywhere-src-6.9.1
 		mkdir build
 		cd build
 			do_cmake ".. -G Ninja -B build -DQT_QMAKE_TARGET_MKSPEC=win32-g++ -DQT_NO_PACKAGE_VERSION_CHECK=TRUE -DQT_BUILD_EXAMPLES=FALSE -DQT_BUILD_TESTS=FALSE -DQT_QMAKE_DEVICE_OPTIONS=CROSS_COMPILE=x86_64-w64-mingw32"
 			do_ninja_and_ninja_install
 		cd ..
 	cd ..
-	download_and_unpack_file https://download.qt.io/archive/qt/6.8/6.8.2/submodules/qtshadertools-everywhere-src-6.8.2.tar.xz qtshadertools-everywhere-src-6.8.2
-	cd qtshadertools-everywhere-src-6.8.2
+	download_and_unpack_file https://download.qt.io/archive/qt/6.9/6.9.1/submodules/qtshadertools-everywhere-src-6.9.1.tar.xz qtshadertools-everywhere-src-6.9.1
+	cd qtshadertools-everywhere-src-6.9.1
 		mkdir build
 		cd build
 			do_cmake ".. -G Ninja -B build -DQT_QMAKE_TARGET_MKSPEC=win32-g++ -DQT_NO_PACKAGE_VERSION_CHECK=TRUE -DQT_BUILD_EXAMPLES=FALSE -DQT_BUILD_TESTS=FALSE -DQT_QMAKE_DEVICE_OPTIONS=CROSS_COMPILE=x86_64-w64-mingw32"
 			do_ninja_and_ninja_install
 		cd ..
 	cd ..
-	download_and_unpack_file https://download.qt.io/archive/qt/6.8/6.8.2/submodules/qtmultimedia-everywhere-src-6.8.2.tar.xz qtmultimedia-everywhere-src-6.8.2
-	cd qtmultimedia-everywhere-src-6.8.2
+	download_and_unpack_file https://download.qt.io/archive/qt/6.9/6.9.1/submodules/qtmultimedia-everywhere-src-6.9.1.tar.xz qtmultimedia-everywhere-src-6.9.1
+	cd qtmultimedia-everywhere-src-6.9.1
+        apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtmultimedia/raw/f43/f/qtmultimedia-header-case.patch
 		mkdir build
 		cd build
 			do_cmake ".. -G Ninja -B build -DQT_FEATURE_gstreamer=OFF -DQT_QMAKE_TARGET_MKSPEC=win32-g++ -DQT_NO_PACKAGE_VERSION_CHECK=TRUE -DQT_BUILD_EXAMPLES=FALSE -DQT_BUILD_TESTS=FALSE -DQT_QMAKE_DEVICE_OPTIONS=CROSS_COMPILE=x86_64-w64-mingw32 -DQt6ShaderTools_DIR=${mings_w64_x86_64_prefix}/lib/cmake/Qt6ShaderTools/"
 			do_ninja_and_ninja_install
 		cd ..
 	cd ..
+
+    download_and_unpack_file https://download.qt.io/archive/qt/6.9/6.9.1/submodules/qttools-everywhere-src-6.9.1.tar.xz qttools-everywhere-src-6.9.1
+    cd qttools-everywhere-src-6.9.1
+        mkdir build
+        cd build
+            do_cmake ".. -G Ninja -B build  -DQT_QMAKE_TARGET_MKSPEC=win32-g++ -DQT_NO_PACKAGE_VERSION_CHECK=TRUE -DQT_BUILD_EXAMPLES=FALSE -DQT_BUILD_TESTS=FALSE -DQT_QMAKE_DEVICE_OPTIONS=CROSS_COMPILE=x86_64-w64-mingw32 -DQt6ShaderTools_DIR=${mingw_w64_x86_64_prefix}/lib/cmake/Qt6ShaderTools/"
+            do_ninja_and_ninja_install
+        cd ..
+    cd ..
+
+    download_and_unpack_file https://download.qt.io/archive/qt/6.9/6.9.1/submodules/qt5compat-everywhere-src-6.9.1.tar.xz qt5compat-everywhere-src-6.9.1
+    cd qt5compat-everywhere-src-6.9.1
+        mkdir build
+        cd build
+          do_cmake ".. -G Ninja -B build -DQT_QMAKE_TARGET_MKSPEC=win32-g++ -DQT_NO_PACKAGE_VERSION_CHECK=TRUE -DQT_BUILD_EXAMPLES=FALSE -DQT_BUILD_TESTS=FALSE -DQT_QMAKE_DEVICE_OPTIONS=CROSS_COMPILE=x86_64-w64-mingw32 -DQt6ShaderTools_DIR=${mingw_w64_x86_64_prefix}/lib/cmake/Qt6ShaderTools/"
+          do_ninja_and_ninja_install
+       cd ..
+    cd ..
 #	download_and_unpack_file https://download.qt.io/archive/qt/6.6/6.6.2/submodules/qttools-everywhere-src-6.6.2.tar.xz qttools-everywhere-src-6.6.2
 #	cd qttools-everywhere-src-6.6.2
 #	        mkdir build
@@ -1512,7 +1531,7 @@ build_googletest() {
 }
 
 build_mlt() {
-  do_git_checkout https://github.com/mltframework/mlt.git mlt # 657324445da65328be866364d6b5b66c7a7a9e10 # 18b8609
+  do_git_checkout https://github.com/mltframework/mlt.git mlt 9306a5628cb9b1199e0f85d5f83b789bf8edb218
   cd mlt
 #    apply_patch file://${top_dir}/mlt-mingw-sandbox.patch
     export CXX=x86_64-w64-mingw32-g++
@@ -1680,7 +1699,7 @@ do_git_checkout http://github.com/opencv/opencv_contrib.git "opencv_contrib" 3.4
 #    apply_patch file://${top_dir}/opencv-address.patch
     mkdir -pv build
     cd build
-      do_cmake .. "-DOPENCV_EXTRA_MODULES_PATH=../../opencv_contrib/modules -DOPENCV_GENERATE_PKGCONFIG=ON -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DWITH_FFMPEG=ON -DOPENCV_GENERATE_PKGCONFIG=ON -DENABLE_PIC=TRUE -DOPENCV_ENABLE_NONFREE=ON -DOPENCV_FORCE_3RDPARTY_BUILD=OFF -DBUILD_ZLIB=OFF -DBUILD_TIFF=OFF -DBUILD_JASPER=OFF -DBUILD_JPEG=OFF -DWITH_GSTREAMER=OFF -DBUILD_PNG=OFF -DBUILD_OPENEXR=OFF -DBUILD_WEBP=OFF -DWITH_JASPER=ON -DWITH_JPEG=ON -DWITH_WEBP=ON -DWITH_OPENEXR=ON -DWITH_PNG=ON -DWITH_WIN32UI=ON -DWITH_PTHREADS_PF=ON -DWITH_TIFF=ON -DWITH_DSHOW=ON -DWITH_DIRECTX=ON -DWITH_IMGCODEC_HDR=ON -DWITH_CUDA=ON -DWITH_OPENMP=ON -DCMAKE_CXX_FLAGS=-Wno-error=address -DCMAKE_C_FLAGS=-Wno-error=address -DCMAKE_VERBOSE_MAKEFILE=ON " # ".. -DCMAKE_CXX_STANDARD=14 -DWITH_IPP=OFF -DWITH_EIGEN=ON -DWITH_VFW=ON -DWITH_DSHOW=ON -DOPENCV_ENABLE_NONFREE=ON -DWITH_GTK=ON -DWITH_WIN32UI=ON -DWITH_DIRECTX=ON -DBUILD_SHARED_LIBS=ON -DBUILD_opencv_apps=ON -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_JASPER=OFF -DBUILD_JPEG=OFF -DBUILD_OPENEXR=OFF -DBUILD_PNG=OFF -DBUILD_TIFF=OFF -DBUILD_ZLIB=OFF -DENABLE_SSE41=ON -DENABLE_SSE42=ON -DWITH_WEBP=OFF -DBUILD_EXAMPLES=ON -DINSTALL_C_EXAMPLES=ON -DWITH_OPENGL=ON -DINSTALL_PYTHON_EXAMPLES=ON -DCMAKE_CXX_FLAGS=-DMINGW_HAS_SECURE_API=1 -DCMAKE_C_FLAGS=-DMINGW_HAS_SECURE_API=1 -DOPENCV_LINKER_LIBS=boost_thread-mt-x64;boost_system-mt-x64 -DCMAKE_VERBOSE=ON -DINSTALL_TO_MANGLED_PATHS=OFF" # && ${top_dir}/correct_headers.sh"
+      do_cmake .. "-DOPENCV_EXTRA_MODULES_PATH=../../opencv_contrib/modules -DOPENCV_GENERATE_PKGCONFIG=ON -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DWITH_FFMPEG=ON -DOPENCV_GENERATE_PKGCONFIG=ON -DENABLE_PIC=TRUE -DOPENCV_ENABLE_NONFREE=ON -DOPENCV_FORCE_3RDPARTY_BUILD=OFF -DBUILD_ZLIB=OFF -DBUILD_TIFF=OFF -DBUILD_JASPER=OFF -DBUILD_JPEG=OFF -DWITH_GSTREAMER=OFF -DBUILD_PNG=OFF -DBUILD_OPENEXR=OFF -DBUILD_WEBP=ON -DWITH_JASPER=ON -DWITH_JPEG=ON -DWITH_WEBP=ON -DWITH_OPENEXR=ON -DWITH_PNG=ON -DWITH_WIN32UI=ON -DWITH_PTHREADS_PF=ON -DWITH_TIFF=ON -DWITH_DSHOW=ON -DWITH_DIRECTX=ON -DWITH_IMGCODEC_HDR=ON -DWITH_CUDA=ON -DWITH_OPENMP=ON -DCMAKE_CXX_FLAGS=-Wno-error=address -DCMAKE_C_FLAGS=-Wno-error=address -DCMAKE_VERBOSE_MAKEFILE=ON " # ".. -DCMAKE_CXX_STANDARD=14 -DWITH_IPP=OFF -DWITH_EIGEN=ON -DWITH_VFW=ON -DWITH_DSHOW=ON -DOPENCV_ENABLE_NONFREE=ON -DWITH_GTK=ON -DWITH_WIN32UI=ON -DWITH_DIRECTX=ON -DBUILD_SHARED_LIBS=ON -DBUILD_opencv_apps=ON -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_JASPER=OFF -DBUILD_JPEG=OFF -DBUILD_OPENEXR=OFF -DBUILD_PNG=OFF -DBUILD_TIFF=OFF -DBUILD_ZLIB=OFF -DENABLE_SSE41=ON -DENABLE_SSE42=ON -DWITH_WEBP=OFF -DBUILD_EXAMPLES=ON -DINSTALL_C_EXAMPLES=ON -DWITH_OPENGL=ON -DINSTALL_PYTHON_EXAMPLES=ON -DCMAKE_CXX_FLAGS=-DMINGW_HAS_SECURE_API=1 -DCMAKE_C_FLAGS=-DMINGW_HAS_SECURE_API=1 -DOPENCV_LINKER_LIBS=boost_thread-mt-x64;boost_system-mt-x64 -DCMAKE_VERBOSE=ON -DINSTALL_TO_MANGLED_PATHS=OFF" # && ${top_dir}/correct_headers.sh"
 #      sed -i.bak "s|DBL_EPSILON|2.2204460492503131E-16|g" modules/imgproc/include/opencv2/imgproc/types_c.h
       do_make_install
 #      cp -v ${mingw_w64_x86_64_prefix}/lib/libopencv_core320.dll.a ${mingw_w64_x86_64_prefix}/lib/libopencv_core.dll.a
@@ -2975,8 +2994,8 @@ build_libbluray() {
     apply_patch file://${top_dir}/libudfread-udfread-c.patch
     cd ../..
     #apply_patch file://${top_dir}/libbluray-java.patch
-    pkg-config --list-all
-    generic_configure_make_install "--disable-silent-rules --disable-bdjava-jar" #"--disable-bdjava"
+#    pkg-config --list-all
+    generic_meson_ninja_install "-Dbdj_jar=disabled" #"--disable-bdjava"
 
   cd ..
   sed -i.bak 's/-lbluray.*$/-lbluray -lxml2 -lws2_32/' "$PKG_CONFIG_PATH/libbluray.pc" # This is for mpv not linking against the right libraries
@@ -3820,11 +3839,11 @@ build_ghostscript() {
 }
 
 build_freetype() {
-  download_and_unpack_file https://download.savannah.gnu.org/releases/freetype/freetype-2.10.4.tar.xz freetype-2.10.4
-  cd freetype-2.10.4
+  download_and_unpack_file https://download.savannah.gnu.org/releases/freetype/freetype-2.13.3.tar.xz freetype-2.13.3
+  cd freetype-2.13.3
   # Need to make a directory for the build library
   mkdir -pv lib
-  generic_configure "--with-png=yes --host=x86_64-w64-mingw32 --build=x86_64-redhat-linux"
+  generic_configure "--enable-freetype-config --enable-year2038 --with-png=yes --host=x86_64-w64-mingw32 --build=x86_64-redhat-linux"
 #  cd src/tools
 #    "/usr/bin/gcc -v apinames.c -o apinames.exe"
 #    cp apinames.exe ../../objs
@@ -3982,6 +4001,25 @@ build_sdl_image() {
 		do_make_install "V=1"
 	cd ..
 }
+
+build_sdl3() {
+    download_and_unpack_file http://www.libsdl.org/release/SDL3-3.2.16.tar.gz SDL3-3.2.16
+    cd SDL3-3.2.16
+        do_cmake
+        do_make
+        do_make_install
+    cd ..
+}
+
+build_sdl2compat() {
+    download_and_unpack_file https://github.com/libsdl-org/sdl2-compat/archive/release-2.32.56/sdl2-compat-2.32.56.tar.gz sdl2-compat-release-2.32.56
+    cd sdl2-compat-release-2.32.56
+        do_cmake
+        do_make
+        do_make_install
+    cd ..
+}
+
 
 build_OpenCL() {
   do_git_checkout https://github.com/KhronosGroup/OpenCL-ICD-Loader.git OpenCL-ICD-Loader 5907ac1114079de4383cecddf1c8640e3f52f92b # 6d0b214b9cc303cdb0b05b3c0dc9afb0c39998c5 #978b4b3a29a3aebc86ce9315d5c5963e88722d03 # 6849f617e991e8a46eebf746df43032175f263b3
@@ -4292,9 +4330,9 @@ build_glew() {
 }
 
 build_libwebp() {
-  do_git_checkout https://chromium.googlesource.com/webm/libwebp libwebp main
+  do_git_checkout https://chromium.googlesource.com/webm/libwebp libwebp 5531b1e7b7416b2122af89bbe0a0d51d81f15cbb # main
   cd libwebp
-    generic_configure_make_install "LIBS=-lSDL2main --enable-libwebpmux --enable-libwebpdemux --enable-libwebpdecoder --enable-libwebpextras --enable-experimental --disable-sdl"
+    generic_configure_make_install "--enable-everything --enable-libwebpmux --enable-libwebpdemux --enable-libwebpdecoder --enable-libwebpextras"
 #    # I don't understand why, but mux.h, required for GraphicMagick, isn't installed
 #    cp -v src/webp/mux.h ${mingw_w64_x86_64_prefix}/include/webp/mux.h
 #    cp -v src/webp/mux_types.h ${mingw_w64_x86_64_prefix}/include/webp/mux_types.h
@@ -5582,7 +5620,7 @@ build_flac() {
 build_libde265() {
 	do_git_checkout https://github.com/strukturag/libde265.git libde265
 	cd libde265
-		do_cmake
+		do_cmake "-DENABLE_SDL=OFF"
 		do_make
 		do_make_install
 	cd ..
@@ -7725,7 +7763,10 @@ build_ffmpeg() {
 		# patch for HEVC plugin
 #		apply_patch_p1 file://{$top_dir}/ffmpeg-libsvt-hevc-wrapper.patch
 #		apply_patch_p1 file://${top_dir}/FFmpeg-devel-avfilter-add-3D-scope-multimedia-filter.diff
-        ./tools/merge-all-source-plugins
+        cd tools
+            ./merge-all-source-plugins source-plugins.txt
+        cd ..
+
 		do_configure "${standard_options} ${licensing_options} ${configuration_options} ${component_options} ${library_options} ${hardware_options} ${toolchain_options} ${developer_options}"
 #  rm -f */*.a */*.dll *.exe # just in case some dependency library has changed, force it to re-link even if the ffmpeg source hasn't changed...
 #  rm already_ran_make*
@@ -7826,8 +7867,10 @@ build_dependencies() {
   build_opencl
   build_OpenCL
   build_libflite # too big for the ffmpeg distro...
-  build_sdlgit # needed for ffplay to be created
-  build_sdl2
+  #build_sdlgit # needed for ffplay to be created
+  #build_sdl2
+  build_sdl3
+  build_sdl2compat
   build_uchardet
   build_libopus
   build_libopencore
@@ -7992,7 +8035,7 @@ build_dependencies() {
   #build_pthread_stubs
   #build_drm
   build_sdl2_image
-  build_sdl_image
+#  build_sdl_image
   #  build_mmcommon
   build_spirvtools
   build_glslang
@@ -8430,7 +8473,7 @@ rm -v "${mingw_w64_x86_64_prefix}/bin/platforms"
 ln -fvs "${mingw_w64_x86_64_prefix}/plugins/platforms" "${mingw_w64_x86_64_prefix}/bin/platforms"
 # Copy VLC interface files to where the player can find them
 cp -vR ${mingw_w64_x86_64_prefix}/share/vlc/skins2 ${mingw_w64_x86_64_prefix}/bin/share
-
+pkg-config --list-all
 echo "Stripping all binaries..."
 
 # TODO: Check plugin directories for new things that future builds of QT5 might install
