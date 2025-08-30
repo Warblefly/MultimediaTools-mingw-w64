@@ -1815,7 +1815,7 @@ build_opendcp() {
 
 build_dcpomatic() {
 #  do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic main # v2.16.52 #805d4a48fa6e4d8e28fd582a2ae6ba78b8343144 main # v2.15.x # fc1441eeaa3c0805c37809685ea7a3f5ca173666 # v2.15.x #97193e96c637ca92eeaf6e72ee38aa628308973b # v2.15.x #402fa9a3577975e9cf9728c815da1b17796fe325 # v2.15.x #9cff6ec974a4d0270091fe5c753483b0d53ecd46
-  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic v2.18.21 # new-ffmpeg-take2 #edbccd8d04a33f9e8d03677d8ebc671f40b0f822 #v2.15.x # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
+  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic v2.18.23 # new-ffmpeg-take2 #edbccd8d04a33f9e8d03677d8ebc671f40b0f822 #v2.15.x # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
 #  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.123" dcpomatic-2.15.123
   cd dcpomatic
     apply_patch file://${top_dir}/dcpomatic-wscript.patch
@@ -3524,7 +3524,7 @@ build_asdcplib-cth() {
 build_libdcp() {
   # Branches are slightly askew. 1.0 is where development takes place
 #  do_git_checkout https://github.com/cth103/libdcp.git libdcp main # v1.8.66 #04e215a7688239cb47fc86e8396756c685f338a1 #v1.8.13 #d39880eef211a296fa8ef4712cdef5945d08527c c6665c157bdb6903661d21c571c7d112b54ad8fd # d989a83517fd77aa241c1423ac00cfed62d567fe # f3058b2f1b48ec613bda5781fe97e83a0dca83a9
-  do_git_checkout git://git.carlh.net/git/libdcp.git libdcp v1.10.24 #b75d977a38f039fd68ed5d4055ae70b4bf631603 # v1.6.x # 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
+  do_git_checkout git://git.carlh.net/git/libdcp.git libdcp v1.10.25 #b75d977a38f039fd68ed5d4055ae70b4bf631603 # v1.6.x # 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
 #  download_and_unpack_file https://carlh.net/downloads/libdcp/libdcp-1.6.17.tar.bz2 libdcp-1.6.17
   cd libdcp
     # M_PI is required. This is a quick way of defining it
@@ -4898,8 +4898,8 @@ build_fdkaac-commandline() {
 build_poppler() {
 #  do_git_checkout git://git.freedesktop.org/git/poppler/poppler poppler poppler-0.67.0
 #  do_git_checkout https://github.com/freedesktop/poppler.git poppler-0.84.0
-  download_and_unpack_file https://poppler.freedesktop.org/poppler-23.04.0.tar.xz poppler-23.04.0
-  cd poppler-23.04.0
+  download_and_unpack_file https://poppler.freedesktop.org/poppler-25.08.0.tar.xz poppler-25.08.0
+  cd poppler-25.08.0
 #    apply_patch file://${top_dir}/poppler-threads.patch
     sed -i.bak 's!string\.h!sec_api/string_s.h!' test/perf-test.cc
     #sed -i.bak 's/noinst_PROGRAMS += perf-test/noinst_PROGRAMS += /' test/Makefile.am
@@ -4910,7 +4910,7 @@ build_poppler() {
     export CFLAGS="-DMINGW_HAS_SECURE_API"
     export CXXFLAGS=-fpermissive
     export PKG_CONFIG_PATH="${mingw_w64_x86_64_prefix}/lib/pkgconfig"
-    do_cmake "-DENABLE_XPDF_HEADERS=ON -DSPLASH_CMYK=ON -DBUILD_SHARED_LIBS=ON -DENABLE_ZLIB_UNCOMPRESS=ON -DENABLE_GLIB=OFF -DCMAKE_VERBOSE_MAKEFILE=ON -DENABLE_LIBOPENJPEG=unmaintained -DENABLE_QT5=OFF -DENABLE_QT6=OFF" # && ${top_dir}/correct_headers.sh
+    do_cmake "-DENABLE_XPDF_HEADERS=ON -DSPLASH_CMYK=ON -DBUILD_SHARED_LIBS=ON -DENABLE_ZLIB_UNCOMPRESS=ON -DENABLE_GLIB=OFF -DCMAKE_VERBOSE_MAKEFILE=ON -DENABLE_LIBOPENJPEG=unmaintained -DENABLE_QT5=OFF -DENABLE_QT6=ON -DENABLE_CPP=ON -DENABLE_DCTDECODER=libjpeg -DENABLE_UTILS=ON -DENABLE_NSS3=OFF -DENABLE_GPGME=OFF" # && ${top_dir}/correct_headers.sh
     do_make_install
 
     export CFLAGS="${CFLAGS_ORIG}"
@@ -5138,7 +5138,7 @@ build_opusfile() {
 
 build_libopusenc() {
   do_git_checkout https://github.com/xiph/libopusenc.git libopusenc
-  cd libopusenc
+    cd libopusenc
     if [[ ! -f "configure" ]]; then
       ./autogen.sh
     fi
@@ -5166,12 +5166,20 @@ build_libmms() {
   cd ..
 }
 
+build_ngtcp2() {
+    do_git_checkout https://github.com/ngtcp2/ngtcp2.git ngtcp2
+    cd ngtcp2
+        do_cmake "-DENABLE_GNUTSL=ON -DENABLE_OPENSSL=ON -DCMAKE_DLL_NAME_WITH_SOVERSION=ON"
+        do_cmake_install
+    cd ..
+}
+
 build_curl() {
 #  generic_download_and_install http://curl.haxx.se/download/curl-7.51.0.tar.bz2 curl-7.51.0 "--enable-ipv6 --with-librtmp --with-ca-fallback"
   do_git_checkout https://github.com/curl/curl.git curl # e7f9c904ca20a91a0c87f9ca5812c9ac0307125d # 9655474548b3cefdb2b1d4504c82b44cc01a1861
   cd curl
 #    apply_patch file://${top_dir}/curl.patch
-    do_cmake
+    do_cmake "-DCURL_DEFAULT_SSL_BACKEND=openssl -DCURL_USE_OPENSSL=ON -DCURL_CA_BUNDLE=${mingw_w64_x86_64_prefix}/etc/ssl/certs/ca-certificates.crt -DUSE_NGHTTP2=ON -DUSE_NGTCP2=OFF -DCURL_WINDOWS_SSPI=ON -DCURL_BROTLI=ON -DCURL_ZSTD=ON -DCURL_USE_LIBSSH2=ON"
     do_make_install
 #    generic_configure_make_install "--enable-ipv6 --with-librtmp --with-ca-fallback --with-gnutls"
 
@@ -5182,9 +5190,14 @@ build_curl_early() {
 #  generic_download_and_install http://curl.haxx.se/download/curl-7.51.0.tar.bz2 curl-7.51.0 "--enable-ipv6 --with-librtmp --with-ca-fallback"
   do_git_checkout https://github.com/curl/curl.git curl_early #e7f9c904ca20a91a0c87f9ca5812c9ac0307125d
   cd curl_early
+  # Get all the build OS certificates and use them for us. Not sure what else to do.
 #   apply_patch file://${top_dir}/curl.patch
-    generic_configure_make_install "--enable-ipv6 --with-ca-fallback --with-gnutls"
-
+    echo "Copying crypt certificates from build OS..."
+    mkdir -pv ${mingw_w64_x86_64_prefix}/etc/ssl/certs
+    cp -v /etc/ssl/certs/* ${mingw_w64_x86_64_prefix}/etc/ssl/certs/ || exit 1
+    echo "Crypt certificates now resident."
+    do_cmake
+    do_make_install
   cd ..
 }
 
@@ -5250,8 +5263,8 @@ build_asdcplib() {
 
 
 build_libtiff() {
-  generic_download_and_install http://download.osgeo.org/libtiff/tiff-4.1.0.tar.gz tiff-4.1.0
-  cd tiff-4.1.0
+  generic_download_and_install http://download.osgeo.org/libtiff/tiff-4.7.0.tar.gz tiff-4.7.0
+  cd tiff-4.7.0
 
   cd ..
 }
@@ -8045,7 +8058,7 @@ build_dependencies() {
 #  build_angle
   build_cairo
   build_cairomm
-  build_poppler
+  #build_poppler
   #build_pango
   #build_pangomm
   build_fmt
@@ -8132,6 +8145,7 @@ build_dependencies() {
   build_rist
   build_srt
   build_libvmaf
+#  build_ngtcp2
 #  build_swig
   #build_libposixrandom
 #  build_eccodes
@@ -8150,6 +8164,7 @@ build_apps() {
   build_gcal
   build_opustools
   build_mpfr # Needed for GDB
+
   build_curl # Needed for mediainfo to read Internet streams or file, also can get RTMP streamss
   build_gdb # Really useful, and the correct version for Windows executables
   build_atomicparsley
@@ -8205,6 +8220,7 @@ build_apps() {
 #  build_mkvtoolnix
 #  build_openssh
 #  build_rsync
+  build_poppler
   build_dvdbackup
   build_codec2
   build_ffmpegnv
