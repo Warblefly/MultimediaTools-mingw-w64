@@ -972,11 +972,11 @@ build_qt6() {
 	download_and_unpack_file https://download.qt.io/archive/qt/6.9/6.9.1/submodules/qtbase-everywhere-src-6.9.1.tar.xz qtbase-everywhere-src-6.9.1
 	cd qtbase-everywhere-src-6.9.1
 #		cd qtbase
-			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f43/f/qtbase-import-lib-suffix.patch
-			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f43/f/qtbase-include-toolchain.patch
-			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f43/f/qtbase-mingw.patch
-			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f43/f/qtbase-qmakeconf.patch
-			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/f43/f/qtbase-readlink.patch
+			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/541185ceb5d4622694dc4721e14bafdee255c700/f/qtbase-import-lib-suffix.patch
+			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/541185ceb5d4622694dc4721e14bafdee255c700/f/qtbase-include-toolchain.patch
+			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/541185ceb5d4622694dc4721e14bafdee255c700/f/qtbase-mingw.patch
+			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/541185ceb5d4622694dc4721e14bafdee255c700/f/qtbase-qmakeconf.patch
+			apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtbase/raw/541185ceb5d4622694dc4721e14bafdee255c700/f/qtbase-readlink.patch
 #		cd ..
 	mkdir build
 		cd build
@@ -1007,7 +1007,7 @@ build_qt6() {
 	cd ..
 	download_and_unpack_file https://download.qt.io/archive/qt/6.9/6.9.1/submodules/qtmultimedia-everywhere-src-6.9.1.tar.xz qtmultimedia-everywhere-src-6.9.1
 	cd qtmultimedia-everywhere-src-6.9.1
-        apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtmultimedia/raw/f43/f/qtmultimedia-header-case.patch
+        apply_patch_p1 https://src.fedoraproject.org/rpms/mingw-qt6-qtmultimedia/raw/d0d5f133a6912de3f4d834fe2a2078bc96a756b1/f/qtmultimedia-header-case.patch
 		mkdir build
 		cd build
 			do_cmake ".. -G Ninja -B build -DQT_FEATURE_gstreamer=OFF -DQT_QMAKE_TARGET_MKSPEC=win32-g++ -DQT_NO_PACKAGE_VERSION_CHECK=TRUE -DQT_BUILD_EXAMPLES=FALSE -DQT_BUILD_TESTS=FALSE -DQT_QMAKE_DEVICE_OPTIONS=CROSS_COMPILE=x86_64-w64-mingw32 -DQt6ShaderTools_DIR=${mings_w64_x86_64_prefix}/lib/cmake/Qt6ShaderTools/"
@@ -2168,14 +2168,14 @@ build_libdvdnav() {
 }
 
 build_libdvdcss() {
-  do_git_checkout http://code.videolan.org/videolan/libdvdcss.git libdvdcss
+   do_git_checkout https://code.videolan.org/videolan/libdvdcss.git libdvdcss
   cd libdvdcss/src
 #    apply_patch libdvdcss.c.patch
     cd ..
-    if [[ ! -f "configure" ]]; then
-      autoreconf -fiv || exit 1
-    fi
-    generic_configure_make_install
+#    if [[ ! -f "configure" ]]; then
+#      autoreconf -fiv || exit 1
+#    fi
+    generic_meson_ninja_install
 
   cd ..
 }
@@ -2337,7 +2337,7 @@ build_jack() {
 }
 
 build_sord() {
-   do_git_checkout http://git.drobilla.net/sord.git sord # 44afb527ce74d6ec6f9d8b769ad8459cacdc2fec
+   do_git_checkout  https://github.com/drobilla/sord.git sord # 44afb527ce74d6ec6f9d8b769ad8459cacdc2fec
    cd sord
      export AR=x86_64-w64-mingw32-ar
      export CC=x86_64-w64-mingw32-gcc
@@ -2358,7 +2358,7 @@ build_sord() {
 }
 
 build_sratom() {
-  do_git_checkout http://git.drobilla.net/sratom.git sratom # de6492738adf1794bf5fa39c1fe1ebbd167727ac
+  do_git_checkout  https://github.com/drobilla/sratom.git sratom # de6492738adf1794bf5fa39c1fe1ebbd167727ac
   cd sratom
     export AR=x86_64-w64-mingw32-ar
     export CC=x86_64-w64-mingw32-gcc
@@ -2377,7 +2377,7 @@ build_sratom() {
 }
 
 build_serd() {
-  do_git_checkout http://git.drobilla.net/serd.git serd # 683d47cb7fddf5447de76cdf80041b6b230de93c
+  do_git_checkout https://github.com/drobilla/serd.git serd # 683d47cb7fddf5447de76cdf80041b6b230de93c
   cd serd
     export AR=x86_64-w64-mingw32-ar
     export CC=x86_64-w64-mingw32-gcc
@@ -2434,7 +2434,7 @@ build_zix() {
 
 
 build_lilv() {
-  do_git_checkout http://git.drobilla.net/lilv.git lilv # d1c9d1b6f1df03c4ee49eac544e3f6771e03fdcb # c1637b46f9ff960f58dcf2bb3b69bff231f8acfd # a9edaabf0926a18dd96fae30c7206fd8eadb0fdc
+  do_git_checkout  https://github.com/drobilla/lilv.git lilv # d1c9d1b6f1df03c4ee49eac544e3f6771e03fdcb # c1637b46f9ff960f58dcf2bb3b69bff231f8acfd # a9edaabf0926a18dd96fae30c7206fd8eadb0fdc
 #  do_git_checkout https://github.com/lv2/lilv.git lilv
   cd lilv
     git submodule init
@@ -3839,8 +3839,8 @@ build_ghostscript() {
 }
 
 build_freetype() {
-  download_and_unpack_file https://download.savannah.gnu.org/releases/freetype/freetype-2.13.3.tar.xz freetype-2.13.3
-  cd freetype-2.13.3
+  download_and_unpack_file https://download.savannah.gnu.org/releases/freetype/freetype-2.14.1.tar.xz freetype-2.14.1
+  cd freetype-2.14.1
   # Need to make a directory for the build library
   mkdir -pv lib
   generic_configure "--enable-freetype-config --enable-year2038 --with-png=yes --host=x86_64-w64-mingw32 --build=x86_64-redhat-linux"
