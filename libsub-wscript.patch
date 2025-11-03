@@ -17,7 +17,7 @@
                     msg='Checking for boost filesystem library',
 -                   libpath='/usr/local/lib',
 +                   libpath='../../x86_64-mingw32-x64/x86_64-mingw32-x64/lib',
-                    lib=['boost_filesystem%s' % boost_lib_suffix, 'boost_system%s' % boost_lib_suffix],
+                    lib=boost_libs('filesystem'),
                     uselib_store='BOOST_FILESYSTEM')
  
 @@ -164,7 +164,7 @@
@@ -35,7 +35,7 @@
                     msg='Checking for boost regex library',
 -                   libpath='/usr/local/lib',
 +                   libpath='../../x86_64-mingw32-x64/x86_64-mingw32-x64/lib',
-                    lib=['boost_regex%s' % boost_lib_suffix, 'boost_system%s' % boost_lib_suffix],
+                    lib=boost_libs('regex'),
                     uselib_store='BOOST_REGEX')
  
  

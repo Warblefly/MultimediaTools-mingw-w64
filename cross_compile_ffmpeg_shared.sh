@@ -1731,7 +1731,7 @@ build_cunit() {
 build_libspatialaudio() {
   do_git_checkout https://github.com/videolabs/libspatialaudio.git libspatialaudio # d926a2ee469a3fefd50a9364fb9ac6fb484c3f70 # 546d3cc1957d353b8abcdf02ee845d92cb9e2599 # 5420ba0c660236bd319da94fe9bec7d38c13705b
   cd libspatialaudio
-    apply_patch file://${top_dir}/libspatialaudio-install.patch
+#    apply_patch file://${top_dir}/libspatialaudio-install.patch
     do_cmake "-DCMAKE_SHARED_LINKER_FLAGS=-lz -DCMAKE_VERBOSE_MAKEFILE=ON"
 #    apply_patch file://${top_dir}/libspatialaudio-pc.patch
     do_make_install "V=1"
