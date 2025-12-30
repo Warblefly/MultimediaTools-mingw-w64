@@ -1682,8 +1682,8 @@ build_openblas() {
 }
 
 build_opencv() {
-  do_git_checkout https://github.com/opencv/opencv.git "opencv" 3.4 # 2.4 # 2bd0844be39a799d100e1ac00833ca946a7bfbf7 #3.4 # 2.4
-do_git_checkout http://github.com/opencv/opencv_contrib.git "opencv_contrib" 3.4
+  do_git_checkout https://github.com/opencv/opencv.git "opencv" 4.x # 2.4 # 2bd0844be39a799d100e1ac00833ca946a7bfbf7 #3.4 # 2.4
+do_git_checkout http://github.com/opencv/opencv_contrib.git "opencv_contrib" 4.x
   cd opencv
   # This is only used for a couple of frei0r filters. Surely we can switch off more options than this?
   # WEBP is switched off because it triggers a Cmake bug that removes #define-s of EPSILON and variants
@@ -1729,7 +1729,7 @@ build_cunit() {
 }
 
 build_libspatialaudio() {
-  do_git_checkout https://github.com/videolabs/libspatialaudio.git libspatialaudio # d926a2ee469a3fefd50a9364fb9ac6fb484c3f70 # 546d3cc1957d353b8abcdf02ee845d92cb9e2599 # 5420ba0c660236bd319da94fe9bec7d38c13705b
+  do_git_checkout https://github.com/videolabs/libspatialaudio.git libspatialaudio f3d7039ae79257cd3d54325b9fd77e4415484532 # d926a2ee469a3fefd50a9364fb9ac6fb484c3f70 # 546d3cc1957d353b8abcdf02ee845d92cb9e2599 # 5420ba0c660236bd319da94fe9bec7d38c13705b
   cd libspatialaudio
 #    apply_patch file://${top_dir}/libspatialaudio-install.patch
     do_cmake "-DCMAKE_SHARED_LINKER_FLAGS=-lz -DCMAKE_VERBOSE_MAKEFILE=ON"
@@ -1739,6 +1739,15 @@ build_libspatialaudio() {
     cp -v libspatialaudio.dll ${mingw_w64_x86_64_prefix}/bin/
 
   cd ..
+}
+
+build_libharu() {
+    do_git_checkout https://github.com/libharu/libharu.git libharu
+    cd libharu
+        do_cmake
+        do_make
+        do_make_install
+    cd ..
 }
 
 build_libmysofa() {
@@ -1815,7 +1824,7 @@ build_opendcp() {
 
 build_dcpomatic() {
 #  do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic main # v2.16.52 #805d4a48fa6e4d8e28fd582a2ae6ba78b8343144 main # v2.15.x # fc1441eeaa3c0805c37809685ea7a3f5ca173666 # v2.15.x #97193e96c637ca92eeaf6e72ee38aa628308973b # v2.15.x #402fa9a3577975e9cf9728c815da1b17796fe325 # v2.15.x #9cff6ec974a4d0270091fe5c753483b0d53ecd46
-  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic v2.18.23 # new-ffmpeg-take2 #edbccd8d04a33f9e8d03677d8ebc671f40b0f822 #v2.15.x # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
+  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic v2.18.34 # new-ffmpeg-take2 #edbccd8d04a33f9e8d03677d8ebc671f40b0f822 #v2.15.x # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
 #  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.123" dcpomatic-2.15.123
   cd dcpomatic
     apply_patch file://${top_dir}/dcpomatic-wscript.patch
@@ -1834,6 +1843,7 @@ build_dcpomatic() {
 ##    apply_patch file://${top_dir}/dcpomatic-libsub.patch
 ##    apply_patch file://${top_dir}/dcpomatic-LogColorspace.patch
 #    apply_patch file://${top_dir}/dcpomatic-font-fix.patch
+    apply_patch file://${top_dir}/dcpomatic-typo.diff
      # M_PI is missing in mingw-w64
     sed -i.bak 's/M_PI/3.14159265358979323846/g' src/lib/audio_filter.cc
      # The RC file looks for wxWidgets 3.0 rc, but it's 3.1 in our build
@@ -3460,7 +3470,7 @@ build_libssh() {
 build_asdcplib-cth() {
    # Use brance cth because this is the version the writer works on, and has modified
 #do_git_checkout git://git.carlh.net/git/asdcplib-cth.git asdcplib-cth dcpomatic-2.13.0
-  do_git_checkout git://git.carlh.net/git/asdcplib.git asdcplib v1.0.7 # dcpomatic-2.13.0 # debug
+  do_git_checkout git://git.carlh.net/git/asdcplib.git asdcplib v1.0.8 # dcpomatic-2.13.0 # debug
 #  do_git_checkout https://github.com/cth103/asdcplib.git asdcplib-carl carl
 #  download_and_unpack_file https://github.com/cth103/asdcplib/archive/carl.zip asdcplib-carl
 #  download_and_unpack_file https://www.carlh.net/downloads/libasdcp-cth/libasdcp-cth-0.1.5.tar.bz2 libasdcp-cth-0.1.5
@@ -3524,7 +3534,7 @@ build_asdcplib-cth() {
 build_libdcp() {
   # Branches are slightly askew. 1.0 is where development takes place
 #  do_git_checkout https://github.com/cth103/libdcp.git libdcp main # v1.8.66 #04e215a7688239cb47fc86e8396756c685f338a1 #v1.8.13 #d39880eef211a296fa8ef4712cdef5945d08527c c6665c157bdb6903661d21c571c7d112b54ad8fd # d989a83517fd77aa241c1423ac00cfed62d567fe # f3058b2f1b48ec613bda5781fe97e83a0dca83a9
-  do_git_checkout git://git.carlh.net/git/libdcp.git libdcp v1.10.25 #b75d977a38f039fd68ed5d4055ae70b4bf631603 # v1.6.x # 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
+  do_git_checkout git://git.carlh.net/git/libdcp.git libdcp v1.10.45 #b75d977a38f039fd68ed5d4055ae70b4bf631603 # v1.6.x # 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
 #  download_and_unpack_file https://carlh.net/downloads/libdcp/libdcp-1.6.17.tar.bz2 libdcp-1.6.17
   cd libdcp
     # M_PI is required. This is a quick way of defining it
@@ -3538,7 +3548,7 @@ build_libdcp() {
 #    apply_patch file://${top_dir}/libdcp-cth.patch
 #    apply_patch file://${top_dir}/libdcp-shared_ptr.patch
 #    apply_patch_p1 "http://main.carlh.net/gitweb/?p=libdcp.git;a=patch;h=730ba2273b136ad5a3bfc1a185d69e6cc50a65af"
-    apply_patch file://${top_dir}/libdcp-fmt.patch
+#    apply_patch file://${top_dir}/libdcp-fmt.patch
     apply_patch file://${top_dir}/libdcp-change_extension.patch
     export CXX=x86_64-w64-mingw32-g++
     export CXXFLAGS=-fpermissive
@@ -3563,7 +3573,7 @@ build_libdcp() {
 }
 
 build_libsub() {
-  do_git_checkout git://git.carlh.net/git/libsub.git libsub
+  do_git_checkout git://git.carlh.net/git/libsub.git libsub v1.6.57
 #  do_git_checkout https://git.carlh.net/git/libsub.git libsub
 #  download_and_unpack_file http://carlh.net/downloads/libsub/libsub-1.4.24.tar.bz2 libsub-1.4.24
 #  do_git_checkout https://github.com/cth103/libsub.git libsub v1.6.x
@@ -4151,14 +4161,14 @@ build_atomicparsley() {
 build_gstreamer() {
 
     #do_git_checkout https://github.com/GStreamer/gstreamer.git gstreamer # 6babf1f086cce9cc392e2dc8a6cdf252d9b4cc48
-	download_and_unpack_file https://gstreamer.freedesktop.org/src/gstreamer/gstreamer-1.19.90.tar.xz gstreamer-1.19.90
-	cd gstreamer-1.19.90
+	download_and_unpack_file https://gstreamer.freedesktop.org/src/gstreamer/gstreamer-1.26.10.tar.xz gstreamer-1.26.10
+	cd gstreamer-1.26.10
     #cd gstreamer
         	mkdir -vp tests/examples/controller/include # to work around a bad include directory
         	generic_meson_ninja_install #"--disable-silent-rules --disable-fatal-warnings"
   	cd ..
-	download_and_unpack_file https://gstreamer.freedesktop.org/src/gst-plugins-base/gst-plugins-base-1.19.90.tar.xz gst-plugins-base-1.19.90
-	cd gst-plugins-base-1.19.90
+	download_and_unpack_file https://gstreamer.freedesktop.org/src/gst-plugins-base/gst-plugins-base-1.26.10.tar.xz gst-plugins-base-1.26.10
+	cd gst-plugins-base-1.26.10
 #    do_git_checkout https://github.com/GStreamer/gst-plugins-base.git gst-plugins-base 909baa2360f7ba7b6e2e27a2ad565e3142630abe
  #   cd gst-plugins-base
         	mkdir -vp gst-libs/gst/video/include
@@ -4178,10 +4188,10 @@ build_gstreamer() {
 	        mkdir -vp tests/examples/gl/gtk/fxtest/include
 	        mkdir -vp tests/examples/gl/gtk/switchvideooverlay/include
 	        mkdir -vp tests/examples/gl/gtk/3dvideo/include
-	        generic_meson_ninja_install "-Dexamples=disabled -Dc_args=-fcommon" #"CFLAGS=-fcommon -Dexamples=false"
+	        generic_meson_ninja_install "-Dexamples=disabled -Dc_args=-fcommon" #" -DCFLAGS=-Wno-error=maybe-uninitialized" #"CFLAGS=-fcommon -Dexamples=false"
 	cd ..
-	download_and_unpack_file https://gstreamer.freedesktop.org/src/gst-plugins-bad/gst-plugins-bad-1.19.90.tar.xz gst-plugins-bad-1.19.90
-	cd gst-plugins-bad-1.19.90
+	download_and_unpack_file https://gstreamer.freedesktop.org/src/gst-plugins-bad/gst-plugins-bad-1.26.10.tar.xz gst-plugins-bad-1.26.10
+	cd gst-plugins-bad-1.26.10
 		apply_patch file://${top_dir}/gst-plugins-bad-opencv.patch
 		generic_meson_ninja_install "-Dexamples=disabled -Dc_args=-fcommon -Dopencv=disabled"
 	cd ..
@@ -5149,7 +5159,7 @@ build_libopusenc() {
 build_opustools() {
   do_git_checkout https://github.com/xiph/opus-tools.git opus-tools
   cd opus-tools
-  apply_patch file://${top_dir}/opus-tools-fortify.patch
+#  apply_patch file://${top_dir}/opus-tools-fortify.patch
   if [[ ! -f "configure" ]]; then
     ./autogen.sh
   fi
@@ -7387,6 +7397,9 @@ build_graphicsmagicksnapshot() {
     export filename="${params[0]}"
     export directory="${params[1]}"
     echo "We believe filename is ${filename} and directory is ${directory}"
+    # 25 DECEMBER 2025: SNAPSHOT is BROKEN
+    filename="https://downloads.sourceforge.net/project/graphicsmagick/graphicsmagick/1.3.46/GraphicsMagick-1.3.46.tar.xz"
+    directory="GraphicsMagick-1.3.46"
     download_and_unpack_file ${filename} ${directory}
     echo "Changing directory to ${directory}"
     cd ${directory}
@@ -8248,6 +8261,7 @@ build_apps() {
   build_cuetools
   build_xerces
   build_leqm_nrt
+  build_libharu
 #  build_graphicsmagick
   build_libdcp # Now needs graphicsmagick
   build_libsub

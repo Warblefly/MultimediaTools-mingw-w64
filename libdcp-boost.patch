@@ -17,7 +17,7 @@
                     msg='Checking for boost filesystem library',
 -                   libpath='/usr/local/lib',
 +                   libpath='',
-                    lib=['boost_filesystem%s' % boost_lib_suffix, 'boost_system%s' % boost_lib_suffix],
+                    lib=boost_libs('filesystem'),
                     uselib_store='BOOST_FILESYSTEM')
  
 @@ -212,7 +212,7 @@
@@ -26,6 +26,6 @@
                     msg='Checking for boost datetime library',
 -                   libpath='/usr/local/lib',
 +                   libpath='',
-                    lib=['boost_date_time%s' % boost_lib_suffix, 'boost_system%s' % boost_lib_suffix],
+                    lib=boost_libs('date_time'),
                     uselib_store='BOOST_DATETIME')
  

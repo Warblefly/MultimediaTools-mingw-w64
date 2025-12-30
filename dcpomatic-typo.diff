@@ -1,0 +1,11 @@
+--- src/wx/verify_dcp_result_panel.orig	2025-12-27 23:47:52.918932320 +0000
++++ src/wx/verify_dcp_result_panel.cc	2025-12-27 23:48:15.786753605 +0000
+@@ -568,7 +568,7 @@
+ 				_("More JPEG2000 frames (not listed) contain invalid Rsiz values.")
+ 			);
+ 			break;
+-		case dcp::VerificationNote::Code::MISSING_JPEG200_TLM_MARKER:
++		case dcp::VerificationNote::Code::MISSING_JPEG2000_TLM_MARKER:
+ 			add(
+ 				i.second,
+ 				_("A JPEG2000 frame has no TLM marker."),
