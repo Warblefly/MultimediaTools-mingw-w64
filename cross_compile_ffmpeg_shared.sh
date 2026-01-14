@@ -2693,7 +2693,7 @@ build_libtheora() {
 #    cd ..
     do_git_checkout https://github.com/xiph/theora.git theora
     cd theora
-      apply_patch file://${top_dir}/theora-examples-encoder_example.c.patch
+#      apply_patch file://${top_dir}/theora-examples-encoder_example.c.patch
       # .def files of theora use CRLF line terminators, which makes the most recent
       # GNU binutils trigger a linker error
       # ...ldd: .libs/libtheoradec-1.dll.def:3: syntax error
@@ -7761,13 +7761,37 @@ build_librsvg() {
 	cd ..
 }
 
+build_whisper() {
+  do_git_checkout https://github.com/ggml-org/whisper.cpp.git whisper.cpp
+  cd whisper.cpp
+    sh ./models/download-ggml-model.sh large-v3-turbo
+    mkdir build
+    cd build
+      do_cmake ..
+      do_make
+      do_make_install
+    cd ..
+    # Additionally, the whisper model for decoding needs to be installed. All 1.5GB of it. Sorry!
+    # We now do this as a download from the installer executable
+#    model_dest="${mingw_w64_x86_64_prefix}/share/whisper/models"
+#    echo "Installing whisper models to: ${model_dest}"
+#    mkdir -p "${model_dest}"
+#
+#    for m in ./models/*bin; do
+#      echo "  ->$(basename "$m")"
+#      install -m 0644 "$m" "${model_dest}/"
+#    done
+#    echo "Whisper models installed in ${model_dest}"
+  cd ..  
+}
+
 build_ffmpeg() {
 	do_git_checkout https://github.com/FFmpeg/FFmpeg.git ffmpeg_git # e645a1ddb90a863e129108aad9aa7e2d417f3615 #912f125c4224da6c6b07e53b1c0d3fbdb429a989 #57b5ec6ba7df442caebc401c4a7ef3ebc066b519 #4ff73add5dbe6c319d693355be44df2e17a0b8bf #05c9f6f4ef818cf1e7fdef8e118c9497e58326af #  b06082d1d5d6eeed5f477456beba087dcf9432bc
 	local standard_options="--prefix=$mingw_w64_x86_64_prefix --logfile=/dev/tty"
 	local licensing_options="--enable-nonfree --enable-version3 --enable-gpl"
 	local configuration_options="--disable-static --enable-shared --enable-runtime-cpudetect --enable-gray --disable-w32threads"
 	local component_options="--enable-filter=frei0r --enable-decoder=aac" # fdk_aac gets much decoding wrong
-	local library_options="--enable-libsvtav1 --enable-avisynth --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdc1394 --enable-libfdk-aac --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-gnutls --enable-libgsm --enable-libilbc --enable-libjxl --enable-libklvanc --enable-liblc3 --enable-liblensfun --enable-libmodplug --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopencv --enable-libopenmpt --enable-libopus --enable-librabbitmq --enable-librist --enable-librubberband --enable-librtmp --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libtesseract --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxvid --enable-libxml2 --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 --enable-decklink --enable-libmysofa --enable-opengl --enable-vulkan --enable-opencl --enable-libharfbuzz --enable-libdav1d --enable-libplacebo"
+	local library_options="--enable-whisper --enable-libsvtav1 --enable-avisynth --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdc1394 --enable-libfdk-aac --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-gnutls --enable-libgsm --enable-libilbc --enable-libjxl --enable-libklvanc --enable-liblc3 --enable-liblensfun --enable-libmodplug --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopencv --enable-libopenmpt --enable-libopus --enable-librabbitmq --enable-librist --enable-librubberband --enable-librtmp --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libtesseract --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxvid --enable-libxml2 --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 --enable-decklink --enable-libmysofa --enable-opengl --enable-vulkan --enable-opencl --enable-libharfbuzz --enable-libdav1d --enable-libplacebo"
 	local hardware_options="--disable-libmfx --enable-libvpl"
 	local toolchain_options="--arch=x86_64 --cross-prefix=$cross_prefix --enable-cross-compile --target-os=mingw32 --extra-version=Compiled_by_John_Warburton --enable-pic --nvccflags=-I/usr/local/cuda-11.4/targets/x86_64-linux/include --extra-cflags=-fpermissive"
 	local developer_options="--disable-debug --enable-stripping"
@@ -8238,6 +8262,7 @@ build_apps() {
   build_codec2
   build_ffmpegnv
 #  build_pulseaudio
+  build_whisper
   build_libplacebo
   build_ffmpeg
   #build_pamix

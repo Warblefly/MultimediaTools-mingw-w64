@@ -160,6 +160,17 @@ Unicode true
 !macroend
 !define EnvVarUpdate '!insertmacro "_EnvVarUpdateConstructor"'
 
+; ------------------------ Added by JW for Whisper model download -------------------------
+!macro GetPowerShellPath VAR
+  ; Prefer 64-bit PowerShell if available (SysNative), otherwise fall back
+  StrCpy ${VAR} "$SysNative\WindowsPowerShell\v1.0\powershell.exe"
+  IfFileExists "${VAR}" +3 0
+    StrCpy ${VAR} "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe"
+    IfFileExists "${VAR}" +2 0
+      StrCpy ${VAR} "powershell.exe"
+!macroend
+; ------------------------ end of Whisper download macro
+
 !macro _unEnvVarUpdateConstructor ResultVar EnvVarName Action Regloc PathString
   Push "${EnvVarName}"
   Push "${Action}"
@@ -553,6 +564,63 @@ ExecShell "open" '"$INSTDIR\bin\update-mime-database.exe" > "$INSTDIR\share\mime
 DetailPrint "The pixbuf loader ran as $INSTDIR\bin\gdk-pixbuf-query-loaders.exe returned value $0"
 
 SectionEnd
+
+
+!include "nsDialogs.nsh"
+!include "WinMessages.nsh"
+
+!define WHISPER_MODELS_URL "https://huggingface.co/ggerganov/whisper.cpp/tree/main"
+
+; A small helper to show a final dialog with a copyable URL.
+Function WhisperInfoDialog
+  Var /GLOBAL hwnd
+  Var /GLOBAL hLabel
+  Var /GLOBAL hEdit
+
+  ; Create a simple dialog
+  nsDialogs::Create 1018
+  Pop $hwnd
+
+  ${If} $hwnd == error
+    ; If dialog creation fails, fall back to a message box
+    MessageBox MB_OK|MB_ICONINFORMATION \
+      "Installation complete.$\r$\n$\r$\nOpen this page to download a Whisper model:$\r$\n${WHISPER_MODELS_URL}"
+    Return
+  ${EndIf}
+
+  ; Static text
+  ${NSD_CreateLabel} 0 0 100% 24u \
+    "Installation complete.$\r$\nIf you need Whisper models for FFmpeg, copy the link below and open it in your browser:"
+  Pop $hLabel
+
+  ; Read-only edit control containing the URL (easy to select & copy)
+  ${NSD_CreateText} 0 32u 100% 12u "${WHISPER_MODELS_URL}"
+  Pop $hEdit
+
+  ; Make it read-only and select all text for convenience
+  SendMessage $hEdit ${EM_SETREADONLY} 1 0
+  SendMessage $hEdit ${EM_SETSEL} 0 -1
+
+  ; Show dialog (OK button will be shown by default)
+  nsDialogs::Show
+FunctionEnd
+
+
+; -------------------------------
+; Post-install: just show the URL
+; -------------------------------
+Function .onInstSuccess
+  ; Skip in silent mode
+  IfSilent 0 +2
+    Return
+
+  ; Ask if they want the model download info
+  MessageBox MB_YESNO|MB_ICONQUESTION \
+    "Do you want information on downloading a model for the 'whisper' audio-to-speech facility in FFmpeg?" \
+    /SD IDNO IDYES +2 IDNO +1
+
+  Call WhisperInfoDialog
+FunctionEnd
 
 
 Section "uninstall"
