@@ -26,8 +26,8 @@ export PATH="$working_directory/bin:/usr/local/bin:/usr/bin:/bin"
 echo "Getting binutils..."
 #	wget http://ftp.gnu.org/gnu/binutils/binutils-2.36.1.tar.bz2 || exit 1
 #        tar xvvf binutils-2.36.1.tar.bz2 && ln -sv binutils-2.36.1 binutils
-	git clone --depth 1 --single-branch -b binutils-2_44-branch https://github.com/bminor/binutils-gdb.git binutils || echo "Seems we have binutils."
-#	git clone --depth 1 --single-branch -b binutils-2_36-branch git://sourceware.org/git/binutils-gdb.git binutils || echo "Seems we have binutils."
+#	git clone --depth 1 --single-branch -b binutils-2_44-branch https://github.com/bminor/binutils-gdb.git binutils || echo "Seems we have binutils."
+	git clone --depth 1 --single-branch -b binutils-2_44-branch git://sourceware.org/git/binutils-gdb.git binutils || echo "Seems we have binutils."
 echo "Binutils has arrived."
 
 #echo "Let's add the Fedora rawhide patch set."
