@@ -1824,7 +1824,7 @@ build_opendcp() {
 
 build_dcpomatic() {
 #  do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic main # v2.16.52 #805d4a48fa6e4d8e28fd582a2ae6ba78b8343144 main # v2.15.x # fc1441eeaa3c0805c37809685ea7a3f5ca173666 # v2.15.x #97193e96c637ca92eeaf6e72ee38aa628308973b # v2.15.x #402fa9a3577975e9cf9728c815da1b17796fe325 # v2.15.x #9cff6ec974a4d0270091fe5c753483b0d53ecd46
-  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic v2.18.34 # new-ffmpeg-take2 #edbccd8d04a33f9e8d03677d8ebc671f40b0f822 #v2.15.x # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
+  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic v2.18.37 # new-ffmpeg-take2 #edbccd8d04a33f9e8d03677d8ebc671f40b0f822 #v2.15.x # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
 #  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.123" dcpomatic-2.15.123
   cd dcpomatic
     apply_patch file://${top_dir}/dcpomatic-wscript.patch
@@ -1843,7 +1843,7 @@ build_dcpomatic() {
 ##    apply_patch file://${top_dir}/dcpomatic-libsub.patch
 ##    apply_patch file://${top_dir}/dcpomatic-LogColorspace.patch
 #    apply_patch file://${top_dir}/dcpomatic-font-fix.patch
-    apply_patch file://${top_dir}/dcpomatic-typo.diff
+#    apply_patch file://${top_dir}/dcpomatic-typo.diff
      # M_PI is missing in mingw-w64
     sed -i.bak 's/M_PI/3.14159265358979323846/g' src/lib/audio_filter.cc
      # The RC file looks for wxWidgets 3.0 rc, but it's 3.1 in our build
@@ -2138,7 +2138,7 @@ build_libopus() {
 #  cd opus-1.2-alpha
 #     apply_patch file://${top_dir}/opus-nostatic.patch # one test doesn't work with a shared library
 #    apply_patch file://${top_dir}/opus11.patch # allow it to work with shared builds
-    generic_configure_make_install "--enable-custom-modes --enable-asm --enable-ambisonics --enable-update-draft --enable-dred --enable-deep-plc --enable-osce-training-data --enable-osce"
+    generic_configure_make_install "--enable-custom-modes --enable-asm --enable-ambisonics --enable-update-draft --enable-dred --enable-deep-plc --enable-osce-training-data --enable-osce --enable-qext --enable-deep-plc"
 
   cd ..
 }
@@ -2766,6 +2766,26 @@ build_unittest() {
 	cd ..
 }
 
+build_libargon2() {
+    download_and_unpack_file https://github.com/P-H-C/phc-winner-argon2/archive/refs/tags/20190702.tar.gz phc-winner-argon2-20190702
+    cd phc-winner-argon2-20190702
+        apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-argon2/001-mingw-fix-install.patch
+        apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-argon2/002-mingw-fix-src.patch
+        wget https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-argon2/libargon2.pc
+        apply_patch file://${top_dir}/libargon2-Makefile.patch
+        do_make "PREFIX=${mingw_w64_x86_64_prefix} LIBRARY_REL=lib"
+        do_make_install "PREFIX=${mingw_w64_x86_64_prefix} LIBRARY_REL=lib"
+        install -Dm644 libargon2.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig.libargon2.pc
+    cd ..
+}
+
+build_libfz-ssh () {
+    download_and_unpack_file https://dl3.cdn.filezilla-project.org/fzssh/fzssh-1.1.7.tar.xz fzssh-1.1.7
+    cd fzssh-1.1.7
+        generic_meson_ninja_install
+    cd ..
+}
+
 build_libfilezilla() {
 do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfilezilla
 #    cd libfilezilla
@@ -3237,8 +3257,8 @@ build_fastfloat() {
 build_gnutls() {
 #  download_and_unpack_file https://www.gnupg.org/ftp/gcrypt/gnutls/v3.3/gnutls-3.3.27.tar.xz gnutls-3.3.27
    # do_git_checkout https://gitlab.com/gnutls/gnutls.git gnutls
-  download_and_unpack_file https://www.gnupg.org/ftp/gcrypt/gnutls/v3.8/gnutls-3.8.9.tar.xz gnutls-3.8.9
-  cd gnutls-3.8.9
+  download_and_unpack_file https://www.gnupg.org/ftp/gcrypt/gnutls/v3.8/gnutls-3.8.12.tar.xz gnutls-3.8.12
+  cd gnutls-3.8.12
 #    git submodule init
 #    git submodule update
 #    make autoreconf
@@ -3256,8 +3276,8 @@ build_gnutls() {
 }
 
 build_libnettle() {
-  download_and_unpack_file https://ftp.gnu.org/gnu/nettle/nettle-3.7.3.tar.gz nettle-3.7.3
-  cd nettle-3.7.3
+  download_and_unpack_file https://ftp.gnu.org/gnu/nettle/nettle-3.10.2.tar.gz nettle-3.10.2
+  cd nettle-3.10.2
     generic_configure # "--disable-openssl" # in case we have both gnutls and openssl, just use gnutls [except that gnutls uses this so...huh? https://github.com/rdp/ffmpeg-windows-build-helpers/issues/25#issuecomment-28158515
     do_make_install
 
@@ -3304,8 +3324,8 @@ build_bzlib2() {
 }
 
 build_zlib() {
-  download_and_unpack_file https://www.zlib.net/zlib-1.3.1.tar.xz zlib-1.3.1
-  cd zlib-1.3.1
+  download_and_unpack_file https://www.zlib.net/zlib-1.3.2.tar.xz zlib-1.3.2
+  cd zlib-1.3.2
     export mingw_w64_x86_64_prefix=${mingw_w64_x86_64_prefix}
     echo "PKG_CONFIG_PATH at this point is ${PKG_CONFIG_PATH}"
     apply_patch file://${top_dir}/zlib-Makefile-gcc.patch
@@ -3470,7 +3490,7 @@ build_libssh() {
 build_asdcplib-cth() {
    # Use brance cth because this is the version the writer works on, and has modified
 #do_git_checkout git://git.carlh.net/git/asdcplib-cth.git asdcplib-cth dcpomatic-2.13.0
-  do_git_checkout git://git.carlh.net/git/asdcplib.git asdcplib v1.0.8 # dcpomatic-2.13.0 # debug
+  do_git_checkout git://git.carlh.net/git/asdcplib.git asdcplib v1.0.9 # dcpomatic-2.13.0 # debug
 #  do_git_checkout https://github.com/cth103/asdcplib.git asdcplib-carl carl
 #  download_and_unpack_file https://github.com/cth103/asdcplib/archive/carl.zip asdcplib-carl
 #  download_and_unpack_file https://www.carlh.net/downloads/libasdcp-cth/libasdcp-cth-0.1.5.tar.bz2 libasdcp-cth-0.1.5
@@ -3534,7 +3554,7 @@ build_asdcplib-cth() {
 build_libdcp() {
   # Branches are slightly askew. 1.0 is where development takes place
 #  do_git_checkout https://github.com/cth103/libdcp.git libdcp main # v1.8.66 #04e215a7688239cb47fc86e8396756c685f338a1 #v1.8.13 #d39880eef211a296fa8ef4712cdef5945d08527c c6665c157bdb6903661d21c571c7d112b54ad8fd # d989a83517fd77aa241c1423ac00cfed62d567fe # f3058b2f1b48ec613bda5781fe97e83a0dca83a9
-  do_git_checkout git://git.carlh.net/git/libdcp.git libdcp v1.10.45 #b75d977a38f039fd68ed5d4055ae70b4bf631603 # v1.6.x # 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
+  do_git_checkout git://git.carlh.net/git/libdcp.git libdcp v1.10.50 #b75d977a38f039fd68ed5d4055ae70b4bf631603 # v1.6.x # 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
 #  download_and_unpack_file https://carlh.net/downloads/libdcp/libdcp-1.6.17.tar.bz2 libdcp-1.6.17
   cd libdcp
     # M_PI is required. This is a quick way of defining it
@@ -3573,7 +3593,7 @@ build_libdcp() {
 }
 
 build_libsub() {
-  do_git_checkout git://git.carlh.net/git/libsub.git libsub v1.6.57
+  do_git_checkout git://git.carlh.net/git/libsub.git libsub v1.6.59
 #  do_git_checkout https://git.carlh.net/git/libsub.git libsub
 #  download_and_unpack_file http://carlh.net/downloads/libsub/libsub-1.4.24.tar.bz2 libsub-1.4.24
 #  do_git_checkout https://github.com/cth103/libsub.git libsub v1.6.x
@@ -4255,8 +4275,8 @@ build_wx() {
 build_libsndfile() {
   store_libs=$LIBS
   export LIBS="-logg -lvorbis"
-  generic_download_and_install http://www.mega-nerd.com/libsndfile/files/libsndfile-1.0.28.tar.gz libsndfile-1.0.28 "--enable-experimental"
-  cd libsndfile-1.0.28
+  generic_download_and_install https://github.com/libsndfile/libsndfile/releases/download/1.2.2/libsndfile-1.2.2.tar.xz libsndfile-1.2.2 "--enable-experimental"
+  cd libsndfile-1.2.2
 
   cd ..
   export LIBS=$store_libs
@@ -4978,12 +4998,13 @@ build_SWFTools() {
 #}
 
 build_frei0r() {
-  do_git_checkout https://github.com/dyne/frei0r.git frei0r # 4b363c644e505ce34c79b27d2d664713cbb3dbaa
-  cd frei0r
+    download_and_unpack_file https://github.com/dyne/frei0r/archive/refs/tags/v2.5.6.tar.gz frei0r-2.5.6
+    cd frei0r-2.5.6
+#  cd frei0r
     # The next three patches cope with the missing definition of M_PI
-    apply_patch file://${top_dir}/frei0r-lightgraffiti.cpp.patch
-    apply_patch file://${top_dir}/frei0r-vignette.cpp.patch
-    apply_patch file://${top_dir}/frei0r-partik0l.cpp.patch
+        apply_patch file://${top_dir}/frei0r-lightgraffiti.cpp.patch
+        apply_patch file://${top_dir}/frei0r-vignette.cpp.patch
+        apply_patch file://${top_dir}/frei0r-partik0l.cpp.patch
     # The next patch fixes a compilation problem due to curly brackets
   #  apply_patch file://${top_dir}/frei0r-facedetect.cpp-brackets.patch
     # This inserts boost_system-mt library which is missed off the list
@@ -4993,9 +5014,10 @@ build_frei0r() {
     # These are ALWAYS compiled as DLLs... there is no static library model in frei0r
     # The facedetect filters don't work because there's something wrong in the way frei0r calls into opencv.
     # If you want to debug this, please add -DCMAKE_BUILD_TYPE=Debug, otherwise important parameters are optimized out
-    do_cmake "-DOpenCV_DIR=${OpenCV_DIR} -DOpenCV_INCLUDE_DIR=${OpenCV_INCLUDE_DIR} -DCMAKE_CXX_FLAGS=-std=c++14 -DCMAKE_VERBOSE_MAKEFILE=YES" # && ${top_dir}/correct_headers.sh
+        do_cmake "-DOpenCV_DIR=${OpenCV_DIR} -DOpenCV_INCLUDE_DIR=${OpenCV_INCLUDE_DIR} -DCMAKE_CXX_FLAGS=-std=c++14 -DCMAKE_VERBOSE_MAKEFILE=YES" # && ${top_dir}/correct_headers.sh
     # do_cmake "-DCMAKE_CXX_FLAGS=-std=c++14 -DCMAKE_VERBOSE_MAKEFILE=YES"
-    do_make_install #  "-j1"
+        do_make_install
+    # do_install #  "-j1"
 
   cd ..
 }
@@ -6994,7 +7016,7 @@ build_aom() {
 #    do_configure "--target=x86_64-win64-gcc --prefix=${mingw_w64_x86_64_prefix} --enable-webm-io --enable-pic --enable-multithread --enable-runtime-cpu-detect --enable-postproc --enable-av1 --enable-lowbitdepth --disable-unit-tests"
     mkdir -pv ../aom_build
     cd ../aom_build
-    do_cmake ../aom/. "-DENABLE_TESTS=0 -DAOM_TARGET_CPU=x86_64 -DCONFIG_FILEOPTIONS=1 -DCONFIG_LOWBITDEPTH=0 -DCONFIG_HIGHBITDEPTH=1 -DHAVE_PTHREAD=1 -DCMAKE_TOOLCHAIN_FILE=../aom/build/cmake/toolchains/x86_64-mingw-gcc.cmake"
+    do_cmake ../aom/. "-DENABLE_TESTS=0 -DAOM_TARGET_CPU=x86_64 -DCONFIG_FILEOPTIONS=1 -DCONFIG_LOWBITDEPTH=0 -DCONFIG_HIGHBITDEPTH=1 -DHAVE_PTHREAD=1 -DCMAKE_TOOLCHAIN_FILE=../aom/cmake/toolchains/x86_64-mingw-gcc.cmake"
       do_make
       do_make_install
     cd ../aom
@@ -7782,7 +7804,7 @@ build_whisper() {
 #      install -m 0644 "$m" "${model_dest}/"
 #    done
 #    echo "Whisper models installed in ${model_dest}"
-  cd ..  
+  cd ..
 }
 
 build_ffmpeg() {
@@ -7894,6 +7916,7 @@ build_dependencies() {
   build_gmp # for libnettle
   #build_pcre # for glib and others
   build_pcre2
+  build_zstd
   build_libnettle # needs gmp
 #  build_openssl
   build_openssl11
@@ -7994,7 +8017,9 @@ build_dependencies() {
 #  build_libcdio_libcddb # Now build again with cddb suppor#
   build_libcdio-paranoia
   build_sqlite
+  build_libargon2
   build_libfilezilla
+  build_libfz-ssh
   build_libvpx
 #  build_vo_aacenc
   build_libdecklink
@@ -8024,9 +8049,9 @@ build_dependencies() {
   build_libsigc++
   build_glibmm
   build_libxml++
-  build_libcxml
+  # build_libcxml
   #build_dbus
-  build_zstd
+#  build_zstd
   build_libarchive
   build_jasper # JPEG2000 codec for GraphicsMagick among others
   build_atk
@@ -8070,7 +8095,6 @@ build_dependencies() {
 #  build_openblas # Not until we make a Fortran compiler
   build_libopenmpt
   build_opencv
-  build_frei0r
   #build_libjson
   build_liba52
   build_leptonica
@@ -8095,6 +8119,7 @@ build_dependencies() {
 #  build_angle
   build_cairo
   build_cairomm
+  build_frei0r
   #build_poppler
   #build_pango
   #build_pangomm
@@ -8148,7 +8173,7 @@ build_dependencies() {
 #  build_librsvg
 #  build_gobject_introspection
   build_libepoxy
-  build_rtaudio
+#  build_rtaudio
   build_gtk2
 #  build_gtk
 #  build_gtkmm
@@ -8159,7 +8184,7 @@ build_dependencies() {
   build_aom
   build_svtav1
   build_dav1d
-  build_asdcplib-cth
+#  build_asdcplib-cth
   build_cmark
   build_opusfile
   build_libopusenc
@@ -8285,11 +8310,11 @@ build_apps() {
   #fi
   build_cuetools
   build_xerces
-  build_leqm_nrt
+#  build_leqm_nrt
   build_libharu
 #  build_graphicsmagick
-  build_libdcp # Now needs graphicsmagick
-  build_libsub
+#  build_libdcp # Now needs graphicsmagick
+#  build_libsub
 #  build_pavucontrol
   build_gstreamer
   #build_mkvtoolnix
@@ -8309,7 +8334,7 @@ build_apps() {
 #  build_jackmix
   build_flacon
   build_get_iplayer
-  build_dcpomatic # AWAIT CODE FIX TO COPE WITH UPDATED BOOST
+#  build_dcpomatic # AWAIT CODE FIX TO COPE WITH UPDATED BOOST
 #  build_loudness-scanner Broken by FFmpeg API changes. Sorry.
   build_synaesthesia
   #build_kodi

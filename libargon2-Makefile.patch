@@ -1,0 +1,78 @@
+--- Makefile.orig	2026-03-21 10:24:07.721096892 +0000
++++ Makefile	2026-03-21 10:25:10.120766401 +0000
+@@ -118,6 +118,13 @@
+ 	LIB_CFLAGS := -shared -Wl,--out-implib,lib$(LIB_NAME).$(LIB_EXT).a
+ 	PC_EXTRA_LIBS ?=
+ endif
++ifeq ($(findstring WSL2, $(KERNEL_NAME)), WSL2)
++     LIB_EXT := dll
++     LN_S = 'cp -p'
++     LIB_SH_RT := lib$(LIB_NAME).$(LIB_EXT)
++     LIB_CFLAGS := -shared -Wl,--out-implib,lib$(LIB_NAME).$(LIB_EXT).a
++     PC_EXTRA_LIBS ?=
++endif
+ ifeq ($(findstring MSYS, $(KERNEL_NAME)), MSYS)
+ 	LIB_EXT := dll
+ 	LN_S = 'cp -p'
+--- Makefile.orig	2026-03-21 10:48:52.069437256 +0000
++++ Makefile	2026-03-21 10:50:26.356932173 +0000
+@@ -80,6 +80,7 @@
+ BUILD_PATH := $(shell pwd)
+ KERNEL_NAME := $(shell uname -s)
+ MACHINE_NAME := $(shell uname -m)
++UNAME_NAME := $(shell uname -a)
+ 
+ LIB_NAME = argon2
+ LIB_SH_RT=
+@@ -118,7 +119,7 @@
+ 	LIB_CFLAGS := -shared -Wl,--out-implib,lib$(LIB_NAME).$(LIB_EXT).a
+ 	PC_EXTRA_LIBS ?=
+ endif
+-ifeq ($(findstring WSL2, $(KERNEL_NAME)), WSL2)
++ifeq ($(findstring WSL2, $(UNAME_NAME)), WSL2)
+      LIB_EXT := dll
+      LN_S = 'cp -p'
+      LIB_SH_RT := lib$(LIB_NAME).$(LIB_EXT)
+@@ -140,7 +141,7 @@
+ 	PC_EXTRA_LIBS ?=
+ endif
+ 
+-ifeq ($(KERNEL_NAME), Linux)
++ifeq ($(UNAME_NAME), Linux)
+ ifeq ($(CC), clang)
+ 	CI_CFLAGS += -fsanitize=address -fsanitize=undefined
+ endif
+--- Makefile.orig	2026-03-21 10:53:41.247899652 +0000
++++ Makefile	2026-03-21 10:56:07.307128445 +0000
+@@ -121,6 +121,10 @@
+ endif
+ ifeq ($(findstring WSL2, $(UNAME_NAME)), WSL2)
+      LIB_EXT := dll
++     CC := x86_64-w64-mingw32-gcc
++     LD := x86_64-w64-mingw32-ld
++     AR := x86_64-w64-mingw32-ar
++     AS := x86_64-w64-mingw32-as
+      LN_S = 'cp -p'
+      LIB_SH_RT := lib$(LIB_NAME).$(LIB_EXT)
+      LIB_CFLAGS := -shared -Wl,--out-implib,lib$(LIB_NAME).$(LIB_EXT).a
+--- Makefile.orig	2026-03-21 11:05:28.536153904 +0000
++++ Makefile	2026-03-21 11:08:02.231365018 +0000
+@@ -125,6 +125,7 @@
+      LD := x86_64-w64-mingw32-ld
+      AR := x86_64-w64-mingw32-ar
+      AS := x86_64-w64-mingw32-as
++     RUN:= argon2.exe
+      LN_S = 'cp -p'
+      LIB_SH_RT := lib$(LIB_NAME).$(LIB_EXT)
+      LIB_CFLAGS := -shared -Wl,--out-implib,lib$(LIB_NAME).$(LIB_EXT).a
+--- Makefile.orig	2026-03-21 11:23:04.146766902 +0000
++++ Makefile	2026-03-21 11:23:15.830707260 +0000
+@@ -126,7 +126,7 @@
+      AR := x86_64-w64-mingw32-ar
+      AS := x86_64-w64-mingw32-as
+      RUN:= argon2.exe
+-     LN_S = 'cp -p'
++     LN_S = cp
+      LIB_SH_RT := lib$(LIB_NAME).$(LIB_EXT)
+      LIB_CFLAGS := -shared -Wl,--out-implib,lib$(LIB_NAME).$(LIB_EXT).a
+      PC_EXTRA_LIBS ?=
