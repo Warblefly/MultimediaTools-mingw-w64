@@ -49,8 +49,7 @@ deb-src http://deb.debian.org/debian bullseye-backports main contrib non-free
 4. Now, install some packages using the usual package manager.
 
 ```
-apt install git gcc-13 g++-13 make libgmp-dev libmpfr-dev texinfo bison flex wget lzip xz-utils zlib1g-dev curl automake cmake autopoint libtool unzip bzip2 meson pkg-config gettext subversion
-yasm nasm libtool-bin mm-common python-is-python3 libglib2.0-dev-bin libxml2-utils autoconf-archive gperf libglib2.0-dev gtk-doc-tools gtk-update-icon-cache python3-requests zip qt6-base-dev qt6-shadertools-dev qt6-tools-dev nsis
+apt install git gcc-13 g++-13 make libgmp-dev libmpfr-dev texinfo bison flex wget lzip xz-utils zlib1g-dev curl automake cmake autopoint libtool unzip bzip2 meson pkg-config gettext subversion yasm nasm libtool-bin mm-common python-is-python3 libglib2.0-dev-bin libxml2-utils autoconf-archive gperf libglib2.0-dev gtk-doc-tools gtk-update-icon-cache python3-requests zip qt6-base-dev qt6-shadertools-dev qt6-tools-dev nsis help2man
 ```
 
 5. Clone my package from git (see the address at the top of this page).
