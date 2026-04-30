@@ -1767,7 +1767,7 @@ build_libmysofa() {
 }
 
 build_leqm_nrt() {
-	do_git_checkout git://git.carlh.net/git/leqm-nrt.git leqm-nrt carl
+	do_git_checkout https://git.carlh.net/git/leqm-nrt.git leqm-nrt carl
 	cd leqm-nrt
 		#apply_patch file://${top_dir}/leqmnrt.patch
 		export CC=x86_64-w64-mingw32-g++
@@ -1824,7 +1824,7 @@ build_opendcp() {
 
 build_dcpomatic() {
 #  do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic main # v2.16.52 #805d4a48fa6e4d8e28fd582a2ae6ba78b8343144 main # v2.15.x # fc1441eeaa3c0805c37809685ea7a3f5ca173666 # v2.15.x #97193e96c637ca92eeaf6e72ee38aa628308973b # v2.15.x #402fa9a3577975e9cf9728c815da1b17796fe325 # v2.15.x #9cff6ec974a4d0270091fe5c753483b0d53ecd46
-  do_git_checkout git://git.carlh.net/git/dcpomatic.git dcpomatic v2.18.37 # new-ffmpeg-take2 #edbccd8d04a33f9e8d03677d8ebc671f40b0f822 #v2.15.x # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
+  do_git_checkout https://git.carlh.net/git/dcpomatic.git dcpomatic v2.18.37 # new-ffmpeg-take2 #edbccd8d04a33f9e8d03677d8ebc671f40b0f822 #v2.15.x # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
 #  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.123" dcpomatic-2.15.123
   cd dcpomatic
     apply_patch file://${top_dir}/dcpomatic-wscript.patch
@@ -2780,8 +2780,8 @@ build_libargon2() {
 }
 
 build_libfz-ssh () {
-    download_and_unpack_file https://dl3.cdn.filezilla-project.org/fzssh/fzssh-1.1.7.tar.xz fzssh-1.1.7
-    cd fzssh-1.1.7
+    download_and_unpack_file https://dl3.cdn.filezilla-project.org/fzssh/fzssh-1.2.0.tar.xz fzssh-1.2.0
+    cd fzssh-1.2.0
         generic_meson_ninja_install
     cd ..
 }
@@ -2813,7 +2813,7 @@ do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfile
 }
 
 build_filezilla() {
-  do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla #10897  #10093 #9844 #9530 #9450 # 9262 # 9056
+  do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla 11442 #10897  #10093 #9844 #9530 #9450 # 9262 # 9056
 #  download_and_unpack_file "https://download.filezilla-project.org/client/FileZilla_3.60.1_src.tar.bz2" filezilla-3.60.1
 #  cd filezilla-3.60.1
   cd filezilla
@@ -3490,7 +3490,7 @@ build_libssh() {
 build_asdcplib-cth() {
    # Use brance cth because this is the version the writer works on, and has modified
 #do_git_checkout git://git.carlh.net/git/asdcplib-cth.git asdcplib-cth dcpomatic-2.13.0
-  do_git_checkout git://git.carlh.net/git/asdcplib.git asdcplib v1.0.9 # dcpomatic-2.13.0 # debug
+  do_git_checkout https://git.carlh.net/git/asdcplib.git asdcplib v1.0.9 # dcpomatic-2.13.0 # debug
 #  do_git_checkout https://github.com/cth103/asdcplib.git asdcplib-carl carl
 #  download_and_unpack_file https://github.com/cth103/asdcplib/archive/carl.zip asdcplib-carl
 #  download_and_unpack_file https://www.carlh.net/downloads/libasdcp-cth/libasdcp-cth-0.1.5.tar.bz2 libasdcp-cth-0.1.5
@@ -3554,7 +3554,7 @@ build_asdcplib-cth() {
 build_libdcp() {
   # Branches are slightly askew. 1.0 is where development takes place
 #  do_git_checkout https://github.com/cth103/libdcp.git libdcp main # v1.8.66 #04e215a7688239cb47fc86e8396756c685f338a1 #v1.8.13 #d39880eef211a296fa8ef4712cdef5945d08527c c6665c157bdb6903661d21c571c7d112b54ad8fd # d989a83517fd77aa241c1423ac00cfed62d567fe # f3058b2f1b48ec613bda5781fe97e83a0dca83a9
-  do_git_checkout git://git.carlh.net/git/libdcp.git libdcp v1.10.50 #b75d977a38f039fd68ed5d4055ae70b4bf631603 # v1.6.x # 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
+  do_git_checkout https://git.carlh.net/git/libdcp.git libdcp v1.10.50 #b75d977a38f039fd68ed5d4055ae70b4bf631603 # v1.6.x # 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
 #  download_and_unpack_file https://carlh.net/downloads/libdcp/libdcp-1.6.17.tar.bz2 libdcp-1.6.17
   cd libdcp
     # M_PI is required. This is a quick way of defining it
@@ -3593,7 +3593,7 @@ build_libdcp() {
 }
 
 build_libsub() {
-  do_git_checkout git://git.carlh.net/git/libsub.git libsub v1.6.59
+  do_git_checkout https://git.carlh.net/git/libsub.git libsub v1.6.59
 #  do_git_checkout https://git.carlh.net/git/libsub.git libsub
 #  download_and_unpack_file http://carlh.net/downloads/libsub/libsub-1.4.24.tar.bz2 libsub-1.4.24
 #  do_git_checkout https://github.com/cth103/libsub.git libsub v1.6.x
@@ -6215,7 +6215,7 @@ build_libdc1394() {
 }
 
 build_libcxml(){
-  do_git_checkout git://git.carlh.net/git/libcxml.git libcxml # v0.17.0 #c333199bba3de3955af2c5f2debaa5c4bf9faa43 # 4ad7c9c1ad624fc811ad1b0c34e62657f1f59998 # c336f86b9670c515230767dab9dc56128acf03db #9fb7d466379c0943c22d3e1f0bc51d737e493d7d # 4dfe693bbe01810274f370a7e791a9f508f7e8f6
+  do_git_checkout https://git.carlh.net/git/libcxml.git libcxml # v0.17.0 #c333199bba3de3955af2c5f2debaa5c4bf9faa43 # 4ad7c9c1ad624fc811ad1b0c34e62657f1f59998 # c336f86b9670c515230767dab9dc56128acf03db #9fb7d466379c0943c22d3e1f0bc51d737e493d7d # 4dfe693bbe01810274f370a7e791a9f508f7e8f6
 #  download_and_unpack_file http://carlh.net/downloads/libcxml/libcxml-0.16.1.tar.bz2 libcxml-0.16.1
   cd libcxml
 #    apply_patch file://${top_dir}/libcxml-shared_ptr.patch
@@ -7184,7 +7184,7 @@ build_iculehb() {
 }
 
 build_rtaudio() {
-  do_git_checkout git://git.carlh.net/git/rtaudio.git rtaudio carl # d8f189b660bdb5a05bdb7a69ff81b6a4d71d39bf
+  do_git_checkout https://git.carlh.net/git/rtaudio.git rtaudio carl # d8f189b660bdb5a05bdb7a69ff81b6a4d71d39bf
   cd rtaudio
     do_cmake "-DCMAKE_VERBOSE_MAKEFILE=ON -DRTAUDIO_API_WASAPI=ON -DRTAUDIO_API_ALSA=OFF -DRTAUDIO_API_PULSE=OFF -DRTAUDIO_API_JACK=OFF -DRTAUDIO_API_CORE=OFF"
     do_make "V=1"
@@ -8049,7 +8049,7 @@ build_dependencies() {
   build_libsigc++
   build_glibmm
   build_libxml++
-  # build_libcxml
+  build_libcxml
   #build_dbus
 #  build_zstd
   build_libarchive
@@ -8173,7 +8173,7 @@ build_dependencies() {
 #  build_librsvg
 #  build_gobject_introspection
   build_libepoxy
-#  build_rtaudio
+  build_rtaudio
   build_gtk2
 #  build_gtk
 #  build_gtkmm
@@ -8184,7 +8184,7 @@ build_dependencies() {
   build_aom
   build_svtav1
   build_dav1d
-#  build_asdcplib-cth
+  build_asdcplib-cth
   build_cmark
   build_opusfile
   build_libopusenc
@@ -8310,11 +8310,11 @@ build_apps() {
   #fi
   build_cuetools
   build_xerces
-#  build_leqm_nrt
+  build_leqm_nrt
   build_libharu
 #  build_graphicsmagick
-#  build_libdcp # Now needs graphicsmagick
-#  build_libsub
+  build_libdcp # Now needs graphicsmagick
+  build_libsub
 #  build_pavucontrol
   build_gstreamer
   #build_mkvtoolnix
@@ -8334,7 +8334,7 @@ build_apps() {
 #  build_jackmix
   build_flacon
   build_get_iplayer
-#  build_dcpomatic # AWAIT CODE FIX TO COPE WITH UPDATED BOOST
+  build_dcpomatic # AWAIT CODE FIX TO COPE WITH UPDATED BOOST
 #  build_loudness-scanner Broken by FFmpeg API changes. Sorry.
   build_synaesthesia
   #build_kodi
