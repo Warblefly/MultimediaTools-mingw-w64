@@ -824,25 +824,27 @@ if [ ! -f libx265.built ]; then
   do_git_checkout https://bitbucket.org/multicoreware/x265_git.git x265 c8905a745633543a1a0df6044a09386057a95be2
   cd x265
     apply_patch file://${top_dir}/x265-CMakeVersion.patch
+    apply_patch file://${top_dir}/x265-CMake-policies.patch
+#    apply_patch file://${top_dir}/x265_x86_noasm_fix.patch
 #    apply_patch file://${top_dir}/x265-headers-revert.patch
   cd ..
   cd x265
     cd source
 	mkdir -p 12bit 10bit 8bit
 	cd 12bit
-    		local cmake_params="-DENABLE_STATIC=ON -DENABLE_SHARED=OFF -DENABLE_ASSEMBLY=ON -DHIGH_BIT_DEPTH=ON -DMAIN12=1 -DEXPORT_C_API=0 -DENABLE_CLI=0 -DCMAKE_ASM_NASM_FLAGS=-w-macro-params-legacy"
+    		local cmake_params=" -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DENABLE_STATIC=ON -DENABLE_SHARED=OFF -DENABLE_ASSEMBLY=ON -DHIGH_BIT_DEPTH=ON -DMAIN12=1 -DEXPORT_C_API=0 -DENABLE_CLI=0 -DCMAKE_ASM_NASM_FLAGS=-w-macro-params-legacy"
 		do_cmake .. "$cmake_params"
 		do_make "V=1"
 		cp -vf libx265.a ../8bit/libx265_main12.a
 	cd ..
 	cd 10bit
-		local cmake_params="-DENABLE_STATIC=ON -DENABLE_SHARED=OFF -DENABLE_ASSEMBLY=ON -DHIGH_BIT_DEPTH=ON -DENABLE_HDR10_PLUS=1 -DENABLE_CLI=0 -DEXPORT_C_API=0 -DCMAKE_ASM_NASM_FLAGS=-w-macro-params-legacy"
+		local cmake_params=" -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DENABLE_STATIC=ON -DENABLE_SHARED=OFF -DENABLE_ASSEMBLY=ON -DHIGH_BIT_DEPTH=ON -DENABLE_HDR10_PLUS=1 -DENABLE_CLI=0 -DEXPORT_C_API=0 -DCMAKE_ASM_NASM_FLAGS=-w-macro-params-legacy"
 		do_cmake .. "$cmake_params"
 		do_make "V=1"
 		cp -vf libx265.a ../8bit/libx265_main10.a
 	cd ..
 	cd 8bit
-		local cmake_params="-DENABLE_STATIC=ON -DENABLE_SHARED=OFF -DENABLE_ASSEMBLY=ON -DENABLE_CLI=1 -DEXTRA_LINK_FLAGS=-L -DLINKED_10BIT=1 -DLINKED_12BIT=1 -DCMAKE_ASM_NASM_FLAGS=-w-macro-params-legacy -DEXTRA_LIB='$(pwd)/libx265_main10.a;$(pwd)/libx265_main12.a'"
+		local cmake_params=" -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DENABLE_STATIC=ON -DENABLE_SHARED=OFF -DENABLE_ASSEMBLY=ON -DENABLE_CLI=1 -DEXTRA_LINK_FLAGS=-L -DLINKED_10BIT=1 -DLINKED_12BIT=1 -DCMAKE_ASM_NASM_FLAGS=-w-macro-params-legacy -DEXTRA_LIB='$(pwd)/libx265_main10.a;$(pwd)/libx265_main12.a'"
 		do_cmake .. "$cmake_params"
 		do_make "V=1"
 		mv -vf libx265.a libx265_main.a
@@ -1514,7 +1516,7 @@ build_libsoxr() {
   #download_and_unpack_file http://sourceforge.net/projects/soxr/files/soxr-0.1.1-Source.tar.xz soxr-0.1.1-Source # not /download since apparently some tar's can't untar it without an extension?
   do_git_checkout git://git.code.sf.net/p/soxr/code "soxr-code"
   cd soxr-code
-    do_cmake "-DHAVE_WORDS_BIGENDIAN_EXITCODE=0  -DBUILD_SHARED_LIBS:bool=on -DBUILD_STATIC_LIBS:bool=off -DBUILD_TESTS:BOOL=OFF"
+    do_cmake "-DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DHAVE_WORDS_BIGENDIAN_EXITCODE=0  -DBUILD_SHARED_LIBS:bool=on -DBUILD_STATIC_LIBS:bool=off -DBUILD_TESTS:BOOL=OFF"
     do_make_install
 
   cd ..
@@ -1824,7 +1826,7 @@ build_opendcp() {
 
 build_dcpomatic() {
 #  do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic main # v2.16.52 #805d4a48fa6e4d8e28fd582a2ae6ba78b8343144 main # v2.15.x # fc1441eeaa3c0805c37809685ea7a3f5ca173666 # v2.15.x #97193e96c637ca92eeaf6e72ee38aa628308973b # v2.15.x #402fa9a3577975e9cf9728c815da1b17796fe325 # v2.15.x #9cff6ec974a4d0270091fe5c753483b0d53ecd46
-  do_git_checkout https://git.carlh.net/git/dcpomatic.git dcpomatic v2.18.37 # new-ffmpeg-take2 #edbccd8d04a33f9e8d03677d8ebc671f40b0f822 #v2.15.x # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
+  do_git_checkout https://git.carlh.net/git/dcpomatic.git dcpomatic v2.18.39 # new-ffmpeg-take2 #edbccd8d04a33f9e8d03677d8ebc671f40b0f822 #v2.15.x # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
 #  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.123" dcpomatic-2.15.123
   cd dcpomatic
     apply_patch file://${top_dir}/dcpomatic-wscript.patch
@@ -1896,8 +1898,10 @@ build_libxavs2() {
 }
 
 build_libpng() {
-  download_and_unpack_file https://download.sourceforge.net/libpng/libpng-1.6.39.tar.xz libpng-1.6.39
-  cd libpng-1.6.39
+  do_git_checkout https://github.com/pnggroup/libpng.git libpng libpng18
+#  download_and_unpack_file https://download.sourceforge.net/libpng/libpng-1.6.39.tar.xz libpng-1.6.39
+#  cd libpng-1.6.39
+  cd libpng
     do_cmake "-DPNG_STATIC=OFF"
     do_make
     do_make_install
@@ -1919,7 +1923,7 @@ build_libopenjpeg() {
     # export CFLAGS="$CFLAGS -DOPJ_STATIC" # see https://github.com/rdp/ffmpeg-windows-build-helpers/issues/37
     # MUST install pkgconfig files for other programs to see
     apply_patch file://${top_dir}/libopenjpeg-cmake-pkgconfig.patch
-    do_cmake "-DBUILD_CODEC:bool=off -DBUILD_VIEWER:bool=OFF -DBUILD_MJ2:bool=OFF -DBUILD_JPWL:bool=OFF -DBUILD_JPIP:bool=OFF -DBUILD_TESTS:BOOL=OFF -DBUILD_SHARED_LIBS:BOOL=ON -DBUILD_STATIC_LIBS:BOOL=OFF -DCMAKE_VERBOSE_MAKEFILE=OFF"
+    do_cmake "-DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DBUILD_CODEC:bool=off -DBUILD_VIEWER:bool=OFF -DBUILD_MJ2:bool=OFF -DBUILD_JPWL:bool=OFF -DBUILD_JPIP:bool=OFF -DBUILD_TESTS:BOOL=OFF -DBUILD_SHARED_LIBS:BOOL=ON -DBUILD_STATIC_LIBS:BOOL=OFF -DCMAKE_VERBOSE_MAKEFILE=OFF"
     do_make_install
    # export CFLAGS=$original_cflags # reset it
     # Copy to an expected name the pkgconfig file
@@ -1951,7 +1955,7 @@ build_libopenjpeg2() {
 build_libopenjpeg2carl2() {
 	do_git_checkout https://github.com/cth103/openjpeg.git openjpeg2_carl_2 carl-2
 	cd openjpeg2_carl_2
-		 do_cmake "-D_BUILD_SHARED_LIBS:BOOL=ON -DBUILD_VIEWER:bool=OFF -DBUILD_MJ2:bool=OFF -DBUILD_JPWL:bool=OFF -DBUILD_JPIP:bool=OFF -DBUILD_TESTS:bool=OFF -DBUILD_SHARED_LIBS:bool=ON -DBUILD_STATIC_LIBS:BOOL=OFF -DBUILD_CODEC:bool=ON -DBUILD_PKGCONFIG_FILES:bool=ON"
+		 do_cmake "-DCMAKE_POLICY_VERSION_MINIMUM=3.5 -D_BUILD_SHARED_LIBS:BOOL=ON -DBUILD_VIEWER:bool=OFF -DBUILD_MJ2:bool=OFF -DBUILD_JPWL:bool=OFF -DBUILD_JPIP:bool=OFF -DBUILD_TESTS:bool=OFF -DBUILD_SHARED_LIBS:bool=ON -DBUILD_STATIC_LIBS:BOOL=OFF -DBUILD_CODEC:bool=ON -DBUILD_PKGCONFIG_FILES:bool=ON"
 		 do_make_install
 		 # This needs copying across every time because it's overwritten by other installs
 		 cp -vf libopenjp2.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig/libopenjp2.pc
@@ -2604,8 +2608,9 @@ build_rsync() {
 
 build_libjpeg_turbo() {
 #  do_git_checkout https://github.com/libjpeg-turbo/libjpeg-turbo libjpeg-turbo #1.5.x
-  download_and_unpack_file https://downloads.sourceforge.net/project/libjpeg-turbo/2.0.4/libjpeg-turbo-2.0.4.tar.gz libjpeg-turbo-2.0.4
-  cd libjpeg-turbo-2.0.4
+#  download_and_unpack_file https://downloads.sourceforge.net/project/libjpeg-turbo/2.0.4/libjpeg-turbo-2.0.4.tar.gz libjpeg-turbo-2.0.4
+  download_and_unpack_file https://github.com/libjpeg-turbo/libjpeg-turbo/releases/download/3.1.4.1/libjpeg-turbo-3.1.4.1.tar.gz libjpeg-turbo-3.1.4.1
+  cd libjpeg-turbo-3.1.4.1
 #    apply_patch file://${top_dir}/libjpeg-turbo-simd-yasm.patch
     do_cmake "-DENABLE_STATIC=FALSE -DENABLE_SHARED=TRUE -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_SYSTEM_PROCESSOR=AMD64 -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc -DCMAKE_RC_COMPILER=x86_64-w64-mingw32-windres"
     do_make_install
@@ -3477,8 +3482,8 @@ build_libssh() {
     if [ ! -f $touch_name ]; then
       export ZLIB_ROOT_DIR=${mingw_w64_x86_64_prefix}
       echo doing cmake in ../libssh-0.8.3 with PATH=$PATH  with extra_args=$extra_args like this:
-      echo cmake ../libssh-0.8.3 -DCMAKE_C_FLAGS=-DGPGRT_ENABLE_ES_MACROS -DCMAKE_C_FLAGS=-Wno-incompatible-pointer-types -DENABLE_STATIC_RUNTIME=0 -DENABLE_SHARED_RUNTIME=1 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_RANLIB=${cross_prefix}ranlib -DCMAKE_C_COMPILER=${cross_prefix}gcc -DCMAKE_CXX_COMPILER=${cross_prefix}g++ -DCMAKE_RC_COMPILER=${cross_prefix}windres -DCMAKE_INSTALL_PREFIX=$mingw_w64_x86_64_prefix -DWITH_GCRYPT=ON $extra_args || exit 1
-      cmake ../libssh-0.8.3 -DCMAKE_C_FLAGS=-DGPGRT_ENABLE_ES_MACROS -DCMAKE_C_FLAGS=-Wno-incompatible-pointer-types -DENABLE_STATIC_RUNTIME=0 -DENABLE_SHARED_RUNTIME=1 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_RANLIB=${cross_prefix}ranlib -DCMAKE_C_COMPILER=${cross_prefix}gcc -DCMAKE_CXX_COMPILER=${cross_prefix}g++ -DCMAKE_RC_COMPILER=${cross_prefix}windres -DCMAKE_INSTALL_PREFIX=$mingw_w64_x86_64_prefix -DWITH_GCRYPT=ON $extra_args || exit 1
+      echo cmake ../libssh-0.8.3 -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_C_FLAGS=-DGPGRT_ENABLE_ES_MACROS -DCMAKE_C_FLAGS=-Wno-incompatible-pointer-types -DENABLE_STATIC_RUNTIME=0 -DENABLE_SHARED_RUNTIME=1 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_RANLIB=${cross_prefix}ranlib -DCMAKE_C_COMPILER=${cross_prefix}gcc -DCMAKE_CXX_COMPILER=${cross_prefix}g++ -DCMAKE_RC_COMPILER=${cross_prefix}windres -DCMAKE_INSTALL_PREFIX=$mingw_w64_x86_64_prefix -DWITH_GCRYPT=ON $extra_args || exit 1
+      cmake ../libssh-0.8.3 -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_C_FLAGS=-DGPGRT_ENABLE_ES_MACROS -DCMAKE_C_FLAGS=-Wno-incompatible-pointer-types -DENABLE_STATIC_RUNTIME=0 -DENABLE_SHARED_RUNTIME=1 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_RANLIB=${cross_prefix}ranlib -DCMAKE_C_COMPILER=${cross_prefix}gcc -DCMAKE_CXX_COMPILER=${cross_prefix}g++ -DCMAKE_RC_COMPILER=${cross_prefix}windres -DCMAKE_INSTALL_PREFIX=$mingw_w64_x86_64_prefix -DWITH_GCRYPT=ON $extra_args || exit 1
       do_make
       do_make_install
 
@@ -3554,7 +3559,7 @@ build_asdcplib-cth() {
 build_libdcp() {
   # Branches are slightly askew. 1.0 is where development takes place
 #  do_git_checkout https://github.com/cth103/libdcp.git libdcp main # v1.8.66 #04e215a7688239cb47fc86e8396756c685f338a1 #v1.8.13 #d39880eef211a296fa8ef4712cdef5945d08527c c6665c157bdb6903661d21c571c7d112b54ad8fd # d989a83517fd77aa241c1423ac00cfed62d567fe # f3058b2f1b48ec613bda5781fe97e83a0dca83a9
-  do_git_checkout https://git.carlh.net/git/libdcp.git libdcp v1.10.50 #b75d977a38f039fd68ed5d4055ae70b4bf631603 # v1.6.x # 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
+  do_git_checkout https://git.carlh.net/git/libdcp.git libdcp v1.10.56 #b75d977a38f039fd68ed5d4055ae70b4bf631603 # v1.6.x # 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
 #  download_and_unpack_file https://carlh.net/downloads/libdcp/libdcp-1.6.17.tar.bz2 libdcp-1.6.17
   cd libdcp
     # M_PI is required. This is a quick way of defining it
@@ -3593,7 +3598,7 @@ build_libdcp() {
 }
 
 build_libsub() {
-  do_git_checkout https://git.carlh.net/git/libsub.git libsub v1.6.59
+  do_git_checkout https://git.carlh.net/git/libsub.git libsub v1.6.61
 #  do_git_checkout https://git.carlh.net/git/libsub.git libsub
 #  download_and_unpack_file http://carlh.net/downloads/libsub/libsub-1.4.24.tar.bz2 libsub-1.4.24
 #  do_git_checkout https://github.com/cth103/libsub.git libsub v1.6.x
@@ -3865,7 +3870,22 @@ build_libpaper() {
 }
 
 build_ghostscript() {
-	generic_download_and_install https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs9561/ghostscript-9.56.1.tar.gz ghostscript-9.56.1 "--without-tesseract --enable-fontconfig --enable-freetype --enable-openjpeg --with-jbig2dec --with-libidn --with-libpaper --with-drivers=ALL"
+#	generic_download_and_install https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs9561/ghostscript-9.56.1.tar.gz ghostscript-9.56.1 "--without-tesseract --enable-fontconfig --enable-freetype --enable-openjpeg --with-jbig2dec --with-libidn --with-libpaper --with-drivers=ALL"
+    download_and_unpack_file https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs10070/ghostscript-10.07.0.tar.gz ghostscript-10.07.0
+    cd ghostscript-10.07.0
+#       apply_patch_p1 file://${top_dir}/ghostscript-mingw-build.patch
+       apply_patch_p1 file://${top_dir}/ghostscript-sys-zlib.patch
+       apply_patch_p1 file://${top_dir}/ghostscript-libspectre.patch
+#       apply_patch_p1 file://${top_dir}/ghostscript-add-arm-arch-config.patch
+       sed -e "s|/usr/local|${mingw_w64_x86_64_prefix}|g" -i base/all-arch.mak base/unix-aux.mak
+       rm -rf expat freetype jpeg libpng openjpeg tiff tesseract leptonica
+#       libtoolize --force --copy --install
+#       autoreconf -fvi
+       generic_configure "--without-tesseract --disable-contrib --enable-fontconfig --enable-freetype --enable-openjpeg --with-jbig2dec --with-libidn --with-libpaper --with-drivers=ALL --without-x"
+#       apply_patch file://${top_dir}/ghostscript-fix-Makefile.patch
+       do_make "DEVICE_DEVS_EXTRA=soobj/bbox.dev so"
+       do_make soinstall
+    cd ..
 }
 
 build_freetype() {
@@ -5108,8 +5128,9 @@ build_libcanberra() {
 }
 
 build_snappy () {
-  do_git_checkout https://github.com/google/snappy.git snappy b5477a8457a42c10c3fffb5851cd0ef09caabb50
+  do_git_checkout https://github.com/google/snappy.git snappy # b5477a8457a42c10c3fffb5851cd0ef09caabb50
   cd snappy
+    git submodule update --init
     # apply_patch file://${top_dir}/snappy-shared-dll.patch
     cp README.md README
     # Distribution got its documentation wrong
@@ -5761,7 +5782,7 @@ build_cdrkit() {
 build_libebur128() {
   do_git_checkout https://github.com/jiixyj/libebur128.git libebur128
   cd libebur128
-    do_cmake "-DENABLE_INTERNAL_QUEUE_H=ON"
+    do_cmake "-DENABLE_INTERNAL_QUEUE_H=ON -DCMAKE_POLICY_VERSION_MINIMUM=3.5"
     do_make
     do_make_install
     cp -v ${mingw_w64_x86_64_prefix}/lib/libebur128.dll ${mingw_w64_x86_64_prefix}/bin/libebur128.dll
@@ -6174,7 +6195,7 @@ build_libebml() {
 #  cd ..
 	download_and_unpack_file https://github.com/Matroska-Org/libebml/archive/release-1.4.4.tar.gz libebml-release-1.4.4
 	cd libebml-release-1.4.4
-		do_cmake
+		do_cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 		do_make
 		do_make_install
 	cd ..
@@ -6185,7 +6206,7 @@ build_libmatroska() {
 
 	download_and_unpack_file https://github.com/Matroska-Org/libmatroska/archive/release-1.7.1.tar.gz libmatroska-release-1.7.1
 	cd libmatroska-release-1.7.1
-		do_cmake # && ${top_dir}/correct_headers.sh
+		do_cmake  -DCMAKE_POLICY_VERSION_MINIMUM=3.5 # && ${top_dir}/correct_headers.sh
 #		echo "Environment is: "
 #		env
 #		exit 1
@@ -6332,8 +6353,8 @@ build_libexif() {
 }
 
 build_libzip() {
-  download_and_unpack_file http://www.nih.at/libzip/libzip-1.5.1.tar.xz libzip-1.5.1
-  cd libzip-1.5.1
+  download_and_unpack_file https://libzip.org/download/libzip-1.11.4.tar.xz libzip-1.11.4
+  cd libzip-1.11.4
     do_cmake
     do_make
     do_make_install
@@ -6342,8 +6363,9 @@ build_libzip() {
 
 build_uchardet() {
 #do_git_checkout git://anongit.freedesktop.org/uchardet/uchardet uchardet
-  download_and_unpack_file https://www.freedesktop.org/software/uchardet/releases/uchardet-0.0.8.tar.xz uchardet-0.0.8
-    cd uchardet-0.0.8
+  do_git_checkout https://gitlab.freedesktop.org/uchardet/uchardet.git uchardet
+#  download_and_unpack_file https://www.freedesktop.org/software/uchardet/releases/uchardet-0.0.8.tar.xz uchardet-0.0.8
+    cd uchardet
         do_cmake "-DTARGET_ARCHITECTURE=x86"
         do_make
         do_make_install
@@ -6687,7 +6709,7 @@ do_git_checkout https://github.com/KhronosGroup/SPIRV-Tools.git SPIRV-Tools d0a8
     cd SPIRV-Tools
         ln -svf ../../SPIRV-Headers external
         # apply_patch file://${top_dir}/SPIRV-Tools-shared.patch
-        do_cmake_static "-DCMAKE_BUILD_TYPE=Release -DCMAKE_VERBOSE_MAKEFILE=ON -DSPIRV_WERROR=OFF"
+        do_cmake_static "-DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_BUILD_TYPE=Release -DCMAKE_VERBOSE_MAKEFILE=ON -DSPIRV_WERROR=OFF"
         do_make
         do_make_install
     cd ..
@@ -6701,7 +6723,7 @@ build_glslang() {
         #apply_patch file://${top_dir}/glslang-threads.patch
     #    apply_patch file://${top_dir}/glslang-shared.patch
     	apply_patch file://${top_dir}/glslang-secure.patch
-        do_cmake_static "-DBUILD_SHARED_LIBS=ON -DENABLE_HLSL=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_VERBOSE_MAKEFILE=YES"
+        do_cmake_static "-DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DBUILD_SHARED_LIBS=ON -DENABLE_HLSL=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_VERBOSE_MAKEFILE=YES"
         do_make "V=1"
         do_make_install
     cd ..
@@ -6717,7 +6739,7 @@ build_shaderc() {
         apply_patch file://${top_dir}/shaderc.patch
         mkdir build
         cd build
-        do_cmake_static ".." "-GNinja -DSHADERC_SKIP_TESTS=ON -DCMAKE_VERBOSE_MAKEFILE=YES " #-DSHADERC_ENABLE_SHARED_CRT=ON" # -DSHADERC_ENABLE_SHARED_CRT=ON"
+        do_cmake_static ".." "-DCMAKE_POLICY_VERSION_MINIMUM=3.5 -GNinja -DSHADERC_SKIP_TESTS=ON -DCMAKE_VERBOSE_MAKEFILE=YES " #-DSHADERC_ENABLE_SHARED_CRT=ON" # -DSHADERC_ENABLE_SHARED_CRT=ON"
         apply_patch file://${top_dir}/shaderc-build-new.patch
         cd ..
 	cd libshaderc/src
@@ -6957,7 +6979,7 @@ build_eigen() {
     mkdir -pv build
     cd build
       export FC=${cross_prefix}gfortran
-      do_cmake ..
+      do_cmake .. " -DCMAKE_POLICY_VERSION_MINIMUM=3.5"
       do_make_install
 # Need to put the pkgconfig file in the right place
       cp -v eigen3.pc ${mingw_w64_x86_64_prefix}/lib/pkgconfig
@@ -7186,6 +7208,7 @@ build_iculehb() {
 build_rtaudio() {
   do_git_checkout https://git.carlh.net/git/rtaudio.git rtaudio carl # d8f189b660bdb5a05bdb7a69ff81b6a4d71d39bf
   cd rtaudio
+    apply_patch file://${top_dir}/rtaudio-CMakeLists.patch
     do_cmake "-DCMAKE_VERBOSE_MAKEFILE=ON -DRTAUDIO_API_WASAPI=ON -DRTAUDIO_API_ALSA=OFF -DRTAUDIO_API_PULSE=OFF -DRTAUDIO_API_JACK=OFF -DRTAUDIO_API_CORE=OFF"
     do_make "V=1"
     do_make_install "V=1"
@@ -7398,7 +7421,7 @@ build_freeglut() {
 	download_and_unpack_file https://downloads.sourceforge.net/project/freeglut/freeglut/3.2.2/freeglut-3.2.2.tar.gz freeglut-3.2.2
 	cd freeglut-3.2.2
 		export GNU_HOST=x86_64-w64-mingw32
-		do_cmake "-DGNU_HOST=$GNU_HOST -DCMAKE_TOOLCHAIN_FILE=mingw_cross_toolchain.cmake"
+		do_cmake " -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DGNU_HOST=$GNU_HOST -DCMAKE_TOOLCHAIN_FILE=mingw_cross_toolchain.cmake"
 		do_make
 		do_make_install
 	cd ..
@@ -7764,7 +7787,7 @@ build_uavs3d() {
 }
 
 build_libjxl() {
-	do_git_checkout https://github.com/libjxl/libjxl.git libjxl v0.11.1
+	do_git_checkout https://github.com/libjxl/libjxl.git libjxl v0.11.2
 	cd libjxl
 		do_cmake . "-DBUILD_TESTING=OFF -DJPEGXL_ENABLE_BENCHMARK=OFF -DPROVISION_DEPENDENCIES=ON"
 		do_make
@@ -8465,6 +8488,7 @@ cd -
 #cd -
 export PKG_CONFIG_LIBDIR= # disable pkg-config from reverting back to and finding system installed packages [yikes]
 
+export CMAKE_POLICY_VERSION_MINIMUM=3.5 # This is a workaround for CMake modernising itself
 
 original_path="$PATH"
 

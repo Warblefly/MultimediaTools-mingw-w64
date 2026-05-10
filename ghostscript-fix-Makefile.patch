@@ -1,0 +1,11 @@
+--- Makefile.orig	2026-05-09 12:37:59.601217872 +0100
++++ Makefile	2026-05-09 12:38:18.981039257 +0100
+@@ -527,7 +527,7 @@
+ # Solaris may need -lnsl -lsocket -lposix4.
+ # (Libraries required by individual drivers are handled automatically.)
+ 
+-EXTRALIBS=$(XTRALIBS) -lm -ldl  -liconv -L/home/john/MultimediaTools-mingw-w64/sandbox/x86_64-w64-mingw32/x86_64-w64-mingw32/lib -lidn -lpaper -L/home/john/MultimediaTools-mingw-w64/sandbox/x86_64-w64-mingw32/x86_64-w64-mingw32/lib -ltiff @MINGW_XTLIBS@  -L/home/john/MultimediaTools-mingw-w64/sandbox/x86_64-w64-mingw32/x86_64-w64-mingw32/lib -lfontconfig -lintl -liconv -lexpat -lz -lfreetype -lfreetype -L/home/john/MultimediaTools-mingw-w64/sandbox/x86_64-w64-mingw32/x86_64-w64-mingw32/lib -lopenjp2 
++EXTRALIBS=$(XTRALIBS) -lm -ldl  -liconv -L/home/john/MultimediaTools-mingw-w64/sandbox/x86_64-w64-mingw32/x86_64-w64-mingw32/lib -lidn -lpaper -L/home/john/MultimediaTools-mingw-w64/sandbox/x86_64-w64-mingw32/x86_64-w64-mingw32/lib -ltiff -lwinspool -L/home/john/MultimediaTools-mingw-w64/sandbox/x86_64-w64-mingw32/x86_64-w64-mingw32/lib -lfontconfig -lintl -liconv -lexpat -lz -lfreetype -lfreetype -L/home/john/MultimediaTools-mingw-w64/sandbox/x86_64-w64-mingw32/x86_64-w64-mingw32/lib -lopenjp2 
+ AUXEXTRALIBS= 
+ 
+ # Define the standard libraries to search at the end of linking.
