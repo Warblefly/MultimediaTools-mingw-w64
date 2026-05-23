@@ -1,0 +1,12 @@
+--- cairomm/context.cc.orig	2026-05-20 20:06:42.135258512 +0100
++++ cairomm/context.cc	2026-05-20 20:08:14.706435247 +0100
+@@ -15,6 +15,9 @@
+  */
+ 
+ /* M_PI is defined in math.h in the case of Microsoft Visual C++ */
++#if defined(_WIN32)
++#define _USE_MATH_DEFINES
++#endif
+ 
+ #include <cairommconfig.h>
+ #include <cairomm/context.h>

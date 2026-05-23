@@ -1,0 +1,10 @@
+--- pango/pangomm/attrlist.cc.orig	2026-05-23 19:06:22.600804293 +0100
++++ pango/pangomm/attrlist.cc	2026-05-23 19:06:51.588546547 +0100
+@@ -3,6 +3,7 @@
+ 
+ #include <glibmm.h>
+ 
++#include <pango-1.0/pango/pango-markup.h>
+ #include <pangomm/attrlist.h>
+ #include <pangomm/private/attrlist_p.h>
+ 

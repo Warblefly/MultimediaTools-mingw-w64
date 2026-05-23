@@ -92,7 +92,7 @@ echo "Making the mingw link..."
 ln -sv $host $working_directory/mingw
 
 echo "Cloning the mingw-w64 headers, crt and libraries..."
-git clone --branch v12.x git://git.code.sf.net/p/mingw-w64/mingw-w64 mingw-w64 || echo "Seems we have mingw-w64."
+git clone --branch v14.x git://git.code.sf.net/p/mingw-w64/mingw-w64 mingw-w64 || echo "Seems we have mingw-w64."
 # add clone -b v11.x for stable version
 echo "mingw-w64 has arrived."
 
@@ -155,7 +155,7 @@ echo "Mingw-w64 headers are installed."
 
 echo "Cloning GCC..."
 
-git clone --depth 1 --single-branch -b releases/gcc-14 https://github.com/gcc-mirror/gcc.git gcc || echo "Seems we have GCC."
+git clone --depth 1 --single-branch -b releases/gcc-15 https://github.com/gcc-mirror/gcc.git gcc || echo "Seems we have GCC."
 #git clone https://github.com/gcc-mirror/gcc.git gcc
 #cd gcc
 #	git checkout e6d369bbdb4eb5f03eec233ef9905013a735fd71 || echo "Correct commit of GCC."
@@ -178,8 +178,8 @@ cd gcc
 		tar xvvf gmp-6.3.0.tar.lz && ln -sv gmp-6.3.0 gmp
 		wget https://ftp.gnu.org/gnu/mpfr/mpfr-4.2.2.tar.xz || exit 1
 		tar xvvf mpfr-4.2.2.tar.xz && ln -sv mpfr-4.2.2 mpfr
-		wget https://ftp.gnu.org/gnu/mpc/mpc-1.3.1.tar.gz || exit 1
-		tar xvvf mpc-1.3.1.tar.gz && ln -sv mpc-1.3.1 mpc
+		wget https://ftp.gnu.org/gnu/mpc/mpc-1.4.1.tar.xz || exit 1
+		tar xvvf mpc-1.4.1.tar.xz && ln -sv mpc-1.4.1 mpc
 		wget https://libisl.sourceforge.io/isl-0.27.tar.xz || exit 1
 		tar xvvf isl-0.27.tar.xz && ln -sv isl-0.27 isl
 		touch gcc_accessories_source

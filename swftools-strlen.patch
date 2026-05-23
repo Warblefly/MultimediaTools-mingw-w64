@@ -1,0 +1,50 @@
+--- lib/ttf.c.orig	2026-05-17 21:15:25.134002625 +0100
++++ lib/ttf.c	2026-05-17 21:15:39.589872735 +0100
+@@ -23,6 +23,7 @@
+ #include <stdlib.h>
+ #include <memory.h>
+ #include <assert.h>
++#include <string.h>
+ #include "log.h"
+ #include "os.h"
+ #include "q.h"
+--- lib/devices/render.c.orig	2026-05-17 21:28:28.902950659 +0100
++++ lib/devices/render.c	2026-05-17 21:28:45.686799236 +0100
+@@ -22,6 +22,7 @@
+ #include <stdio.h>
+ #include <math.h>
+ #include <memory.h>
++#include <string.h>
+ #include "../gfxdevice.h"
+ #include "../gfxtools.h"
+ #include "../mem.h"
+--- lib/filters/remove_font_transforms.c.orig	2026-05-17 21:36:44.914481825 +0100
++++ lib/filters/remove_font_transforms.c	2026-05-17 21:37:01.714330262 +0100
+@@ -21,6 +21,7 @@
+ #include <stdlib.h>
+ #include <math.h>
+ #include <memory.h>
++#include <string.h>
+ #include "../gfxfilter.h"
+ #include "../gfxtools.h"
+ #include "../gfxfont.h"
+--- lib/filters/one_big_font.c.orig	2026-05-17 21:37:46.641924573 +0100
++++ lib/filters/one_big_font.c	2026-05-17 21:38:03.057775404 +0100
+@@ -20,6 +20,7 @@
+ 
+ #include <stdlib.h>
+ #include <memory.h>
++#include <string.h>
+ #include "../gfxfilter.h"
+ #include "../gfxtools.h"
+ #include "../gfxfont.h"
+--- lib/gfxpoly/active.c.orig	2026-05-17 21:41:41.251820753 +0100
++++ lib/gfxpoly/active.c	2026-05-17 21:42:03.175623015 +0100
+@@ -1,6 +1,7 @@
+ #include <stdlib.h>
+ #include <memory.h>
+ #include <math.h>
++#include <string.h>
+ #include "../../config.h"
+ #include "../q.h"
+ #include "../types.h"

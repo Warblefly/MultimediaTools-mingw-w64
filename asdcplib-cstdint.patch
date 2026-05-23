@@ -1,0 +1,10 @@
+--- src/KM_fileio.h.orig	2026-05-17 18:18:08.897285492 +0100
++++ src/KM_fileio.h	2026-05-17 18:18:38.341023041 +0100
+@@ -34,6 +34,7 @@
+ 
+ #include <KM_util.h>
+ #include <string>
++#include <cstdint>
+ 
+ #ifdef KM_WIN32
+ # include <io.h>

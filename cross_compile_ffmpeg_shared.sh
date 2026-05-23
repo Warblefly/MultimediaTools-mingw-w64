@@ -829,22 +829,23 @@ if [ ! -f libx265.built ]; then
 #    apply_patch file://${top_dir}/x265-headers-revert.patch
   cd ..
   cd x265
+    apply_patch file://${top_dir}/x265-missing-include.patch
     cd source
 	mkdir -p 12bit 10bit 8bit
 	cd 12bit
-    		local cmake_params=" -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DENABLE_STATIC=ON -DENABLE_SHARED=OFF -DENABLE_ASSEMBLY=ON -DHIGH_BIT_DEPTH=ON -DMAIN12=1 -DEXPORT_C_API=0 -DENABLE_CLI=0 -DCMAKE_ASM_NASM_FLAGS=-w-macro-params-legacy"
+    		local cmake_params="-DCMAKE_C_FLAGS=-std=gnu17 -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DENABLE_STATIC=ON -DENABLE_SHARED=OFF -DENABLE_ASSEMBLY=ON -DHIGH_BIT_DEPTH=ON -DMAIN12=1 -DEXPORT_C_API=0 -DENABLE_CLI=0 -DCMAKE_ASM_NASM_FLAGS=-w-macro-params-legacy"
 		do_cmake .. "$cmake_params"
 		do_make "V=1"
 		cp -vf libx265.a ../8bit/libx265_main12.a
 	cd ..
 	cd 10bit
-		local cmake_params=" -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DENABLE_STATIC=ON -DENABLE_SHARED=OFF -DENABLE_ASSEMBLY=ON -DHIGH_BIT_DEPTH=ON -DENABLE_HDR10_PLUS=1 -DENABLE_CLI=0 -DEXPORT_C_API=0 -DCMAKE_ASM_NASM_FLAGS=-w-macro-params-legacy"
+		local cmake_params="-DCMAKE_C_FLAGS=-std=gnu17 -DCMAKE_CXX_FLAGS=-std=gnu++17 -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DENABLE_STATIC=ON -DENABLE_SHARED=OFF -DENABLE_ASSEMBLY=ON -DHIGH_BIT_DEPTH=ON -DENABLE_HDR10_PLUS=1 -DENABLE_CLI=0 -DEXPORT_C_API=0 -DCMAKE_ASM_NASM_FLAGS=-w-macro-params-legacy"
 		do_cmake .. "$cmake_params"
 		do_make "V=1"
 		cp -vf libx265.a ../8bit/libx265_main10.a
 	cd ..
 	cd 8bit
-		local cmake_params=" -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DENABLE_STATIC=ON -DENABLE_SHARED=OFF -DENABLE_ASSEMBLY=ON -DENABLE_CLI=1 -DEXTRA_LINK_FLAGS=-L -DLINKED_10BIT=1 -DLINKED_12BIT=1 -DCMAKE_ASM_NASM_FLAGS=-w-macro-params-legacy -DEXTRA_LIB='$(pwd)/libx265_main10.a;$(pwd)/libx265_main12.a'"
+		local cmake_params="-DCMAKE_C_FLAGS=-std=gnu17 -DCMAKE_CXX_FLAGS=-std=gnu++17 -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DENABLE_STATIC=ON -DENABLE_SHARED=OFF -DENABLE_ASSEMBLY=ON -DENABLE_CLI=1 -DEXTRA_LINK_FLAGS=-L -DLINKED_10BIT=1 -DLINKED_12BIT=1 -DCMAKE_ASM_NASM_FLAGS=-w-macro-params-legacy -DEXTRA_LIB='$(pwd)/libx265_main10.a;$(pwd)/libx265_main12.a'"
 		do_cmake .. "$cmake_params"
 		do_make "V=1"
 		mv -vf libx265.a libx265_main.a
@@ -1868,11 +1869,23 @@ build_dcpomatic() {
   cd ..
 }
 
-build_gcal() {
-  generic_download_and_install http://ftp.gnu.org/gnu/gcal/gcal-4.1.tar.xz gcal-4.1 "CFLAGS=-Wno-error=incompatible-pointer-types"
-  cd gcal-4.1
+build_libcheck() {
+  generic_download_and_install https://github.com/libcheck/check/archive/refs/tags/0.15.2.tar.gz check-0.15.2 "--disable-build-docs"
+}
 
-  cd ..
+build_gcal() {
+    do_git_checkout https://github.com/gnu-mirror-unofficial/gcal.git gcal
+    cd gcal
+        export CFLAGS="-Wno-error=incompatible-pointer-types -std=gnu17"
+        apply_patch file://${top_dir}/gcal-texi.patch
+        generic_configure_make_install "LIBS=-lbcrypt --disable-nls"
+        unset CFLAGS
+    cd ..
+
+#  generic_download_and_install https://www.alteholz.dev/gnu/gcal-4.2.0.tar.xz gcal-4.2.0 "CFLAGS=-Wno-error=incompatible-pointer-types"
+#  cd gcal-4.2.0
+
+#  cd ..
 }
 
 build_unbound() {
@@ -2035,7 +2048,7 @@ build_libcdio-paranoia() {
   if [[ ! -f "configure" ]]; then
     autoreconf -fiv || exit 1 # failure here, OS X means "you need libtoolize" perhaps? http://betterlogic.com/roger/2014/12/ilbc-cross-compile-os-x-mac-woe/
   fi
-  generic_configure_make_install
+  generic_configure_make_install "CFLAGS=-std=gnu17"
 
   cd ..
 }
@@ -2115,15 +2128,22 @@ build_libflite() {
 }
 
 build_libgsm() {
-  download_and_unpack_file https://src.fedoraproject.org/lookaside/extras/gsm/gsm-1.0.16.tar.gz/94b03ba7b9cf7da7caa8456c219a8673/gsm-1.0.16.tar.gz gsm-1.0-pl16
+
+#  download_and_unpack_file https://src.fedoraproject.org/lookaside/extras/gsm/gsm-1.0.16.tar.gz/94b03ba7b9cf7da7caa8456c219a8673/gsm-1.0.16.tar.gz gsm-1.0-pl16
 #  download_and_unpack_file https://ftp.radix.pro/sources/packages/m/gsm/gsm-1.0.13.tar.gz gsm-1.0-pl13
-  cd gsm-1.0-pl16
-  apply_patch file://${top_dir}/libgsm.patch # for openssl to work with it, I think?
-  # not do_make here since this actually fails [in error]
+  download_and_unpack_file https://www.quut.com/gsm/gsm-1.0.24.tar.gz gsm-1.0-pl24
+  cd gsm-1.0-pl24
+#  apply_patch file://${top_dir}/libgsm.patch # for openssl to work with it, I think?
+    apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-gsm/0001-adapt-makefile-to.mingw.patch
+    apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-gsm/0002-adapt-config-h-to.mingw.patch
+    apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-gsm/0003-fix-ln.mingw.patch
+    apply_patch file://${top_dir}/libgsm-Makefile.patch
+#   not do_make here since this actually fails [in error]
   make CC=${cross_prefix}gcc AR=${cross_prefix}ar RANLIB=${cross_prefix}ranlib INSTALL_ROOT=${mingw_w64_x86_64_prefix}
-  cp lib/libgsm.a $mingw_w64_x86_64_prefix/lib || exit 1
-  mkdir -vp $mingw_w64_x86_64_prefix/include/gsm
-  cp inc/gsm.h $mingw_w64_x86_64_prefix/include/gsm || exit 1
+  make INSTALL_ROOT=${mingw_w64_x86_64_prefix} install
+#   lib/libgsm.a $mingw_w64_x86_64_prefix/lib || exit 1
+#  mkdir -vp $mingw_w64_x86_64_prefix/include/gsm
+#  cp inc/gsm.h $mingw_w64_x86_64_prefix/include/gsm || exit 1
   cd ..
 }
 
@@ -2195,17 +2215,17 @@ build_libdvdcss() {
 }
 
 build_gdb() {
-  export LIBS="-lpsapi -ldl"
+#  export LIBS="-lpsapi -ldl"
   export MAKEFLAGS="VERBOSE=1"
-  download_and_unpack_file ftp://sourceware.org/pub/gdb/releases/gdb-16.2.tar.xz gdb-16.2
-  cd gdb-16.2
+  download_and_unpack_file ftp://sourceware.org/pub/gdb/releases/gdb-17.2.tar.xz gdb-17.2
+  cd gdb-17.2
 #    cd readline
 #    generic_configure_make_install
 #   cd ..
 #  apply_patch file://${top_dir}/gdb-bcrypt.patch
     mkdir -p build
     cd build
-      do_configure  "--host=x86_64-w64-mingw32 --prefix=$mingw_w64_x86_64_prefix --with-system-readline --enable-tui --enable-plugins --with-expat --with-lzma" "../configure"
+      do_configure  "--host=x86_64-w64-mingw32 --prefix=$mingw_w64_x86_64_prefix --disable-source-highlight --disable-tui --disable-nls --with-system-readline --with-expat" "../configure"
       do_make "V=1 VERBOSE=1"
       do_make_install
     cd ..
@@ -2493,13 +2513,16 @@ build_termcap() {
   download_and_unpack_file https://ftp.gnu.org/gnu/termcap/termcap-1.3.1.tar.gz termcap-1.3.1
   cd termcap-1.3.1
     apply_patch file://${top_dir}/termcap-write.patch
+    apply_patch file://${top_dir}/termcap-cflags.patch
     rm configure
+    export CFLAGS="-std=gnu17"
     generic_configure "--host=x86_64-w64-mingw32 --target=x86_64-w64-mingw32 --enable-install-termcap"
     do_make
     # We make our own DLL from the static library
     x86_64-w64-mingw32-gcc -shared -Wl,--out-implib,libtermcap.dll.a -o libtermcap-0.dll termcap.o tparam.o version.o
     install libtermcap-0.dll "${mingw_w64_x86_64_prefix}/bin"
     install libtermcap.dll.a "${mingw_w64_x86_64_prefix}/lib"
+    unset CFLAGS
   cd ..
 }
 
@@ -2877,23 +2900,24 @@ build_libass() {
 build_gmp() {
   download_and_unpack_file https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz gmp-6.3.0
   cd gmp-6.3.0
-    export CC_FOR_BUILD=gcc
-    export CPP_FOR_BUILD=cpp
-    export CXX_FOR_BUILD=g++
+#    export CC_FOR_BUILD=gcc
+#    export CPP_FOR_BUILD=cpp
+#    export CXX_FOR_BUILD=g++
 #    apply_patch file://${top_dir}/gmp-exeext.patchi
     export old_ld_library_path=$LD_LIBRARY_PATH
     export LD_LIBRARY_PATH=`pwd`/.libs
 #    export CC=x86_64-w64-mingw32-gcc
 #    autoreconf -fiv
     mkdir stash
-    export CFLAGS=-fpermissive
-    export CXXFLAGS=-fpermissive
+#    export CFLAGS=-fpermissive
+#    export CXXFLAGS=-fpermissive
     cp config.{guess,sub} stash
     apply_patch file://${top_dir}/gmp-dllimport.patch
+    apply_patch_p1 file://${top_dir}/gmp-test.patch
 #    autoupdate -v
     autoreconf -fiv
     cp -f stash/config.{guess,sub} .
-    generic_configure_make_install "--target=x86_64-w64-mingw32 ABI=64 --enable-mpbsd --enable-cxx --enable-fat --host=x86_64-w64-mingw32"
+    generic_configure_make_install "ABI=64 --enable-mpbsd --enable-cxx --enable-fat"
 #    unset CC_FOR_BUILD
 #    unset CPP_FOR_BUILD
 #    unset CC
@@ -3168,8 +3192,8 @@ build_icu_with_iculehb() {
 
 
 build_libunistring() {
-  generic_download_and_install https://ftp.wayne.edu/gnu/libunistring/libunistring-1.3.tar.xz libunistring-1.3 "LIBS=-lpthread"
-  cd libunistring-1.3
+  generic_download_and_install https://ftp.gnu.org/gnu/libunistring/libunistring-1.4.2.tar.gz libunistring-1.4.2 "LIBS=-lpthread"
+  cd libunistring-1.4.2
 
   cd ..
 }
@@ -3219,11 +3243,16 @@ build_liba52() {
 }
 
 build_p11kit() {
-#  generic_download_and_install https://p11-glue.freedesktop.org/releases/p11-kit-0.23.2.tar.gz p11-kit-0.23.2
-  do_git_checkout https://github.com/p11-glue/p11-kit.git p11-kit 34b568727ff98ebb36f45a3d63c07f165c58219b
-  cd p11-kit
-    generic_meson_ninja_install "-Dnls=false"
-  cd ..
+  generic_download_and_install https://github.com/p11-glue/p11-kit/archive/refs/tags/0.26.2.tar.gz p11-kit-0.26.2
+#  do_git_checkout https://github.com/p11-glue/p11-kit.git p11-kit 34b568727ff98ebb36f45a3d63c07f165c58219b
+  cd p11-kit-0.26.2
+    apply_patch file://${top_dir}/p11-missing-libintl.patch
+#    mkdir build
+#    cd build
+      generic_configure_make_install "--disable-nls --disable-trust-module --disable-doc --disable-debug --without-systemc"
+#      generic_meson_ninja_install .. "-Dtrust_module=disabled -Dnls=false -Dgtk_doc=false -Dman=false --buildtype=release"
+    cd ..
+#  cd ..
 #  cd p11-kit-0.23.2
 }
 
@@ -3268,7 +3297,7 @@ build_gnutls() {
 #    git submodule update
 #    make autoreconf
 #    apply_patch file://${top_dir}/gnutls-ip.patch
-    generic_configure "--enable-openssl-compatibility --disable-doc --enable-local-libopts --disable-libdane --with-zlib --enable-cxx --enable-nls" # --disable-cxx --disable-doc --without-p11-kit --disable-local-libopts --disable-libopts-install --with-included-libtasn1" # don't need the c++ version, in an effort to cut down on size... XXXX test difference...
+    generic_configure "--without-p11-kit --enable-openssl-compatibility --disable-doc --enable-local-libopts --disable-libdane --with-zlib --enable-cxx --enable-nls" # --disable-cxx --disable-doc --without-p11-kit --disable-local-libopts --disable-libopts-install --with-included-libtasn1" # don't need the c++ version, in an effort to cut down on size... XXXX test difference...
 
     do_make_install
     export PKG_CONFIG_PATH=${origpkgpath}
@@ -3354,7 +3383,7 @@ build_libxvid() {
   if [ "$bits_target" = "64" ]; then
     local config_opts="--build=x86_64-unknown-linux-gnu --disable-assembly" # kludgey work arounds for 64 bit
   fi
-  do_configure "--host=$host_target --prefix=$mingw_w64_x86_64_prefix $config_opts" # no static option...
+  do_configure "CFLAGS=-std=gnu17 CXXFLAGS=-std=gnu17 --host=$host_target --prefix=$mingw_w64_x86_64_prefix $config_opts" # no static option...
   sed -i.bak "s/-mno-cygwin//" platform.inc # remove old compiler flag that now apparently breaks us
 
   cpu_count=1 # possibly can't build this multi-thread ? http://betterlogic.com/roger/2014/02/xvid-build-woe/
@@ -3493,14 +3522,7 @@ build_libssh() {
 }
 
 build_asdcplib-cth() {
-   # Use brance cth because this is the version the writer works on, and has modified
-#do_git_checkout git://git.carlh.net/git/asdcplib-cth.git asdcplib-cth dcpomatic-2.13.0
-  do_git_checkout https://git.carlh.net/git/asdcplib.git asdcplib v1.0.9 # dcpomatic-2.13.0 # debug
-#  do_git_checkout https://github.com/cth103/asdcplib.git asdcplib-carl carl
-#  download_and_unpack_file https://github.com/cth103/asdcplib/archive/carl.zip asdcplib-carl
-#  download_and_unpack_file https://www.carlh.net/downloads/libasdcp-cth/libasdcp-cth-0.1.5.tar.bz2 libasdcp-cth-0.1.5
-#  cd asdcplib-carl
-#    cd asdcplib-cth
+  do_git_checkout https://git.carlh.net/git/asdcplib.git asdcplib v1.0.9
     cd asdcplib
     export PKG_CONFIG_PATH=${mingw_w64_x86_64_prefix}/lib/pkgconfig
     export CXXFLAGS="-DKM_WIN32"
@@ -4295,9 +4317,13 @@ build_wx() {
 build_libsndfile() {
   store_libs=$LIBS
   export LIBS="-logg -lvorbis"
-  generic_download_and_install https://github.com/libsndfile/libsndfile/releases/download/1.2.2/libsndfile-1.2.2.tar.xz libsndfile-1.2.2 "--enable-experimental"
-  cd libsndfile-1.2.2
-
+  do_git_checkout https://github.com/libsndfile/libsndfile.git libsndfile
+#  generic_download_and_install https://github.com/libsndfile/libsndfile/releases/download/1.2.2/libsndfile-1.2.2.tar.xz libsndfile-1.2.2 "--enable-experimental"
+  cd libsndfile
+    do_cmake "-DENABLE_EXPERIMENTAL=ON"
+    do_make
+    do_make_install
+    # generic_configure_make_install "--enable-experimental"
   cd ..
   export LIBS=$store_libs
   # Need to use a different name for the static library for traverso
@@ -4405,7 +4431,7 @@ build_libmpeg2() {
     apply_patch file://${top_dir}/libmpeg2-inline.patch
     export orig_cpu_count=$cpu_count
     export cpu_count=1
-    generic_configure_make_install "--without-x --disable-sdl"
+    generic_configure_make_install "CFLAGS=-std=gnu17 --without-x --disable-sdl"
 
     export cpu_count=$orig_cpu_count
   cd ..
@@ -4415,10 +4441,10 @@ build_lame() {
   # generic_download_and_install http://sourceforge.net/projects/lame/files/lame/3.99/lame-3.99.5.tar.gz/download lame-3.99.5
   do_svn_checkout https://svn.code.sf.net/p/lame/svn/trunk/lame lame r6525
   cd lame
-  # For some reason, the definition of DBL_EPSILON has vanished
-  grep -lr DBL_EPSILON libmp3lame | xargs sed -i "s|xmin, DBL_EPSILON|xmin, rh2|g"
-  apply_patch file://${top_dir}/lame-obsolete-code.patch
-  generic_configure_make_install "--enable-dynamic-frontends --enable-nasm --disable-rpath --disable-decoder"
+      # the definition of DBL_EPSILON has vanished
+      grep -lr DBL_EPSILON libmp3lame | xargs sed -i "s|xmin, DBL_EPSILON|xmin, rh2|g"
+      apply_patch file://${top_dir}/lame-obsolete-code.patch
+      generic_configure_make_install "CFLAGS=-Wno-error=incompatible-pointer-types --enable-dynamic-frontends --enable-nasm --disable-rpath --disable-decoder"
 
   cd ..
 }
@@ -4776,7 +4802,7 @@ build_regex() {
   download_and_unpack_file "https://downloads.sourceforge.net/project/mingw/Other/UserContributed/regex/mingw-regex-2.5.1/mingw-libgnurx-2.5.1-src.tar.gz" mingw-libgnurx-2.5.1
   cd mingw-libgnurx-2.5.1
     # Patch for static version
-    generic_configure
+    generic_configure "CFLAGS=-std=gnu99"
 #    apply_patch_p1 file://${top_dir}/libgnurx-1-build-static-lib.patch
 #    do_make "-f Makefile.mingw-cross-env libgnurx.a"
     orig_cpu_count=$cpu_count
@@ -4970,28 +4996,31 @@ build_poppler() {
 }
 
 build_SWFTools() {
-  do_git_checkout https://github.com/matthiaskramm/swftools swftools 1f7b90bd283bdb60b80849779a805a4fb63175cb
+#  do_git_checkout https://github.com/matthiaskramm/swftools swftools 1f7b90bd283bdb60b80849779a805a4fb63175cb
+#    do_git_checkout https://github.com/swftools/swftools.git swftools
+    do_git_checkout https://github.com/flanter21/swftools.git swftools master
     cd swftools
-    download_config_files # The version of config.guess is too old here.
-    export DISABLEPDF2SWF=true
-    rm configure # Force regeneration of configure script to alleviate mingw-w64 conflicts
-    sed -i.bak "s!/usr/include/fontconfig!${mingw_w64_x86_64_prefix}/include/fontconfig!g" m4/fontconfig.m4
-    export old_cflags=$CFLAGS
-    export CFLAGS="-fcommon -Wno-implicit-function-declaration"
-    aclocal -I m4
-    autoconf
-    apply_patch file://${top_dir}/swftools-lib-pdf-Makefile-in.patch
-    apply_patch file://${top_dir}/swftools-extern.patch
-    sed -i.bak 's/$(INSTALL_MAN1);//' src/Makefile.in
-    sed -i.bak 's/cd swfs;$(MAKE) $@//' Makefile.in
-    generic_configure "CPPFLAGS=-I${mingw_w64_x86_64_prefix}/include/poppler/ --enable-poppler"
-    sed -i.bak 's/#define boolean int/typedef unsigned char boolean;/' config.h
-    apply_patch file://${top_dir}/swftools-xpdf-unlink.patch
-    do_make_and_make_install
-    export CFLAGS=$old_cflags
+      download_config_files # The version of config.guess is too old here.
+      export DISABLEPDF2SWF=true
+      rm configure # Force regeneration of configure script to alleviate mingw-w64 conflicts
+      sed -i.bak "s!/usr/include/fontconfig!${mingw_w64_x86_64_prefix}/include/fontconfig!g" m4/fontconfig.m4
+      export old_cflags=$CFLAGS
+      export CFLAGS="-fcommon -Wno-implicit-function-declaration"
+      aclocal -I m4
+      autoconf
+      apply_patch file://${top_dir}/swftools-lib-pdf-Makefile-in.patch
+#      apply_patch file://${top_dir}/swftools-extern.patch
+      apply_patch file://${top_dir}/swftools-strlen.patch
+      sed -i.bak 's/$(INSTALL_MAN1);//' src/Makefile.in
+      sed -i.bak 's/cd swfs;$(MAKE) $@//' Makefile.in
+      generic_configure "CFLAGS=-std=gnu17 CPPFLAGS=-I${mingw_w64_x86_64_prefix}/include/poppler/ --enable-poppler"
+      sed -i.bak 's/#define boolean int/typedef unsigned char boolean;/' config.h
+      apply_patch file://${top_dir}/swftools-xpdf-unlink.patch
+      do_make_and_make_install
+      export CFLAGS=$old_cflags
 
-    unset DISABLEPDF2SWF
-  cd ..
+      unset DISABLEPDF2SWF
+    cd ..
 }
 
 #build_cygwin() {
@@ -5299,14 +5328,16 @@ build_asdcplib() {
   export CXXFLAGS=-DKM_WIN32
   export CFLAGS=-DKM_WIN32
 #  download_and_unpack_file https://download.videolan.org/contrib/asdcplib/asdcplib-2.7.19.tar.gz asdcplib-2.7.19
-	download_and_unpack_file https://github.com/cinecert/asdcplib/archive/rel_2_10_35.tar.gz asdcplib-rel_2_10_35
+#	download_and_unpack_file https://github.com/cinecert/asdcplib/archive/rel_2_10_35.tar.gz asdcplib-rel_2_10_35
 	#download_and_unpack_file http://download.cinecert.com/asdcplib/asdcplib-2.10.31.tar.gz asdcplib-2.10.31
-	cd asdcplib-rel_2_10_35
-		rm configure
+  do_git_checkout https://github.com/cinecert/asdcplib.git asdcplib-2.10.31
+  cd asdcplib-2.10.31
+#		rm configure
     #env
 		apply_patch file://${top_dir}/asdcplib-shared.patch
-		generic_configure_make_install "--with-openssl=${mingw_w64_x86_64_prefix} --with-expat=${mingw_w64_x86_64_prefix} --enable-as-02 --enable-phdr"
-		cp -v src/dirent_win.h ${mingw_w64_x86_64_prefix}/include
+        apply_patch file://${top_dir}/asdcplib-cstdint.patch
+		generic_configure_make_install # "--with-openssl=${mingw_w64_x86_64_prefix} --with-expat=${mingw_w64_x86_64_prefix} --enable-as-02 --enable-phdr"
+#		cp -v src/dirent_win.h ${mingw_w64_x86_64_prefix}/include
 
 	cd ..
   unset CXXFLAGS
@@ -5479,9 +5510,9 @@ build_pixman() {
 #  cd pixman
 #    generic_configure_make_install
 #  cd ..
-  generic_download_and_install https://www.cairographics.org/releases/pixman-0.40.0.tar.gz pixman-0.40.0
-  cd pixman-0.40.0
-
+  download_and_unpack_file https://www.cairographics.org/releases/pixman-0.46.4.tar.gz pixman-0.46.4
+  cd pixman-0.46.4
+    generic_meson_ninja_install
   cd ..
 }
 
@@ -5500,8 +5531,8 @@ build_cairo() {
 #     generic_configure_make_install "--disable-silent-rules --enable-win32 --enable-win32-font --enable-gobject --enable-tee --enable-pdf --enable-ps --enable-svg --disable-dependency-tracking"
 #  cd ..
 
-  download_and_unpack_file https://www.cairographics.org/releases/cairo-1.18.2.tar.xz cairo-1.18.2
-  cd cairo-1.18.2
+  download_and_unpack_file https://www.cairographics.org/releases/cairo-1.18.4.tar.xz cairo-1.18.4
+  cd cairo-1.18.4
   	export cflags_orig=$CFLAGS
 	export cxxflags_orig=$CXXFLAGS
 	export CFLAGS=-Wno-error=incompatible-pointer-types
@@ -5543,11 +5574,16 @@ build_cairomm() {
 #
 #    export ACLOCAL_PATH=${orig_aclocalpath}
 #  cd ..
-  download_and_unpack_file https://ftp.osuosl.org/pub/blfs/conglomeration/cairomm/cairomm-1.12.2.tar.gz cairomm-1.12.2
-  cd cairomm-1.12.2
+  download_and_unpack_file https://www.cairographics.org/releases/cairomm-1.19.0.tar.xz cairomm-1.19.0
+  cd cairomm-1.19.0
+    apply_patch file://${top_dir}/cairomm-M_PI.patch
     generic_configure_make_install "--with-boost"
-
   cd ..
+#  download_and_unpack_file https://ftp.osuosl.org/pub/blfs/conglomeration/cairomm/cairomm-1.12.2.tar.gz cairomm-1.12.2
+#  cd cairomm-1.12.2
+#    generic_configure_make_install "--with-boost"
+#
+#  cd ..
 #  cd cairomm-1.15.3
 #    apply_patch file://${top_dir}/cairomm-missing-M_PI.patch
 #    generic_configure_make_install "--with-boost"
@@ -5727,6 +5763,7 @@ build_mjpegtools() {
 #	cd -
 
   download_and_unpack_file http://downloads.sourceforge.net/project/mjpeg/mjpegtools/2.1.0/mjpegtools-2.1.0.tar.gz mjpegtools-2.1.0
+#  download_and_unpack_file https://downloads.sourceforge.net/project/mjpeg/mjpegtools/2.2.1/mjpegtools-2.2.1.tar.gz mjpegtools-2.2.1
   cd mjpegtools-2.1.0
     apply_patch file://${top_dir}/mjpegtools-2.1.0-mingw.patch
     apply_patch file://${top_dir}/mjpegtools-2.1.0-nanosleep.patch
@@ -5734,10 +5771,13 @@ build_mjpegtools() {
     rm -v lavtools/Makefile.in
     rm -v configure
     export orig_cflags=$CFLAGS
-    export CFLAGS="-Wno-error=incompatible-pointer-types -Wno-implicit-function-declaration"
+    export CFLAGS="-Wno-error=incompatible-pointer-types -Wno-implicit-function-declaration -Wno-template-body -std=gnu17"
+    export orig_cxxflags=$CXXFLAGS
+    export CXXFLAGS="-Wno-template-body"
 #    apply_patch file://${top_dir}/mjpegtools-sigjmp_buf.patch
     generic_configure_make_install "LIBS=-lpthread --without-x --without-gtk SDL_CFLAGS=-I${mingw_w64_x86_64_prefix}/include/SDL"
     export CFLAGS=$orig_cflags
+    export CXXFLAGS=$orig_cxxflags
   cd -
 }
 
@@ -6047,12 +6087,23 @@ build_makemkv() { # THIS IS NOT WORKING - MAKEMKV NEEDS MORE THAN MINGW OFFERS
 build_gettext() {
 	# Later versions of GNU gettext have a mingw incompatibility
 #  do_git_checkout https://git.savannah.gnu.org/git/gettext.git gettext # 5ed70829a2a78b38f8fddf3543a34f9f22ea110e
-	download_and_unpack_file https://ftp.gnu.org/pub/gnu/gettext/gettext-0.21.tar.gz gettext-0.21
-	cd gettext-0.21
-		apply_patch file://${top_dir}/gettext-ruby.patch
-		export CPPFLAGS="$CPPFLAGS -liconv -Wno-error=incompatible-pointer-types"
-		generic_configure_make_install
-		unset CPPFLAGS
+#	download_and_unpack_file https://ftp.gnu.org/pub/gnu/gettext/gettext-0.21.tar.gz gettext-0.21
+    download_and_unpack_file https://ftp.gnu.org/pub/gnu/gettext/gettext-1.0.tar.gz gettext-1.0
+    cd gettext-1.0
+#        apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-gettext/0005-Fix-compilation-of-pthread_sigmask.c.patch
+#        apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-gettext/0021-replace-fsync.patch
+#        apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-gettext/0022-libasprintf.patch
+#        apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-gettext/0024-disable-gnu-format.patch
+#        apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-gettext/0030-fix-build-with-mingw-w64-clang.patch
+#        apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-gettext/122-Use-LF-as-newline-in-envsubst.patch
+#	cd gettext-0.21
+#		apply_patch file://${top_dir}/gettext-ruby.patch
+#		export CPPFLAGS="$CPPFLAGS -liconv -Wno-error=incompatible-pointer-types"
+#        rm -v configure
+#        libtoolize --automake --copy --force
+#        ./autogen.sh --skip-gnulib
+		generic_configure_make_install "--disable-java --disable-native-java --disable-csharp --without-emacs --enable-threads=win32 --disable-openmp"
+#		unset CPPFLAGS
 	cd ..
 
 #  cd gettext
@@ -6655,20 +6706,27 @@ build_mp4box() { # like build_gpac
 }
 
 build_pango() {
-  generic_download_and_install http://ftp.gnome.org/pub/gnome/sources/pango/1.42/pango-1.42.1.tar.xz pango-1.42.1 # Was .6
-  cd pango-1.42.1
-
+  download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/pango/1.56/pango-1.56.4.tar.xz pango-1.56.4 # Was .6
+  cd pango-1.56.4
+    generic_meson_ninja_install
   cd ..
 }
 
 build_pangomm() {
   # VERSION WARNING Pango-2.41 breaks compatibility
-  export PANGOMM_LIBS="-lgobject-2.0 -lgmodule-2.0 -lglib-2.0 -lglibmm-2.4 -lgio-2.0 -lboost_system-mt-x64 -lsigc-2.0 -lboost_thread-mt-x64 -lboost_system-mt-x64 -lcairo -lcairomm-1.0 -lpango-1.0 -lpangocairo-1.0"
-  generic_download_and_install http://ftp.gnome.org/pub/GNOME/sources/pangomm/2.40/pangomm-2.40.1.tar.xz pangomm-2.40.1
-  cd pangomm-2.40.1
-
+#  export PANGOMM_LIBS="-lgobject-2.0 -lgmodule-2.0 -lglib-2.0 -lglibmm-2.4 -lgio-2.0 -lboost_system-mt-x64 -lsigc-2.0 -lboost_thread-mt-x64 -lboost_system-mt-x64 -lcairo -lcairomm-1.0 -lpango-1.0 -lpangocairo-1.0"
+  download_and_unpack_file http://ftp.gnome.org/pub/GNOME/sources/pangomm/2.40/pangomm-2.40.2.tar.xz pangomm-2.40.2
+  cd pangomm-2.40.2
+    apply_patch file://${top_dir}/pangomm-markup.patch
+    generic_configure_make_install
   cd ..
-  unset PANGOMM_LIBS
+  #cd pangomm-2.40.2
+  #download_and_unpack_file http://ftp.gnome.org/pub/GNOME/sources/pangomm/2.46/pangomm-2.46.4.tar.xz pangomm-2.46.4
+  #cd pangomm-2.46.4
+  #  generic_meson_ninja_install
+  #cd ..
+#  cd ..
+#  unset PANGOMM_LIBS
 }
 
 build_mimedb() {
@@ -7121,14 +7179,14 @@ build_pugixml() {
 }
 
 build_harfbuzz() {
-  download_and_unpack_file https://github.com/harfbuzz/harfbuzz/archive/refs/tags/8.3.0.tar.gz harfbuzz-8.3.0 # Was 7.3.0
+  download_and_unpack_file https://github.com/harfbuzz/harfbuzz/archive/refs/tags/14.2.0.tar.gz harfbuzz-14.2.0 # Was 7.3.0
 #  download_and_unpack_file https://github.com/harfbuzz/harfbuzz/releases/download/2.7.2/harfbuzz-2.7.2.tar.xz harfbuzz-2.7.2
 #  download_and_unpack_file https://www.freedesktop.org/software/harfbuzz/release/harfbuzz-1.7.6.tar.bz2 harfbuzz-1.7.6
 #  do_git_checkout https://github.com/behdad/harfbuzz.git harfbuzz
-  cd harfbuzz-8.3.0
+  cd harfbuzz-14.2.0
     export cxxflags_orig=$CXXFLAGS
     export CXXFLAGS=-std=c++17
-    generic_meson_ninja_install
+    generic_meson_ninja_install "-Dutilities=disabled -Dtests=disabled -Ddocs=disabled"
     export CXXFLAGS=$cxxflags_orig
 #    generic_configure_make_install
 
@@ -7657,9 +7715,15 @@ build_libopenvino() {
 }
 
 build_liblensfun() {
-	do_git_checkout https://github.com/lensfun/lensfun.git lensfun  40cf31ae8c1b855ad4189395d5aba02e2a2d641a
+	do_git_checkout https://github.com/lensfun/lensfun.git lensfun 40cf31ae8c1b855ad4189395d5aba02e2a2d641a
+#    download_and_unpack_file https://github.com/lensfun/lensfun/archive/refs/tags/v0.3.4.tar.gz lensfun-0.3.4
 	cd lensfun
-		do_cmake "-DCMAKE_C_FLAGS=-Wno-implicit-function-declaration -DBUILD_LENSTOOL=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_DATAROOTDIR=${mingw_w64_x86_64_prefix}/share/"
+        apply_patch file://${top_dir}/lensfun-getopt.patch
+#        apply_patch file:///${top_dir}/lensfun-regex.patch
+#        apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-lensfun/cmake-mingw.patch
+#        apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-lensfun/lensfun-update-data.patch
+#        apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-lensfun/use-math-defines.patch
+		do_cmake "-DCMAKE_C_FLAGS=-Wno-implicit-function-declaration -DCMAKE_C_FLAGS=-std=gnu17 -DBUILD_LENSTOOL=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_DATAROOTDIR=${mingw_w64_x86_64_prefix}/share/"
 		do_make
 		do_make_install
 	cd ..
@@ -7703,7 +7767,7 @@ build_rabbitmq() {
 }
 
 build_rist() {
-	do_git_checkout https://code.videolan.org/rist/librist.git librist c917e970 #8f139809
+	do_git_checkout https://code.videolan.org/rist/librist.git librist # c917e970 #8f139809
 	cd librist
 #		apply_patch file://${top_dir}/librist-thread.patch
 		generic_meson_ninja_install
@@ -7947,7 +8011,8 @@ build_dependencies() {
   #build_unbound
   build_libunistring # Needed for gnutls
   build_libtasn1
-  build_p11kit # Needed for gnutls
+  build_libffi
+  #build_p11kit # Needed for gnutls
 #  build_libffi # Needed for guile
 #  build_libatomic_ops # Needed for bdw-gc
 #  build_bdw-gc # Needed for guile
@@ -8065,7 +8130,7 @@ build_dependencies() {
   build_libsndfile
   # build_libnvenc
   #build_live555
-  build_libffi
+  # build_libffi
   build_googletest
   build_glib
   #build_mmcommon
@@ -8230,6 +8295,7 @@ build_dependencies() {
   build_rist
   build_srt
   build_libvmaf
+  build_libcheck
 #  build_ngtcp2
 #  build_swig
   #build_libposixrandom

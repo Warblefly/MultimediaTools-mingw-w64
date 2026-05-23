@@ -1,0 +1,28 @@
+--- Makefile.orig	2026-05-17 20:52:38.310302334 +0100
++++ Makefile	2026-05-17 20:54:35.953242733 +0100
+@@ -43,7 +43,7 @@
+ # CC		= /usr/lang/acc
+ # CCFLAGS 	= -c -O
+ 
+-CC		= gcc -ansi -pedantic
++CC		= x86_64-w64-mingw32-gcc -ansi -pedantic
+ CCFLAGS 	= -c -O2 -DNeedFunctionPrototypes=1 -Wall -Wno-comment
+ 
+ LD 		= $(CC)
+@@ -100,14 +100,14 @@
+ SHELL		= /bin/sh
+ LN		= ln -s
+ BASENAME 	= basename
+-AR		= ar
++AR		= x86_64-w64-mingw32-ar
+ ARFLAGS		= cr
+ RMFLAGS		= -f
+ FIND		= find
+ COMPRESS 	= gzip
+ COMPRESSFLAGS 	= 
+ # RANLIB 	= true
+-RANLIB	 	= ranlib
++RANLIB	 	= x86_64-w64-mingw32-ranlib
+ 
+ #
+ #    You shouldn't have to configure below this line if you're porting.

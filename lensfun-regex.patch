@@ -1,0 +1,25 @@
+--- libs/lensfun/CMakeLists.txt.orig	2026-05-23 10:25:31.211779046 +0100
++++ libs/lensfun/CMakeLists.txt	2026-05-23 10:26:13.419403487 +0100
+@@ -1,6 +1,6 @@
+ # build Lensfun library
+-SET(LENSFUN_SRC camera.cpp database.cpp lens.cpp 
+-                mount.cpp lensfunprv.h cpuid.cpp 
++SET(LENSFUN_SRC camera.cpp database.cpp lens.cpp
++                mount.cpp lensfunprv.h cpuid.cpp
+                 mod-color-sse.cpp mod-color-sse2.cpp mod-color.cpp
+                 mod-coord-sse.cpp mod-coord.cpp
+                 mod-subpix.cpp modifier.cpp auxfun.cpp
+@@ -23,11 +23,11 @@
+ SET_TARGET_PROPERTIES(lensfun PROPERTIES SOVERSION "${VERSION_API}" VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}")
+ 
+ IF(NOT HAVE_REGEX_H)
+-  TARGET_LINK_LIBRARIES(lensfun tre_regex)
++  TARGET_LINK_LIBRARIES(lensfun tre_regex)
+ ENDIF()
+ TARGET_LINK_LIBRARIES(lensfun ${GLIB2_LIBRARIES})
+ 
+-INSTALL(TARGETS lensfun 
++INSTALL(TARGETS lensfun
+         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})

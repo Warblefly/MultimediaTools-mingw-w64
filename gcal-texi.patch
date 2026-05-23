@@ -1,0 +1,18 @@
+--- doc/en/gcal.texi.orig	2026-05-22 17:09:19.610505196 +0100
++++ doc/en/gcal.texi	2026-05-22 17:10:21.141940536 +0100
+@@ -50,7 +50,6 @@
+ @settitle Gcal @value{GCAL-VERSION}
+ @c
+ @setchapternewpage odd
+-@setshortcontentsaftertitlepage
+ @paragraphindent 2
+ @footnotestyle separate
+ @c @smallbook
+@@ -171,6 +170,7 @@
+ except that this permission notice may be stated in a translation
+ approved by the Free Software Foundation.
+ @end titlepage
++@shortcontents
+ @c
+ @c %**End of titlepage part
+ 

@@ -1,0 +1,11 @@
+--- Makefile.in.orig	2026-05-16 15:53:25.940460476 +0100
++++ Makefile.in	2026-05-16 15:53:43.172315929 +0100
+@@ -31,7 +31,7 @@
+ 
+ DEFS = @DEFS@ -DTERMCAP_FILE=\"$(termcapfile)\"
+ 
+-CFLAGS = -g
++CFLAGS = -g -std=gnu17
+ 
+ prefix = @prefix@
+ exec_prefix = @exec_prefix@
