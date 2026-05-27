@@ -1911,10 +1911,10 @@ build_libxavs2() {
 }
 
 build_libpng() {
-  do_git_checkout https://github.com/pnggroup/libpng.git libpng libpng18
-#  download_and_unpack_file https://download.sourceforge.net/libpng/libpng-1.6.39.tar.xz libpng-1.6.39
-#  cd libpng-1.6.39
-  cd libpng
+#  do_git_checkout https://github.com/pnggroup/libpng.git libpng libpng18
+  download_and_unpack_file https://download.sourceforge.net/libpng/libpng-1.6.58.tar.xz libpng-1.6.58
+  cd libpng-1.6.58
+#  cd libpng
     do_cmake "-DPNG_STATIC=OFF"
     do_make
     do_make_install
@@ -1946,11 +1946,20 @@ build_libopenjpeg() {
 }
 
 build_lcms2() {
-  do_git_checkout https://github.com/mm2/Little-CMS.git lcms2 981aac648ce214c5aac5c645b95a3c4e6f3d8174 # 5d91cf48902068b5049a7f9961fa23a267d0c93e
+  do_git_checkout https://github.com/mm2/Little-CMS.git lcms2 # 981aac648ce214c5aac5c645b95a3c4e6f3d8174 # 5d91cf48902068b5049a7f9961fa23a267d0c93e
   cd lcms2
     generic_configure_make_install
 
   cd ..
+}
+
+build_minizipng() {
+    do_git_checkout https://github.com/zlib-ng/minizip-ng.git minizip-ng develop
+    cd minizip-ng
+        do_cmake "-DMZ_BZIP2=ON -DMZ_LZMA=ON -DMZ_OPENSSL=ON -DMZ_WZAES=ON -DMZ_ZSTD=ON -DMZ_ZLIB=ON -DCMAKE_DLL_NAME_WITH_SOVERSION=ON -DMZ_FETCH_LIBS=OFF -DMZ_PROJECT_SUFFIX='-ng' -DMZ_LIB_SUFFIX='-ng'"
+        do_make
+        do_make_install
+    cd ..
 }
 
 build_libopenjpeg2() {
@@ -5579,6 +5588,11 @@ build_cairomm() {
     apply_patch file://${top_dir}/cairomm-M_PI.patch
     generic_configure_make_install "--with-boost"
   cd ..
+  download_and_unpack_file https://www.cairographics.org/releases/cairomm-1.14.5.tar.xz cairomm-1.14.5
+  cd cairomm-1.14.5
+    generic_configure_make_install "--with-boost"
+  cd ..
+
 #  download_and_unpack_file https://ftp.osuosl.org/pub/blfs/conglomeration/cairomm/cairomm-1.12.2.tar.gz cairomm-1.12.2
 #  cd cairomm-1.12.2
 #    generic_configure_make_install "--with-boost"
@@ -5643,12 +5657,12 @@ build_libffi() {
 }
 
 build_ilmbase() {
-download_and_unpack_file https://github.com/AcademySoftwareFoundation/openexr/archive/v2.5.5.tar.gz openexr-2.5.5
-
+#download_and_unpack_file https://github.com/AcademySoftwareFoundation/openexr/archive/v2.5.5.tar.gz openexr-2.5.5
+  do_git_checkout https://github.com/AcademySoftwareFoundation/openexr.git openexr v3.4.12
 #  do_git_checkout https://github.com/openexr/openexr.git openexr #48c2106310c8edefc7c1387cffc466665e4f38d2 #9f23bcc60b9786ffd5d97800750b953313080c87
   # Problem with threads in latest code that checks for c++14 standard
 #  cd openexr/IlmBase
-  cd openexr-2.5.5
+  cd openexr
 # IlmBase is written expecting that some of its binaries will be run during compilation.
     # In a cross-compiling environment, this more difficult to do than I know how.
     # The files that the binaries generate are two quite large headers. We have generated
@@ -5665,24 +5679,36 @@ download_and_unpack_file https://github.com/AcademySoftwareFoundation/openexr/ar
 #    generic_configure_make_install "--enable-shared --enable-large-stack"
 
 #    apply_patch file://${top_dir}/openexr.patch
-    do_cmake "-DPYILMBASE_ENABLE=OFF -DCMAKE_BUILD_TYPE=RELEASE -DOPENEXR_CXX_STANDARD=11 -DOPENEXR_BUILD_UTILS=OFF -DBUILD_TESTING=NO -DCMAKE_VERBOSE_MAKEFILE=ON" # && ${top_dir}/correct_headers.sh # -DCMAKE_THREAD_LIBS_INIT=-lboost_thread-mt-x64
+#   do_cmake "-DPYILMBASE_ENABLE=OFF -DCMAKE_BUILD_TYPE=RELEASE -DOPENEXR_CXX_STANDARD=11 -DOPENEXR_BUILD_UTILS=OFF -DBUILD_TESTING=NO -DCMAKE_VERBOSE_MAKEFILE=ON" # && ${top_dir}/correct_headers.sh # -DCMAKE_THREAD_LIBS_INIT=-lboost_thread-mt-x64
+    do_cmake "-DBUILD_TESTING=OFF -DOPENEXR_BUILD_EXAMPLES=OFF"
     do_make "V=1"
     do_make_install "V=1"
     # Some bizarre locations are used
-    cd ${mingw_w64_x86_64_prefix}/lib
-    rm -vf libIlmImfUtil.dll libIlmImf.dll libIexMath.dll libIlmThread.dll libHalf.dll libIex.dll libImath.dll
-    cd -
-    cd ${mingw_w64_x86_64_prefix}/bin
-    ln -fvs libIlmImfUtil-2_5.dll libIlmImfUtils.dll
-    ln -fvs libIlmImf-2_5.dll libIlmImf.dll
-    ln -fvs libIexMath-2_5.dll libIexMath.dll
-    ln -fvs libIlmThread-2_5.dll libIlmThread.dll
-    ln -fvs libHalf-2_5.dll libHalf.dll
-    ln -fvs libIex-2_5.dll libIex.dll
-    ln -fvs libImath-2_5.dll libImath.dll
-    cd -
+    cd bin
+        cp lib*dll ${mingw_w64_x86_64_prefix}/bin || exit 1
+    cd ..
+    cd src/lib
+        cp OpenEXRUtil/libOpenEXRUtil*dll.a ${mingw_w64_x86_64_prefix}/lib || exit 1
+        cp Iex/libIex*.dll.a ${mingw_w64_x86_64_prefix}/lib || exit 1
+        cp OpenEXRCore/libOpenEXRCore*.dll.a ${mingw_w64_x86_64_prefix}/lib || exit 1
+        cp IlmThread/libIlmThread*.dll.a ${mingw_w64_x86_64_prefix}/lib || exit 1
+        cp OpenEXR/libOpenEXR*.dll.a ${mingw_w64_x86_64_prefix}/lib || exit 1
+
+#    cd ${mingw_w64_x86_64_prefix}/lib
+#    rm -vf libIlmImfUtil.dll libIlmImf.dll libIexMath.dll libIlmThread.dll libHalf.dll libIex.dll libImath.dll
+#    cd -
+#    cd ${mingw_w64_x86_64_prefix}/bin
+#    ln -fvs libIlmImfUtil-2_5.dll libIlmImfUtils.dll
+#    ln -fvs libIlmImf-2_5.dll libIlmImf.dll
+#    ln -fvs libIexMath-2_5.dll libIexMath.dll
+#    ln -fvs libIlmThread-2_5.dll libIlmThread.dll
+#    ln -fvs libHalf-2_5.dll libHalf.dll
+#    ln -fvs libIex-2_5.dll libIex.dll
+#    ln -fvs libImath-2_5.dll libImath.dll
+#    cd -
 #  cd ../..
-  cd ..
+      cd ../..
+    cd ..
 }
 
 
@@ -6729,6 +6755,24 @@ build_pangomm() {
 #  unset PANGOMM_LIBS
 }
 
+build_libxeve() {
+    do_git_checkout https://github.com/mpeg5/xeve.git xeve
+    cd xeve
+        do_cmake .
+        do_make
+        do_make_install
+    cd ..
+}
+
+build_libxevd() {
+    do_git_checkout https://github.com/mpeg5/xevd.git xevd
+    cd xevd
+        do_cmake .
+        do_make
+        do_make_install
+    cd ..
+}
+
 build_mimedb() {
   export orig_cpu_count=$cpu_count
   export cpu_count=1
@@ -7604,15 +7648,35 @@ download_and_unpack_file https://downloads.sourceforge.net/project/tinyxml/tinyx
 	cd ..
 }
 
+build_pystring() {
+    do_git_checkout https://github.com/imageworks/pystring pystring
+    cd pystring
+        generic_meson_ninja_install
+    cd ..
+}
+
 build_ocio() {
-	download_and_unpack_file https://github.com/AcademySoftwareFoundation/OpenColorIO/archive/v1.1.1.tar.gz OpenColorIO-1.1.1
-	cd OpenColorIO-1.1.1
-		apply_patch file://${top_dir}/OpenColorIO.patch
-		apply_patch file://${top_dir}/opencolorio.patch
-		do_cmake "-DCMAKE_VERBOSE_MAKEFILE=ON -DOCIO_BUILD_PYGLUE=OFF -DOCIO_BUILD_TESTS=OFF -DOCIO_BUILD_STATIC=OFF -DUSE_EXTERNAL_YAML=ON -DUSE_EXTERNAL_TINYXML=ON"
-		do_make "V=1"
-		do_make_install "V=1"
+	#download_and_unpack_file https://github.com/AcademySoftwareFoundation/OpenColorIO/archive/v1.1.1.tar.gz OpenColorIO-1.1.1
+download_and_unpack_file http://github.com/AcademySoftwareFoundation/OpenColorIO/archive/v2.5.2.tar.gz OpenColorIO-2.5.2
+	cd OpenColorIO-2.5.2
+		apply_patch file://${top_dir}/OpenColorIO-transform.patch
+#		apply_patch file://${top_dir}/opencolorio.patch
+        mkdir build
+        cd build
+            do_cmake .. "-DCMAKE_CXX_FLAGS=-std=gnu17 -DCMAKE_VERBOSE_MAKEFILE=ON -DOCIO_BUILD_PYTHON=OFF -DOCIO_BUILD_TESTS=OFF -DOCIO_BUILD_STATIC=OFF -DUSE_EXTERNAL_YAML=ON -DUSE_EXTERNAL_TINYXML=ON -DOCIO_BUILD_GPU_TESTS=OFF"
+    		do_make "V=1" # > OpenColorIo-make.txt 2>&1
+    		do_make_install "V=1"
+        cd ..
 	cd ..
+}
+
+build_yamlcpp() {
+    do_git_checkout https://github.com/jbeder/yaml-cpp yaml-cpp
+    cd yaml-cpp
+        do_cmake . "-DYAML_CPP_BUILD_TESTS=OFF"
+        do_make
+        do_make_install
+    cd ..
 }
 
 build_otio() {
@@ -7900,7 +7964,7 @@ build_ffmpeg() {
 	local licensing_options="--enable-nonfree --enable-version3 --enable-gpl"
 	local configuration_options="--disable-static --enable-shared --enable-runtime-cpudetect --enable-gray --disable-w32threads"
 	local component_options="--enable-filter=frei0r --enable-decoder=aac" # fdk_aac gets much decoding wrong
-	local library_options="--enable-whisper --enable-libsvtav1 --enable-avisynth --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdc1394 --enable-libfdk-aac --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-gnutls --enable-libgsm --enable-libilbc --enable-libjxl --enable-libklvanc --enable-liblc3 --enable-liblensfun --enable-libmodplug --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopencv --enable-libopenmpt --enable-libopus --enable-librabbitmq --enable-librist --enable-librubberband --enable-librtmp --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libtesseract --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxvid --enable-libxml2 --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 --enable-decklink --enable-libmysofa --enable-opengl --enable-vulkan --enable-opencl --enable-libharfbuzz --enable-libdav1d --enable-libplacebo"
+	local library_options="--enable-whisper --enable-libsvtav1 --enable-avisynth --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdc1394 --enable-libfdk-aac --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-gnutls --enable-libgsm --enable-libilbc --enable-libjxl --enable-libklvanc --enable-liblc3 --enable-liblensfun --enable-libmodplug --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopencv --enable-libopenmpt --enable-libopus --enable-librabbitmq --enable-librist --enable-librubberband --enable-librtmp --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libtesseract --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxvid --enable-libxml2 --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 --enable-decklink --enable-libmysofa --enable-opengl --enable-vulkan --enable-opencl --enable-libharfbuzz --enable-libdav1d --enable-libplacebo --enable-libxeve --enable-libxevd --enable-libopencolorio"
 	local hardware_options="--disable-libmfx --enable-libvpl"
 	local toolchain_options="--arch=x86_64 --cross-prefix=$cross_prefix --enable-cross-compile --target-os=mingw32 --extra-version=Compiled_by_John_Warburton --enable-pic --nvccflags=-I/usr/local/cuda-11.4/targets/x86_64-linux/include --extra-cflags=-fpermissive"
 	local developer_options="--disable-debug --enable-stripping"
@@ -8090,6 +8154,8 @@ build_dependencies() {
 		# be happy with the command-line x262 program, and pipe data to it.
   build_libx265
   build_libsvthevc
+  build_libxeve
+  build_libxevd
 #  build_turingcodec # Needs work on thread interface. Can't mingw compile yet
   build_asdcplib
   build_lame
@@ -8250,7 +8316,7 @@ build_dependencies() {
   build_ghostscript
 #  build_xpm
   build_vim
-  #build_ilmbase
+  build_ilmbase
 #  build_hdf
   #build_netcdf
   #build_cunit
@@ -8276,11 +8342,14 @@ build_dependencies() {
   build_cmark
   build_opusfile
   build_libopusenc
+  build_pystring
+  build_minizipng
 #  build_medialibrary
   #build_yamlcc
   #build_tinyxml
   #build_openmaxil
-  #build_ocio
+  build_yamlcpp
+  build_ocio
   #build_otio
   build_GLM
   build_GLFW
