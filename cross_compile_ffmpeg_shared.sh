@@ -1915,7 +1915,7 @@ build_libpng() {
   download_and_unpack_file https://download.sourceforge.net/libpng/libpng-1.6.58.tar.xz libpng-1.6.58
   cd libpng-1.6.58
 #  cd libpng
-    do_cmake "-DPNG_STATIC=OFF"
+    do_cmake "-DPNG_STATIC=OFF -DPNG_SHARED=ON"
     do_make
     do_make_install
     # DBL_EPSILON 21 Feb 2015 starts to come back "undefined". I have NO IDEA why.
@@ -1925,6 +1925,8 @@ build_libpng() {
     #sed -i.bak 's/-lpng16.*$/-lpng16 -lz/' "$PKG_CONFIG_PATH/libpng16.pc"
 
   cd ..
+  # Some later programs look for libpng.dll.a, not libpng16.dll.a
+  cp -v ${mingw_w64_x86_64_prefix}/lib/libpng16.dll.a ${mingw_w64_x86_64_prefix}/lib/libpng.dll.a
 }
 
 build_libopenjpeg() {
@@ -8133,7 +8135,7 @@ build_dependencies() {
   build_libbluray # needs libxml2, freetype [FFmpeg, VLC use this, at least]
   build_libopenjpeg
   build_libopenjpeg2
-  build_libopenjpeg2carl2
+  #build_libopenjpeg2carl2
   build_libjpeg_turbo # mplayer can use this, VLC qt might need it? [replaces libjpeg],
                       # Place after other jpeg libraries so headers are over-written
   build_libdvdcss
@@ -8248,7 +8250,7 @@ build_dependencies() {
 #  build_portaudio_with_jack_cpp
 #  build_openblas # Not until we make a Fortran compiler
   build_libopenmpt
-  build_opencv
+  # build_opencv
   #build_libjson
   build_liba52
   build_leptonica
@@ -8273,7 +8275,7 @@ build_dependencies() {
 #  build_angle
   build_cairo
   build_cairomm
-  build_frei0r
+  # build_frei0r
   #build_poppler
   #build_pango
   #build_pangomm
@@ -8447,6 +8449,9 @@ build_apps() {
 #  build_pulseaudio
   build_whisper
   build_libplacebo
+  build_opencv
+  build_frei0r
+#  build_opencv
   build_ffmpeg
   #build_pamix
   #build_meterbridge
@@ -8669,6 +8674,8 @@ echo "Copying runtime libraries that have gone to the wrong build directory."
 #for move in ${wrong_libs[@]}; do
 #  cp -Lv "${mingw_w64_x86_64_prefix}/lib/${move}" "${mingw_w64_x86_64_prefix}/bin/${move}" || exit 1
   cp -Lv ${mingw_w64_x86_64_prefix}/lib/*dll ${mingw_w64_x86_64_prefix}/bin/
+  # BUT NOT libpng.dll because that is actually a symlink to libpng.dll.a
+  rm -v ${mingw_w64_x86_64_prefix}/bin/libpng.dll
 #done
 # Also copy WxWidgets
 cp -v ${mingw_w64_x86_64_prefix}/lib/wx*dll ${mingw_w64_x86_64_prefix}/bin/ || "WxWidgets already copied."
