@@ -7,16 +7,6 @@
 # Copyright (C) 2014 Roger Pack, the script is under the GPLv3, but output FFmpeg's aren't necessarily
 # with modifications by John Warburton john@johnwarburton.com
 
-#Gnulib
-# 1. Check it out separately
-# 2.
-
-#Gnu Coreutils
-# 1. Remove configure test for mounted file system list
-# 2. Set -Werror inactive
-
-
-
 yes_no_sel () {
   unset user_input
   local question="$1"
@@ -161,38 +151,13 @@ install_cross_compiler() {
   if [[ -f mingw-w64-build ]]; then
     rm mingw-w64-build || exit 1
   fi
-#  curl https://raw.githubusercontent.com/Zeranoe/mingw-w64-build/master/mingw-w64-build -O || exit 1
-#  chmod u+x mingw-w64-build
-#  apply_patch file://${top_dir}/build-mingw-updates.patch
   unset CFLAGS # don't want these for the compiler itself since it creates executables to run on the local box
-  # pthreads version to avoid having to use cvs for it
   echo "building cross compile gcc [requires internet access]"
-# Quick patch to update mingw to 4.0.4
-#  sed -i.bak "s/mingw_w64_release_ver='3.3.0'/mingw_w64_release_ver='4.0.4'/" mingw-w64-build-3.6.6
-#  sed -i.bak "s/gcc_release_ver='4.9.2'/gcc_release_ver='7.2.0'/" mingw-w64-build-3.6.6
-#  sed -i.bak "s/mpfr_release_ver='3.1.2'/mpfr_release_ver='3.1.5'/" mingw-w64-build-3.6.6
-#  sed -i.bak "s/binutils_release_ver='2.25'/binutils_release_ver='2.29'/" mingw-w64-build-3.6.6
-#  sed -i.bak "s/cloog_release_ver='0.18.1'/cloog_release_ver='0.18.1'/" mingw-w64-build-3.6.6
-#  sed -i.bak "s/isl_release_ver='0.12.2'/isl_release_ver='0.18'/" mingw-w64-build-3.6.6
-#  sed -i.bak "s/gmp_release_ver='6.0.0a'/gmp_release_ver='6.1.2'/" mingw-w64-build-3.6.6
-#  sed -i.bak "s/gmp-6\.0\.0/gmp-6.1.2/" mingw-w64-build-3.6.6
-#  sed -i.bak "s/--enable-lto/--enable-lto --enable-libgomp/" mingw-w64-build-3.6.6
-#  sed -i.bak "s!//gcc\.gnu\.org/svn/gcc/trunk!//gcc.gnu.org/svn/gcc/branches/gcc-7-branch!" mingw-w64-build-3.6.6
-#  apply_patch file://${top_dir}/mingw-w64-build-isl_fix.patch
-#  apply_patch file://${top_dir}/mingw-w64-build-gcc.patch
-#  sed -i.bak "s|ln -s '../include' './include'|mkdir include|" mingw-w64-build-3.6.6
-#  sed -i.bak "s|ln -s '../lib' './lib'|mkdir lib|" mingw-w64-build-3.6.6
-#  sed -i.bak "s/--enable-threads=win32/--enable-threads=posix/" mingw-w64-build-3.6.6
-# Gendef compilation throws a char-as-array-index error when invoked with "--target=" : "--host" avoids this.
-#  sed -i.bak 's#gendef/configure" --build="$system_type" --prefix="$mingw_w64_prefix" --target#gendef/configure" --build="$system_type" --prefix="$mingw_w64_prefix" --host#' mingw-w64-build-3.6.6
-#  ./mingw-w64-build-3.6.6 --gcc-langs=c,c++,fortran --default-configure --mingw-w64-ver=git --gcc-ver=svn --pthreads-w32-ver=2-9-1 --cpu-count=$gcc_cpu_count --build-type=$build_choice --enable-gendef --enable-widl --binutils-ver=2.29 --verbose || exit 1 # --disable-shared allows c++ to be distributed at all...which seemed necessary for some random dependency...
-#  ./mingw-w64-build x86_64
+
   ${top_dir}/toolchain.sh || exit 1
-  #mv bld ${top_dir}/sandbox/x86_64-w64-mingw32
+
   export CFLAGS=$original_cflags # reset it
-# We need to move the plain cross-compiling versions of bintools out of the way
-# because exactly the same binaries exist with the host triplet prefix
-#  rm ${mingw_w64_x86_64_prefix}/bin/objdump ${mingw_w64_x86_64_prefix}/bin/ar ${mingw_w64_x86_64_prefix}/bin/ranlib ${mingw_w64_x86_64_prefix}/bin/objcopy ${mingw_w64_x86_64_prefix}/bin/dlltool ${mingw_w64_x86_64_prefix}/bin/nm ${mingw_w64_x86_64_prefix}/bin/strip ${mingw_w64_x86_64_prefix}/bin/as ${mingw_w64_x86_64_prefix}/bin/ld.bfd ${mingw_w64_x86_64_prefix}/bin/ld
+
   # A couple of multimedia-related files need cases changing because of QT5 includes
   cd x86_64-w64-mingw32/x86_64-w64-mingw32/include
     ln -s evr9.h Evr9.h
@@ -691,7 +656,6 @@ generic_meson_setup() {
 
 generic_configure() {
   local extra_configure_options="$1"
-#  do_configure "--host=$host_target --prefix=$mingw_w64_x86_64_prefix --disable-shared --enable-static $extra_configure_options"
   do_configure "--host=$host_target --prefix=$mingw_w64_x86_64_prefix --enable-shared --disable-static $extra_configure_options"
 }
 
@@ -825,8 +789,6 @@ if [ ! -f libx265.built ]; then
   cd x265
     apply_patch file://${top_dir}/x265-CMakeVersion.patch
     apply_patch file://${top_dir}/x265-CMake-policies.patch
-#    apply_patch file://${top_dir}/x265_x86_noasm_fix.patch
-#    apply_patch file://${top_dir}/x265-headers-revert.patch
   cd ..
   cd x265
     apply_patch file://${top_dir}/x265-missing-include.patch
@@ -867,75 +829,23 @@ EOF
     cd ..
 touch libx265.built
 
-#    	local cmake_params="-DENABLE_SHARED=ON -DENABLE_STATIC=OFF -DENABLE_HDR10_PLUS=OFF -DENABLE_ASSEMBLY=ON -DHIGH_BIT_DEPTH=OFF -DCMAKE_C_FLAGS=-fpermissive -DCMAKE_CXX_FLAGS=-fpermissive -DLINKED_8BIT=OFF -DLINKED_10BIT=OFF -DENABLE_CLI=ON"
-#    local cmake_params="-DENABLE_SHARED=ON -DENABLE_STATIC=OFF -DENABLE_HDR10_PLUS=ON -DENABLE_ASSEMBLY=ON -DHIGH_BIT_DEPTH=ON -DCMAKE_C_FLAGS=-fpermissive -DCMAKE_CXX_FLAGS=-fpermissive -DLINKED_8BIT=ON -DLINKED_10BIT=ON -DENABLE_CLI=ON"
-    #if [[ $high_bitdepth == "y" ]]; then
-    #  cmake_params="$cmake_params -DHIGH_BIT_DEPTH=ON -DMAIN12=ON" # Enable 10 bits (main10) and 12 bits (???) per pixels profiles.
-    #  if grep "DHIGH_BIT_DEPTH=0" CMakeFiles/cli.dir/flags.make; then
-    #    rm already_ran_cmake_* #Last build was not high bitdepth. Forcing rebuild.
-    #  fi
-    #else
-    #  if grep "DHIGH_BIT_DEPTH=1" CMakeFiles/cli.dir/flags.make; then
-    #    rm already_ran_cmake_* #Last build was high bitdepth. Forcing rebuild.
-    #  fi
-    #fi
-#  apply_patch_p1 file://${top_dir}/x265-missing-bool.patch
-  # Fixed by x265 developers now
-#    do_cmake "$cmake_params"
-  # x265 seems to fail on parallel builds
-#    export cpu_count=1
-#    do_make_install
-
-#    export cpu_count=$original_cpu_count
-#  cd ../..
-  # We must remove the x265.exe executable because FFmpeg gets linked against it. I do not understand this.
-  # Furthermore, this makes x265.exe as an executable completely unuseable.
-#  cp -v ${mingw_w64_x86_64_prefix}/bin/libx265.dll ${mingw_w64_x86_64_prefix}/bin/x265.exe
 else
 	echo "libx265 already built."
 fi
 }
-
-#x264_profile_guided=y
 
 build_libx264() {
   do_git_checkout https://github.com/mirror/x264.git x264
   cd x264
   local configure_flags="--host=$host_target --disable-static --enable-shared --cross-prefix=$cross_prefix --prefix=$mingw_w64_x86_64_prefix --disable-avs --disable-swscale --disable-lavf --disable-ffms --disable-gpac --bit-depths=all --chroma-format=all" # --enable-win32thread --enable-debug shouldn't hurt us since ffmpeg strips it anyway I think
 
-#  if [[ $high_bitdepth == "y" ]]; then
-#    configure_flags="$configure_flags --bit-depth=10" # Enable 10 bits (main10) per pixels profile.
-#    if grep -q "HIGH_BIT_DEPTH 0" config.h; then
-#      rm already_configured_* #Last build was not high bitdepth. Forcing reconfigure.
-#    fi
-#  else
-#    if grep -q "HIGH_BIT_DEPTH 1" config.h; then
-#      rm already_configured_* #Last build was high bitdepth. Forcing reconfigure.
-#    fi
-#  fi
-
-#  if [[ $x264_profile_guided = y ]]; then
-    # TODO more march=native here?
-    # TODO profile guided here option, with wine?
-#    do_configure "$configure_flags"
-#    curl http://samples.mplayerhq.hu/yuv4mpeg2/example.y4m.bz2 -O || exit 1
-#    rm example.y4m # in case it exists already...
-#    bunzip2 example.y4m.bz2 || exit 1
-    # XXX does this kill git updates? maybe a more general fix, since vid.stab does also?
-#    sed -i.bak "s_\\, ./x264_, wine ./x264_" Makefile # in case they have wine auto-run disabled http://askubuntu.com/questions/344088/how-to-ensure-wine-does-not-auto-run-exe-files
-#    do_make_install "fprofiled VIDS=example.y4m" # guess it has its own make fprofiled, so we don't need to manually add -fprofile-generate here...
-
-#  else
   do_configure "$configure_flags"
   do_make_install
 
-#  fi
   cd ..
 }
 
 build_librtmp() {
-  #  download_and_unpack_file http://rtmpdump.mplayerhq.hu/download/rtmpdump-2.3.tgz rtmpdump-2.3 # has some odd configure failure
-  #  cd rtmpdump-2.3/librtmp
   if [ ! -f rtmp_built ]; then
 	  do_git_checkout git://git.ffmpeg.org/rtmpdump rtmpdump # 883c33489403ed360a01d1a47ec76d476525b49e # trunk didn't build once...this one i sstable
 	  cd rtmpdump
@@ -943,7 +853,6 @@ build_librtmp() {
 	    sed -i.bak 's/SYS=posix/SYS=mingw/' librtmp/Makefile
 	    cd librtmp
 	      do_make_install "CRYPTO=GNUTLS OPT=-O2 CROSS_COMPILE=$cross_prefix SHARED=yes prefix=$mingw_w64_x86_64_prefix SYS=mingw"
-      #make install CRYPTO=GNUTLS OPT='-O2 -g' "CROSS_COMPILE=$cross_prefix" SHARED=no "prefix=$mingw_w64_x86_64_prefix" || exit 1
 	      sed -i.bak 's/-lrtmp -lz/-lrtmp -lwinmm -lz -lnettle -lgmp/' "$PKG_CONFIG_PATH/librtmp.pc"
 	    cd ..
    # TODO do_make here instead...
@@ -1534,7 +1443,7 @@ build_googletest() {
 }
 
 build_mlt() {
-  do_git_checkout https://github.com/mltframework/mlt.git mlt 9306a5628cb9b1199e0f85d5f83b789bf8edb218
+  do_git_checkout https://github.com/mltframework/mlt.git mlt v7.36.1 # 9306a5628cb9b1199e0f85d5f83b789bf8edb218
   cd mlt
 #    apply_patch file://${top_dir}/mlt-mingw-sandbox.patch
     export CXX=x86_64-w64-mingw32-g++
@@ -1551,13 +1460,13 @@ build_mlt() {
 #    do_configure "--prefix=${mingw_w64_x86_64_prefix} --enable-gpl --enable-gpl3 --disable-gtk2 --target-os=mingw --target-arch=x86_64 --libdir=${mingw_w64_x86_64_prefix}/bin/lib --datadir=${mingw_w64_x86_64_prefix}/bin/share --mandir=${mingw_w64_x86_64_prefix}/share/man --avformat-swscale --avformat-ldextra=${avformat_ldextra}"
 #    generic_configure_make_install "PKGCONFIG_PREFIX=${mingw_w64_x86_64_prefix}/lib/pkgconfig LIBS=-lole32 --disable-sdl --enable-opencv --enable-gpl --enable-gpl3 --target-os=mingw --target-arch=x86_64 --prefix=${mingw_w64_x86_64_prefix} --libdir=${mingw_w64_x86_64_prefix}/bin/lib --datadir=${mingw_w64_x86_64_prefix}/bin/share --mandir=${mingw_w64_x86_64_prefix}/share/man --disable-opengl"
 #    apply_patch file://${top_dir}/mlt-rtaudio.patch
-    apply_patch file://${top_dir}/mlt-CMakeLists.patch
+#    apply_patch file://${top_dir}/mlt-CMakeLists.patch
 #    apply_patch file://${top_dir}/mlt-opencv.patch
 #    apply_patch file://${top_dir}/mlt-ffmpeg.patch
 #    apply_patch_p1 file://${top_dir}/tracker-opencv-mlt-reverse.patch
     mkdir mlt_build
     cd mlt_build
-    do_cmake .. "-DMOD_OPENCV=OFF -DWINDOWS_DEPLOY=OFF -DMOD_GDK=OFF -DMOD_AVFORMAT=OFF -DMOD_RTAUDIO=OFF"
+    do_cmake .. "-DMOD_OPENCV=ON -DWINDOWS_DEPLOY=OFF -DMOD_GDK=OFF -DMOD_AVFORMAT=OFF -DMOD_RTAUDIO=OFF -DMOD_QT6=ON"
 	    do_make
 
 	    cp -v src/framework/libmlt.def .
@@ -1827,7 +1736,7 @@ build_opendcp() {
 
 build_dcpomatic() {
 #  do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic main # v2.16.52 #805d4a48fa6e4d8e28fd582a2ae6ba78b8343144 main # v2.15.x # fc1441eeaa3c0805c37809685ea7a3f5ca173666 # v2.15.x #97193e96c637ca92eeaf6e72ee38aa628308973b # v2.15.x #402fa9a3577975e9cf9728c815da1b17796fe325 # v2.15.x #9cff6ec974a4d0270091fe5c753483b0d53ecd46
-  do_git_checkout https://git.carlh.net/git/dcpomatic.git dcpomatic v2.18.39 # new-ffmpeg-take2 #edbccd8d04a33f9e8d03677d8ebc671f40b0f822 #v2.15.x # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
+  do_git_checkout https://git.carlh.net/git/dcpomatic.git dcpomatic v2.18.43 # new-ffmpeg-take2 #edbccd8d04a33f9e8d03677d8ebc671f40b0f822 #v2.15.x # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
 #  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.123" dcpomatic-2.15.123
   cd dcpomatic
     apply_patch file://${top_dir}/dcpomatic-wscript.patch
@@ -3592,7 +3501,7 @@ build_asdcplib-cth() {
 build_libdcp() {
   # Branches are slightly askew. 1.0 is where development takes place
 #  do_git_checkout https://github.com/cth103/libdcp.git libdcp main # v1.8.66 #04e215a7688239cb47fc86e8396756c685f338a1 #v1.8.13 #d39880eef211a296fa8ef4712cdef5945d08527c c6665c157bdb6903661d21c571c7d112b54ad8fd # d989a83517fd77aa241c1423ac00cfed62d567fe # f3058b2f1b48ec613bda5781fe97e83a0dca83a9
-  do_git_checkout https://git.carlh.net/git/libdcp.git libdcp v1.10.56 #b75d977a38f039fd68ed5d4055ae70b4bf631603 # v1.6.x # 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
+  do_git_checkout https://git.carlh.net/git/libdcp.git libdcp v1.10.58 #b75d977a38f039fd68ed5d4055ae70b4bf631603 # v1.6.x # 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
 #  download_and_unpack_file https://carlh.net/downloads/libdcp/libdcp-1.6.17.tar.bz2 libdcp-1.6.17
   cd libdcp
     # M_PI is required. This is a quick way of defining it
@@ -6281,10 +6190,10 @@ build_libebml() {
 }
 
 build_libmatroska() {
-        #do_git_checkout https://github.com/Matroska-Org/libmatroska.git libmatroska
+    do_git_checkout https://github.com/Matroska-Org/libmatroska.git libmatroska release-1.7.1
 
-	download_and_unpack_file https://github.com/Matroska-Org/libmatroska/archive/release-1.7.1.tar.gz libmatroska-release-1.7.1
-	cd libmatroska-release-1.7.1
+#	download_and_unpack_file https://github.com/Matroska-Org/libmatroska/archive/release-1.7.1.tar.gz libmatroska-release-1.7.1
+	cd libmatroska
 		do_cmake  -DCMAKE_POLICY_VERSION_MINIMUM=3.5 # && ${top_dir}/correct_headers.sh
 #		echo "Environment is: "
 #		env
@@ -7502,8 +7411,6 @@ build_graphicsmagick() {
     apply_patch file://${top_dir}/graphicmagick-mingw64.patch
     cd build
       rm already*
-#      generic_download_and_install ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020150919.tar.xz GraphicsMagick-1.4.020150919 "--host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-magick-compat --disable-shared --enable-static --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix}/include CPPFLAGS=-I${mingw_w64_x86_64_prefix}"
-#      do_configure "--host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-magick-compat --disable-shared --enable-static --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix}/include CPPFLAGS=-I${mingw_w64_x86_64_prefix}" "../configure"
       # Add extra libraries to those required to link with libGraphicsMagick
       sed -i.bak 's/Libs: -L\${libdir} -lGraphicsMagick/Libs: -L${libdir} -lGraphicsMagick -lfreetype -lbz2 -lz -llcms2 -lpthread -lpng16 -ltiff -lgdi32 -lgdiplus -ljpeg -lwebp -ljasper/' ../magick/GraphicsMagick.pc.in
       # References to a libcorelib are not needed. The library doesn't exist on my platform
@@ -7576,57 +7483,6 @@ build_graphicsmagicksnapshot() {
     export CPPFLAGS=$cppflags_orig
     cd ..
 }
-
-#build_graphicsmagick() {
-#  local old_hg_version
-#  if [[ -d GM ]]; then
-#    cd GM
-#      echo "doing hg pull -u GM"
-#      old_hg_version=`hg --debug id -i`
-#     hg pull -u || exit 1
-#     hg update || exit 1 # guess you need this too if no new changes are brought down [what the...]
-#  else
-#    hg clone http://hg.code.sf.net/p/graphicsmagick/code GM || exit 1
-#    cd GM
-#      old_hg_version=none-yet
-#  fi
-#  download_and_unpack_file ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/snapshots/GraphicsMagick-1.4.020180218.tar.xz GraphicsMagick-1.4.020180218
-#  cd GraphicsMagick-1.4.020180218
-#    mkdir build
-#
-#  local new_hg_version=`hg --debug id -i`
-#  if [[ "$old_hg_version" != "$new_hg_version" ]]; then
-#    echo "got upstream hg changes, forcing rebuild...GraphicsMagick"
-#    apply_patch file://${top_dir}/graphicmagick-mingw64.patch
-#    cd build
-#      rm already*
-      # Add extra libraries to those required to link with libGraphicsMagick
-#      sed -i.bak 's/Libs: -L\${libdir} -lGraphicsMagick/Libs: -L${libdir} -lGraphicsMagick -lfreetype -lbz2 -lz -llcms2 -lpthread -lpng16 -ltiff -lgdi32 -lgdiplus -ljpeg -lwebp -ljasper/' ../magick/GraphicsMagick.pc.in
-      # References to a libcorelib are not needed. The library doesn't exist on my platform
-#      sed -i.bak 's/-lcorelib//' ../magick/GraphicsMagick.pc.in
-#      do_configure "--with-magick-plus-plus --enable-magick-compat --without-modules --with-fpx --disable-static --enable-shared --host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-broken-coders --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix} CPPFLAGS=-I${mingw_w64_x86_64_prefix}" "../configure"
-#      do_make_install || exit 1
-#      cp -v config/* ${mingw_w64_x86_64_prefix}/share/GraphicsMagick-1.4/config/
-
-#    cd ..
-#  else
-#    echo "still at hg $new_hg_version GraphicsMagick"
-#  fi
-#  cd ..
-#  download_and_unpack_file https://sourceforge.net/code-snapshots/hg/g/gr/graphicsmagick/code/graphicsmagick-code-baae93bf73b8701b03340b6ec0b9aaa4ba961d89.zip graphicsmagick-code-baae93bf73b8701b03340b6ec0b9aaa4ba961d89
-#  cd graphicsmagick-code-baae93bf73b8701b03340b6ec0b9aaa4ba961d89
-#    mkdir -v build
-#    cd build
-#      # Add extra libraries to those required to link with libGraphicsMagick
-#      sed -i.bak 's/Libs: -L\${libdir} -lGraphicsMagick/Libs: -L${libdir} -lGraphicsMagick -lfreetype -lbz2 -lz -llcms2 -lpthread -lpng16 -ltiff -lgdi32 -lgdiplus -ljpeg -lwebp -ljasper/' ../magick/GraphicsMagick.pc.in
-      # References to a libcorelib are not needed. The library doesn't exist on my platform
-#      sed -i.bak 's/-lcorelib//' ../magick/GraphicsMagick.pc.in
-#      do_configure "--with-magick-plus-plus --enable-magick-compat --without-modules --with-fpx --disable-static --enable-shared --host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-broken-coders --without-x LDFLAGS=-L${mingw_w64_x86_64_prefix}/lib CFLAGS=-I${mingw_w64_x86_64_prefix} CPPFLAGS=-I${mingw_w64_x86_64_prefix}" "../configure"
-#      do_make_install || exit 1
-#      cp -v config/* ${mingw_w64_x86_64_prefix}/share/GraphicsMagick-1.4/config/
-#    cd ..
-#  cd ..
-#}
 
 build_yamlcc() {
 	do_git_checkout https://github.com/jbeder/yaml-cpp.git yaml-cpp release-0.5.3
@@ -7972,22 +7828,6 @@ build_ffmpeg() {
 	local developer_options="--disable-debug --enable-stripping"
 	cd ffmpeg_git
 
-#  apply_patch file://${top_dir}/ffmpeg-amix.patch
-# --extra-cflags=$CFLAGS, though redundant, just so that FFmpeg lists what it used in its "info" output
-  #apply_patch file://${top_dir}/ffmpeg-dash-demux.patch
-#  apply_patch_p1 file://${top_dir}/ffmpeg-mcompand.patch
-  #apply_patch file://${top_dir}/ffmpeg-framesync2.patch
-#  apply_patch file://${top_dir}/lavfi-vfstack-reverse.patch
-#  apply_patch_p1 file://${top_dir}/ffmpeg-decklink-teletext-1-reverse.patch
-#  apply_patch_p1 file://${top_dir}/ffmpeg-decklink-teletext-2-reverse.patch
-#		apply_patch file://${top_dir}/ffmpeg-bs2b.patch
-#		apply_patch file://${top_dir}/ffmpeg-freetype.patch
-#		apply_patch file://${top_dir}/ffmpeg-preprocessor.patch
-#		apply_patch file://${top_dir}/ffmpeg-nvidia.patch
-#		apply_patch file://${top_dir}/ffmpeg-channel_layout.patch
-		# patch for HEVC plugin
-#		apply_patch_p1 file://{$top_dir}/ffmpeg-libsvt-hevc-wrapper.patch
-#		apply_patch_p1 file://${top_dir}/FFmpeg-devel-avfilter-add-3D-scope-multimedia-filter.diff
         cd tools
             ./merge-all-source-plugins source-plugins.txt
         cd ..
@@ -8670,9 +8510,6 @@ fi
 # TODO: CHECK THIS LIST WHEN ADDING NEW PACKAGES
 
 echo "Copying runtime libraries that have gone to the wrong build directory."
-#wrong_libs=('iculx59.dll' 'icudt59.dll' 'icutu59.dll' 'icuin59.dll' 'icuio59.dll' 'icutest59.dll' 'icuuc59.dll' 'libatomic-1.dll' 'libboost_chrono.dll' 'libboost_date_time.dll' 'libboost_filesystem.dll' 'libboost_prg_exec_monitor.dll' 'libboost_regex.dll' 'libboost_system.dll' 'libboost_locale.dll' 'libboost_thread_win32.dll' 'libboost_unit_test_framework.dll' 'libboost_timer.dll' 'libdcadec.dll' 'libgcc_s_seh-1.dll' 'libopendcp-lib.dll' 'libpthread.dll' 'libquadmath-0.dll' 'libssp-0.dll' 'libstdc++-6.dll' 'pthreadGC2.dll' 'libebur128.dll')
-#for move in ${wrong_libs[@]}; do
-#  cp -Lv "${mingw_w64_x86_64_prefix}/lib/${move}" "${mingw_w64_x86_64_prefix}/bin/${move}" || exit 1
   cp -Lv ${mingw_w64_x86_64_prefix}/lib/*dll ${mingw_w64_x86_64_prefix}/bin/
   # BUT NOT libpng.dll because that is actually a symlink to libpng.dll.a
   rm -v ${mingw_w64_x86_64_prefix}/bin/libpng.dll
@@ -8703,14 +8540,6 @@ rm -fv ${mingw_w64_x86_64_prefix}/plugins/plugins
 echo "Removing DLL files accidentally left in /lib"
 rm -fv ${mingw_w64_x86_64_prefix}/lib/*dll
 
-# The new mingw compilation script has fixed this next hack
-# for library in ${mingw_w64_x86_64_prefix}/../bin/*dll; do
-#   linkname=$(basename $library)
-#   echo "Linking ${library} to ${mingw_w64_x86_64_prefix}/bin/${linkname}"
-#   ln -fvs ${library} ${mingw_w64_x86_64_prefix}/bin/${linkname} || exit 1
-# done
-# echo "Runtime libraries in compiler directory now symbolically linked."
-
 # QT expects its platform plugins to be in a subdirectory of the binary directory
 # named "platforms"
 
@@ -8726,17 +8555,7 @@ echo "Stripping all binaries..."
 
 ${cross_prefix}strip  -p -s -v `find ${mingw_w64_x86_64_prefix} -iname "*.exe"`
 ${cross_prefix}strip  -p -s -v `find ${mingw_w64_x86_64_prefix} -iname "*.dll"`
-#${cross_prefix}strip  -p -s -v `find ${mingw_w64_x86_64_prefix}/../lib -name "*dll"`
-#${cross_prefix}strip  -p -s -v `find ${mingw_w64_x86_64_prefix}/plugins -name "*dll"`
-#${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/plugins/bearer/*.dll
-#${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/plugins/generic/*.dll
-#${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/plugins/iconengines/*.dll
-#${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/plugins/imageformats/*.dll
-#${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/plugins/platforms/*.dll
-#${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/plugins/printsupport/*.dll
-#${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/plugins/sqldrivers/*.dll
-#${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/lib/frei0r-1/*.dll
-#${cross_prefix}strip  -p -s -v ${mingw_w64_x86_64_prefix}/lib/gdk-pixbuf-2.0/2.10.0/loaders/*.dll
+
 echo "Binaries are stripped. Debugging versions of FFmpeg programs ending _g"
 echo "are in build directory."
 #echo "searching for some local exes..."
