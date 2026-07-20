@@ -143,3 +143,12 @@
      while (!current->text[0])
        {
          if (!sub_fgets(line1, LINE_LEN))
+--- dvdauthor-orig/bootstrap.orig	2026-07-20 14:26:30.336035299 +0100
++++ dvdauthor/bootstrap	2026-07-20 14:26:40.516819365 +0100
+@@ -16,5 +16,5 @@
+ #-
+ mkdir autotools m4
+ cp /usr/share/gettext/config.rpath autotools/
+-autoreconf -i
++autoreconf -fvi
+ 

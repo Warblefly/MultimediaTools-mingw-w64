@@ -2462,7 +2462,7 @@ build_ncurses() {
   cd ncurses
 #    apply_patch file://${top_dir}/ncurses-rx.patch
 #    rm configure
-    generic_configure "LIBS=-lgnurx --build=x86_64-pc-linux --host=x86_64-w64-mingw32 --disable-termcap --enable-widec --enable-term-driver --enable-sp-funcs --without-ada --without-cxx-binding --with-debug=no --with-shared=yes --with-normal=no --enable-database --with-probs --enable-interop --with-pkg-config-libdir=${mingw_w64_x86_64_prefix}/lib/pkgconfig --enable-pc-files --disable-static --enable-shared"
+    generic_configure "LIBS=-lgnurx --build=x86_64-pc-linux --host=x86_64-w64-mingw32 --disable-termcap --enable-widec --enable-term-driver --enable-sp-funcs --without-ada --without-cxx-binding --with-debug=no --with-shared=yes --with-normal=no --enable-database --with-probs --enable-interop --with-pkg-config-libdir=${mingw_w64_x86_64_prefix}/lib/pkgconfig --enable-pc-files --disable-static --enable-shared --without-tests"
 #    apply_patch file://${top_dir}/ncurses-rx.patch
     do_make
 #    do_make "dlls"
@@ -2500,11 +2500,11 @@ build_dvdbackup() {
 }
 
 build_libopencore() {
-  generic_download_and_install https://launchpad.net/ubuntu/+archive/primary/+files/opencore-amr_0.1.3.orig.tar.gz opencore-amr-0.1.3
+  generic_download_and_install https://in.archive.ubuntu.com/ubuntu/ubuntu/pool/universe/o/opencore-amr/opencore-amr_0.1.3.orig.tar.gz opencore-amr-0.1.3
   cd opencore-amr-0.1.3
 
   cd ..
-  generic_download_and_install https://launchpad.net/ubuntu/+archive/primary/+files/vo-amrwbenc_0.1.3.orig.tar.gz vo-amrwbenc-0.1.3
+  generic_download_and_install https://in.archive.ubuntu.com/ubuntu/ubuntu/pool/universe/v/vo-amrwbenc/vo-amrwbenc_0.1.3.orig.tar.gz vo-amrwbenc-0.1.3
   cd vo-amrwbenc-0.1.3
 
   cd ..
@@ -3457,7 +3457,7 @@ build_asdcplib-cth() {
     export CXX=x86_64-w64-mingw32-g++
     export AR=x86_64-w64-mingw32-ar
     rm -fv ./waf
-    wget https://waf.io/waf-2.0.23
+    wget https://distfiles.macports.org/mpv/waf-2.0.23
     mv -v ./waf-2.0.23 ./waf
     chmod +x ./waf
     do_configure "configure -vvv -pp --prefix=${mingw_w64_x86_64_prefix} --libdir=${mingw_w64_x86_64_prefix}/lib --target-windows --check-cxx-compiler=gxx" "./waf"
@@ -5310,13 +5310,13 @@ build_opencl() {
 	cd ..
 
 	mkdir -p ${mingw_w64_x86_64_prefix}/include/EGL && cd ${mingw_w64_x86_64_prefix}/include/EGL
-		wget --no-clobber https://raw.githubusercontent.com/google/angle/master/include/EGL/egl.h \
-		https://raw.githubusercontent.com/google/angle/master/include/EGL/eglext.h \
-		https://raw.githubusercontent.com/google/angle/master/include/EGL/eglext_angle.h \
-		https://raw.githubusercontent.com/google/angle/master/include/EGL/eglplatform.h
+		wget --no-clobber https://raw.githubusercontent.com/google/angle/093a0d8f75a212cb91346362f9805ca2061f3305/include/EGL/egl.h \
+		https://raw.githubusercontent.com/google/angle/093a0d8f75a212cb91346362f9805ca2061f3305/include/EGL/ext.h \
+		https://raw.githubusercontent.com/google/angle/093a0d8f75a212cb91346362f9805ca2061f3305/include/EGL/eglext_angle.h \
+		https://raw.githubusercontent.com/google/angle/093a0d8f75a212cb91346362f9805ca2061f3305/include/EGL/eglplatform.h
 	cd -
 	mkdir -p ${mingw_w64_x86_64_prefix}/include/KHR && cd ${mingw_w64_x86_64_prefix}/include/KHR
-		    wget --no-clobber https://raw.githubusercontent.com/google/angle/master/include/KHR/khrplatform.h
+		    wget --no-clobber https://raw.githubusercontent.com/google/angle/093a0d8f75a212cb91346362f9805ca2061f3305/include/KHR/khrplatform.h
 	cd -
 }
 
@@ -5947,9 +5947,9 @@ build_aubio() {
 #	apply_patch file://${top_dir}/aubio_mingw.patch
         mkdir aubio_build
         cd aubio_build
-            wget https://waf.io/waf-2.0.25.tar.bz2
-	    tar xvvf waf-2.0.25.tar.bz2
-            cd waf-2.0.25
+            wget https://gitlab.com/ita1024/waf/-/archive/waf-2.0.25/waf-waf-2.0.25.tar.bz2
+	    tar xvvf waf-waf-2.0.25.tar.bz2
+            cd waf-waf-2.0.25
                 NOCLIMB=1 python waf-light --tools=c_emscripten
             cd ..
         cd ..
@@ -7692,7 +7692,7 @@ build_rist() {
 	do_git_checkout https://code.videolan.org/rist/librist.git librist # c917e970 #8f139809
 	cd librist
 #		apply_patch file://${top_dir}/librist-thread.patch
-		generic_meson_ninja_install
+		generic_meson_ninja_install "-Dtest=false"
 	cd ..
 }
 

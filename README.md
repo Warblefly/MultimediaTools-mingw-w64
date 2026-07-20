@@ -53,6 +53,8 @@ apt install git gcc-13 g++-13 make libgmp-dev libmpfr-dev texinfo bison flex wge
 yasm nasm libtool-bin mm-common python-is-python3 libglib2.0-dev-bin libxml2-utils autoconf-archive gperf libglib2.0-dev gtk-doc-tools gtk-update-icon-cache python3-requests zip qt6-base-dev qt6-shadertools-dev qt6-tools-dev nsis
 ```
 
+4.5 You'll need automake-1.17 from here, too: http://http.us.debian.org/debian/pool/main/a/automake-1.17/automake_1.17-4_all.deb
+
 5. Clone my package from git (see the address at the top of this page).
 6. cd into the top directory of the git tree.
 7. Read the top of ./build_shared.sh, and edit the location to which scp should copy your binary archive.
