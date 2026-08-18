@@ -775,6 +775,7 @@ do_cleanup() {
 }
 
 build_libsvthevc() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/OpenVisualCloud/SVT-HEVC.git SVT-HEVC
 		cd SVT-HEVC
 		do_cmake
@@ -784,6 +785,7 @@ build_libsvthevc() {
 }
 
 build_libx265() {
+  printf "%s\n" "${FUNCNAME[0]}"
 if [ ! -f libx265.built ]; then
   do_git_checkout https://bitbucket.org/multicoreware/x265_git.git x265 c8905a745633543a1a0df6044a09386057a95be2
   cd x265
@@ -835,6 +837,7 @@ fi
 }
 
 build_libx264() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/mirror/x264.git x264
   cd x264
   local configure_flags="--host=$host_target --disable-static --enable-shared --cross-prefix=$cross_prefix --prefix=$mingw_w64_x86_64_prefix --disable-avs --disable-swscale --disable-lavf --disable-ffms --disable-gpac --bit-depths=all --chroma-format=all" # --enable-win32thread --enable-debug shouldn't hurt us since ffmpeg strips it anyway I think
@@ -846,9 +849,11 @@ build_libx264() {
 }
 
 build_librtmp() {
+  printf "%s\n" "${FUNCNAME[0]}"
   if [ ! -f rtmp_built ]; then
-	  do_git_checkout git://git.ffmpeg.org/rtmpdump rtmpdump # 883c33489403ed360a01d1a47ec76d476525b49e # trunk didn't build once...this one i sstable
-	  cd rtmpdump
+#	  do_git_checkout https://git.ffmpeg.org/rtmpdump rtmpdump # 883c33489403ed360a01d1a47ec76d476525b49e # trunk didn't build once...this one i sstable
+     download_and_unpack_file https://code.launchpad.net/ubuntu/+archive/primary/+sourcefiles/rtmpdump/2.6-1/rtmpdump_2.6.orig.tar.xz rtmpdump-2.6
+	  cd rtmpdump-2.6
 	    sed -i.bak 's/SYS=posix/SYS=mingw/' Makefile
 	    sed -i.bak 's/SYS=posix/SYS=mingw/' librtmp/Makefile
 	    cd librtmp
@@ -866,6 +871,7 @@ build_librtmp() {
 }
 
 build_pthread_stubs() {
+  printf "%s\n" "${FUNCNAME[0]}"
     do_git_checkout git://anongit.freedesktop.org/xcb/pthread-stubs pthread-stubs
     cd pthread-stubs
         generic_configure_make_install
@@ -873,6 +879,7 @@ build_pthread_stubs() {
 }
 
 build_drm() {
+  printf "%s\n" "${FUNCNAME[0]}"
     do_git_checkout git://anongit.freedesktop.org/mesa/drm drm
     cd drm
         generic_configure_make_install
@@ -881,6 +888,7 @@ build_drm() {
 
 
 build_qt6() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	download_and_unpack_file https://download.qt.io/archive/qt/6.9/6.9.1/submodules/qtbase-everywhere-src-6.9.1.tar.xz qtbase-everywhere-src-6.9.1
 	cd qtbase-everywhere-src-6.9.1
 #		cd qtbase
@@ -956,6 +964,7 @@ build_qt6() {
 
 
 build_qt() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	export QT_VERSION="5.15.10"
 	export QT_BASE="5.15"
 	export QT_SOURCE="qt-source"
@@ -1040,6 +1049,7 @@ build_qt() {
 }
 
 build_qt_old() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	#was 5.14.2
   echo "PATH now is $PATH"
   original_path="$PATH"
@@ -1119,6 +1129,7 @@ build_qt_old() {
 }
 
 build_kf5_config() {
+  printf "%s\n" "${FUNCNAME[0]}"
     download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kconfig-5.46.0.tar.xz kconfig-5.46.0
     cd kconfig-5.46.0
         do_cmake
@@ -1129,6 +1140,7 @@ build_kf5_config() {
 }
 
 build_kf5_coreaddons() {
+  printf "%s\n" "${FUNCNAME[0]}"
     download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kcoreaddons-5.46.0.tar.xz kcoreaddons-5.46.0
     cd kcoreaddons-5.46.0
         do_cmake
@@ -1139,6 +1151,7 @@ build_kf5_coreaddons() {
 }
 
 build_libaec() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/erget/libaec.git libaec cmake-install-instructions
 	cd libaec
 		do_cmake
@@ -1148,6 +1161,7 @@ build_libaec() {
 }
 
 build_gctpc() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	download_and_unpack_file ftp://ftp.fau.de/macports/distfiles/gctpc/gctpc20.tar.Z gctpc
 	cd gctpc/source
 		apply_patch file://${top_dir}/gctpc-makefile.patch
@@ -1161,6 +1175,7 @@ build_gctpc() {
 }
 
 build_wgrib2() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	download_and_unpack_file ftp://ftp.cpc.ncep.noaa.gov/wd51we/wgrib2/wgrib2_nolib.tgz.v2.0.8 grib2
 	cd grib2
 		apply_patch file://${top_dir}/grib2-makefile.patch
@@ -1171,6 +1186,7 @@ build_wgrib2() {
 }
 
 build_kf5_itemmodels() {
+  printf "%s\n" "${FUNCNAME[0]}"
      download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kitemmodels-5.46.0.tar.xz kitemmodels-5.46.0
      cd kitemmodels-5.46.0
          do_cmake
@@ -1181,6 +1197,7 @@ build_kf5_itemmodels() {
  }
 
 build_kf5_itemviews() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kitemviews-5.46.0.tar.xz kitemviews-5.46.0
         cd kitemviews-5.46.0
             do_cmake
@@ -1191,6 +1208,7 @@ build_kf5_itemviews() {
 }
 
 build_kf5_codecs() {
+  printf "%s\n" "${FUNCNAME[0]}"
       download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kcodecs-5.46.0.tar.xz kcodecs-5.46.0
           cd kcodecs-5.46.0
               do_cmake
@@ -1202,6 +1220,7 @@ build_kf5_codecs() {
 
 
 build_kf5_guiaddons() {
+  printf "%s\n" "${FUNCNAME[0]}"
        download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kguiaddons-5.46.0.tar.xz kguiaddons-5.46.0
            cd kguiaddons-5.46.0
                do_cmake
@@ -1212,6 +1231,7 @@ build_kf5_guiaddons() {
 }
 
 build_kf5_i18n() {
+  printf "%s\n" "${FUNCNAME[0]}"
       download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/ki18n-5.46.0.tar.xz ki18n-5.46.0
           cd ki18n-5.46.0
               do_cmake
@@ -1222,6 +1242,7 @@ build_kf5_i18n() {
 }
 
 build_kf5_widgetsaddons() {
+  printf "%s\n" "${FUNCNAME[0]}"
       download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kwidgetsaddons-5.46.0.tar.xz kwidgetsaddons-5.46.0
           cd kwidgetsaddons-5.46.0
               do_cmake
@@ -1232,6 +1253,7 @@ build_kf5_widgetsaddons() {
 }
 
 build_kf5_configwidgets() {
+  printf "%s\n" "${FUNCNAME[0]}"
      download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kconfigwidgets-5.46.0.tar.xz kconfigwidgets-5.46.0
          cd kconfigwidgets-5.46.0
              apply_patch file://${top_dir}/kconfigwidgets-cross.patch
@@ -1243,6 +1265,7 @@ build_kf5_configwidgets() {
 }
 
 build_kf5_auth() {
+  printf "%s\n" "${FUNCNAME[0]}"
       download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kauth-5.46.0.tar.xz kauth-5.46.0
           cd kauth-5.46.0
               do_cmake
@@ -1253,6 +1276,7 @@ build_kf5_auth() {
  }
 
 build_kf5_archive() {
+  printf "%s\n" "${FUNCNAME[0]}"
         download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/karchive-5.46.0.tar.xz karchive-5.46.0
             cd karchive-5.46.0
                 do_cmake
@@ -1263,6 +1287,7 @@ build_kf5_archive() {
  }
 
 build_kf5_iconthemes() {
+  printf "%s\n" "${FUNCNAME[0]}"
        download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kiconthemes-5.46.0.tar.xz kiconthemes-5.46.0
            cd kiconthemes-5.46.0
                do_cmake
@@ -1273,6 +1298,7 @@ build_kf5_iconthemes() {
 }
 
 build_kf5_completion() {
+  printf "%s\n" "${FUNCNAME[0]}"
      download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kcompletion-5.46.0.tar.xz kcompletion-5.46.0
      cd kcompletion-5.46.0
          do_cmake
@@ -1283,6 +1309,7 @@ build_kf5_completion() {
 }
 
 build_kf5_windowsystem() {
+  printf "%s\n" "${FUNCNAME[0]}"
       download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kwindowsystem-5.46.0.tar.xz kwindowsystem-5.46.0
       cd kwindowsystem-5.46.0
           do_cmake
@@ -1293,6 +1320,7 @@ build_kf5_windowsystem() {
 }
 
 build_kf5_crash() {
+  printf "%s\n" "${FUNCNAME[0]}"
       download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kcrash-5.46.0.tar.xz kcrash-5.46.0
       cd kcrash-5.46.0
           do_cmake
@@ -1303,6 +1331,7 @@ build_kf5_crash() {
 }
 
 build_kf5_dbusaddons() {
+  printf "%s\n" "${FUNCNAME[0]}"
       download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kdbusaddons-5.46.0.tar.xz kdbusaddons-5.46.0
       cd kdbusaddons-5.46.0
           do_cmake
@@ -1313,6 +1342,7 @@ build_kf5_dbusaddons() {
 }
 
 build_kf5_service() {
+  printf "%s\n" "${FUNCNAME[0]}"
       download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kservice-5.46.0.tar.xz kservice-5.46.0
       cd kservice-5.46.0
           do_cmake "-DBUILD_TESTING=OFF"
@@ -1323,6 +1353,7 @@ build_kf5_service() {
 }
 
 build_kf5_sonnet() {
+  printf "%s\n" "${FUNCNAME[0]}"
       download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/sonnet-5.46.0.tar.xz sonnet-5.46.0
       cd sonnet-5.46.0
           do_cmake
@@ -1333,6 +1364,7 @@ build_kf5_sonnet() {
 }
 
 build_kf5_textwidgets() {
+  printf "%s\n" "${FUNCNAME[0]}"
      download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/ktextwidgets-5.46.0.tar.xz ktextwidgets-5.46.0
      cd ktextwidgets-5.46.0
          do_cmake
@@ -1343,6 +1375,7 @@ build_kf5_textwidgets() {
 }
 
 build_kf5_attica() {
+  printf "%s\n" "${FUNCNAME[0]}"
       download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/attica-5.46.0.tar.xz attica-5.46.0
       cd attica-5.46.0
           do_cmake
@@ -1353,6 +1386,7 @@ build_kf5_attica() {
 }
 
 build_kf5_globalaccel() {
+  printf "%s\n" "${FUNCNAME[0]}"
        download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kglobalaccel-5.46.0.tar.xz kglobalaccel-5.46.0
        cd kglobalaccel-5.46.0
            do_cmake
@@ -1363,6 +1397,7 @@ build_kf5_globalaccel() {
  }
 
 build_kf5_xmlgui() {
+  printf "%s\n" "${FUNCNAME[0]}"
     download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/kxmlgui-5.46.0.tar.xz kxmlgui-5.46.0
     cd kxmlgui-5.46.0
         #apply_patch file://${top_dir}/kxmlgui-header.patch
@@ -1374,6 +1409,7 @@ build_kf5_xmlgui() {
 }
 
 build_kf5_solid() {
+  printf "%s\n" "${FUNCNAME[0]}"
      download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/solid-5.46.0.tar.xz solid-5.46.0
      cd solid-5.46.0
          do_cmake
@@ -1384,6 +1420,7 @@ build_kf5_solid() {
 }
 
 build_kf5_threadweaver() {
+  printf "%s\n" "${FUNCNAME[0]}"
       download_and_unpack_file https://download.kde.org/stable/frameworks/5.46/threadweaver-5.46.0.tar.xz threadweaver-5.46.0
       cd threadweaver-5.46.0
           do_cmake
@@ -1394,6 +1431,7 @@ build_kf5_threadweaver() {
 }
 
 build_digikam() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout git://anongit.kde.org/digikam.git digikam
     cd digikam
       do_cmake "-DENABLE_QWEBENGINE:BOOL=ON -DDIGIKAMSC_COMPILE_PO=OFF -DDIGIKAMSC_COMPILE_DOC=OFF"
@@ -1423,6 +1461,7 @@ build_digikam() {
 #}
 
 build_libsoxr() {
+  printf "%s\n" "${FUNCNAME[0]}"
   #download_and_unpack_file http://sourceforge.net/projects/soxr/files/soxr-0.1.1-Source.tar.xz soxr-0.1.1-Source # not /download since apparently some tar's can't untar it without an extension?
   do_git_checkout git://git.code.sf.net/p/soxr/code "soxr-code"
   cd soxr-code
@@ -1433,6 +1472,7 @@ build_libsoxr() {
 }
 
 build_googletest() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/google/googletest.git googletest 4219e7254cb8c473f57f6065bd13d1520d7b708f # main
   cd googletest
     do_cmake "-DBUILD_SHARED_LIBS=ON"
@@ -1443,6 +1483,7 @@ build_googletest() {
 }
 
 build_mlt() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/mltframework/mlt.git mlt v7.36.1 # 9306a5628cb9b1199e0f85d5f83b789bf8edb218
   cd mlt
 #    apply_patch file://${top_dir}/mlt-mingw-sandbox.patch
@@ -1488,6 +1529,7 @@ build_mlt() {
 }
 
 build_DJV() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #  download_and_unpack_file http://gallery.johnwarburton.net/djv-git-a7104da34d8a273de457b3225f77de35ccb4a63e.tar.xz djv-git-a7104da34d8a273de457b3225f77de35ccb4a63e
 
   do_git_checkout https://github.com/sobotka/djv-view.git DJV ffmpeg-fixes
@@ -1542,6 +1584,7 @@ build_DJV() {
 }
 
 build_FSeq() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/darbyjohnston/FSeq.git FSeq
 	cd FSeq
 		do_cmake "-DFSEQ_BUILD_BIN=TRUE"
@@ -1551,6 +1594,7 @@ build_FSeq() {
 }
 
 build_rapidjson() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/Tencent/rapidjson.git rapidjson
 	cd rapidjson
 		do_cmake "-DCMAKE_BUILD_TYPE=Release -DRAPIDJSON_BUILD_TESTS=OFF -DRAPIDJSON_BUILD_CXX11=ON -DRAPIDJSON_ENABLE_INSTRUMENTATION_OPT=ON -DRAPIDJSON_BUILD_EXAMPLES=OFF"
@@ -1562,6 +1606,7 @@ build_rapidjson() {
 
 
 build_DJVnew() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/darbyjohnston/DJV.git DJV # 2.0.8
 	cd DJV
 		apply_patch file://${top_dir}/DJVnew.patch
@@ -1582,6 +1627,7 @@ build_DJVnew() {
 }
 
 build_openblas() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/xianyi/OpenBLAS.git OpenBLAS
   cd OpenBLAS
     apply_patch file://${top_dir}/OpenBLAS-makefile.patch
@@ -1594,6 +1640,7 @@ build_openblas() {
 }
 
 build_opencv() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/opencv/opencv.git "opencv" 4.x # 2.4 # 2bd0844be39a799d100e1ac00833ca946a7bfbf7 #3.4 # 2.4
 do_git_checkout http://github.com/opencv/opencv_contrib.git "opencv_contrib" 4.x
   cd opencv
@@ -1634,6 +1681,7 @@ do_git_checkout http://github.com/opencv/opencv_contrib.git "opencv_contrib" 4.x
 }
 
 build_cunit() {
+  printf "%s\n" "${FUNCNAME[0]}"
   generic_download_and_install https://github.com/Linaro/libcunit/releases/download/2.1-3/CUnit-2.1-3.tar.bz2 CUnit-2.1-3 "--disable-shared --enable-static"
   cd CUnit-2.1-3
 
@@ -1641,6 +1689,7 @@ build_cunit() {
 }
 
 build_libspatialaudio() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/videolabs/libspatialaudio.git libspatialaudio f3d7039ae79257cd3d54325b9fd77e4415484532 # d926a2ee469a3fefd50a9364fb9ac6fb484c3f70 # 546d3cc1957d353b8abcdf02ee845d92cb9e2599 # 5420ba0c660236bd319da94fe9bec7d38c13705b
   cd libspatialaudio
 #    apply_patch file://${top_dir}/libspatialaudio-install.patch
@@ -1654,6 +1703,7 @@ build_libspatialaudio() {
 }
 
 build_libharu() {
+  printf "%s\n" "${FUNCNAME[0]}"
     do_git_checkout https://github.com/libharu/libharu.git libharu
     cd libharu
         do_cmake
@@ -1663,6 +1713,7 @@ build_libharu() {
 }
 
 build_libmysofa() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/hoene/libmysofa.git libmysofa bed445ba48ad9faf0e758b54af3f6075949d27fe # main #"Branch_v0.4(Windows)"
   cd libmysofa
 #    apply_patch file://${top_dir}/libmysofa-zlib.patch
@@ -1679,6 +1730,7 @@ build_libmysofa() {
 }
 
 build_leqm_nrt() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://git.carlh.net/git/leqm-nrt.git leqm-nrt carl
 	cd leqm-nrt
 		#apply_patch file://${top_dir}/leqmnrt.patch
@@ -1697,6 +1749,7 @@ build_leqm_nrt() {
 
 
 build_opendcp() {
+  printf "%s\n" "${FUNCNAME[0]}"
 # There are quite a few patches because I prefer to build this as a static program,
 # whereas the author, understandably, created it as a dynamically-linked program.
   do_git_checkout https://github.com/tmeiczin/opendcp.git opendcp qt5-port
@@ -1735,6 +1788,7 @@ build_opendcp() {
 }
 
 build_dcpomatic() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #  do_git_checkout https://github.com/cth103/dcpomatic.git dcpomatic main # v2.16.52 #805d4a48fa6e4d8e28fd582a2ae6ba78b8343144 main # v2.15.x # fc1441eeaa3c0805c37809685ea7a3f5ca173666 # v2.15.x #97193e96c637ca92eeaf6e72ee38aa628308973b # v2.15.x #402fa9a3577975e9cf9728c815da1b17796fe325 # v2.15.x #9cff6ec974a4d0270091fe5c753483b0d53ecd46
   do_git_checkout https://git.carlh.net/git/dcpomatic.git dcpomatic v2.18.43 # new-ffmpeg-take2 #edbccd8d04a33f9e8d03677d8ebc671f40b0f822 #v2.15.x # 9cff6ec974a4d0270091fe5c753483b0d53ecd46 # bfb7e79c958036e77a7ffe33310d8c0957848602 # 591dc9ed8fc748d5e594b337d03f22d897610eff #5c712268c87dd318a6f5357b0d8f7b8a8b7764bb # 591dc9ed8fc748d5e594b337d03f22d897610eff #fe8251bb73765b459042b0fa841dae2d440487fd #4ac1ba47652884a647103ec49b2de4c0b6e60a9 # v2.13.0
 #  download_and_unpack_file "https://dcpomatic.com/dl.php?id=source&version=2.15.123" dcpomatic-2.15.123
@@ -1779,10 +1833,12 @@ build_dcpomatic() {
 }
 
 build_libcheck() {
+  printf "%s\n" "${FUNCNAME[0]}"
   generic_download_and_install https://github.com/libcheck/check/archive/refs/tags/0.15.2.tar.gz check-0.15.2 "--disable-build-docs"
 }
 
 build_gcal() {
+  printf "%s\n" "${FUNCNAME[0]}"
     do_git_checkout https://github.com/gnu-mirror-unofficial/gcal.git gcal
     cd gcal
         export CFLAGS="-Wno-error=incompatible-pointer-types -std=gnu17"
@@ -1798,10 +1854,12 @@ build_gcal() {
 }
 
 build_unbound() {
+  printf "%s\n" "${FUNCNAME[0]}"
   generic_download_and_install https://www.unbound.net/downloads/unbound-latest.tar.gz unbound-1.15.0 "CFLAGS=-O1 libtool=${mingw_w64_x86_64_prefix}/bin/libtool --with-ssl=${mingw_w64_x86_64_prefix} --with-libunbound-only --with-libexpat=${mingw_w64_x86_64_prefix}"
 }
 
 build_libxavs() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_svn_checkout https://svn.code.sf.net/p/xavs/code/trunk xavs
   cd xavs
     export LDFLAGS='-lm'
@@ -1812,6 +1870,7 @@ build_libxavs() {
 }
 
 build_libxavs2() {
+  printf "%s\n" "${FUNCNAME[0]}"
     do_git_checkout https://github.com/Jamaika1/xavs2.git xavs2
     cd xavs2/build/linux
         generic_configure "--cross-prefix=$cross_prefix --extra-cflags=-Wno-incompatible-pointer-types --extra-cflags=-Wno-int-conversion"
@@ -1820,6 +1879,7 @@ build_libxavs2() {
 }
 
 build_libpng() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #  do_git_checkout https://github.com/pnggroup/libpng.git libpng libpng18
   download_and_unpack_file https://download.sourceforge.net/libpng/libpng-1.6.58.tar.xz libpng-1.6.58
   cd libpng-1.6.58
@@ -1839,6 +1899,7 @@ build_libpng() {
 }
 
 build_libopenjpeg() {
+  printf "%s\n" "${FUNCNAME[0]}"
 # FFmpeg doesn't yet take Openjpeg 2 so we compile version 1 here.
   download_and_unpack_file https://github.com/uclouvain/openjpeg/archive/version.1.5.2.tar.gz openjpeg-version.1.5.2
   cd openjpeg-version.1.5.2
@@ -1857,6 +1918,7 @@ build_libopenjpeg() {
 }
 
 build_lcms2() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/mm2/Little-CMS.git lcms2 # 981aac648ce214c5aac5c645b95a3c4e6f3d8174 # 5d91cf48902068b5049a7f9961fa23a267d0c93e
   cd lcms2
     generic_configure_make_install
@@ -1865,6 +1927,7 @@ build_lcms2() {
 }
 
 build_minizipng() {
+  printf "%s\n" "${FUNCNAME[0]}"
     do_git_checkout https://github.com/zlib-ng/minizip-ng.git minizip-ng develop
     cd minizip-ng
         do_cmake "-DMZ_BZIP2=ON -DMZ_LZMA=ON -DMZ_OPENSSL=ON -DMZ_WZAES=ON -DMZ_ZSTD=ON -DMZ_ZLIB=ON -DCMAKE_DLL_NAME_WITH_SOVERSION=ON -DMZ_FETCH_LIBS=OFF -DMZ_PROJECT_SUFFIX='-ng' -DMZ_LIB_SUFFIX='-ng'"
@@ -1874,6 +1937,7 @@ build_minizipng() {
 }
 
 build_libopenjpeg2() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/uclouvain/openjpeg.git openjpeg2
 #  download_and_unpack_file "http://downloads.sourceforge.net/project/openjpeg.mirror/2.1.0/openjpeg-2.1.0.tar.gz" openjpeg-2.1.0
   cd openjpeg2
@@ -1886,6 +1950,7 @@ build_libopenjpeg2() {
 }
 
 build_libopenjpeg2carl2() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/cth103/openjpeg.git openjpeg2_carl_2 carl-2
 	cd openjpeg2_carl_2
 		 do_cmake "-DCMAKE_POLICY_VERSION_MINIMUM=3.5 -D_BUILD_SHARED_LIBS:BOOL=ON -DBUILD_VIEWER:bool=OFF -DBUILD_MJ2:bool=OFF -DBUILD_JPWL:bool=OFF -DBUILD_JPIP:bool=OFF -DBUILD_TESTS:bool=OFF -DBUILD_SHARED_LIBS:bool=ON -DBUILD_STATIC_LIBS:BOOL=OFF -DBUILD_CODEC:bool=ON -DBUILD_PKGCONFIG_FILES:bool=ON"
@@ -1896,6 +1961,7 @@ build_libopenjpeg2carl2() {
 }
 
 build_libvpx() {
+  printf "%s\n" "${FUNCNAME[0]}"
   if [[ $prefer_stable = "y" ]]; then
     download_and_unpack_file http://webm.googlecode.com/files/libvpx-v1.3.0.tar.bz2 libvpx-v1.3.0
     cd libvpx-v1.3.0
@@ -1927,6 +1993,7 @@ build_libvpx() {
 }
 
 build_libutvideo() {
+  printf "%s\n" "${FUNCNAME[0]}"
 # SUPERSEDED BY NATIVE CODE AND NO LONGER COMPILED
 #  download_and_unpack_file http://umezawa.dyndns.info/archive/utvideo/utvideo-12.2.1-src.zip utvideo-12.2.1
 #  cd utvideo-12.2.1
@@ -1952,6 +2019,7 @@ build_libutvideo() {
 
 
 build_libilbc() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/TimothyGu/libilbc.git libilbc_git v2.0.2
   cd libilbc_git
 
@@ -1974,7 +2042,8 @@ build_libcdio-paranoia() {
 }
 
 build_libx262() {
-  do_git_checkout https://git.videolan.org/git/x262.git x262
+  printf "%s\n" "${FUNCNAME[0]}"
+  do_git_checkout https://github.com/kierank/x262.git x262
   cd x262
     generic_configure "--host=$host_target --enable-static --disable-shared --cross-prefix=$cross_prefix --prefix=$mingw_w64_x86_64_prefix --disable-avs --disable-swscale --disable-lavf --disable-ffms --disable-gpac --disable-win32thread"
     do_make
@@ -1990,6 +2059,7 @@ build_libx262() {
 }
 
 build_lsdvd() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout git://git.code.sf.net/p/lsdvd/git lsdvd
   cd lsdvd
   if [[ ! -f "configure" ]]; then
@@ -2001,6 +2071,7 @@ build_lsdvd() {
 }
 
 build_doxygen() {
+  printf "%s\n" "${FUNCNAME[0]}"
   download_and_unpack_file https://github.com/doxygen/doxygen/archive/Release_1_8_17.tar.gz doxygen-Release_1_8_17
   cd doxygen-Release_1_8_17
 #    sed -i.bak 's/WIN32/MSVC/' CMakeLists.txt
@@ -2014,6 +2085,7 @@ build_doxygen() {
 }
 
 build_libflite() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #  download_and_unpack_file http://www.speech.cs.cmu.edu/flite/packed/flite-1.4/flite-1.4-release.tar.bz2 flite-1.4-release
 #  cd flite-1.4-release
    do_git_checkout https://github.com/barsnick/flite.git flite parallel_build
@@ -2048,6 +2120,7 @@ build_libflite() {
 }
 
 build_libgsm() {
+  printf "%s\n" "${FUNCNAME[0]}"
 
 #  download_and_unpack_file https://src.fedoraproject.org/lookaside/extras/gsm/gsm-1.0.16.tar.gz/94b03ba7b9cf7da7caa8456c219a8673/gsm-1.0.16.tar.gz gsm-1.0-pl16
 #  download_and_unpack_file https://ftp.radix.pro/sources/packages/m/gsm/gsm-1.0.13.tar.gz gsm-1.0-pl13
@@ -2068,6 +2141,7 @@ build_libgsm() {
 }
 
 build_libcelt() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://gitlab.xiph.org/xiph/celt.git celt
 	cd celt
 		# rm -vf autogen.sh
@@ -2076,6 +2150,7 @@ build_libcelt() {
 }
 
 build_libopus() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #  download_and_unpack_file http://downloads.xiph.org/releases/opus/opus-1.2-alpha.tar.gz opus-1.2-alpha
   do_git_checkout https://github.com/xiph/opus.git opus
   cd opus
@@ -2088,6 +2163,7 @@ build_libopus() {
 }
 
 build_libdvdread() {
+  printf "%s\n" "${FUNCNAME[0]}"
   build_libdvdcss
 #  do_git_checkout https://code.videolan.org/videolan/libdvdread.git libdvdread
   download_and_unpack_file https://download.videolan.org/pub/videolan/libdvdread/6.1.3/libdvdread-6.1.3.tar.bz2 libdvdread-6.1.3
@@ -2107,6 +2183,7 @@ build_libdvdread() {
 }
 
 build_libdvdnav() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #  do_git_checkout https://code.videolan.org/videolan/libdvdnav.git libdvdnav
   download_and_unpack_file https://download.videolan.org/pub/videolan/libdvdnav/6.0.1/libdvdnav-6.0.1.tar.bz2 libdvdnav-6.0.1
   cd libdvdnav-6.0.1
@@ -2122,6 +2199,7 @@ build_libdvdnav() {
 }
 
 build_libdvdcss() {
+  printf "%s\n" "${FUNCNAME[0]}"
    do_git_checkout https://code.videolan.org/videolan/libdvdcss.git libdvdcss
   cd libdvdcss/src
 #    apply_patch libdvdcss.c.patch
@@ -2135,6 +2213,7 @@ build_libdvdcss() {
 }
 
 build_gdb() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #  export LIBS="-lpsapi -ldl"
   export MAKEFLAGS="VERBOSE=1"
   download_and_unpack_file ftp://sourceware.org/pub/gdb/releases/gdb-17.2.tar.xz gdb-17.2
@@ -2155,6 +2234,7 @@ build_gdb() {
 }
 
 build_mpfr() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	export PKG_CONFIG_PATH=${mingw_w64_x86_64_prefix}/lib/pkgconfig
 	generic_download_and_install https://www.mpfr.org/mpfr-current/mpfr-4.2.2.tar.xz mpfr-4.2.2 "--with-gmp=${mingw_w64_x86_64_prefix}"
 }
@@ -2163,6 +2243,7 @@ build_mpfr() {
 
 
 build_readline() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	download_and_unpack_file https://ftp.gnu.org/gnu/readline/readline-8.3.tar.gz readline-8.3
 	cd readline-8.3
     apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-readline/0001-sigwinch.patch
@@ -2177,6 +2258,7 @@ build_readline() {
 }
 
 build_ASIOSDK() {
+  printf "%s\n" "${FUNCNAME[0]}"
   download_and_unpack_file https://download.steinberg.net/sdk_downloads/asiosdk_2.3.3_2019-06-14.zip asiosdk_2.3.3_2019-06-14
 
   ln -s asiosdk_2.3.3_2019-06-14/common ASIOSDK2
@@ -2184,6 +2266,7 @@ build_ASIOSDK() {
 }
 
 build_portaudio_without_jack_cmake() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/PortAudio/portaudio.git portaudio_without_jack f9823ddf948accc544914cbb3b14a9da822d4aa6
 	cd portaudio_without_jack
 		do_cmake "-DCMAKE_BUILD_TYPE=Release -DPA_USE_ASIO=ON -DPA_USE_DS=ON -DPA_USE_DIRECTSOUNDFULLDUPLEXCREATE=OFF -DPA_USE_WMME=ON -DPA_USE_WASAPI=ON -DPA_USE_WDMKS=ON -DPA_USE_WDMKS_DEVICE_INFO=ON -DPA_USE_JACK=OFF -DPA_UNICODE_BUILD=ON -DPA_BUILD_SHARED=ON -DPA_BUILD_STATIC=OFF"
@@ -2193,6 +2276,7 @@ build_portaudio_without_jack_cmake() {
 }
 
 build_portaudio_with_jack_cmake() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/PortAudio/portaudio.git portaudio f9823ddf948accc544914cbb3b14a9da822d4aa6
 	cd portaudio
 		apply_patch file://${top_dir}/portaudio_with_jack.patch
@@ -2203,12 +2287,14 @@ build_portaudio_with_jack_cmake() {
 }
 
 build_portaudio_with_jack_cpp() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	cd portaudio/bindings/cpp
 		generic_configure_make_install "--disable-libtool-lock"
 	cd -
 }
 
 build_portaudio_with_jack() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #  download_and_unpack_file http://www.portaudio.com/archives/pa_stable_v19_20140130.tgz portaudio
   do_git_checkout https://git.assembla.com/portaudio.git portaudio_with_jack
   cd portaudio_with_jack
@@ -2228,6 +2314,7 @@ build_portaudio_with_jack() {
 }
 
 build_portaudio_without_jack() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #  download_and_unpack_file http://www.portaudio.com/archives/pa_stable_v19_20140130.tgz portaudio
   do_git_checkout https://git.assembla.com/portaudio.git portaudio_without_jack
   cd portaudio_without_jack
@@ -2247,6 +2334,7 @@ build_portaudio_without_jack() {
 }
 
 build_jack() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/jackaudio/jack2.git jack2 # dd24ce321078fa4401fe10846132c5e6712ebf41 #394e02b2bb87ed8dfb0341f274c5b41aded8efdc
 #  download_and_unpack_file https://dl.dropboxusercontent.com/u/28869550/jack-1.9.10.tar.bz2 jack-1.9.10
   cd jack2
@@ -2291,6 +2379,7 @@ build_jack() {
 }
 
 build_sord() {
+  printf "%s\n" "${FUNCNAME[0]}"
    do_git_checkout  https://github.com/drobilla/sord.git sord # 44afb527ce74d6ec6f9d8b769ad8459cacdc2fec
    cd sord
      export AR=x86_64-w64-mingw32-ar
@@ -2312,6 +2401,7 @@ build_sord() {
 }
 
 build_sratom() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout  https://github.com/drobilla/sratom.git sratom # de6492738adf1794bf5fa39c1fe1ebbd167727ac
   cd sratom
     export AR=x86_64-w64-mingw32-ar
@@ -2331,6 +2421,7 @@ build_sratom() {
 }
 
 build_serd() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/drobilla/serd.git serd # 683d47cb7fddf5447de76cdf80041b6b230de93c
   cd serd
     export AR=x86_64-w64-mingw32-ar
@@ -2351,6 +2442,7 @@ build_serd() {
 }
 
 build_lv2() {
+  printf "%s\n" "${FUNCNAME[0]}"
   # Release version
   do_git_checkout https://github.com/lv2/lv2.git lv2 v1.18.10
 #  do_git_checkout https://github.com/drobilla/lv2.git lv2 9b7bfdd92d9a12b0d7db59f0ec0bb790fb827406 # 0fa4d4847eb6d5bb0f58da889933c94c37ecb730
@@ -2371,6 +2463,7 @@ build_lv2() {
 }
 
 build_zix() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/drobilla/zix.git zix
 	cd zix
 		git submodule init
@@ -2388,6 +2481,7 @@ build_zix() {
 
 
 build_lilv() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout  https://github.com/drobilla/lilv.git lilv # d1c9d1b6f1df03c4ee49eac544e3f6771e03fdcb # c1637b46f9ff960f58dcf2bb3b69bff231f8acfd # a9edaabf0926a18dd96fae30c7206fd8eadb0fdc
 #  do_git_checkout https://github.com/lv2/lilv.git lilv
   cd lilv
@@ -2411,6 +2505,7 @@ build_lilv() {
 
 
 build_leptonica() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #  do_git_checkout https://github.com/DanBloomberg/leptonica.git leptonica # a0b59604bcf24b13af168fa45d54bbedab1d3d5d #f1ebb73bf939bca13570c35db8cc656d2735c1d7
 #  cd leptonica
 #    generic_configure_make_install "LIBS=-lopenjpeg --disable-silent-rules --without-libopenjpeg"
@@ -2419,6 +2514,7 @@ build_leptonica() {
 }
 
 build_libpopt() {
+  printf "%s\n" "${FUNCNAME[0]}"
   download_and_unpack_file https://src.fedoraproject.org/repo/pkgs/popt/popt-1.16.tar.gz/3743beefa3dd6247a73f8f7a32c14c33/popt-1.16.tar.gz popt-1.16
   cd popt-1.16
     apply_patch file://${top_dir}/popt-get-w32-console-maxcols.patch
@@ -2430,6 +2526,7 @@ build_libpopt() {
 
 
 build_termcap() {
+  printf "%s\n" "${FUNCNAME[0]}"
   download_and_unpack_file https://ftp.gnu.org/gnu/termcap/termcap-1.3.1.tar.gz termcap-1.3.1
   cd termcap-1.3.1
     apply_patch file://${top_dir}/termcap-write.patch
@@ -2447,6 +2544,7 @@ build_termcap() {
 }
 
 build_ncurses() {
+  printf "%s\n" "${FUNCNAME[0]}"
   export PATH_SEPARATOR=";"
   old_term=$TERM
   export TERM="#win32con"
@@ -2474,16 +2572,19 @@ build_ncurses() {
 }
 
 build_coreutils() {
+  printf "%s\n" "${FUNCNAME[0]}"
   generic_download_and_install http://ftp.gnu.org/gnu/coreutils/coreutils-8.23.tar.xz coreutils-8.23
 
 }
 
 build_less() {
+  printf "%s\n" "${FUNCNAME[0]}"
   generic_download_and_install https://ftp.gnu.org/gnu/less/less-487.tar.gz less-487
 
 }
 
 build_dvdbackup() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	download_and_unpack_file https://launchpad.net/dvdbackup/trunk/0.4.2/+download/dvdbackup-0.4.2.tar.xz dvdbackup-0.4.2
 	cd dvdbackup-0.4.2
 	apply_patch file://${top_dir}/dvdbackup-dvdread6.1.patch
@@ -2500,6 +2601,7 @@ build_dvdbackup() {
 }
 
 build_libopencore() {
+  printf "%s\n" "${FUNCNAME[0]}"
   generic_download_and_install https://in.archive.ubuntu.com/ubuntu/ubuntu/pool/universe/o/opencore-amr/opencore-amr_0.1.3.orig.tar.gz opencore-amr-0.1.3
   cd opencore-amr-0.1.3
 
@@ -2512,6 +2614,7 @@ build_libopencore() {
 
 # NB this is kind of worse than just using the one that comes from the zeranoe script, since this one requires the -DPTHREAD_STATIC everywhere...
 build_win32_pthreads() {
+  printf "%s\n" "${FUNCNAME[0]}"
   download_and_unpack_file ftp://sourceware.org/pub/pthreads-win32/pthreads-w32-2-9-1-release.tar.gz   pthreads-w32-2-9-1-release
 #  download_and_unpack_file https://downloads.sourceforge.net/project/pthreads4w/pthreads4w-code-v2.10.0-rc.zip pthreads4w-code-02fecc211d626f28e05ecbb0c10f739bd36d6442
   cd pthreads-w32-2-9-1-release
@@ -2532,6 +2635,7 @@ build_win32_pthreads() {
 }
 
 build_libdlfcn() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/dlfcn-win32/dlfcn-win32.git dlfcn-win32 # 23d77533b3277a9f722e66484f3ed5b702c7bbda
   cd dlfcn-win32
     do_cmake
@@ -2542,6 +2646,7 @@ build_libdlfcn() {
 }
 
 build_rsync() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/AndyA/rsync.git rsync
   cd rsync
     generic_configure_make_install
@@ -2550,6 +2655,7 @@ build_rsync() {
 }
 
 build_libjpeg_turbo() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #  do_git_checkout https://github.com/libjpeg-turbo/libjpeg-turbo libjpeg-turbo #1.5.x
 #  download_and_unpack_file https://downloads.sourceforge.net/project/libjpeg-turbo/2.0.4/libjpeg-turbo-2.0.4.tar.gz libjpeg-turbo-2.0.4
   download_and_unpack_file https://github.com/libjpeg-turbo/libjpeg-turbo/releases/download/3.1.4.1/libjpeg-turbo-3.1.4.1.tar.gz libjpeg-turbo-3.1.4.1
@@ -2568,6 +2674,7 @@ build_libjpeg_turbo() {
 }
 
 build_libogg() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout http://github.com/xiph/ogg.git ogg
   cd ogg
     generic_configure_make_install "--enable-static"
@@ -2577,6 +2684,7 @@ build_libogg() {
 }
 
 build_portablexdr() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	download_and_unpack_file http://people.redhat.com/~rjones/portablexdr//files/portablexdr-4.9.1.tar.gz portablexdr-4.9.1
 	cd portablexdr-4.9.1
 		apply_patch file://${top_dir}/portablexdr.patch
@@ -2585,6 +2693,7 @@ build_portablexdr() {
 }
 
 build_lash() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout git://repo.or.cz/lash.git lash
 	export cpu_count=1
 	cd lash
@@ -2595,6 +2704,7 @@ build_lash() {
 
 
 build_jackmix() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/kampfschlaefer/jackmix.git jackmix qt5
   cd jackmix
     #apply_patch file://${top_dir}/qt5muc.py.patch
@@ -2605,6 +2715,7 @@ build_jackmix() {
 }
 
 build_libvorbis() {
+  printf "%s\n" "${FUNCNAME[0]}"
   generic_download_and_install http://downloads.xiph.org/releases/vorbis/libvorbis-1.3.5.tar.gz libvorbis-1.3.5
   cd libvorbis-1.3.5
 
@@ -2612,6 +2723,7 @@ build_libvorbis() {
 }
 
 build_libspeex() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/xiph/speex.git speex
   cd speex
     generic_configure_make_install "LIBS=-lwinmm --enable-binaries"
@@ -2621,6 +2733,7 @@ build_libspeex() {
 }
 
 build_libspeexdsp() {
+  printf "%s\n" "${FUNCNAME[0]}"
   export ACLOCAL_PATH=/usr/share/aclocal:/usr/local/share/aclocal
   do_git_checkout https://github.com/xiph/speexdsp.git speexdsp
   cd speexdsp
@@ -2631,6 +2744,7 @@ build_libspeexdsp() {
 }
 
 build_libtheora() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #  original_cpu_count=$cpu_count
 #  cpu_count=1 # can't handle it
 #  download_and_unpack_file http://downloads.xiph.org/releases/theora/libtheora-1.2.0alpha1.tar.gz libtheora-1.2.0alpha1
@@ -2655,6 +2769,7 @@ build_libtheora() {
 }
 
 build_sqlite() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	download_and_unpack_file https://sqlite.org/2023/sqlite-autoconf-3440200.tar.gz sqlite-autoconf-3440200 #  https://www.sqlite.org/snapshot/sqlite-snapshot-201811291200.tar.gz sqlite-snapshot-201811291200
 	cd sqlite-autoconf-3440200
 		export SQLITE_ENABLE_COLUMN_METADATA=1
@@ -2663,6 +2778,7 @@ build_sqlite() {
 }
 
 build_medialibrary() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	# New name change not reflected yet in VLC player
 	do_git_checkout https://code.videolan.org/videolan/medialibrary.git medialibrary #42c330b4e38062c7a773f7c5ad4ff0c0a6984a08 # a86453015164df65b7dbcdbc01cf4220daffc8aa # 8ad8de92f159c9af63c876230062bdea9d18ed04 #21fa816f7e3ee4ae20b565c2665641ee91431234
 	cd medialibrary
@@ -2675,6 +2791,7 @@ build_medialibrary() {
 }
 
 build_libopenshotaudio() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/OpenShot/libopenshot-audio.git libopenshot-audio develop
 	cd libopenshot-audio
 		apply_patch file://${top_dir}/libopenshot-audio.patch
@@ -2689,6 +2806,7 @@ build_libopenshotaudio() {
 }
 
 build_libopenshot() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/OpenShot/libopenshot.git libopenshot
 	cd libopenshot
 		apply_patch file://${top_dir}/libopenshot.patch
@@ -2706,6 +2824,7 @@ build_libopenshot() {
 }
 
 build_unittest() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/unittest-cpp/unittest-cpp.git unittest-cpp
 	cd unittest-cpp
 		do_cmake -DUTPP_INCLUDE_TESTS_IN_BUILD=OFF
@@ -2715,6 +2834,7 @@ build_unittest() {
 }
 
 build_libargon2() {
+  printf "%s\n" "${FUNCNAME[0]}"
     download_and_unpack_file https://github.com/P-H-C/phc-winner-argon2/archive/refs/tags/20190702.tar.gz phc-winner-argon2-20190702
     cd phc-winner-argon2-20190702
         apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-argon2/001-mingw-fix-install.patch
@@ -2728,13 +2848,14 @@ build_libargon2() {
 }
 
 build_libfz-ssh () {
-    download_and_unpack_file https://dl3.cdn.filezilla-project.org/fzssh/fzssh-1.2.0.tar.xz fzssh-1.2.0
-    cd fzssh-1.2.0
+    download_and_unpack_file http://deb.debian.org/debian/pool/main/f/fzssh/fzssh_1.3.0.orig.tar.xz fzssh-1.3.0
+    cd fzssh-1.3.0
         generic_meson_ninja_install
     cd ..
 }
 
 build_libfilezilla() {
+  printf "%s\n" "${FUNCNAME[0]}"
 do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfilezilla
 #    cd libfilezilla
         #apply_patch file://${top_dir}/libfilezilla-typo.patch
@@ -2761,6 +2882,7 @@ do_svn_checkout https://svn.filezilla-project.org/svn/libfilezilla/trunk libfile
 }
 
 build_filezilla() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_svn_checkout https://svn.filezilla-project.org/svn/FileZilla3/trunk filezilla 11442 #10897  #10093 #9844 #9530 #9450 # 9262 # 9056
 #  download_and_unpack_file "https://download.filezilla-project.org/client/FileZilla_3.60.1_src.tar.bz2" filezilla-3.60.1
 #  cd filezilla-3.60.1
@@ -2793,6 +2915,7 @@ build_filezilla() {
 
 
 build_libfribidi() {
+  printf "%s\n" "${FUNCNAME[0]}"
   # generic_download_and_install http://fribidi.org/download/fribidi-0.19.5.tar.bz2 fribidi-0.19.5 # got report of still failing?
   #  download_and_unpack_file http://fribidi.org/download/fribidi-0.19.7.tar.bz2 fribidi-0.19.7
   download_and_unpack_file https://ftp.osuosl.org/pub/blfs/conglomeration/fribidi/fribidi-1.0.5.tar.bz2 fribidi-1.0.5
@@ -2813,11 +2936,13 @@ build_libfribidi() {
 }
 
 build_libass() {
+  printf "%s\n" "${FUNCNAME[0]}"
   generic_download_and_install https://github.com/libass/libass/releases/download/0.14.0/libass-0.14.0.tar.gz libass-0.14.0
   sed -i.bak 's/-lass -lm/-lass -lfribidi -lfontconfig -lfreetype -lexpat -lpng -lm/' "$PKG_CONFIG_PATH/libass.pc"
 }
 
 build_gmp() {
+  printf "%s\n" "${FUNCNAME[0]}"
   download_and_unpack_file https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz gmp-6.3.0
   cd gmp-6.3.0
 #    export CC_FOR_BUILD=gcc
@@ -2849,6 +2974,7 @@ build_gmp() {
 }
 
 build_orc() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #	download_and_unpack_file http://download.videolan.org/contrib/orc-0.4.18.tar.gz orc-0.4.18
 #	  cd orc-0.4.18
 #		  apply_patch file://${top_dir}/orc-no-examples.patch
@@ -2864,6 +2990,7 @@ build_orc() {
 }
 
 build_liblc3() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/google/liblc3.git liblc3
 	cd liblc3
 		mkdir -pv build
@@ -2882,6 +3009,7 @@ build_liblc3() {
 }
 
 build_libxml2() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://gitlab.gnome.org/GNOME/libxml2.git libxml2 ce8f3d11957f44bc9bf901a3d7809cd5919caa7a
 #  download_and_unpack_file https://github.com/GNOME/libxml2/archive/v2.9.9-rc2.tar.gz libxml2-2.9.9-rc2
   cd libxml2 # -2.9.9-rc2
@@ -2899,6 +3027,7 @@ build_libxml2() {
 }
 
 build_libxslt() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #  do_git_checkout https://github.com/GNOME/libxslt.git libxslt
 #  cd libxslt-1.1.28/libxslt
 #      apply_patch https://raw.githubusercontent.com/Warblefly/multimediaWin64/master/libxslt-security.c.patch
@@ -2926,6 +3055,7 @@ build_libxslt() {
 }
 
 build_libxmlsec() {
+  printf "%s\n" "${FUNCNAME[0]}"
   download_and_unpack_file https://ftp.uni-erlangen.de/macports/distfiles/xmlsec-1.2/xmlsec1-1.2.42.tar.gz xmlsec1-1.2.42
 #  do_git_checkout https://github.com/lsh123/xmlsec.git xmlsec
   cd xmlsec1-1.2.42
@@ -2948,6 +3078,7 @@ build_libxmlsec() {
 }
 
 build_libaacs() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://code.videolan.org/videolan/libaacs.git libaacs 381d0a09
   cd libaacs
     generic_configure_make_install "CFLAGS=-DGPGRT_ENABLE_ES_MACROS --with-libgcrypt-prefix=${mingw_w64_x86_64_prefix} --with-gpg-error-prefix=${mingw_w64_x86_64_prefix}"
@@ -2955,6 +3086,7 @@ build_libaacs() {
 }
 
 build_libbdplus() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout http://code.videolan.org/videolan/libbdplus.git libbdplus
   cd libbdplus
     apply_patch file://${top_dir}/libbdplus-dirs_win32.c.patch
@@ -2964,6 +3096,7 @@ build_libbdplus() {
 }
 
 build_libbluray() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://code.videolan.org/videolan/libbluray.git libbluray  #e0bfb98d042d0c907fa8a78f8fa2e3c3515d5ff9
   cd libbluray
     git submodule init
@@ -2982,6 +3115,7 @@ build_libbluray() {
 }
 
 build_libschroedinger() {
+  printf "%s\n" "${FUNCNAME[0]}"
   download_and_unpack_file http://download.videolan.org/contrib/schroedinger-1.0.11.tar.gz schroedinger-1.0.11
   cd schroedinger-1.0.11
     export PKG_CONFIG_PATH=${mingw_w64_x86_64_prefix}/lib/pkgconfig
@@ -2995,6 +3129,7 @@ build_libschroedinger() {
 }
 
 build_icu() {
+  printf "%s\n" "${FUNCNAME[0]}"
   # First, build native ICU, whose build tools are required by cross-compiled ICU
   # Luckily, we do this only once per build.
   if [ ! -f icu.built ]; then
@@ -3062,6 +3197,7 @@ build_icu() {
 }
 
 build_icu_with_iculehb() {
+  printf "%s\n" "${FUNCNAME[0]}"
   # Native ICU has already been built
   if [ ! -f icu-hb.built ]; then
     download_and_unpack_file https://github.com/unicode-org/icu/releases/download/release-76-1/icu4c-76_1-src.tgz icu
@@ -3112,6 +3248,7 @@ build_icu_with_iculehb() {
 
 
 build_libunistring() {
+  printf "%s\n" "${FUNCNAME[0]}"
   generic_download_and_install https://ftp.gnu.org/gnu/libunistring/libunistring-1.4.2.tar.gz libunistring-1.4.2 "LIBS=-lpthread"
   cd libunistring-1.4.2
 
@@ -3126,6 +3263,7 @@ build_libunistring() {
 #}
 
 build_libatomic_ops() {
+  printf "%s\n" "${FUNCNAME[0]}"
   generic_download_and_install http://www.ivmaisoft.com/_bin/atomic_ops/libatomic_ops-7.6.4.tar.gz libatomic_ops-7.6.4
   cd libatomic_ops-7.6.4
 
@@ -3140,6 +3278,7 @@ build_bdw-gc() {
 }
 
 build_guile() {
+  printf "%s\n" "${FUNCNAME[0]}"
   generic_download_and_install ftp://ftp.gnu.org/pub/gnu/guile/guile-2.0.14.tar.xz guile-2.0.14
   cd guile-2.0.14
 
@@ -3147,6 +3286,7 @@ build_guile() {
 }
 
 build_autogen() {
+  printf "%s\n" "${FUNCNAME[0]}"
   generic_download_and_install http://ftp.gnu.org/gnu/autogen/rel5.18.12/autogen-5.18.12.tar.xz autogen-5.18.12
   cd autogen-5.18.12
 
@@ -3154,6 +3294,7 @@ build_autogen() {
 }
 
 build_liba52() {
+  printf "%s\n" "${FUNCNAME[0]}"
   export CFLAGS=-std=gnu89
   generic_download_and_install https://comstyle.com/source/a52dec-snapshot.tar.gz a52dec-0.7.5-cvs
   cd a52dec-0.7.5-cvs
@@ -3163,6 +3304,7 @@ build_liba52() {
 }
 
 build_p11kit() {
+  printf "%s\n" "${FUNCNAME[0]}"
   generic_download_and_install https://github.com/p11-glue/p11-kit/archive/refs/tags/0.26.2.tar.gz p11-kit-0.26.2
 #  do_git_checkout https://github.com/p11-glue/p11-kit.git p11-kit 34b568727ff98ebb36f45a3d63c07f165c58219b
   cd p11-kit-0.26.2
@@ -3177,6 +3319,7 @@ build_p11kit() {
 }
 
 build_libidn() {
+  printf "%s\n" "${FUNCNAME[0]}"
   generic_download_and_install https://ftp.gnu.org/gnu/libidn/libidn-1.41.tar.gz libidn-1.41
 # do_git_checkout https://github.com/libidn/libidn2.git libidn2 # 301a43b5ac41f0fbea41d70444c0942ae93624cd
 #  cd libidn2
@@ -3186,6 +3329,7 @@ build_libidn() {
 }
 
 build_xerces() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	download_and_unpack_file https://dlcdn.apache.org//xerces/c/3/sources/xerces-c-3.3.0.tar.xz xerces-c-3.3.0
 	cd xerces-c-3.3.0
 #		apply_patch file://${top_dir}/xerces-type-traits.patch
@@ -3200,6 +3344,7 @@ build_xerces() {
 }
 
 build_fastfloat() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	download_and_unpack_file https://github.com/fastfloat/fast_float/archive/refs/tags/v8.0.0.tar.gz fast_float-8.0.0
 	cd fast_float-8.0.0
 		do_cmake # && ${top_dir}/correct_headers.sh
@@ -3209,6 +3354,7 @@ build_fastfloat() {
 }
 
 build_gnutls() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #  download_and_unpack_file https://www.gnupg.org/ftp/gcrypt/gnutls/v3.3/gnutls-3.3.27.tar.xz gnutls-3.3.27
    # do_git_checkout https://gitlab.com/gnutls/gnutls.git gnutls
   download_and_unpack_file https://www.gnupg.org/ftp/gcrypt/gnutls/v3.8/gnutls-3.8.12.tar.xz gnutls-3.8.12
@@ -3230,6 +3376,7 @@ build_gnutls() {
 }
 
 build_libnettle() {
+  printf "%s\n" "${FUNCNAME[0]}"
   download_and_unpack_file https://ftp.gnu.org/gnu/nettle/nettle-3.10.2.tar.gz nettle-3.10.2
   cd nettle-3.10.2
     generic_configure # "--disable-openssl" # in case we have both gnutls and openssl, just use gnutls [except that gnutls uses this so...huh? https://github.com/rdp/ffmpeg-windows-build-helpers/issues/25#issuecomment-28158515
@@ -3239,6 +3386,7 @@ build_libnettle() {
 }
 
 build_bzlib2() {
+  printf "%s\n" "${FUNCNAME[0]}"
   download_and_unpack_file ftp://sourceware.org/pub/bzip2/bzip2-1.0.8.tar.gz bzip2-1.0.8
   cd bzip2-1.0.8
     if [ ! -f bzip2.built ]; then
@@ -3278,6 +3426,7 @@ build_bzlib2() {
 }
 
 build_zlib() {
+  printf "%s\n" "${FUNCNAME[0]}"
   download_and_unpack_file https://www.zlib.net/zlib-1.3.2.tar.xz zlib-1.3.2
   cd zlib-1.3.2
     export mingw_w64_x86_64_prefix=${mingw_w64_x86_64_prefix}
@@ -3298,6 +3447,7 @@ build_zlib() {
 }
 
 build_libxvid() {
+  printf "%s\n" "${FUNCNAME[0]}"
   download_and_unpack_file http://downloads.xvid.org/downloads/xvidcore-1.3.5.tar.gz xvidcore
   cd xvidcore/build/generic
   if [ "$bits_target" = "64" ]; then
@@ -3321,6 +3471,7 @@ build_libxvid() {
 }
 
 build_fontconfig() {
+  printf "%s\n" "${FUNCNAME[0]}"
   download_and_unpack_file https://www.freedesktop.org/software/fontconfig/release/fontconfig-2.16.0.tar.xz fontconfig-2.16.0
   cd fontconfig-2.16.0
     export LDFLAGS="-lintl -liconv"
@@ -3336,6 +3487,7 @@ build_fontconfig() {
 }
 
 build_libaacplus() {
+  printf "%s\n" "${FUNCNAME[0]}"
   download_and_unpack_file http://217.20.164.161/~tipok/aacplus/libaacplus-2.0.2.tar.gz libaacplus-2.0.2
   cd libaacplus-2.0.2
     if [[ ! -f configure ]]; then
@@ -3347,6 +3499,7 @@ build_libaacplus() {
 }
 
 build_openssl11() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #	download_and_unpack_file https://www.openssl.org/source/openssl-1.1.1u.tar.gz openssl-1.1.1u
 #	cd openssl-1.1.1u
 		export CC="${cross_prefix}gcc"
@@ -3376,6 +3529,7 @@ build_openssl11() {
 }
 
 build_openssl() {
+  printf "%s\n" "${FUNCNAME[0]}"
   download_and_unpack_file https://www.openssl.org/source/old/1.0.2/openssl-1.0.2u.tar.gz openssl-1.0.2u
 #  download_and_unpack_file https://www.openssl.org/source/openssl-1.1.0f.tar.gz openssl-1.1.0f
   # When the manpages are written, they need somewhere to go otherwise there is an error.
@@ -3417,6 +3571,7 @@ build_openssl() {
 }
 
 build_libssh() {
+  printf "%s\n" "${FUNCNAME[0]}"
   download_and_unpack_file https://www.libssh.org/files/0.8/libssh-0.8.3.tar.xz libssh-0.8.3
 #  do_git_checkout git://git.libssh.org/projects/libssh.git libssh
   export CMAKE_INCLUDE_PATH=${mingw_w64_x86_64_prefix}/include
@@ -3499,6 +3654,7 @@ build_asdcplib-cth() {
 #}
 
 build_libdcp() {
+  printf "%s\n" "${FUNCNAME[0]}"
   # Branches are slightly askew. 1.0 is where development takes place
 #  do_git_checkout https://github.com/cth103/libdcp.git libdcp main # v1.8.66 #04e215a7688239cb47fc86e8396756c685f338a1 #v1.8.13 #d39880eef211a296fa8ef4712cdef5945d08527c c6665c157bdb6903661d21c571c7d112b54ad8fd # d989a83517fd77aa241c1423ac00cfed62d567fe # f3058b2f1b48ec613bda5781fe97e83a0dca83a9
   do_git_checkout https://git.carlh.net/git/libdcp.git libdcp v1.10.58 #b75d977a38f039fd68ed5d4055ae70b4bf631603 # v1.6.x # 3bd9acd5cd3bf5382ad79c295ec9d9aca828dc32
@@ -3540,6 +3696,7 @@ build_libdcp() {
 }
 
 build_libsub() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://git.carlh.net/git/libsub.git libsub v1.6.61
 #  do_git_checkout https://git.carlh.net/git/libsub.git libsub
 #  download_and_unpack_file http://carlh.net/downloads/libsub/libsub-1.4.24.tar.bz2 libsub-1.4.24
@@ -3588,6 +3745,7 @@ cd mfx_dispatch-1.35.1
 }
 
 build_libnvenc() {
+  printf "%s\n" "${FUNCNAME[0]}"
   if [[ ! -f $mingw_w64_x86_64_prefix/include/nvEncodeAPI.h ]]; then
 #    rm -rf nvenc # just in case :)
 #    mkdir nvenc
@@ -3611,6 +3769,7 @@ build_libnvenc() {
 }
 
 build_fdk_aac() {
+  printf "%s\n" "${FUNCNAME[0]}"
   #generic_download_and_install http://sourceforge.net/projects/opencore-amr/files/fdk-aac/fdk-aac-0.1.0.tar.gz/download fdk-aac-0.1.0
   do_git_checkout https://github.com/mstorsjo/fdk-aac.git fdk-aac_git # e45ae429b9ca8f234eb861338a75b2d89cde206a
   cd fdk-aac_git
@@ -3624,6 +3783,7 @@ build_fdk_aac() {
 
 
 build_libexpat() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/libexpat/libexpat.git libexpat
  # generic_download_and_install http://downloads.sourceforge.net/project/expat/expat/2.2.5/expat-2.2.5.tar.bz2 expat-2.2.5
   cd libexpat/expat
@@ -3633,10 +3793,12 @@ build_libexpat() {
 }
 
 build_ladspa() {
+  printf "%s\n" "${FUNCNAME[0]}"
   curl -vo "${mingw_w64_x86_64_prefix}/include/ladspa.h" https://raw.githubusercontent.com/swh/ladspa/master/ladspa.h
 }
 
 build_libfftw() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #  generic_download_and_install http://www.fftw.org/fftw-3.3.7.tar.gz fftw-3.3.7 "--with-our-malloc16 --with-windows-f77-mangling --enable-threads --with-combined-threads --enable-portable-binary --enable-sse2 --with-incoming-stack-boundary=2"
   download_and_unpack_file http://www.fftw.org/fftw-3.3.10.tar.gz fftw-3.3.10
   cd fftw-3.3.10
@@ -3648,6 +3810,7 @@ build_libfftw() {
 }
 
 build_libsamplerate() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #  generic_download_and_install https://github.com/libsndfile/libsamplerate/releases/download/v0.1.9/libsamplerate-0.1.9.tar.gz libsamplerate-0.1.9
   do_git_checkout https://github.com/erikd/libsamplerate.git libsamplerate #ca5618deb1a747f3b46f6240a2b232e632c37b0e # 401c9d6ba23498cf1e350eef1a73b7214875bbc5
   cd libsamplerate
@@ -3683,6 +3846,7 @@ build_vamp-sdk() {
 }
 
 build_librubberband() {
+  printf "%s\n" "${FUNCNAME[0]}"
   download_and_unpack_file  https://breakfastquay.com/files/releases/rubberband-2.0.0.tar.bz2 rubberband-2.0.0
   cd rubberband-2.0.0
 ##     sed -i.bak 's/:= ar/:= x86_64-w64-mingw32-ar/' Makefile.in
@@ -3707,6 +3871,7 @@ build_librubberband() {
 }
 
 build_iconv() {
+  printf "%s\n" "${FUNCNAME[0]}"
   download_and_unpack_file http://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.18.tar.gz libiconv-1.18
   cd libiconv-1.18
     # Apply patch to fix non-exported inline function in gcc-5.2.0
@@ -3719,6 +3884,7 @@ build_iconv() {
 }
 
 build_iconvgettext() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout git://git.savannah.gnu.org/libiconv.git libiconv
   cd libiconv
     apply_patch file://${top_dir}/libiconv-1.14-iconv-fix-inline.patch
@@ -3746,6 +3912,7 @@ build_libgpg-error() {
 }
 
 build_libgcrypt() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #  generic_download_and_install ftp://ftp.gnupg.org/gcrypt/libgcrypt/libgcrypt-1.8.1.tar.gz libgcrypt-1.8.1 "GPG_ERROR_CONFIG=${mingw_w64_x86_64_prefix}/bin/gpg-error-config"
 #  do_git_checkout git://git.gnupg.org/libgcrypt.git libgcrypt libgcrypt-1.11.0 #cdaeb86f067b94d9dff4235ade20dde6479d9bb8 # 86e5e06a97ae13b8bbf6923ecc76e02b9c429b46i
   download_and_unpack_file https://gnupg.org/ftp/gcrypt/libgcrypt/libgcrypt-1.11.0.tar.bz2 libgcrypt-1.11.0
@@ -3764,6 +3931,7 @@ build_libgcrypt() {
 }
 
 build_tesseract() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #  do_git_checkout https://github.com/tesseract-ocr/tesseract tesseract main # 1188e0a516a963ae6f7dd741fead17e43dae463c #fef64d795cdb0db5315c11f936b7efd1424994b2
   # Problem with latest tree and FFmpeg. Should be fixed soon
   download_and_unpack_file https://github.com/tesseract-ocr/tesseract/archive/5.1.0.tar.gz tesseract-5.1.0
@@ -3801,10 +3969,12 @@ build_tesseract() {
 }
 
 build_libidn2() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	generic_download_and_install https://ftp.gnu.org/gnu/libidn/libidn2-2.3.2.tar.gz libidn2-2.3.2
 }
 
 build_libpaper() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/naota/libpaper.git libpaper
 	cd libpaper
 		generic_configure_make_install
@@ -3812,6 +3982,7 @@ build_libpaper() {
 }
 
 build_ghostscript() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #	generic_download_and_install https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs9561/ghostscript-9.56.1.tar.gz ghostscript-9.56.1 "--without-tesseract --enable-fontconfig --enable-freetype --enable-openjpeg --with-jbig2dec --with-libidn --with-libpaper --with-drivers=ALL"
     download_and_unpack_file https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs10070/ghostscript-10.07.0.tar.gz ghostscript-10.07.0
     cd ghostscript-10.07.0
@@ -3831,6 +4002,7 @@ build_ghostscript() {
 }
 
 build_freetype() {
+  printf "%s\n" "${FUNCNAME[0]}"
   download_and_unpack_file https://download.savannah.gnu.org/releases/freetype/freetype-2.14.1.tar.xz freetype-2.14.1
   cd freetype-2.14.1
   # Need to make a directory for the build library
@@ -3863,6 +4035,7 @@ build_freetype() {
 #}
 
 build_libcddb() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #  download_and_unpack_file http://sourceforge.net/projects/libcddb/files/latest/download libcddb-1.3.2
 #  cd libcddb-1.3.2
 #    apply_patch_p1 file://${top_dir}/0001-include-winsock2-before-windows.mingw.patch
@@ -3894,6 +4067,7 @@ build_libcddb() {
 }
 
 build_sdlgit() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/libsdl-org/SDL-1.2.git SDL-1.2 main
 	cd SDL-1.2
 		generic_configure_make_install
@@ -3901,6 +4075,7 @@ build_sdlgit() {
 }
 
 build_sdl() {
+  printf "%s\n" "${FUNCNAME[0]}"
   # apparently ffmpeg expects prefix-sdl-config not sdl-config that they give us, so rename...
   hold_cflags="${CFLAGS}"
   export CFLAGS=-DDECLSPEC=  # avoid SDL trac tickets 939 and 282, not worried about optimizing yet
@@ -3933,6 +4108,7 @@ build_sdl() {
 
 
 build_sdl2() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #  local old_hg_version
 #  if [[ -d SDL ]]; then
 #    cd SDL
@@ -3975,6 +4151,7 @@ build_sdl2() {
 }
 
 build_sdl2_image() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #  do_git_checkout https://github.com/SDL-mirror/SDL_image.git SDL_image
   download_and_unpack_file  https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.0.3.tar.gz SDL2_image-2.0.3
   cd SDL2_image-2.0.3
@@ -3986,6 +4163,7 @@ build_sdl2_image() {
 }
 
 build_sdl_image() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	download_and_unpack_file https://www.libsdl.org/projects/SDL_image/release/SDL_image-1.2.12.tar.gz SDL_image-1.2.12
 	cd SDL_image-1.2.12
 		rm -v aclocal.m4 Makefile.in configure
@@ -3995,6 +4173,7 @@ build_sdl_image() {
 }
 
 build_sdl3() {
+  printf "%s\n" "${FUNCNAME[0]}"
     download_and_unpack_file http://www.libsdl.org/release/SDL3-3.2.16.tar.gz SDL3-3.2.16
     cd SDL3-3.2.16
         do_cmake
@@ -4004,6 +4183,7 @@ build_sdl3() {
 }
 
 build_sdl2compat() {
+  printf "%s\n" "${FUNCNAME[0]}"
     download_and_unpack_file https://github.com/libsdl-org/sdl2-compat/archive/release-2.32.56/sdl2-compat-2.32.56.tar.gz sdl2-compat-release-2.32.56
     cd sdl2-compat-release-2.32.56
         do_cmake
@@ -4014,6 +4194,7 @@ build_sdl2compat() {
 
 
 build_OpenCL() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/KhronosGroup/OpenCL-ICD-Loader.git OpenCL-ICD-Loader 5907ac1114079de4383cecddf1c8640e3f52f92b # 6d0b214b9cc303cdb0b05b3c0dc9afb0c39998c5 #978b4b3a29a3aebc86ce9315d5c5963e88722d03 # 6849f617e991e8a46eebf746df43032175f263b3
   cd OpenCL-ICD-Loader
     mkdir -pv inc/CL
@@ -4032,6 +4213,7 @@ build_OpenCL() {
 }
 
 build_xpm() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/koron/libXpm-win32.git libXpm_win32
   cd libXpm_win32
     cp /usr/share/aclocal/xorg-macros.m4 ${mingw_w64_x86_64_prefix}/share/aclocal/
@@ -4044,6 +4226,7 @@ build_xpm() {
 }
 
 build_vim() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/vim/vim.git vim # 37199894317db555723e5ec99f88cbbb2a2a9670 # 3e0107ea16349b354e0e9712e95b09ef019e99e5
 #  cd vim
 #	generic_configure_make_install "--enable-gui=gtk3 --with-vim-name=gvim --enable-multibye"
@@ -4081,6 +4264,7 @@ build_vim() {
 
 
 build_mpv() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/mpv-player/mpv.git mpv # 27c38eac1040cd781f39d977ce53adcd65ddcfb6 # 4c516a064a8246c9067eee32578a7a78feb371dc
   cd mpv
 #    apply_patch file://${top_dir}/mpv-d3d11.patch
@@ -4118,6 +4302,7 @@ build_mpv() {
 }
 
 build_faac() {
+  printf "%s\n" "${FUNCNAME[0]}"
   generic_download_and_install http://downloads.sourceforge.net/faac/faac-1.29.9.2.tar.gz faac-1.29.9.2 "--with-mp4v2=no"
   cd faac-1.29.9.2
 
@@ -4125,6 +4310,7 @@ build_faac() {
 }
 
 build_atomicparsley() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/lisanet/atomicparsley.git atomicparsley
 #  export ac_cv_func_malloc_0_nonnull=yes
   cd atomicparsley
@@ -4141,6 +4327,7 @@ build_atomicparsley() {
 }
 
 build_gstreamer() {
+  printf "%s\n" "${FUNCNAME[0]}"
 
     #do_git_checkout https://github.com/GStreamer/gstreamer.git gstreamer # 6babf1f086cce9cc392e2dc8a6cdf252d9b4cc48
 	download_and_unpack_file https://gstreamer.freedesktop.org/src/gstreamer/gstreamer-1.26.10.tar.xz gstreamer-1.26.10
@@ -4180,10 +4367,12 @@ build_gstreamer() {
 }
 
 build_audacity() {
+  printf "%s\n" "${FUNCNAME[0]}"
     do_git_checkout https://github.com/audacity/audacity audacity
 }
 
 build_traverso() {
+  printf "%s\n" "${FUNCNAME[0]}"
     do_git_checkout git://git.savannah.gnu.org/traverso.git traverso
     cd traverso
       # export PKG_CONFIG_DEBUG_SPEW=1
@@ -4197,6 +4386,7 @@ build_traverso() {
 
 
 build_wx() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #	do_git_checkout https://github.com/wxWidgets/wxWidgets.git wxWidgets # WX_3_0_BRANCH # 27d0e7804c0c4a3366e3c800a5475d05083fc290 #91402a0de882ee2b8c07f66e5b5d041c25e48fe6 #0f5c2851f40facef6fe8e7f603df2cc6a90250a1 #WX_3_0_BRANCH #  8c8557812be37697d4c2ffdad35141a51a9bc71d # WX_3_0_BRANCH
 #  download_and_unpack_file https://github.com/wxWidgets/wxWidgets/archive/v3.0.4.tar.gz wxWidgets-3.0.4
 #  cd wxWidgets
@@ -4235,6 +4425,7 @@ build_wx() {
 }
 
 build_libsndfile() {
+  printf "%s\n" "${FUNCNAME[0]}"
   store_libs=$LIBS
   export LIBS="-logg -lvorbis"
   do_git_checkout https://github.com/libsndfile/libsndfile.git libsndfile
@@ -4251,6 +4442,7 @@ build_libsndfile() {
 }
 
 build_libbs2b() {
+  printf "%s\n" "${FUNCNAME[0]}"
   hold_libs=$LIBS
   export LIBS=-lsndfile
   export ac_cv_func_malloc_0_nonnull=yes
@@ -4286,6 +4478,7 @@ build_libgame-music-emu() {
 }
 
 build_libdcadec() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/foo86/dcadec.git dcadec_git
   cd dcadec_git
     do_make_and_make_install "CC=$(echo $cross_prefix)gcc AR=$(echo $cross_prefix)ar PREFIX=$mingw_w64_x86_64_prefix CONFIG_SHARED=1 CONFIG_WINDOWS=1"
@@ -4294,6 +4487,7 @@ build_libdcadec() {
 }
 
 build_glew() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #  do_git_checkout https://github.com/nigels-com/glew.git glew
 #  cd glew
 #    export cpu_count=1
@@ -4326,6 +4520,7 @@ build_glew() {
 }
 
 build_libwebp() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://chromium.googlesource.com/webm/libwebp libwebp 5531b1e7b7416b2122af89bbe0a0d51d81f15cbb # main
   cd libwebp
     generic_configure_make_install "--enable-everything --enable-libwebpmux --enable-libwebpdemux --enable-libwebpdecoder --enable-libwebpextras"
@@ -4338,6 +4533,7 @@ build_libwebp() {
 }
 
 build_wavpack() {
+  printf "%s\n" "${FUNCNAME[0]}"
   generic_download_and_install http://wavpack.com/wavpack-5.7.0.tar.bz2 wavpack-5.7.0 "--enable-shared=yes"
   cd wavpack-5.7.0
 
@@ -4345,6 +4541,7 @@ build_wavpack() {
 }
 
 build_libmpeg2() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://code.videolan.org/videolan/libmpeg2.git libmpeg2
   cd libmpeg2
     rm bootstrap
@@ -4358,6 +4555,7 @@ build_libmpeg2() {
 }
 
 build_lame() {
+  printf "%s\n" "${FUNCNAME[0]}"
   # generic_download_and_install http://sourceforge.net/projects/lame/files/lame/3.99/lame-3.99.5.tar.gz/download lame-3.99.5
   do_svn_checkout https://svn.code.sf.net/p/lame/svn/trunk/lame lame r6525
   cd lame
@@ -4370,6 +4568,7 @@ build_lame() {
 }
 
 build_libMXFpp() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #  download_and_unpack_file http://gallery.johnwarburton.net/bmxlib-libmxfpp-dd71b1723670edea23252ee6f206df1241013381.tar.xz bmxlib-libmxfpp-dd71b1723670edea23252ee6f206df1241013381
 #  cd bmxlib-libmxfpp-dd71b1723670edea23252ee6f206df1241013381
   do_git_checkout https://git.code.sf.net/p/bmxlib/libmxfpp bmxlib-libmxfpp
@@ -4386,6 +4585,7 @@ build_libMXFpp() {
 }
 
 build_mediainfo() {
+  printf "%s\n" "${FUNCNAME[0]}"
     mkdir mediainfo
     cd mediainfo
         do_git_checkout https://github.com/MediaArea/ZenLib.git ZenLib
@@ -4421,6 +4621,7 @@ build_mediainfo() {
 }
 
 build_mediainfo_old() {
+  printf "%s\n" "${FUNCNAME[0]}"
 		echo "compile MediaInfo_CLI"
 		# rm -rf mediainfo
 		# Mediainfo unfortunately uses svn, which takes a LOT of downloading; unfortunately, there is no
@@ -4493,8 +4694,9 @@ build_mediainfo_old() {
 }
 
 build_libtool() {
-	download_and_unpack_file https://ftp.gnu.org/gnu/libtool/libtool-2.5.4.tar.xz  libtool-2.5.4
-	cd libtool-2.5.4
+  printf "%s\n" "${FUNCNAME[0]}"
+	download_and_unpack_file https://ftp.gnu.org/gnu/libtool/libtool-2.6.2.tar.xz  libtool-2.6.2
+	cd libtool-2.6.2
   		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libtool/0001-cygwin-mingw-Create-UAC-manifest-files.patch
 		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libtool/0002-Fix-seems-to-be-moved.patch
 		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libtool/0003-Fix-STRICT_ANSI-vs-POSIX.patch
@@ -4502,8 +4704,8 @@ build_libtool() {
 		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libtool/0005-libtool-include-process.h.patch
 		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libtool/0006-Pass-various-flags-to-GCC.patch
 		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libtool/0007-msysize.patch
-		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libtool/0011-Pick-up-clang_rt-static-archives-compiler-internal-l.patch
-		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libtool/0013-Allow-statically-linking-compiler-support-libraries-.patch
+#		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libtool/0011-Pick-up-clang_rt-static-archives-compiler-internal-l.patch
+#		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libtool/0013-Allow-statically-linking-compiler-support-libraries-.patch
 		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libtool/0014-Support-llvm-objdump-f-output.patch
 		generic_configure_make_install
 #		do_make
@@ -4512,6 +4714,7 @@ build_libtool() {
 }
 
 build_libiberty() {
+  printf "%s\n" "${FUNCNAME[0]}"
   download_and_unpack_file https://launchpad.net/ubuntu/+archive/primary/+files/libiberty_20170913.orig.tar.xz libiberty-20170913
   cd libiberty-20170913
     do_configure "--host=x86_64-w64-mingw32 --prefix=${mingw_w64_x86_64_prefix} --enable-shared --disable-static --enable-install-libiberty" "./libiberty/configure"
@@ -4521,6 +4724,7 @@ build_libiberty() {
 }
 
 build_live555() {
+  printf "%s\n" "${FUNCNAME[0]}"
   download_and_unpack_file https://download.videolan.org/pub/contrib/live555/live.2018.04.25.tar.gz live # http://www.live555.com/liveMedia/public/live555-latest.tar.gz live
   cd live
     export CC=x86_64-w64-mingw32-gcc
@@ -4543,6 +4747,7 @@ build_live555() {
 }
 
 build_exiv2() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/Exiv2/exiv2.git exiv2 0.27-maintenance
 #  download_and_unpack_file https://exiv2.org/builds/exiv2-0.27.3-Source.tar.gz exiv2-0.27.3-Source
   cd exiv2
@@ -4571,6 +4776,7 @@ build_exiv2() {
 }
 
 build_bmx() {
+  printf "%s\n" "${FUNCNAME[0]}"
     do_git_checkout https://git.code.sf.net/p/bmxlib/bmx bmxlib-bmx
   # do_git_checkout https://notabug.org/RiCON/bmx.git bmxlib-bmx # 723e48
   cd bmxlib-bmx
@@ -4590,6 +4796,7 @@ build_bmx() {
 }
 
 build_bmx_new() {
+  printf "%s\n" "${FUNCNAME[0]}"
 
 	do_git_checkout https://github.com/bbc/bmx.git bmx
 	cd bmx
@@ -4602,6 +4809,7 @@ build_bmx_new() {
 
 
 build_liburiparser() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/uriparser/uriparser.git uriparser
   cd uriparser
 #  apply_patch file://${top_dir}/uriparse-winsock.patch
@@ -4622,6 +4830,7 @@ build_liburiparser() {
 
 
 build_zvbi() {
+  printf "%s\n" "${FUNCNAME[0]}"
   export CFLAGS=-DPTW32_STATIC_LIB # seems needed XXX
 #  do_git_checkout https://github.com/zapping-vbi/zvbi.git zvbi
   download_and_unpack_file http://sourceforge.net/projects/zapping/files/zvbi/0.2.35/zvbi-0.2.35.tar.bz2/download zvbi-0.2.35
@@ -4650,6 +4859,7 @@ build_zvbi() {
 }
 
 build_libmodplug() {
+  printf "%s\n" "${FUNCNAME[0]}"
   generic_download_and_install http://sourceforge.net/projects/modplug-xmms/files/libmodplug/0.8.8.5/libmodplug-0.8.8.5.tar.gz/download libmodplug-0.8.8.5
   cd libmodplug-0.8.8.5
 
@@ -4661,6 +4871,7 @@ build_libmodplug() {
 }
 
 build_libopenmpt() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	download_and_unpack_file https://lib.openmpt.org/files/libopenmpt/src/libopenmpt-0.5.7+release.autotools.tar.gz libopenmpt-0.5.7+release.autotools
 	cd libopenmpt-0.5.7+release.autotools
 		apply_patch file://${top_dir}/libopenmpt-memory.patch
@@ -4669,6 +4880,7 @@ build_libopenmpt() {
 }
 
 build_mpg123() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	download_and_unpack_file https://downloads.sourceforge.net/project/mpg123/mpg123/1.26.5/mpg123-1.26.5.tar.bz2 mpg123-1.26.5
 	cd mpg123-1.26.5
 		generic_configure_make_install "--enable-debug=no --enable-xdebug=no --enable-gapless --enable-ipv6 --enable-network --enable-16bit --enable-8bit --enable-32bit --enable-real --enable-equalizer --enable-cases --with-audio=win32_wasapi,win32,dummy --with-optimization=4"
@@ -4676,6 +4888,7 @@ build_mpg123() {
 }
 
 build_libcaca() {
+  printf "%s\n" "${FUNCNAME[0]}"
   local cur_dir2=$(pwd)/libcaca
 #  do_git_checkout https://github.com/cacalabs/libcaca libcaca
   download_and_unpack_file https://src.fedoraproject.org/repo/pkgs/libcaca/libcaca-0.99.beta19.tar.gz/a3d4441cdef488099f4a92f4c6c1da00/libcaca-0.99.beta19.tar.gz libcaca-0.99.beta19
@@ -4695,6 +4908,7 @@ build_libcaca() {
 
 
 build_twolame() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #  download_and_unpack_file http://sourceforge.net/projects/twolame/files/twolame/0.3.13/twolame-0.3.13.tar.gz/download twolame-0.3.13 # "CPPFLAGS=-DLIBTWOLAME_STATIC"
 #  cd twolame-0.3.13
 #    sed -i.bak 's/libtwolame_la_LDFLAGS  = -export-dynamic/libtwolame_la_LDFLAGS  = -no-undefined -export-dynamic/' libtwolame/Makefile.am
@@ -4719,6 +4933,7 @@ build_twolame() {
 }
 
 build_regex() {
+  printf "%s\n" "${FUNCNAME[0]}"
   download_and_unpack_file "https://downloads.sourceforge.net/project/mingw/Other/UserContributed/regex/mingw-regex-2.5.1/mingw-libgnurx-2.5.1-src.tar.gz" mingw-libgnurx-2.5.1
   cd mingw-libgnurx-2.5.1
     # Patch for static version
@@ -4738,6 +4953,7 @@ build_regex() {
 }
 
 build_fmt() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/fmtlib/fmt.git fmt 11.1.3
 	cd fmt
 		do_cmake "-DBUILD_SHARED_LIBS=TRUE -DFMT_TEST=OFF"
@@ -4746,6 +4962,7 @@ build_fmt() {
 }
 
 build_boost() {
+  printf "%s\n" "${FUNCNAME[0]}"
   download_and_unpack_file "https://archives.boost.io/release/1.86.0/source/boost_1_86_0.tar.bz2" boost_1_86_0
   cd boost_1_86_0
   #  cd libs/serialization
@@ -4785,6 +5002,7 @@ build_boost() {
 }
 
 build_mkvtoolnix() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://gitlab.com/mbunkus/mkvtoolnix mkvtoolnix main # release-58.0.0 # 81cfb605dbf6f602fe370ddd4d7e53f4b0b94dc7 # main #  ab4caebe3df291ff65a66ca6bd4e4c47c5fbe6b4 # main #16772170030715717341c3d5460d3d1fecf501a4
 #    download_and_unpack_file https://mkvtoolnix.download/sources/mkvtoolnix-43.0.0.tar.xz mkvtoolnix-43.0.0
   cd mkvtoolnix # -43.0.0
@@ -4850,6 +5068,7 @@ build_mkvtoolnix() {
 }
 
 build_gavl() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	download_and_unpack_file https://downloads.sourceforge.net/project/gmerlin/gavl/1.4.0/gavl-1.4.0.tar.gz gavl-1.4.0
 # do_svn_checkout svn://svn.code.sf.net/p/gmerlin/code/trunk/gavl gavl 5729 # 5412
 	cd gavl-1.4.0
@@ -4870,6 +5089,7 @@ build_gavl() {
 }
 
 build_gomp() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_svn_checkout https://github.com/gcc-mirror/gcc/trunk/libgomp gomp
   cd gomp
     autoreconf -fvi
@@ -4892,6 +5112,7 @@ build_fdkaac-commandline() {
 }
 
 build_poppler() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #  do_git_checkout git://git.freedesktop.org/git/poppler/poppler poppler poppler-0.67.0
 #  do_git_checkout https://github.com/freedesktop/poppler.git poppler-0.84.0
   download_and_unpack_file https://poppler.freedesktop.org/poppler-25.08.0.tar.xz poppler-25.08.0
@@ -4916,6 +5137,7 @@ build_poppler() {
 }
 
 build_SWFTools() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #  do_git_checkout https://github.com/matthiaskramm/swftools swftools 1f7b90bd283bdb60b80849779a805a4fb63175cb
 #    do_git_checkout https://github.com/swftools/swftools.git swftools
     do_git_checkout https://github.com/flanter21/swftools.git swftools master
@@ -4967,6 +5189,7 @@ build_SWFTools() {
 #}
 
 build_frei0r() {
+  printf "%s\n" "${FUNCNAME[0]}"
     download_and_unpack_file https://github.com/dyne/frei0r/archive/refs/tags/v2.5.6.tar.gz frei0r-2.5.6
     cd frei0r-2.5.6
 #  cd frei0r
@@ -4992,6 +5215,7 @@ build_frei0r() {
 }
 
 build_gobject_introspection() {
+  printf "%s\n" "${FUNCNAME[0]}"
   download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/gobject-introspection/1.56/gobject-introspection-1.56.1.tar.xz gobject-introspection-1.56.1
   cd gobject-introspection-1.56.1
     apply_patch file://${top_dir}/gobject-introspection.patch
@@ -5002,6 +5226,7 @@ build_gobject_introspection() {
 }
 
 build_gtk2() {
+  printf "%s\n" "${FUNCNAME[0]}"
   download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/gtk+/2.24/gtk+-2.24.33.tar.xz gtk+-2.24.33
   cd gtk+-2.24.33
     # apply_patch_p1 https://raw.githubusercontent.com/Alexpux/MINGW-packages/master/mingw-w64-gtk2/0012-embed-manifest.all.patch
@@ -5022,6 +5247,7 @@ build_gtk2() {
 }
 
 build_gtk() {
+  printf "%s\n" "${FUNCNAME[0]}"
   # Now to get to work on a default theme
   download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/adwaita-icon-theme/3.28/adwaita-icon-theme-3.28.0.tar.xz adwaita-icon-theme-3.28.0
   cd adwaita-icon-theme-3.28.0
@@ -5070,6 +5296,7 @@ build_gtkmm()
 }
 
 build_libcanberra() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout git://git.0pointer.de/libcanberra libcanberra
 	cd libcanberra
 		generic_configure_make_install
@@ -5077,6 +5304,7 @@ build_libcanberra() {
 }
 
 build_snappy () {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/google/snappy.git snappy # b5477a8457a42c10c3fffb5851cd0ef09caabb50
   cd snappy
     git submodule update --init
@@ -5090,6 +5318,7 @@ build_snappy () {
 }
 
 build_vidstab() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/georgmartius/vid.stab.git vid.stab # "430b4cffeb" # 0.9.8
   cd vid.stab
 #    apply_patch file://${top_dir}/vid.stab.patch
@@ -5101,6 +5330,7 @@ build_vidstab() {
 }
 
 build_libchromaprint() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/acoustid/chromaprint.git chromaprint # 29ace183de7fb4f83a44afb29b3d5c6a641fb917
   cd chromaprint
 #    apply_patch file://${top_dir}/chromaprint-vector.patch
@@ -5111,6 +5341,7 @@ build_libchromaprint() {
 }
 
 build_libarchive() {
+  printf "%s\n" "${FUNCNAME[0]}"
     download_and_unpack_file https://libarchive.org/downloads/libarchive-3.7.7.tar.gz libarchive-3.7.7
     cd libarchive-3.7.7
 #    do_git_checkout https://github.com/libarchive/libarchive.git libarchive 0348e24bab24cc46642d29e3ceab64df22553298
@@ -5128,6 +5359,7 @@ build_pkg-config() {
 }
 
 build_opusfile() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/xiph/opusfile.git opusfile
   cd opusfile
     apply_patch file://${top_dir}/opusfile-ssl.patch
@@ -5139,6 +5371,7 @@ build_opusfile() {
 }
 
 build_libopusenc() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/xiph/libopusenc.git libopusenc
     cd libopusenc
     if [[ ! -f "configure" ]]; then
@@ -5149,6 +5382,7 @@ build_libopusenc() {
 }
 
 build_opustools() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/xiph/opus-tools.git opus-tools
   cd opus-tools
 #  apply_patch file://${top_dir}/opus-tools-fortify.patch
@@ -5161,6 +5395,7 @@ build_opustools() {
 }
 
 build_libmms() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout git://git.code.sf.net/p/libmms/code libmms-code
   cd libmms-code
     generic_configure_make_install
@@ -5169,6 +5404,7 @@ build_libmms() {
 }
 
 build_ngtcp2() {
+  printf "%s\n" "${FUNCNAME[0]}"
     do_git_checkout https://github.com/ngtcp2/ngtcp2.git ngtcp2
     cd ngtcp2
         do_cmake "-DENABLE_GNUTSL=ON -DENABLE_OPENSSL=ON -DCMAKE_DLL_NAME_WITH_SOVERSION=ON"
@@ -5177,6 +5413,7 @@ build_ngtcp2() {
 }
 
 build_curl() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #  generic_download_and_install http://curl.haxx.se/download/curl-7.51.0.tar.bz2 curl-7.51.0 "--enable-ipv6 --with-librtmp --with-ca-fallback"
   do_git_checkout https://github.com/curl/curl.git curl # e7f9c904ca20a91a0c87f9ca5812c9ac0307125d # 9655474548b3cefdb2b1d4504c82b44cc01a1861
   cd curl
@@ -5189,6 +5426,7 @@ build_curl() {
 }
 
 build_curl_early() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #  generic_download_and_install http://curl.haxx.se/download/curl-7.51.0.tar.bz2 curl-7.51.0 "--enable-ipv6 --with-librtmp --with-ca-fallback"
   do_git_checkout https://github.com/curl/curl.git curl_early #e7f9c904ca20a91a0c87f9ca5812c9ac0307125d
   cd curl_early
@@ -5226,6 +5464,7 @@ build_curl_early() {
 #}
 
 build_libdv() {
+  printf "%s\n" "${FUNCNAME[0]}"
   download_and_unpack_file https://downloads.sourceforge.net/project/libdv/libdv/1.0.0/libdv-1.0.0.tar.gz libdv-1.0.0
   cd libdv-1.0.0
     # We need to regenerate the autoconf scripts because we patch Makefile.am
@@ -5245,6 +5484,7 @@ build_libdv() {
 }
 
 build_asdcplib() {
+  printf "%s\n" "${FUNCNAME[0]}"
   export CXXFLAGS=-DKM_WIN32
   export CFLAGS=-DKM_WIN32
 #  download_and_unpack_file https://download.videolan.org/contrib/asdcplib/asdcplib-2.7.19.tar.gz asdcplib-2.7.19
@@ -5267,6 +5507,7 @@ build_asdcplib() {
 
 
 build_libtiff() {
+  printf "%s\n" "${FUNCNAME[0]}"
   generic_download_and_install http://download.osgeo.org/libtiff/tiff-4.7.0.tar.gz tiff-4.7.0
   cd tiff-4.7.0
 
@@ -5274,6 +5515,7 @@ build_libtiff() {
 }
 
 build_opencl() {
+  printf "%s\n" "${FUNCNAME[0]}"
 # Method: get the headers, then (in a later function) build OpenCL.dll from the github source
 # which does NOT contain the headers
 #  mkdir -p ${mingw_w64_x86_64_prefix}/include/CL && cd ${mingw_w64_x86_64_prefix}/include/CL
@@ -5321,6 +5563,7 @@ build_opencl() {
 }
 
 build_openmaxil() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	cd ${mingw_w64_x86_64_prefix}/include
 	wget --no-clobber https://www.khronos.org/registry/OpenMAX-IL/api/1.1.2/OpenMAX_IL_1_1_2_Header.zip
 	unzip -o OpenMAX_IL_1_1_2_Header.zip
@@ -5330,6 +5573,7 @@ build_openmaxil() {
 
 
 build_lua() {
+  printf "%s\n" "${FUNCNAME[0]}"
   # Needed for mpv to use YouTube URLs. mpv looks for it in pkg-config path so might be
   # best to compile our own mingw version
   download_and_unpack_file https://ftp.osuosl.org/pub/blfs/conglomeration/lua/lua-5.2.3.tar.gz lua-5.2.3
@@ -5376,6 +5620,7 @@ EOF
 }
 
 build_sox() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://git.code.sf.net/p/sox/code sox
   cd sox
   if [[ ! -f "configure" ]]; then
@@ -5390,6 +5635,7 @@ build_sox() {
 }
 
 build_libuuid() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/h0tw1r3/libuuid-mingw.git libuuid
   cd libuuid
     rm -v autogen Makefile.in configure
@@ -5400,6 +5646,7 @@ build_libuuid() {
 }
 
 build_zmq() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/zeromq/libzmq libzmq cb73745250dce53aa6e059751a47940b7518a1c3 # 4e2b9e6e07d4622d094febf8c4f61f9f191fd9ae
   cd libzmq
 #    apply_patch file://${top_dir}/liibzmq.patch
@@ -5409,6 +5656,7 @@ build_zmq() {
 }
 
 build_cppzmq() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/zeromq/cppzmq.git cppzmq
 	cd cppzmq
 		do_cmake "-DCPPZMQ_BUILD_TESTS=OFF" # && ${top_dir}/correct_headers.sh
@@ -5418,6 +5666,7 @@ build_cppzmq() {
 }
 
 build_wxsvg() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	download_and_unpack_file http://downloads.sourceforge.net/project/wxsvg/wxsvg/1.5.22/wxsvg-1.5.22.tar.bz2 wxsvg-1.5.22
 	cd wxsvg-1.5.22
 		apply_patch file://${top_dir}/wxsvg-std.patch
@@ -5426,6 +5675,7 @@ build_wxsvg() {
 }
 
 build_pixman() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #  do_git_checkout https://github.com/aseprite/pixman.git pixman
 #  cd pixman
 #    generic_configure_make_install
@@ -5437,6 +5687,7 @@ build_pixman() {
 }
 
 build_cairo() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #  download_and_unpack_file https://www.cairographics.org/releases/cairo-1.14.12.tar.xz cairo-1.14.12 # Was .8
 #  cd cairo-1.14.12
 #     rm -v autogen.sh configure
@@ -5475,6 +5726,7 @@ build_cairo() {
 }
 
 build_mmcommon() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/GNOME/mm-common.git mm-common
   cd mm-common
 #    generic_configure_make_install "--enable-network"
@@ -5484,6 +5736,7 @@ build_mmcommon() {
 }
 
 build_cairomm() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #  download_and_unpack_file http://cairographics.org/releases/cairomm-1.15.3.tar.gz cairomm-1.15.3
 #  do_git_checkout git://git.cairographics.org/git/cairomm cairomm v1.15.5
 #  cd cairomm
@@ -5516,6 +5769,7 @@ build_cairomm() {
 }
 
 build_taglib() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/taglib/taglib.git taglib
   cd taglib
     git submodule update --init
@@ -5531,6 +5785,7 @@ build_taglib() {
 }
 
 build_dvdauthor() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/ldo/dvdauthor.git dvdauthor
   cd dvdauthor
 #iconv does bad mojo in mingw-w64. And who doesn't want Unicode anyway, these days?
@@ -5553,6 +5808,7 @@ build_dvdauthor() {
 
 
 build_openssh() {
+  printf "%s\n" "${FUNCNAME[0]}"
   generic_download_and_install http://mirror.bytemark.co.uk/pub/OpenBSD/OpenSSH/portable/openssh-7.6p1.tar.gz openssh-7.6p1 "LIBS=-lgdi32"
   cd openssh-7.6p1
 
@@ -5560,6 +5816,7 @@ build_openssh() {
 }
 
 build_libffi() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	download_and_unpack_file https://github.com/libffi/libffi/releases/download/v3.4.8/libffi-3.4.8.tar.gz libffi-3.4.8
 	cd libffi-3.4.8
 #		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libffi/libffi-3.4.7-Revert-Fix-x86-ffi64-calls-with-6-gp-and-some-sse-re.patch
@@ -5568,6 +5825,7 @@ build_libffi() {
 }
 
 build_ilmbase() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #download_and_unpack_file https://github.com/AcademySoftwareFoundation/openexr/archive/v2.5.5.tar.gz openexr-2.5.5
   do_git_checkout https://github.com/AcademySoftwareFoundation/openexr.git openexr v3.4.12
 #  do_git_checkout https://github.com/openexr/openexr.git openexr #48c2106310c8edefc7c1387cffc466665e4f38d2 #9f23bcc60b9786ffd5d97800750b953313080c87
@@ -5624,6 +5882,7 @@ build_ilmbase() {
 
 
 build_ffms2() {
+  printf "%s\n" "${FUNCNAME[0]}"
 # Checkout specified owing to non-compatible recent change
   do_git_checkout https://github.com/FFMS/ffms2.git ffms2  6df5632
   cd ffms2
@@ -5638,6 +5897,7 @@ build_ffms2() {
 }
 
 build_flac() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/xiph/flac.git flac #1c0eea679ae4351c77c912988d0a24d90809965a
 #  cpu_count=1
   cd flac
@@ -5657,6 +5917,7 @@ build_flac() {
 }
 
 build_libde265() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/strukturag/libde265.git libde265
 	cd libde265
 		do_cmake "-DENABLE_SDL=OFF"
@@ -5675,6 +5936,7 @@ build_youtube-dl() {
 }
 
 build_libudfread() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout http://code.videolan.org/videolan/libudfread.git libudfread
   cd libudfread
     # Patch to work around broken detection of MinGW in tendem with MSVC
@@ -5685,6 +5947,7 @@ build_libudfread() {
 }
 
 build_libburn() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_svn_checkout http://svn.libburnia-project.org/libburn/trunk libburn
   cd libburn
     generic_configure_make_install
@@ -5693,6 +5956,7 @@ build_libburn() {
 }
 
 build_mjpegtools() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #	do_svn_checkout https://svn.code.sf.net/p/mjpeg/Code/ mjpeg-Code
 #	cd mjpeg-Code/trunk/mjpeg_play
 #		apply_patch file://${top_dir}/mjpegtools-svn.patch
@@ -5719,6 +5983,7 @@ build_mjpegtools() {
 }
 
 build_file() {
+  printf "%s\n" "${FUNCNAME[0]}"
   # Also contains libmagic
   do_git_checkout https://github.com/file/file.git file_native # 218fdf813fd5ccecbb8887a1b62509cd1c6dd3a1 # c019f3c109cdf6606be265b8039f002d81d996bb #3dc9066f0b59513951626d8596ea67e23a0fd42e #13ba1a3639f7a40f3bffbabf2737cbdde314faf4
   do_git_checkout https://github.com/file/file.git file # 218fdf813fd5ccecbb8887a1b62509cd1c6dd3a1 # c019f3c109cdf6606be265b8039f002d81d996bb # 850e148d088922878f1e5f6b2e3a9c01f75d21f3 #3dc9066f0b59513951626d8596ea67e23a0fd42e #13ba1a3639f7a40f3bffbabf2737cbdde314faf4
@@ -5745,6 +6010,7 @@ build_file() {
 }
 
 build_cdrkit() {
+  printf "%s\n" "${FUNCNAME[0]}"
   download_and_unpack_file http://pkgs.fedoraproject.org/repo/pkgs/cdrkit/cdrkit-1.1.11.tar.gz/efe08e2f3ca478486037b053acd512e9/cdrkit-1.1.11.tar.gz cdrkit-1.1.11
   cd cdrkit-1.1.11
     apply_patch_p1 file://{$top_dir}/cdrkit-1.1.11-mingw.patch
@@ -5757,6 +6023,7 @@ build_cdrkit() {
 }
 
 build_libebur128() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/jiixyj/libebur128.git libebur128
   cd libebur128
     do_cmake "-DENABLE_INTERNAL_QUEUE_H=ON -DCMAKE_POLICY_VERSION_MINIMUM=3.5"
@@ -5792,6 +6059,7 @@ build_loudness-scanner() {
 }
 
 build_filewalk() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/jiixyj/filewalk.git filewalk
   cd filewalk
     do_cmake
@@ -5805,6 +6073,7 @@ build_filewalk() {
 }
 
 build_cdrecord() {
+  printf "%s\n" "${FUNCNAME[0]}"
   download_and_unpack_bz2file http://downloads.sourceforge.net/project/cdrtools/alpha/cdrtools-3.02a06.tar.bz2 cdrtools-3.02
   cd cdrtools-3.02
     export holding_path="${PATH}"
@@ -5833,6 +6102,7 @@ build_smake() { # This enables build of cdrtools. Jorg Schilling uses his own ma
 
 
 build_zimg() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/sekrit-twc/zimg.git zimg 51c3c7f750c2af61955377faad56e3ba1b03589f #799f91c403f562a26d8bf8ce757051abbf5c8cd6 # e6069fa9e883e0e637e0dd2023d444a07b4dc73c
   cd zimg
     sed -i.bak 's/Windows\.h/windows.h/' src/testcommon/mmap.cpp
@@ -5842,6 +6112,7 @@ build_zimg() {
 }
 
 build_codec2() {
+  printf "%s\n" "${FUNCNAME[0]}"
   unset AR
   unset CC
   unset CXX
@@ -5876,6 +6147,7 @@ build_codec2() {
 }
 
 build_lzo() {
+  printf "%s\n" "${FUNCNAME[0]}"
   generic_download_and_install http://www.oberhumer.com/opensource/lzo/download/lzo-2.10.tar.gz lzo-2.10
   cd lzo-2.10
 
@@ -5884,6 +6156,7 @@ build_lzo() {
 }
 
 build_dvbpsi() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://code.videolan.org/videolan/libdvbpsi.git libdvbpsi 7860d9e7223bc0fd378ec2fc495a1fe91109258d
   cd libdvbpsi
     apply_patch file://${top_dir}/libdvbpsi.patch
@@ -5899,6 +6172,7 @@ build_dvbpsi() {
 }
 
 build_lz4() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/lz4/lz4.git lz4 dev
   cd lz4
     cd build/cmake
@@ -5910,6 +6184,7 @@ build_lz4() {
 }
 
 build_libtasn1() {
+  printf "%s\n" "${FUNCNAME[0]}"
   generic_download_and_install https://ftp.gnu.org/gnu/libtasn1/libtasn1-4.13.tar.gz libtasn1-4.13 "--disable-doc --disable-gtk-doc --disable-gtk-doc-html --disable-gtk-doc-pdf"
   cd libtasn1-4.13
 
@@ -5921,6 +6196,7 @@ build_libtasn1() {
 }
 
 build_ocaml() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/ocaml/ocaml.git ocaml 4.07
     cd ocaml
         git submodule init
@@ -5939,6 +6215,7 @@ build_ocaml() {
 }
 
 build_aubio() {
+  printf "%s\n" "${FUNCNAME[0]}"
     # We need our own version of Waf, specially compiled
     # Tests have been added to aubio but don't work when cross-compiled
     do_git_checkout https://git.aubio.org/aubio/aubio aubio #d94afb37f953f5d7cad9881dac42bff1e3b66f9c
@@ -5963,6 +6240,7 @@ build_aubio() {
 }
 
 build_libdsm() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/videolabs/libdsm.git libdsm 521108476e1b049c2cffba6a7b48a7e856de5674 #03e98f930c45f4b9c34a98cc1f9a69c78567e9a3
   cd libdsm
     apply_patch file://${top_dir}/libdsm-meson.patch
@@ -5976,6 +6254,7 @@ build_libdsm() {
 }
 
 build_libcdio() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #  download_and_unpack_file file://${top_dir}/libcdio-4b5eda30.tar.gz libcdio-cdtext-testing-4b5eda3
   download_and_unpack_file https://github.com/libcdio/libcdio/releases/download/2.2.0/libcdio-2.2.0.tar.bz2 libcdio-2.2.0
 #do_git_checkout git://git.sv.gnu.org/libcdio.git libcdio #  cd libcdio
@@ -5990,6 +6269,7 @@ build_libcdio() {
 }
 
 build_libcdio_libcddb() {
+  printf "%s\n" "${FUNCNAME[0]}"
   # This needs compiling twice to work around a circular dependency with libcddb
 #  do_git_checkout git://git.sv.gnu.org/libcdio.git libcdio_cddb cdtext-testing
   download_and_unpack_file file://${top_dir}/libcdio-4b5eda30.tar.gz libcdio-cdtext-testing-4b5eda3
@@ -6022,6 +6302,7 @@ build_makemkv() { # THIS IS NOT WORKING - MAKEMKV NEEDS MORE THAN MINGW OFFERS
 }
 
 build_gettext() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	# Later versions of GNU gettext have a mingw incompatibility
 #  do_git_checkout https://git.savannah.gnu.org/git/gettext.git gettext # 5ed70829a2a78b38f8fddf3543a34f9f22ea110e
 #	download_and_unpack_file https://ftp.gnu.org/pub/gnu/gettext/gettext-0.21.tar.gz gettext-0.21
@@ -6069,14 +6350,17 @@ build_gettext() {
 }
 
 build_pcre() {
+  printf "%s\n" "${FUNCNAME[0]}"
   generic_download_and_install https://downloads.sourceforge.net/project/pcre/pcre/8.45/pcre-8.45.tar.bz2 pcre-8.45 "--enable-pcre16 --enable-pcre32 --enable-newline-is-any --enable-jit --enable-utf --enable-pcregrep-libz --enable-pcregrep-libbz2 --enable-pcregrep-libreadline --enable-unicode-properties"
 }
 
 build_pcre2() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	generic_download_and_install https://downloads.sourceforge.net/project/pcre/pcre2/10.37/pcre2-10.37.tar.bz2 pcre2-10.37 "--enable-pcre2-16 --enable-pcre2-32 --enable-jit --enable-newline-is-any --enable-utf --enable-pcre2grep-libz --enable-pcre2grep-libbz2"
 }
 
 build_glib() {
+  printf "%s\n" "${FUNCNAME[0]}"
   download_and_unpack_file http://ftp.gnome.org/pub/GNOME/sources/glib/2.82/glib-2.82.5.tar.xz glib-2.82.5 # Was 2.64.2
   export orig_cpu=$cpu_count
 #  export cpu_count=1
@@ -6102,6 +6386,7 @@ build_glib() {
 }
 
 build_atk() {
+  printf "%s\n" "${FUNCNAME[0]}"
 download_and_unpack_file http://ftp.gnome.org/pub/GNOME/sources/atk/2.29/atk-2.29.1.tar.xz atk-2.29.1 # Was 2.25.2
   cd atk-2.29.1
     generic_meson_ninja_install
@@ -6111,6 +6396,7 @@ download_and_unpack_file http://ftp.gnome.org/pub/GNOME/sources/atk/2.29/atk-2.2
 }
 
 build_atkmm() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #	do_git_checkout https://github.com/GNOME/atkmm.git atkmm
 #	cd atkmm
 #		generic_configure_make_install
@@ -6123,6 +6409,7 @@ build_atkmm() {
 }
 
 build_libplacebo() {
+  printf "%s\n" "${FUNCNAME[0]}"
   #do_git_checkout https://code.videolan.org/videolan/libplacebo.git libplacebo #3294a29ee0fa103a0558a37123344cee573324e8
   do_git_checkout https://github.com/haasn/libplacebo.git libplacebo # e79ea1902ea7c797f5cd2ff2de937a789408c136 # 08b45ede97262d73778f1bee40ac845702e240d4 # 5198e1564c5f2900b7b1f98561b6323d27bd78bb
   cd libplacebo
@@ -6133,6 +6420,7 @@ build_libplacebo() {
 }
 
 build_gdk_pixbuf() {
+  printf "%s\n" "${FUNCNAME[0]}"
     download_and_unpack_file http://ftp.gnome.org/pub/GNOME/sources/gdk-pixbuf/2.42/gdk-pixbuf-2.42.12.tar.xz gdk-pixbuf-2.42.12 # "--with-libjasper --disable-glibtest --enable-always-build-tests=no --enable-relocations --with-included-loaders=yes --build=x86_64-unknown-linux-gnu"
 #  do_git_checkout https://git.gnome.org/browse/gdk-pixbuf gdk-pixbuf
     cd gdk-pixbuf-2.42.12
@@ -6164,6 +6452,7 @@ build_libsigc++() {
 }
 
 build_locked_sstream() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/cth103/locked_sstream.git locked_sstream
 #  do_git_checkout git://git.carlh.net/git/locked_sstream.git locked_sstream
   cd locked_sstream
@@ -6174,6 +6463,7 @@ build_locked_sstream() {
 }
 
 build_libebml() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #  do_git_checkout https://github.com/evpobr/libebml.git libebml cmake-export-symbols
 #  download_and_unpack_file https://dl.matroska.org/downloads/libebml/libebml-1.3.6.tar.xz libebml-1.3.6
 #  cd libebml-1.3.61
@@ -6190,6 +6480,7 @@ build_libebml() {
 }
 
 build_libmatroska() {
+  printf "%s\n" "${FUNCNAME[0]}"
     do_git_checkout https://github.com/Matroska-Org/libmatroska.git libmatroska release-1.7.1
 
 #	download_and_unpack_file https://github.com/Matroska-Org/libmatroska/archive/release-1.7.1.tar.gz libmatroska-release-1.7.1
@@ -6210,12 +6501,14 @@ build_libmatroska() {
 }
 
 build_1394camera() {
+  printf "%s\n" "${FUNCNAME[0]}"
   cp -v ${top_dir}/1394camera.dll ${mingw_w64_x86_64_prefix}/bin/1394camera.dll
   cp -v ${top_dir}/lib1394camera.a ${mingw_w64_x86_64_prefix}/lib/lib1394camera.a
   cp -v ${top_dir}/1394*h ${mingw_w64_x86_64_prefix}/include
 }
 
 build_libdc1394() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #  do_git_checkout https://github.com/astraw/dc1394.git libdc1394
   download_and_unpack_file https://downloads.sourceforge.net/project/libdc1394/libdc1394-2/2.2.7/libdc1394-2.2.7.tar.gz libdc1394-2.2.7
   cd libdc1394-2.2.7
@@ -6224,6 +6517,7 @@ build_libdc1394() {
 }
 
 build_libcxml(){
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://git.carlh.net/git/libcxml.git libcxml # v0.17.0 #c333199bba3de3955af2c5f2debaa5c4bf9faa43 # 4ad7c9c1ad624fc811ad1b0c34e62657f1f59998 # c336f86b9670c515230767dab9dc56128acf03db #9fb7d466379c0943c22d3e1f0bc51d737e493d7d # 4dfe693bbe01810274f370a7e791a9f508f7e8f6
 #  download_and_unpack_file http://carlh.net/downloads/libcxml/libcxml-0.16.1.tar.bz2 libcxml-0.16.1
   cd libcxml
@@ -6249,6 +6543,7 @@ build_libcxml(){
 }
 
 build_glibmm() {
+  printf "%s\n" "${FUNCNAME[0]}"
   # Because our threading model for our GCC does not involve posix threads, we must emulate them with
   # the Boost libraries. These provide an (almost) drop-in replacement.
   # VERSION WARNING: glibmm-2.51 breaks compatibility. You have to read the documentation to learn this.
@@ -6331,6 +6626,7 @@ build_libxml++ () {
 }
 
 build_libexif() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/libexif/libexif.git libexif 5c3de9923bd4651daab233df4d74faeabe29c3f2 #a459ed1dca57612ef13880e8d78037db2f089f13
   cd libexif
     # We need to update autotools because a check is needed for JPEG files > 2GB
@@ -6341,6 +6637,7 @@ build_libexif() {
 }
 
 build_libzip() {
+  printf "%s\n" "${FUNCNAME[0]}"
   download_and_unpack_file https://libzip.org/download/libzip-1.11.4.tar.xz libzip-1.11.4
   cd libzip-1.11.4
     do_cmake
@@ -6350,6 +6647,7 @@ build_libzip() {
 }
 
 build_uchardet() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #do_git_checkout git://anongit.freedesktop.org/uchardet/uchardet uchardet
   do_git_checkout https://gitlab.freedesktop.org/uchardet/uchardet.git uchardet
 #  download_and_unpack_file https://www.freedesktop.org/software/uchardet/releases/uchardet-0.0.8.tar.xz uchardet-0.0.8
@@ -6361,6 +6659,7 @@ build_uchardet() {
 }
 
 build_zstd() {
+  printf "%s\n" "${FUNCNAME[0]}"
     do_git_checkout https://github.com/facebook/zstd.git zstd 6af3842 #dev #6b7a1d6127a0306731d4f98a0da2b9e91c078242
     cd zstd/build/cmake
         do_cmake
@@ -6370,6 +6669,7 @@ build_zstd() {
 }
 
 build_flacon() {
+  printf "%s\n" "${FUNCNAME[0]}"
     do_git_checkout https://github.com/flacon/flacon.git flacon
         cd flacon
 #	apply_patch file://${top_dir}/flacon.patch
@@ -6384,6 +6684,7 @@ build_flacon() {
 }
 
 build_exif() {
+  printf "%s\n" "${FUNCNAME[0]}"
   download_and_unpack_file https://downloads.sourceforge.net/project/libexif/exif/0.6.21/exif-0.6.21.tar.bz2 exif-0.6.21
   cd exif-0.6.21
     rm configure
@@ -6397,6 +6698,7 @@ build_exif() {
 }
 
 build_hdf() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/HDFGroup/hdf5.git hdf5
 	cd hdf5
 #	download_and_unpack_file https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.12/hdf5-1.12.0/src/hdf5-1.12.0.tar.bz2 hdf5-1.12.0
@@ -6425,6 +6727,7 @@ build_hdf() {
 
 
 build_netcdf() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #  do_git_checkout https://github.com/Unidata/netcdf-c.git netcdf-c main #ba24e3c08e52e869c18f8f34e2d78622e60e6ce7
   download_and_unpack_file https://github.com/Unidata/netcdf-c/archive/v4.8.1.tar.gz netcdf-c-4.8.1
   cd netcdf-c-4.8.1
@@ -6457,6 +6760,7 @@ build_netcdf() {
 }
 
 build_vlc() {
+  printf "%s\n" "${FUNCNAME[0]}"
   # VLC normally requires its own libraries to be linked. However, it in fact builds with latest
   # versions of everything compiled here. At the moment..
   do_git_checkout https://github.com/videolan/vlc.git vlc  # 7b81168938cf2fd2217cbc5bf701ab23ad8655b9 # a047b31b978e4a3bd86b3c1a8f7dec9281d1a056
@@ -6508,6 +6812,7 @@ build_vlc() {
 }
 
 build_vlc3() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/videolan/vlc vlc 3.0.x
 	cd vlc
 		apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-vlc/0001-Use-libdir-for-plugins-on-msys2.patch
@@ -6541,6 +6846,7 @@ build_vlc3() {
 }
 
 build_meson_cross() {
+  printf "%s\n" "${FUNCNAME[0]}"
     rm -fv meson-cross.mingw.txt
     echo "[binaries]" >> meson-cross.mingw.txt
     echo "c = '${cross_prefix}gcc'" >> meson-cross.mingw.txt
@@ -6562,6 +6868,7 @@ build_meson_cross() {
 
 
 build_mplayer() {
+  printf "%s\n" "${FUNCNAME[0]}"
  # pre requisites
   build_libdvdread
   build_libdvdnav
@@ -6643,6 +6950,7 @@ build_mp4box() { # like build_gpac
 }
 
 build_pango() {
+  printf "%s\n" "${FUNCNAME[0]}"
   download_and_unpack_file http://ftp.gnome.org/pub/gnome/sources/pango/1.56/pango-1.56.4.tar.xz pango-1.56.4 # Was .6
   cd pango-1.56.4
     generic_meson_ninja_install
@@ -6650,6 +6958,7 @@ build_pango() {
 }
 
 build_pangomm() {
+  printf "%s\n" "${FUNCNAME[0]}"
   # VERSION WARNING Pango-2.41 breaks compatibility
 #  export PANGOMM_LIBS="-lgobject-2.0 -lgmodule-2.0 -lglib-2.0 -lglibmm-2.4 -lgio-2.0 -lboost_system-mt-x64 -lsigc-2.0 -lboost_thread-mt-x64 -lboost_system-mt-x64 -lcairo -lcairomm-1.0 -lpango-1.0 -lpangocairo-1.0"
   download_and_unpack_file http://ftp.gnome.org/pub/GNOME/sources/pangomm/2.40/pangomm-2.40.2.tar.xz pangomm-2.40.2
@@ -6667,6 +6976,7 @@ build_pangomm() {
 }
 
 build_libxeve() {
+  printf "%s\n" "${FUNCNAME[0]}"
     do_git_checkout https://github.com/mpeg5/xeve.git xeve
     cd xeve
         do_cmake .
@@ -6676,6 +6986,7 @@ build_libxeve() {
 }
 
 build_libxevd() {
+  printf "%s\n" "${FUNCNAME[0]}"
     do_git_checkout https://github.com/mpeg5/xevd.git xevd
     cd xevd
         do_cmake .
@@ -6685,6 +6996,7 @@ build_libxevd() {
 }
 
 build_mimedb() {
+  printf "%s\n" "${FUNCNAME[0]}"
   export orig_cpu_count=$cpu_count
   export cpu_count=1
   # The installer barfs if this directory doesn't exist.
@@ -6698,6 +7010,7 @@ build_mimedb() {
 }
 
 build_qjackctl() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/rncbc/qjackctl.git qjackctl a8288d2cb1630805144df12af72e3b607d8b3817 #e76e58ea6e67b74ab1fcc539a4d1f18ea0686144 # b2ae94121d368bb2498a3fa09173e99263fe8c39 # 568b076f1ddd0fcb18a78828e0e5b833e52fd7a1
   cd qjackctl
   	apply_patch file://${top_dir}/qjackctl-translation.patch
@@ -6717,6 +7030,7 @@ build_qjackctl() {
 }
 
 build_spirvtools() {
+  printf "%s\n" "${FUNCNAME[0]}"
 do_git_checkout https://github.com/KhronosGroup/SPIRV-Headers.git SPIRV-Headers c0df742ec0b8178ad58c68cff3437ad4b6a06e26 # 3ce3e49d73b8abbf2ffe33f829f941fb2a40f552
 do_git_checkout https://github.com/KhronosGroup/SPIRV-Tools.git SPIRV-Tools d0a87194f7b9a3b7659e837b08cd404ccc8af222 # 2d9a325264e3fc81317acc0a68a098f0546c352d # fe2fbee294a8ad4434f828a8b4d99eafe9aac88c
     cd SPIRV-Tools
@@ -6729,6 +7043,7 @@ do_git_checkout https://github.com/KhronosGroup/SPIRV-Tools.git SPIRV-Tools d0a8
 }
 
 build_glslang() {
+  printf "%s\n" "${FUNCNAME[0]}"
     do_git_checkout https://github.com/KhronosGroup/glslang.git glslang 7d65f09b83112c1ec9e29313cb9913ed2b850aa0 #135e3e35ea87d07b51d977b73fde7bd637fcbe4a
     #download_and_unpack_file https://github.com/KhronosGroup/glslang/archive/6.2.2596.tar.gz glslang-6.2.2596
     cd glslang #-6.2.2596
@@ -6744,6 +7059,7 @@ build_glslang() {
 }
 
 build_shaderc() {
+  printf "%s\n" "${FUNCNAME[0]}"
     do_git_checkout https://github.com/google/shaderc.git shaderc 687a83c645171a9beb22c5090c22d45bae5b7623 #3d99fad173cc0c00d370eeb6663784fc67efd480 #14ae0de47d34f14e09ae1c64327cd39c32c8f693 # a2c044c44d68c31014210f9b37a682d118c40388 # be8e0879750303a1de09385465d6b20ecb8b380d
     cd shaderc
     	export spirv-tools_SOURCE_DIR=${top_dir}/x86_64/SPIRV-Tools/
@@ -6774,6 +7090,7 @@ build_shaderc() {
 }
 
 build_spirvcross() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	download_and_unpack_file https://github.com/KhronosGroup/SPIRV-Cross/archive/vulkan-sdk-1.4.309.0/spirv-cross-1.4.309.0.tar.gz SPIRV-Cross-vulkan-sdk-1.4.309.0
 	cd SPIRV-Cross-vulkan-sdk-1.4.309.0
 		mkdir build
@@ -6786,6 +7103,7 @@ build_spirvcross() {
 }
 
 build_vulkan() {
+  printf "%s\n" "${FUNCNAME[0]}"
 
     #download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Loader/archive/sdk-1.1.73.0.tar.gz Vulkan-Loader-sdk-1.1.73.0
     #download_and_unpack_file https://github.com/KhronosGroup/Vulkan-Headers/archive/sdk-1.1.92.0.tar.gz Vulkan-Headers-sdk-1.1.92.0
@@ -6829,6 +7147,7 @@ build_vulkan() {
 
 
 build_angle() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://chromium.googlesource.com/angle/angle angle chromium/3497 # dd1b0c485561e0ce825a9426d7e223b4e158a358 # 57ce9ea23e54e7beb0526502bdf9094d1ddfde68 # 9f09037b073a7481bc5d94984a26b7c9d3427b16
     # If Angle has been built, then skip the whole process because Git barfs
     if [[ ! -f "angle/already_built_angle" ]]; then
@@ -6921,6 +7240,7 @@ EOM
 }
 
 build_libepoxy() {
+  printf "%s\n" "${FUNCNAME[0]}"
   generic_download_and_install https://github.com/anholt/libepoxy/releases/download/1.5.2/libepoxy-1.5.2.tar.xz libepoxy-1.5.2 # Was 1.3.1
   cd libepoxy-1.5.2
 
@@ -6933,10 +7253,12 @@ build_libepoxy() {
 }
 
 build_librsvg() {
+  printf "%s\n" "${FUNCNAME[0]}"
   generic_download_and_install https://download.gnome.org/sources/librsvg/2.42/librsvg-2.42.4.tar.xz librsvg-2.42.4 "--disable-introspection"
 }
 
 build_cuetools() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/svend/cuetools.git cuetools
   cd cuetools
     generic_configure_make_install
@@ -6945,6 +7267,7 @@ build_cuetools() {
 }
 
 build_turingcodec() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/bbc/turingcodec.git turingcodec
   cd turingcodec
     do_cmake
@@ -6955,6 +7278,7 @@ build_turingcodec() {
 }
 
 build_dbus() {
+  printf "%s\n" "${FUNCNAME[0]}"
   generic_download_and_install https://dbus.freedesktop.org/releases/dbus/dbus-1.12.8.tar.gz dbus-1.12.8
   cd dbus-1.12.8
 
@@ -6962,6 +7286,7 @@ build_dbus() {
 }
 
 build_libcroco() {
+  printf "%s\n" "${FUNCNAME[0]}"
   generic_download_and_install http://ftp.gnome.org/pub/GNOME/sources/libcroco/0.6/libcroco-0.6.12.tar.xz libcroco-0.6.12
 }
 
@@ -6975,6 +7300,7 @@ build_libcroco() {
 #}
 
 build_pngcrush() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://git.code.sf.net/p/pmt/code pngcrush pngcrush
   cd pngcrush
     apply_patch file://{$top_dir}/pngcrush.patch
@@ -6985,6 +7311,7 @@ build_pngcrush() {
 }
 
 build_eigen() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/eigenteam/eigen-git-mirror.git eigen-git-mirror #54d243db458f88b716deafb5ac1da5d7ffde4a78
 #  download_and_unpack_file http://bitbucket.org/eigen/eigen/get/3.3.5.tar.bz2 eigen-eigen-b3f3d4950030
 #  cd eigen-eigen-b3f3d4950030
@@ -7010,6 +7337,7 @@ build_eigen() {
 }
 
 build_movit() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #  do_git_checkout https://git.sesse.net/movit movit
   download_and_unpack_file https://movit.sesse.net/movit-1.6.3.tar.gz movit-1.6.3
   cd movit-1.6.3
@@ -7030,6 +7358,7 @@ build_movit() {
 }
 
 build_aom() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://aomedia.googlesource.com/aom aom #b647d8aca84250402aa2f0c905eed8fefce27851 #312b85e99e4b1cc50c884ce35f6d715f76b275ea # bbe0a0a1cd34dc5aa9040f1d8b68468f32b895e4
   cd aom
     old_LDFLAGS=${LDFLAGS}
@@ -7067,6 +7396,7 @@ build_aom() {
 }
 
 build_svtav1() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://gitlab.com/AOMediaCodec/SVT-AV1.git SVT-AV1 41c884a6
 	cd SVT-AV1
 		cd Build
@@ -7078,6 +7408,7 @@ build_svtav1() {
 }
 
 build_dav1d() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://code.videolan.org/videolan/dav1d.git libdav1d
 	cd libdav1d
 		generic_meson_ninja_install
@@ -7085,6 +7416,7 @@ build_dav1d() {
 }
 
 build_libdash() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/bitmovin/libdash.git libdash
   cd libdash
     apply_patch file://${top_dir}/libdash-case-fix.patch
@@ -7110,6 +7442,7 @@ build_libdash() {
 }
 
 build_synaesthesia() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/dreamlayers/synaesthesia.git synaesthesia # f8e028b5c02297c36879bab99441583a4aea4e8c
   cd synaesthesia
 #    apply_patch file://${top_dir}/synaesthesia-case.patch
@@ -7124,6 +7457,7 @@ build_synaesthesia() {
 }
 
 build_pugixml() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/zeux/pugixml.git pugixml
 	cd pugixml
 #		apply_patch file://${top_dir}/pugixml-rc.patch
@@ -7134,6 +7468,7 @@ build_pugixml() {
 }
 
 build_harfbuzz() {
+  printf "%s\n" "${FUNCNAME[0]}"
   download_and_unpack_file https://github.com/harfbuzz/harfbuzz/archive/refs/tags/14.2.0.tar.gz harfbuzz-14.2.0 # Was 7.3.0
 #  download_and_unpack_file https://github.com/harfbuzz/harfbuzz/releases/download/2.7.2/harfbuzz-2.7.2.tar.xz harfbuzz-2.7.2
 #  download_and_unpack_file https://www.freedesktop.org/software/harfbuzz/release/harfbuzz-1.7.6.tar.bz2 harfbuzz-1.7.6
@@ -7149,6 +7484,7 @@ build_harfbuzz() {
 }
 
 build_pulseaudio() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #	do_git_checkout https://gitlab.freedesktop.org/pulseaudio/pulseaudio.git pulseaudio
 	download_and_unpack_file https://freedesktop.org/software/pulseaudio/releases/pulseaudio-15.0.tar.xz pulseaudio-15.0
 #	cd pulseaudio-14.2
@@ -7175,6 +7511,7 @@ build_pulseaudio() {
 }
 
 build_pamix() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/patroclos/PAmix.git PAmix
 	cd PAmix
 		apply_patch file://${top_dir}/PAmix-mutex.patch
@@ -7185,6 +7522,7 @@ build_pamix() {
 }
 
 build_meterbridge() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	download_and_unpack_file http://plugin.org.uk/meterbridge/meterbridge-0.9.2.tar.gz meterbridge-0.9.2
 	cd meterbridge-0.9.2
 		apply_patch file://${top_dir}/meterbridge-buf_rect.patch
@@ -7195,6 +7533,7 @@ build_meterbridge() {
 }
 
 build_libpsl() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/rockdaboot/libpsl.git libpsl
 	cd libpsl
 		generic_configure_make_install
@@ -7202,6 +7541,7 @@ build_libpsl() {
 }
 
 build_pavucontrol() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://gitlab.freedesktop.org/pulseaudio/pavucontrol.git pavucontrol
 	cd pavucontrol
 		generic_configure_make_install
@@ -7210,6 +7550,7 @@ build_pavucontrol() {
 
 
 build_iculehb() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/behdad/icu-le-hb.git icu-le-hb
   cd icu-le-hb
     apply_patch file://${top_dir}/icu-le-hb-shared.patch
@@ -7219,6 +7560,7 @@ build_iculehb() {
 }
 
 build_rtaudio() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://git.carlh.net/git/rtaudio.git rtaudio carl # d8f189b660bdb5a05bdb7a69ff81b6a4d71d39bf
   cd rtaudio
     apply_patch file://${top_dir}/rtaudio-CMakeLists.patch
@@ -7231,6 +7573,7 @@ build_rtaudio() {
 }
 
 build_libidn2() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://gitlab.com/libidn/libidn2.git libidn2
   cd libidn2
     generic_configure_make_install "--disable-doc"
@@ -7239,6 +7582,7 @@ build_libidn2() {
 }
 
 build_cmark() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/commonmark/cmark.git cmark
   cd cmark
     mkdir -pv build
@@ -7251,6 +7595,7 @@ build_cmark() {
 }
 
 build_xz() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://git.tukaani.org/xz.git xz
   cd xz
     generic_configure_make_install "--disable-nls"
@@ -7259,6 +7604,7 @@ build_xz() {
 }
 
 build_libjson() {
+  printf "%s\n" "${FUNCNAME[0]}"
 do_git_checkout https://github.com/json-c/json-c.git json-c #da76ee26e7977cc4d796ed8c7e263d95cd94a199
     cd json-c
 #    	apply_patch file://${top_dir}/json-c-control.patch
@@ -7271,6 +7617,7 @@ do_git_checkout https://github.com/json-c/json-c.git json-c #da76ee26e7977cc4d79
 }
 
 build_libMXF() {
+  printf "%s\n" "${FUNCNAME[0]}"
   #download_and_unpack_file http://sourceforge.net/projects/ingex/files/1.0.0/libMXF/libMXF-src-1.0.0.tgz "libMXF-src-1.0.0"
   #cd libMXF-src-1.0.0
   #apply_patch https://raw.githubusercontent.com/rdp/ffmpeg-windows-build-helpers/master/patches/libMXF.diff
@@ -7367,6 +7714,7 @@ build_imagemagick()
 }
 
 build_jpegxl() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://gitlab.com/wg1/jpeg-xl.git jpeg-xl
 	cd jpeg-xl
 		git submodule update --init --recursive
@@ -7381,6 +7729,7 @@ build_jpegxl() {
 }
 
 build_jasper() {
+  printf "%s\n" "${FUNCNAME[0]}"
   download_and_unpack_file https://www.ece.uvic.ca/~frodo/jasper/software/jasper-1.900.29.tar.gz jasper-1.900.29
   cd jasper-1.900.29
     apply_patch file://${top_dir}/jasper-dll.patch
@@ -7391,6 +7740,7 @@ build_jasper() {
   cd ..
 }
 build_graphicsmagick() {
+  printf "%s\n" "${FUNCNAME[0]}"
   local old_hg_version
   if [[ -d GM ]]; then
     cd GM
@@ -7429,6 +7779,7 @@ build_graphicsmagick() {
 }
 
 build_freeglut() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	download_and_unpack_file https://downloads.sourceforge.net/project/freeglut/freeglut/3.2.2/freeglut-3.2.2.tar.gz freeglut-3.2.2
 	cd freeglut-3.2.2
 		export GNU_HOST=x86_64-w64-mingw32
@@ -7439,6 +7790,7 @@ build_freeglut() {
 }
 
 build_graphicsmagicksnapshot() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	# This retrieves the namne of the first .xz file, which is usually the most recent snapshot.
 #  export gm_filename=`curl -s ftp://ftp.icm.edu.pl/pub/unix/graphics/GraphicsMagick/snapshots/ --stderr - | grep tar\.xz | awk '{print $9}' | tail -n 1`
 #  export gm_directory=${gm_filename%.tar.xz}
@@ -7485,6 +7837,7 @@ build_graphicsmagicksnapshot() {
 }
 
 build_yamlcc() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/jbeder/yaml-cpp.git yaml-cpp release-0.5.3
 	cd yaml-cpp
 		apply_patch file://${top_dir}/yamlcpp.patch
@@ -7496,6 +7849,7 @@ build_yamlcc() {
 }
 
 build_tinyxml() {
+  printf "%s\n" "${FUNCNAME[0]}"
 download_and_unpack_file https://downloads.sourceforge.net/project/tinyxml/tinyxml/2.6.2/tinyxml_2_6_2.tar.gz tinyxml
 	cd tinyxml
 		cp ${top_dir}/tinyxml-CMakeLists.txt CMakeLists.txt
@@ -7507,6 +7861,7 @@ download_and_unpack_file https://downloads.sourceforge.net/project/tinyxml/tinyx
 }
 
 build_pystring() {
+  printf "%s\n" "${FUNCNAME[0]}"
     do_git_checkout https://github.com/imageworks/pystring pystring
     cd pystring
         generic_meson_ninja_install
@@ -7514,6 +7869,7 @@ build_pystring() {
 }
 
 build_ocio() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	#download_and_unpack_file https://github.com/AcademySoftwareFoundation/OpenColorIO/archive/v1.1.1.tar.gz OpenColorIO-1.1.1
 download_and_unpack_file http://github.com/AcademySoftwareFoundation/OpenColorIO/archive/v2.5.2.tar.gz OpenColorIO-2.5.2
 	cd OpenColorIO-2.5.2
@@ -7529,6 +7885,7 @@ download_and_unpack_file http://github.com/AcademySoftwareFoundation/OpenColorIO
 }
 
 build_yamlcpp() {
+  printf "%s\n" "${FUNCNAME[0]}"
     do_git_checkout https://github.com/jbeder/yaml-cpp yaml-cpp
     cd yaml-cpp
         do_cmake . "-DYAML_CPP_BUILD_TESTS=OFF"
@@ -7538,6 +7895,7 @@ build_yamlcpp() {
 }
 
 build_otio() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/PixarAnimationStudios/OpenTimelineIO.git OpenTimelineIO main # 5aa24fbe89d615448876948fe4b4900455c9a3e8
 	cd OpenTimelineIO
 #		apply_patch file://${top_dir}/opentime.patch
@@ -7548,6 +7906,7 @@ build_otio() {
 }
 
 build_GLM() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	download_and_unpack_file https://github.com/g-truc/glm/archive/0.9.9.7.tar.gz glm-0.9.9.7
 	cd glm-0.9.9.7
 	cp -rv glm ${mingw_w64_x86_64_prefix}/include/
@@ -7555,6 +7914,7 @@ build_GLM() {
 }
 
 build_GLFW() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	download_and_unpack_file https://github.com/glfw/glfw/archive/3.3.2.tar.gz glfw-3.3.2
 	cd glfw-3.3.2
 		do_cmake "-DCMAKE_VERBOSE_MAKEFILE=ON"
@@ -7564,6 +7924,7 @@ build_GLFW() {
 	cp -v ${mingw_w64_x86_64_prefix}/lib/libglfw3dll.a ${mingw_w64_x86_64_prefix}/lib/libglfw3.a
 }
 build_picoJSON() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/kazuho/picojson.git picojson
 	cd picojson
 		mkdir -pv ${mingw_w64_x86_64_prefix}/include/picojson/
@@ -7572,6 +7933,7 @@ build_picoJSON() {
 }
 
 build_get_iplayer() {
+  printf "%s\n" "${FUNCNAME[0]}"
   # This isn't really "building" - just downloading the latest Perl script from Github
   # Don't forget - you MUST have a working Perl interpreter to run this program.
   # Note that this is the development version, that closely tracks the developers' work on changes
@@ -7580,6 +7942,7 @@ build_get_iplayer() {
 }
 
 build_libdecklink() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #  if [[ ! -f $mingw_w64_x86_64_prefix/include/DeckLinkAPI_i.c ]]; then
   cp -v ${top_dir}/DeckLinkAPI.h $mingw_w64_x86_64_prefix/include/DeckLinkAPI.h  || exit 1
   cp -v ${top_dir}/DeckLinkAPI_i.c $mingw_w64_x86_64_prefix/include/DeckLinkAPI_i.c  || exit 1
@@ -7594,6 +7957,7 @@ build_libdecklink() {
 }
 
 build_libklvanc() {
+  printf "%s\n" "${FUNCNAME[0]}"
     do_git_checkout https://github.com/stoth68000/libklvanc.git libklvanc
     cd libklvanc
         rm autogen.sh
@@ -7603,6 +7967,7 @@ build_libklvanc() {
 }
 
 build_ffmpegnv() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/FFmpeg/nv-codec-headers.git nv-codec-headers
   cd nv-codec-headers
 #    sed -i.bak "s!PREFIX = /usr/local!PREFIX = ${mingw_w64_x86_64_prefix}!" Makefile
@@ -7612,6 +7977,7 @@ build_ffmpegnv() {
 }
 
 build_avisynthplus() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/AviSynth/AviSynthPlus.git AviSynthPlus #a8c863005d8e0cd7b8f74932df1533ded0b7280b
 	cd AviSynthPlus
 #		apply_patch file://${top_dir}/avisynthplus-memcpy.patch
@@ -7625,6 +7991,7 @@ build_avisynthplus() {
 }
 
 build_libopenvino() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/openvinotoolkit/openvino.git openvino
 	cd openvino
 		git submodule update --init --recursive
@@ -7637,6 +8004,7 @@ build_libopenvino() {
 }
 
 build_liblensfun() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/lensfun/lensfun.git lensfun 40cf31ae8c1b855ad4189395d5aba02e2a2d641a
 #    download_and_unpack_file https://github.com/lensfun/lensfun/archive/refs/tags/v0.3.4.tar.gz lensfun-0.3.4
 	cd lensfun
@@ -7652,10 +8020,12 @@ build_liblensfun() {
 }
 
 build_libproj() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	generic_download_and_install https://download.osgeo.org/proj/proj-7.2.1.tar.gz proj-7.2.1 "LIBS=-lcurl --with-curl=${mingw_w64_x86_64_prefix}/bin/curl-config"
 }
 
 build_libnova() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #	do_git_checkout https://git.code.sf.net/p/libnova/libnova libnova
 	download_and_unpack_file http://deb.debian.org/debian/pool/main/libn/libnova/libnova_0.16.orig.tar.xz libnova
 	cd libnova
@@ -7665,6 +8035,7 @@ build_libnova() {
 }
 
 build_xygrib() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/opengribs/XyGrib.git XyGrib
 	cd XyGrib
 		apply_patch file://${top_dir}/xygrib-mingw.patch
@@ -7677,6 +8048,7 @@ build_xygrib() {
 }
 
 build_rabbitmq() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/alanxz/rabbitmq-c.git rabbitmq-c
 	cd rabbitmq-c
 #		apply_patch file://${top_dir}/rabbitmq-libs.patch
@@ -7689,6 +8061,7 @@ build_rabbitmq() {
 }
 
 build_rist() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://code.videolan.org/rist/librist.git librist # c917e970 #8f139809
 	cd librist
 #		apply_patch file://${top_dir}/librist-thread.patch
@@ -7697,6 +8070,7 @@ build_rist() {
 }
 
 build_srt() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	download_and_unpack_file https://github.com/Haivision/srt/archive/refs/tags/v1.4.2.tar.gz srt-1.4.2
 	cd srt-1.4.2
 		apply_patch file://${top_dir}/srt-limits.patch
@@ -7706,6 +8080,7 @@ build_srt() {
 }
 
 build_libvmaf() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/Netflix/vmaf.git vmaf
 	cd vmaf/libvmaf
 		generic_meson_ninja_install
@@ -7713,10 +8088,12 @@ build_libvmaf() {
 }
 
 build_swig() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	generic_download_and_install http://prdownloads.sourceforge.net/swig/swig-4.0.2.tar.gz swig-4.0.2
 }
 
 build_libposixrandom() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/Warblefly/libPosixRandom libPosixRandom
 	cd libPosixRandom
 		do_cmake
@@ -7726,6 +8103,7 @@ build_libposixrandom() {
 }
 
 build_eccodes() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/ecmwf/ecbuild ecbuild
 	export old_path=${PATH}
 	export PATH=${top_dir}/sandbox/x86_64/ecbuild/bin:${PATH}
@@ -7744,6 +8122,7 @@ build_eccodes() {
 }
 
 build_cdo() {
+  printf "%s\n" "${FUNCNAME[0]}"
 #	download_and_unpack_file https://code.mpimet.mpg.de/attachments/download/24638/cdo-1.9.10.tar.gz cdo-1.9.10
 	download_and_unpack_file https://code.mpimet.mpg.de/attachments/download/25921/cdo-2.0.0rc3.tar.gz cdo-2.0.0rc3
 	cd cdo-2.0.0rc3
@@ -7765,6 +8144,7 @@ build_cdo() {
 }
 
 build_uavs3d() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/uavs3/uavs3d.git uavs3d
 	cd uavs3d
 		do_cmake .
@@ -7773,6 +8153,7 @@ build_uavs3d() {
 }
 
 build_libjxl() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/libjxl/libjxl.git libjxl v0.11.2
 	cd libjxl
 		do_cmake . "-DBUILD_TESTING=OFF -DJPEGXL_ENABLE_BENCHMARK=OFF -DPROVISION_DEPENDENCIES=ON"
@@ -7783,6 +8164,7 @@ build_libjxl() {
 
 
 build_librsvg() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	download_and_unpack_file https://github.com/GNOME/librsvg/archive/refs/tags/2.50.3.tar.gz librsvg-2.50.3
 	cd librsvg-2.50.3
 		export RUST_TARGET=x86_64-uwp-windows-gnu
@@ -7793,6 +8175,7 @@ build_librsvg() {
 }
 
 build_whisper() {
+  printf "%s\n" "${FUNCNAME[0]}"
   do_git_checkout https://github.com/ggml-org/whisper.cpp.git whisper.cpp
   cd whisper.cpp
     sh ./models/download-ggml-model.sh large-v3-turbo
@@ -7817,6 +8200,7 @@ build_whisper() {
 }
 
 build_ffmpeg() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/FFmpeg/FFmpeg.git ffmpeg_git # e645a1ddb90a863e129108aad9aa7e2d417f3615 #912f125c4224da6c6b07e53b1c0d3fbdb429a989 #57b5ec6ba7df442caebc401c4a7ef3ebc066b519 #4ff73add5dbe6c319d693355be44df2e17a0b8bf #05c9f6f4ef818cf1e7fdef8e118c9497e58326af #  b06082d1d5d6eeed5f477456beba087dcf9432bc
 	local standard_options="--prefix=$mingw_w64_x86_64_prefix --logfile=/dev/tty"
 	local licensing_options="--enable-nonfree --enable-version3 --enable-gpl"
@@ -7848,6 +8232,7 @@ build_ffmpeg() {
 }
 
 build_oneVPL() {
+  printf "%s\n" "${FUNCNAME[0]}"
 	download_and_unpack_file https://github.com/intel/libvpl/archive/refs/tags/v2023.3.1.tar.gz libvpl-2023.3.1
 	cd libvpl-2023.3.1
 		apply_patch file://${top_dir}/vpl-pkgconfig.patch
@@ -7861,6 +8246,7 @@ build_oneVPL() {
 }
 
 build_dvdstyler() {
+  printf "%s\n" "${FUNCNAME[0]}"
   generic_download_and_install http://sourceforge.net/projects/dvdstyler/files/dvdstyler-devel/3.0b1/DVDStyler-3.0b1.tar.bz2 DVDStyler-3.0b1 "DVDAUTHOR_PATH=${mingw_w64_x86_64_prefix}/bin/dvdauthor.exe FFMPEG_PATH=${mingw_w64_x86_64_prefix}/bin/ffmpeg.exe --with-wx-config=${mingw_w64_x86_64_prefix}/bin/wx-config"
   cd DVDStyler-3.0b1
 
@@ -7868,6 +8254,7 @@ build_dvdstyler() {
 }
 
 build_NDI_headers() {
+  printf "%s\n" "${FUNCNAME[0]}"
     cd ${mingw_w64_x86_64_prefix}
       tar xvvf ${top_dir}/NDI-NewTek.tar.xz
     cd -
@@ -7888,6 +8275,7 @@ find_all_build_exes() {
 }
 
 build_dependencies() {
+  printf "%s\n" "${FUNCNAME[0]}"
   echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" # debug
   build_meson_cross
   # build_win32_pthreads # vpx etc. depend on this--provided by the compiler build script now, so shouldn't have to build our own
@@ -8217,6 +8605,7 @@ build_dependencies() {
 }
 
 build_apps() {
+  printf "%s\n" "${FUNCNAME[0]}"
   # now the things that use the dependencies...
 #  build_less
 #  build_coreutils
