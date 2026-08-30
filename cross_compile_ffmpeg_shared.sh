@@ -2166,18 +2166,19 @@ build_libdvdread() {
   printf "%s\n" "${FUNCNAME[0]}"
   build_libdvdcss
 #  do_git_checkout https://code.videolan.org/videolan/libdvdread.git libdvdread
-  download_and_unpack_file https://download.videolan.org/pub/videolan/libdvdread/6.1.3/libdvdread-6.1.3.tar.bz2 libdvdread-6.1.3
-  cd libdvdread-6.1.3
+  download_and_unpack_file https://download.videolan.org/pub/videolan/libdvdread/7.1.1/libdvdread-7.1.1.tar.xz libdvdread-7.1.1
+  cd libdvdread-7.1.1
   # Need this to help libtool not object
-  sed -i.bak 's/libdvdread_la_LDFLAGS = -version-info $(DVDREAD_LTVERSION)/libdvdread_la_LDFLAGS = -version-info $(DVDREAD_LTVERSION) -no-undefined/' Makefile.am
+#  sed -i.bak 's/libdvdread_la_LDFLAGS = -version-info $(DVDREAD_LTVERSION)/libdvdread_la_LDFLAGS = -version-info $(DVDREAD_LTVERSION) -no-undefined/' Makefile.am
 #  apply_patch file://${top_dir}/libdvdread.patch
-  rm -v aclocal.m4
-  autoreconf -vfi
-  generic_configure "--with-libdvdcss CFLAGS=-DHAVE_DVDCSS_DVDCSS_H LDFLAGS=-ldvdcss" # vlc patch: "--enable-libdvdcss" # XXX ask how I'm *supposed* to do this to the dvdread peeps [svn?]
+#  rm -v aclocal.m4
+#  autoreconf -vfi
+#  generic_configure "--with-libdvdcss CFLAGS=-DHAVE_DVDCSS_DVDCSS_H LDFLAGS=-ldvdcss" # vlc patch: "--enable-libdvdcss" # XXX ask how I'm *supposed* to do this to the dvdread peeps [svn?]
   #apply_patch https://raw.githubusercontent.com/rdp/ffmpeg-windows-build-helpers/master/patches/dvdread-win32.patch # has been reported to them...
-  do_make_install
+#  do_make_install
+   generic_meson_ninja_install -Dlibdvdcss=enabled
   #sed -i "s/-ldvdread.*/-ldvdread -ldvdcss/" $mingw_w64_x86_64_prefix/bin/dvdread-config # ??? related to vlc patch, above, probably
-  sed -i.bak 's/-ldvdread.*/-ldvdread -ldvdcss/' "$PKG_CONFIG_PATH/dvdread.pc"
+#  sed -i.bak 's/-ldvdread.*/-ldvdread -ldvdcss/' "$PKG_CONFIG_PATH/dvdread.pc"
 
   cd ..
 }
@@ -2185,15 +2186,16 @@ build_libdvdread() {
 build_libdvdnav() {
   printf "%s\n" "${FUNCNAME[0]}"
 #  do_git_checkout https://code.videolan.org/videolan/libdvdnav.git libdvdnav
-  download_and_unpack_file https://download.videolan.org/pub/videolan/libdvdnav/6.0.1/libdvdnav-6.0.1.tar.bz2 libdvdnav-6.0.1
-  cd libdvdnav-6.0.1
+  download_and_unpack_file https://download.videolan.org/pub/videolan/libdvdnav/7.0.0/libdvdnav-7.0.0.tar.xz libdvdnav-7.0.0
+  cd libdvdnav-7.0.0
  # if [[ ! -f ./configure ]]; then
  #   ./autogen.sh
   #fi
-  sed -i.bak 's/libdvdnav_la_LDFLAGS = /libdvdnav_la_LDFLAGS = -no-undefined /' Makefile.am
-  autoreconf -vfi
-  generic_configure
-  do_make_install
+#  sed -i.bak 's/libdvdnav_la_LDFLAGS = /libdvdnav_la_LDFLAGS = -no-undefined /' Makefile.am
+#  autoreconf -vfi
+#  generic_configure
+#  do_make_install
+  generic_meson_ninja_install
 
   cd ..
 }
@@ -5985,8 +5987,8 @@ build_mjpegtools() {
 build_file() {
   printf "%s\n" "${FUNCNAME[0]}"
   # Also contains libmagic
-  do_git_checkout https://github.com/file/file.git file_native # 218fdf813fd5ccecbb8887a1b62509cd1c6dd3a1 # c019f3c109cdf6606be265b8039f002d81d996bb #3dc9066f0b59513951626d8596ea67e23a0fd42e #13ba1a3639f7a40f3bffbabf2737cbdde314faf4
-  do_git_checkout https://github.com/file/file.git file # 218fdf813fd5ccecbb8887a1b62509cd1c6dd3a1 # c019f3c109cdf6606be265b8039f002d81d996bb # 850e148d088922878f1e5f6b2e3a9c01f75d21f3 #3dc9066f0b59513951626d8596ea67e23a0fd42e #13ba1a3639f7a40f3bffbabf2737cbdde314faf4
+  do_git_checkout https://github.com/file/file.git file_native 1d7c7c070d80e46914040b9991505834faefe503 # 218fdf813fd5ccecbb8887a1b62509cd1c6dd3a1 # c019f3c109cdf6606be265b8039f002d81d996bb #3dc9066f0b59513951626d8596ea67e23a0fd42e #13ba1a3639f7a40f3bffbabf2737cbdde314faf4
+  do_git_checkout https://github.com/file/file.git file 1d7c7c070d80e46914040b9991505834faefe503 # 218fdf813fd5ccecbb8887a1b62509cd1c6dd3a1 # c019f3c109cdf6606be265b8039f002d81d996bb # 850e148d088922878f1e5f6b2e3a9c01f75d21f3 #3dc9066f0b59513951626d8596ea67e23a0fd42e #13ba1a3639f7a40f3bffbabf2737cbdde314faf4
   # We use the git version of file and libmagic, which is updated more
   # often than distributions track. File requires its own binary to compile
   # its list of magic numbers. Therefore, because we are cross-compiling,
