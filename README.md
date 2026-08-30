@@ -49,8 +49,7 @@ deb-src http://deb.debian.org/debian bullseye-backports main contrib non-free
 4. Now, install some packages using the usual package manager.
 
 ```
-apt install git gcc-13 g++-13 make libgmp-dev libmpfr-dev texinfo bison flex wget lzip xz-utils zlib1g-dev curl automake cmake autopoint libtool unzip bzip2 meson pkg-config gettext subversion
-yasm nasm libtool-bin mm-common python-is-python3 libglib2.0-dev-bin libxml2-utils autoconf-archive gperf libglib2.0-dev gtk-doc-tools gtk-update-icon-cache python3-requests zip qt6-base-dev qt6-shadertools-dev qt6-tools-dev nsis
+apt install git gcc-13 g++-13 make libgmp-dev libmpfr-dev texinfo bison flex wget lzip xz-utils zlib1g-dev curl automake cmake autopoint libtool unzip bzip2 meson pkg-config gettext subversion yasm nasm libtool-bin mm-common python-is-python3 libglib2.0-dev-bin libxml2-utils autoconf-archive gperf libglib2.0-dev gtk-doc-tools gtk-update-icon-cache python3-requests zip qt6-base-dev qt6-shadertools-dev qt6-tools-dev nsis help2man
 ```
 
 4.5 You'll need automake-1.17 from here, too: http://http.us.debian.org/debian/pool/main/a/automake-1.17/automake_1.17-4_all.deb
