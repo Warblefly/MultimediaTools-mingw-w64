@@ -2850,8 +2850,9 @@ build_libargon2() {
 }
 
 build_libfz-ssh () {
-    download_and_unpack_file http://deb.debian.org/debian/pool/main/f/fzssh/fzssh_1.3.0.orig.tar.xz fzssh-1.3.0
-    cd fzssh-1.3.0
+    printf "%s\n" "${FUNCNAME[0]}"
+    download_and_unpack_file http://deb.debian.org/debian/pool/main/f/fzssh/fzssh_1.4.0.orig.tar.xz fzssh-1.4.0
+    cd fzssh-1.4.0
         generic_meson_ninja_install
     cd ..
 }
@@ -4605,7 +4606,7 @@ build_mediainfo() {
             do_make
             do_make_install
         cd ..
-        do_git_checkout https://github.com/MediaArea/MediaInfo.git MediaInfo
+        do_git_checkout https://github.com/MediaArea/MediaInfo.git MediaInfo b19c80e596959325d639aead4f37e5cc0f65b92f
         cd MediaInfo
           apply_patch_p1 file://${top_dir}/001-missing-rc-mingw.patch
           # Patch refers to outdated directory which we must link to
