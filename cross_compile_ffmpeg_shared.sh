@@ -1837,6 +1837,29 @@ build_libcheck() {
   generic_download_and_install https://github.com/libcheck/check/archive/refs/tags/0.15.2.tar.gz check-0.15.2 "--disable-build-docs"
 }
 
+build_nghttp2() {
+    printf "%s\n" "${FUNCNAME[0]}"
+    do_git_checkout https://github.com/nghttp2/nghttp2.git nghttp2
+    cd nghttp2
+        git submodule update --init
+        apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-nghttp2/001-fix-pc-prefix.patch
+        do_cmake "-DWITH_JEMALLOC=OFF"
+        do_make
+        do_make_install
+    cd ..
+}
+
+build_nghttp3() {
+    printf "%s\n" "${FUNCNAME[0]}"
+    do_git_checkout https://github.com/ngtcp2/nghttp3.git nghttp3
+    cd nghttp3
+        git submodule update --init
+        do_cmake "-DENABLE_LIB_ONLY=ON"
+        do_make
+        do_make_install
+    cd ..
+}
+
 build_gcal() {
   printf "%s\n" "${FUNCNAME[0]}"
     do_git_checkout https://github.com/gnu-mirror-unofficial/gcal.git gcal
@@ -3059,9 +3082,9 @@ build_libxslt() {
 
 build_libxmlsec() {
   printf "%s\n" "${FUNCNAME[0]}"
-  download_and_unpack_file https://ftp.uni-erlangen.de/macports/distfiles/xmlsec-1.2/xmlsec1-1.2.42.tar.gz xmlsec1-1.2.42
+  download_and_unpack_file https://ftp.uni-erlangen.de/macports/distfiles/xmlsec/xmlsec1-1.3.13.tar.gz xmlsec1-1.3.13
 #  do_git_checkout https://github.com/lsh123/xmlsec.git xmlsec
-  cd xmlsec1-1.2.42
+  cd xmlsec1-1.3.13
 #    apply_patch file://${top_dir}/xmlsec1-x509.patch
 #    apply_patch file://${top_dir}/xmlsec_include_openssl_last.patch
     apply_patch_p1 https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-xmlsec/01-include-openssl-last.patch
@@ -3323,11 +3346,11 @@ build_p11kit() {
 
 build_libidn() {
   printf "%s\n" "${FUNCNAME[0]}"
-  generic_download_and_install https://ftp.gnu.org/gnu/libidn/libidn-1.41.tar.gz libidn-1.41
-# do_git_checkout https://github.com/libidn/libidn2.git libidn2 # 301a43b5ac41f0fbea41d70444c0942ae93624cd
+  generic_download_and_install https://www.mirrorservice.org/sites/ftp.gnu.org/gnu/libidn/libidn-1.44.tar.gz libidn-1.44
+  generic_download_and_install https://www.mirrorservice.org/sites/ftp.gnu.org/gnu/libidn/libidn2-2.3.8.tar.gz libidn2-2.3.8
+#  do_git_checkout https://github.com/libidn/libidn2.git libidn2 # 301a43b5ac41f0fbea41d70444c0942ae93624cd
 #  cd libidn2
 #    generic_configure_make_install "--disable-doc"
-
 #  cd ..
 }
 
@@ -3430,8 +3453,8 @@ build_bzlib2() {
 
 build_zlib() {
   printf "%s\n" "${FUNCNAME[0]}"
-  download_and_unpack_file https://www.zlib.net/zlib-1.3.2.tar.xz zlib-1.3.2
-  cd zlib-1.3.2
+  download_and_unpack_file https://www.zlib.net/zlib-1.4.tar.xz zlib-1.4
+  cd zlib-1.4
     export mingw_w64_x86_64_prefix=${mingw_w64_x86_64_prefix}
     echo "PKG_CONFIG_PATH at this point is ${PKG_CONFIG_PATH}"
     apply_patch file://${top_dir}/zlib-Makefile-gcc.patch
@@ -3515,9 +3538,9 @@ build_openssl11() {
 #  cpu_count=$original_cpu_count
 		#unset cross
 #	cd ..
-	download_and_unpack_file https://github.com/openssl/openssl/releases/download/openssl-3.4.1/openssl-3.4.1.tar.gz openssl-3.4.1
-	cd openssl-3.4.1
-		do_configure "--prefix=${mingw_w64_x86_64_prefix} --libdir=lib zlib-dynamic shared enable-camellia enable-idea enable-mdc2 enable-rc5 enable-rfc3779 enable-capieng mingw64" ./Configure
+	download_and_unpack_file https://github.com/openssl/openssl/releases/download/openssl-3.6.5/openssl-3.6.5.tar.gz openssl-3.6.5
+	cd openssl-3.6.5
+		do_configure "--prefix=${mingw_w64_x86_64_prefix} --libdir=lib zlib-dynamic shared enable-camellia enable-idea enable-mdc2 enable-rc5 enable-rfc3779 enable-capieng mingw64 enable-quic" ./Configure
 		do_make
 		do_make "install_sw"
 		unset CC
@@ -4594,7 +4617,7 @@ build_mediainfo() {
         do_git_checkout https://github.com/MediaArea/ZenLib.git ZenLib
         cd ZenLib
           apply_patch file://${top_dir}/ZenLib-shared.patch
-          apply_patch file://${top_dir}/ZenLib-pkgconfig.patch
+#          apply_patch file://${top_dir}/ZenLib-pkgconfig.patch
           do_cmake "-DBUILD_SHARED_LIBS=ON" Project/CMake
           do_make
           do_make_install
@@ -5410,18 +5433,20 @@ build_ngtcp2() {
   printf "%s\n" "${FUNCNAME[0]}"
     do_git_checkout https://github.com/ngtcp2/ngtcp2.git ngtcp2
     cd ngtcp2
-        do_cmake "-DENABLE_GNUTSL=ON -DENABLE_OPENSSL=ON -DCMAKE_DLL_NAME_WITH_SOVERSION=ON"
-        do_cmake_install
+        git submodule update --init
+        do_cmake "-DENABLE_GNUTLS=ON -DENABLE_OPENSSL=ON -DCMAKE_DLL_NAME_WITH_SOVERSION=ON"
+        do_make_install
     cd ..
 }
 
 build_curl() {
   printf "%s\n" "${FUNCNAME[0]}"
 #  generic_download_and_install http://curl.haxx.se/download/curl-7.51.0.tar.bz2 curl-7.51.0 "--enable-ipv6 --with-librtmp --with-ca-fallback"
-  do_git_checkout https://github.com/curl/curl.git curl # e7f9c904ca20a91a0c87f9ca5812c9ac0307125d # 9655474548b3cefdb2b1d4504c82b44cc01a1861
+  export PKG_CONFIG_PATH=${mingw_w64_x86_64_prefix}/lib/pkgconfig
+  do_git_checkout https://github.com/curl/curl.git curl  # e7f9c904ca20a91a0c87f9ca5812c9ac0307125d # 9655474548b3cefdb2b1d4504c82b44cc01a1861
   cd curl
 #    apply_patch file://${top_dir}/curl.patch
-    do_cmake "-DCURL_DEFAULT_SSL_BACKEND=openssl -DCURL_USE_OPENSSL=ON -DCURL_CA_BUNDLE=${mingw_w64_x86_64_prefix}/etc/ssl/certs/ca-certificates.crt -DUSE_NGHTTP2=ON -DUSE_NGTCP2=OFF -DCURL_WINDOWS_SSPI=ON -DCURL_BROTLI=ON -DCURL_ZSTD=ON -DCURL_USE_LIBSSH2=ON"
+    do_cmake "-DCURL_DEFAULT_SSL_BACKEND=openssl -DCURL_USE_OPENSSL=ON -DCURL_CA_BUNDLE=${mingw_w64_x86_64_prefix}/etc/ssl/certs/ca-certificates.crt -DUSE_NGHTTP2=ON -DUSE_NGTCP2=ON -DCURL_WINDOWS_SSPI=ON -DCURL_BROTLI=ON -DCURL_ZSTD=ON -DCURL_USE_LIBSSH2=ON"
     do_make_install
 #    generic_configure_make_install "--enable-ipv6 --with-librtmp --with-ca-fallback --with-gnutls"
 
@@ -5431,7 +5456,7 @@ build_curl() {
 build_curl_early() {
   printf "%s\n" "${FUNCNAME[0]}"
 #  generic_download_and_install http://curl.haxx.se/download/curl-7.51.0.tar.bz2 curl-7.51.0 "--enable-ipv6 --with-librtmp --with-ca-fallback"
-  do_git_checkout https://github.com/curl/curl.git curl_early #e7f9c904ca20a91a0c87f9ca5812c9ac0307125d
+  do_git_checkout https://github.com/curl/curl.git curl_early  #e7f9c904ca20a91a0c87f9ca5812c9ac0307125d
   cd curl_early
   # Get all the build OS certificates and use them for us. Not sure what else to do.
 #   apply_patch file://${top_dir}/curl.patch
@@ -7599,8 +7624,9 @@ build_cmark() {
 
 build_xz() {
   printf "%s\n" "${FUNCNAME[0]}"
-  do_git_checkout https://git.tukaani.org/xz.git xz
-  cd xz
+  download_and_unpack_file https://github.com/tukaani-project/xz/releases/download/v5.8.4/xz-5.8.4.tar.xz xz-5.8.4
+  # do_git_checkout https://git.tukaani.org/xz.git xz
+  cd xz-5.8.4
     generic_configure_make_install "--disable-nls"
 
   cd ..
@@ -8205,19 +8231,22 @@ build_whisper() {
 build_ffmpeg() {
   printf "%s\n" "${FUNCNAME[0]}"
 	do_git_checkout https://github.com/FFmpeg/FFmpeg.git ffmpeg_git # e645a1ddb90a863e129108aad9aa7e2d417f3615 #912f125c4224da6c6b07e53b1c0d3fbdb429a989 #57b5ec6ba7df442caebc401c4a7ef3ebc066b519 #4ff73add5dbe6c319d693355be44df2e17a0b8bf #05c9f6f4ef818cf1e7fdef8e118c9497e58326af #  b06082d1d5d6eeed5f477456beba087dcf9432bc
+    export PKG_CONFIG_PATH="${mingw_w64_x86_64_prefix}/lib/pkgconfig"
+    export PKG_CONFIG_LIBDIR="${mingw_w64_x86_64_prefix}/lib/pkgconfig"
 	local standard_options="--prefix=$mingw_w64_x86_64_prefix --logfile=/dev/tty"
 	local licensing_options="--enable-nonfree --enable-version3 --enable-gpl"
 	local configuration_options="--disable-static --enable-shared --enable-runtime-cpudetect --enable-gray --disable-w32threads"
-	local component_options="--enable-filter=frei0r --enable-decoder=aac" # fdk_aac gets much decoding wrong
-	local library_options="--enable-whisper --enable-libsvtav1 --enable-avisynth --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdc1394 --enable-libfdk-aac --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-gnutls --enable-libgsm --enable-libilbc --enable-libjxl --enable-libklvanc --enable-liblc3 --enable-liblensfun --enable-libmodplug --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopencv --enable-libopenmpt --enable-libopus --enable-librabbitmq --enable-librist --enable-librubberband --enable-librtmp --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libtesseract --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxvid --enable-libxml2 --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 --enable-decklink --enable-libmysofa --enable-opengl --enable-vulkan --enable-opencl --enable-libharfbuzz --enable-libdav1d --enable-libplacebo --enable-libxeve --enable-libxevd --enable-libopencolorio"
+	local component_options="--enable-filter=frei0r" # " --enable-decoder=aac" # fdk_aac gets much decoding wrong
+	local library_options="--enable-whisper --enable-libsvtav1 --enable-avisynth --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdc1394 --enable-libfdk-aac --enable-libfdk-xhe-aac --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-gnutls --enable-libgsm --enable-libilbc --enable-libjxl --enable-libklvanc --enable-liblc3 --enable-liblensfun --enable-libmodplug --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopencv --enable-libopenmpt --enable-libopus --enable-librabbitmq --enable-librist --enable-librubberband --enable-librtmp --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libtesseract --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxvid --enable-libxml2 --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 --enable-decklink --enable-libmysofa --enable-vulkan --enable-opencl --enable-libharfbuzz --enable-libdav1d --enable-libplacebo --enable-libxeve --enable-libxevd --enable-libopencolorio"
 	local hardware_options="--disable-libmfx --enable-libvpl"
-	local toolchain_options="--arch=x86_64 --cross-prefix=$cross_prefix --enable-cross-compile --target-os=mingw32 --extra-version=Compiled_by_John_Warburton --enable-pic --nvccflags=-I/usr/local/cuda-11.4/targets/x86_64-linux/include --extra-cflags=-fpermissive"
+	local toolchain_options="--arch=x86_64 --cross-prefix=${cross_prefix} --enable-cross-compile --target-os=mingw32 --extra-version=Compiled_by_John_Warburton --enable-pic --nvccflags=-I/usr/local/cuda-11.4/targets/x86_64-linux/include --extra-cflags=-fpermissive"
 	local developer_options="--disable-debug --enable-stripping"
 	cd ffmpeg_git
-
-        cd tools
-            ./merge-all-source-plugins source-plugins.txt
-        cd ..
+#        apply_patch_p1 file://${top_dir}/ffmpeg-libpostproc.patch
+#
+#        cd tools
+#            ./merge-all-source-plugins source-plugins.txt
+#        cd ..
 
 		do_configure "${standard_options} ${licensing_options} ${configuration_options} ${component_options} ${library_options} ${hardware_options} ${toolchain_options} ${developer_options}"
 #  rm -f */*.a */*.dll *.exe # just in case some dependency library has changed, force it to re-link even if the ffmpeg source hasn't changed...
@@ -8598,7 +8627,9 @@ build_dependencies() {
   build_srt
   build_libvmaf
   build_libcheck
-#  build_ngtcp2
+  build_nghttp2
+  build_ngtcp2
+  build_nghttp3
 #  build_swig
   #build_libposixrandom
 #  build_eccodes

@@ -1,0 +1,20 @@
+diff --git a/configure b/configure
+--- a/configure
++++ b/configure
+@@ -4342,5 +4342,7 @@ avformat_deps="avcodec avutil"
+ avformat_suggest="libm network zlib stdatomic"
+ avutil_suggest="amf clock_gettime ffnvcodec gcrypt libm zlib libdrm libmfx opencl openssl user32 vaapi vulkan videotoolbox corefoundation corevideo coremedia bcrypt stdatomic"
++postproc_deps="avutil gpl"
++postproc_suggest="libm stdatomic"
+ swresample_deps="avutil"
+ swresample_suggest="libm libsoxr stdatomic"
+ swscale_deps="avutil"
+@@ -7891,7 +7893,7 @@ check_disable_warning_headers()
+ EOF
+ 
+ # add some linker flags
+-check_ldflags -Wl,-rpath-link=:libswresample:libswscale:libavfilter:libavdevice:libavformat:libavcodec:libavutil
++check_ldflags -Wl,-rpath-link=:libpostproc:libswresample:libswscale:libavfilter:libavdevice:libavformat:libavcodec:libavutil
+ enabled rpath && add_ldexeflags -Wl,-rpath,$libdir && add_ldsoflags -Wl,-rpath,$libdir
+ test_ldflags -Wl,-Bsymbolic && append SHFLAGS -Wl,-Bsymbolic
+

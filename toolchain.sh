@@ -96,7 +96,7 @@ echo "GCC has arrived."
 cd gcc
 	echo "To build GCC, we need some accessories."
 	if [[ ! -f gcc_accessories_source ]]; then
-		wget --no-check-certificate https://gmplib.org/download/gmp/gmp-6.3.0.tar.lz || exit 1
+		wget --no-check-certificate https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.lz || exit 1
 		tar xvvf gmp-6.3.0.tar.lz && ln -sv gmp-6.3.0 gmp
 		wget https://ftp.gnu.org/gnu/mpfr/mpfr-4.2.2.tar.xz || exit 1
 		tar xvvf mpfr-4.2.2.tar.xz && ln -sv mpfr-4.2.2 mpfr
